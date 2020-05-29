@@ -180,13 +180,6 @@ class DatabaseHelper {
       whereArgs: [id],
     );    // Remove the User from the Database.
 
-    await db.delete(
-      TABLE_SCORE,
-      // Use a `where` clause to delete a specific user.
-      where: KEY_USER_ID + " = ?",
-      // Pass the User's id as a whereArg to prevent SQL injection.
-      whereArgs: [id],
-    );
   }
 
   // A method that retrieves all the users from the users table.
@@ -268,7 +261,7 @@ class DatabaseHelper {
     for (int i = 0; i < maps.length; i++) {
 
       if (score[i].userId == id) {
-        data.add(new Scores(score[i].scoreDate, score[i].scoreValue));
+        data.add(new Scores(score[i].userId, score[i].scoreId, score[i].activityId, score[i].scoreDate, score[i].scoreValue));
       }
 
     }
@@ -277,6 +270,33 @@ class DatabaseHelper {
     //return score[id];
   }
 
+  Future<void> updateScore(Score score) async {
+    // Get a reference to the database.
+    final db = await database;
+
+    // Update the given User.
+    await db.update(
+      TABLE_SCORE,
+      score.toMap(),
+      // Ensure that the User has a matching id.
+      where: KEY_USER_ID + " = ?",
+      // Pass the User's id as a whereArg to prevent SQL injection.
+      whereArgs: [score.userId],
+    );
+  }
+
+  Future<void> deleteScore(int idUser) async{
+    // Get a reference to the database.
+    final Database db = await database;
+
+    await db.delete(
+      TABLE_SCORE,
+      // Use a `where` clause to delete a specific user.
+      where: KEY_USER_ID + " = ?",
+      // Pass the User's id as a whereArg to prevent SQL injection.
+      whereArgs: [idUser],
+    );
+  }
 
   //END SCORE
 

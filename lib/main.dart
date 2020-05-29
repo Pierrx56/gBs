@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gbsalternative/AppLanguage.dart';
+import 'package:gbsalternative/LoadPage.dart';
 import 'Login.dart';
 
 void main() async {
@@ -14,8 +15,8 @@ void main() async {
     color: Colors.white,
     home: new SplashScreen(),
     routes: <String, WidgetBuilder>{
-      '/Login': (BuildContext context) => new MyApp(
-        appLanguage: appLanguage,
+      '/Login': (BuildContext context) => new LoadPage(
+        appLanguage: appLanguage, page: "login",
           ),
     },
   ));

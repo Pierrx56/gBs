@@ -1,13 +1,16 @@
 import 'package:flutter/widgets.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:gbsalternative/Menu.dart';
+import 'package:gbsalternative/Menu_bk.dart';
 import 'DatabaseHelper.dart';
 
 class Scores {
+  final int userId;
+  final int scoreId;
+  final int activityId;
   final String date;
   final int score;
 
-  Scores(this.date, this.score);
+  Scores(this.scoreId, this.activityId, this.userId, this.date, this.score);
 }
 
 class DrawCharts extends StatelessWidget {
@@ -22,11 +25,6 @@ class DrawCharts extends StatelessWidget {
   final List<Scores> data;
 
   DrawCharts({@required this.data});
-
-  Widget chartContainer = Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [Text('Chart Viewer')],
-  );
 
 /*
   /// Creates a [BarChart] with sample data and no transition.
@@ -61,8 +59,8 @@ class DrawCharts extends StatelessWidget {
       new charts.Series<Scores, String>(
         id: 'Scores',
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (Scores sales, _) => sales.date,
-        measureFn: (Scores sales, _) => sales.score,
+        domainFn: (Scores score, _) => score.date,
+        measureFn: (Scores score, _) => score.score,
         data: data,
       )
     ];

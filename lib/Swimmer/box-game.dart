@@ -1,41 +1,32 @@
-import 'dart:async';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
-
 import 'package:flame/components/component.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:gbsalternative/BluetoothSync.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
-import 'package:gbsalternative/MainTitle.dart';
-import 'package:gbsalternative/Menu.dart';
+import 'package:gbsalternative/Swimmer/Background.dart';
 import 'package:gbsalternative/Swimmer/WaterLines.dart';
-import 'package:path/path.dart';
-import 'Ui.dart';
 
 class BoxGame extends Game {
   Size screenSize;
   bool inTouch = false;
   Background background;
-  Close closeButton;
   DownLine downLine;
   UpLine upLine;
+  SpriteComponent player;
   double tileSize;
 
+  int score = 0;
   bool pauseGame = false;
   String swimPic;
   double creationTimer = 0.0;
+  double scoreTimer = 0.0;
   double tempPos = 0;
   int i = 0;
   int difficulte = 5;
-  SpriteComponent player;
 
+  double size = 230.0;
   List<String> tab = [
     'swimmer/swim0.png',
     'swimmer/swim1.png',
@@ -75,7 +66,6 @@ class BoxGame extends Game {
   void initialize() async {
     resize(await Flame.util.initialDimensions());
     background = Background(this);
-    closeButton = Close(this);
     downLine = DownLine(this);
     upLine = UpLine(this);
   }
@@ -88,12 +78,8 @@ class BoxGame extends Game {
 
     //String btData = _onDataReceiver();
 
-
     double screenCenterX = screenSize.width / 2;
     double screenCenterY = screenSize.height / 2;
-    Rect boxRect =
-    Rect.fromLTWH(screenCenterX - 75, screenCenterY - 75, 150, 150);
-    Paint boxPaint = Paint();
 
     /*
     if (hasWon) {
@@ -108,8 +94,9 @@ class BoxGame extends Game {
       //Background
       background.render(canvas);
 
+      /*
       //Close button
-      closeButton.render(canvas);
+      closeButton.render(canvas);*/
 
       canvas.save();
 
@@ -120,13 +107,14 @@ class BoxGame extends Game {
       upLine.render(canvas);
 
       //Nageur
-      player.render(canvas);
-
+      if (player != null) player.render(canvas);
     }
   }
 
   void update(double t) async {
     creationTimer += t;
+    scoreTimer += t;
+
     //Timer
     if (creationTimer >= 0.04) {
       if (i == 23)
@@ -140,22 +128,20 @@ class BoxGame extends Game {
 
       Sprite sprite = Sprite(swimPic);
 
-      const size = 230.0;
-      //player = AnimationComponent(size, size, new flanim.Animation.spriteList(sprites, stepTime: 0.01));
-
       player = SpriteComponent.fromSprite(
           size, size, sprite); // width, height, sprite
 
-      player.x = screenSize.width / 2;
+      player.x = screenSize.width / 2 - player.width / 2;
       //Définition des bords haut et bas de l'écran
+
       //Bas
-      if (tempPos >= screenSize.height - size/2) {
+      if (tempPos >= screenSize.height - size / 2) {
         player.y = tempPos;
       }
       //Haut
-      else if(tempPos < -size/2){
+      else if (tempPos < -size / 2) {
         print("SALUT " + player.y.toString());
-        tempPos = -size/2;
+        tempPos = -size / 2;
         player.y = tempPos;
       }
       //Sinon on fait descendre le nageur
@@ -168,6 +154,11 @@ class BoxGame extends Game {
       //add(component);
     }
 
+    //On incrémente le score tous les x secondes
+    if (scoreTimer >= 0.5) {
+      score++;
+      scoreTimer = 0.0;
+    }
 
     //print(getData());
 
@@ -194,7 +185,6 @@ class BoxGame extends Game {
     tileSize = screenSize.width / 9;
   }
 
-
   void onTapDown(TapDownDetails d) {
     double screenCenterX = screenSize.width / 2;
     double screenCenterY = screenSize.height / 2;
@@ -206,4 +196,7 @@ class BoxGame extends Game {
     }
   }
 
+  int getScore() {
+    return score;
+  }
 }

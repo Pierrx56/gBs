@@ -5,41 +5,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
+import 'package:gbsalternative/Menu_bk.dart';
+import 'package:gbsalternative/main.dart';
 import 'package:provider/provider.dart';
 
 import 'package:gbsalternative/AppLanguage.dart';
 import 'DatabaseHelper.dart';
 import 'Register.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
-
-class MyApp extends StatelessWidget {
-  final AppLanguage appLanguage;
-
-  MyApp({this.appLanguage});
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: appLanguage,
-      child: Consumer<AppLanguage>(builder: (context, model, child) {
-        return MaterialApp(
-          locale: model.appLocal,
-          supportedLocales: [
-            Locale('en', 'US'),
-            Locale('fr', 'FR'),
-          ],
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
-          home: Login(),
-        );
-      }),
-    );
-  }
-}
 
 class Login extends StatefulWidget {
   @override
@@ -68,6 +43,11 @@ class _Login extends State<Login> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -155,14 +135,28 @@ class LoginWidget extends StatelessWidget {
                           return GestureDetector(
                             onTap: () {
                               //db.deleteUser(item.id);
+/*                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Menu(
+                                            curUser: snapshot.data[index],
+                                            appLanguage: appLanguage,
+                                          )));*/
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => MainTitle(
+                                      builder: (context) => LoadPage(
+                                            user: snapshot.data[index],
+                                            appLanguage: appLanguage,
+                                            page: "mainTitle",
+                                            messageIn: "0",
+                                          )
+                                      /*MainTitle(
                                             userIn: snapshot.data[index],
                                             messageIn: 0,
                                             appLanguage: appLanguage,
-                                          )));
+                                          )*/
+                                      ));
                             },
                             child: new Container(
                               decoration: BoxDecoration(

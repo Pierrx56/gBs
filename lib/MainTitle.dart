@@ -6,12 +6,11 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothSync.dart';
+import 'package:gbsalternative/DrawCharts.dart';
+import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/ManageProfile.dart';
 
 import 'DatabaseHelper.dart';
-import 'Login.dart';
-import 'Menu.dart';
-import 'Register_bk.dart';
 
 class MainTitle extends StatefulWidget {
   final AppLanguage appLanguage;
@@ -19,11 +18,10 @@ class MainTitle extends StatefulWidget {
   final int messageIn;
 
   MainTitle({
-    Key key,
     @required this.appLanguage,
     @required this.userIn,
     @required this.messageIn,
-  }) : super(key: key);
+  });
 
   @override
   _MainTitle createState() => _MainTitle(appLanguage, userIn, messageIn);
@@ -39,6 +37,11 @@ class _MainTitle extends State<MainTitle> {
   AppLanguage appLanguage;
   User user;
   int message;
+
+  DatabaseHelper db = new DatabaseHelper();
+  bool stop = false;
+  String _information = 'No Information Yet';
+  List<Scores> data;
 
   //0:menu 1:settings 2:bluetooth
   static int defaultIndex = 2;
@@ -56,11 +59,13 @@ class _MainTitle extends State<MainTitle> {
     user = userIn;
     message = messageIn;
 
-    if (appLanguage != null)
-      menuPage = Menu(
-        curUser: user,
-        appLanguage: appLanguage,
-      );
+    //menuPage = menu();
+
+/*    menuPage = LoadPage(
+      appLanguage: appLanguage,
+      page: "menu",
+      user: user,
+    );*/
 
     settingsPage = ManageProfile(
       curUser: user,
@@ -68,8 +73,292 @@ class _MainTitle extends State<MainTitle> {
     bluetoothPage = BluetoothSync(
       curUser: user,
     );
-    loginPage = MyApp(
-      appLanguage: appLanguage,
+    /*
+    loginPage = LoadPage(
+      page: "login",
+    );*/
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    //db.deleteScore(user.userId);
+    getScores(user.userId);
+    super.initState();
+  }
+
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void getScores(int userId) async {
+    data = await db.getScore(userId);
+    if (data == null) {
+      getScores(userId);
+      stop = false;
+    } else if (!stop) {
+      setState(() {});
+      stop = true;
+    }
+  }
+
+  Widget menu() {
+    Size screenSize = MediaQuery.of(context).size;
+    int numberOfCard = 3;
+
+    double widthCard, heightCard;
+
+    print("id: " + user.userId.toString());
+
+    //TODO Fix language problem
+    var temp = AppLocalizations.of(context);
+
+    //return MenuUI(db, user, screenSize, appLanguage, data, numberOfCard);
+
+    return MaterialApp(
+      home: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: Row(
+            children: <Widget>[
+              Image.file(
+                new File(user.userPic),
+                height: screenSize.height * 0.12,
+              ),
+              Padding(
+                padding: EdgeInsets.all(10),
+              ),
+              temp != null
+                  ? Text(AppLocalizations.of(context).translate('bonjour') +
+                      user.userName)
+                  : Text("a"),
+            ],
+          ),
+          backgroundColor: Colors.blue,
+          actions: <Widget>[
+            FlatButton.icon(
+              icon: Icon(
+                Icons.power_settings_new,
+                color: Colors.white,
+              ),
+              label: temp != null
+                  ? Text(
+                      AppLocalizations.of(context).translate('deconnexion'),
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text("a"),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              splashColor: Colors.blue,
+              onPressed: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => LoadPage(
+                              appLanguage: appLanguage,
+                              messageIn: "deconnexion",
+                              page: "login",
+                            )));
+              },
+            ),
+          ],
+          leading: new Container(),
+        ),
+        body: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.all(10),
+                child: Row(
+                  children: <Widget>[
+                    SizedBox(
+                      width: screenSize.width / numberOfCard,
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 8,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: <Widget>[
+                              temp != null
+                                  ? Text(
+                                      AppLocalizations.of(context)
+                                          .translate('stat_nageur'),
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  : Text("a"),
+
+                              data == null
+                                  ? Container()
+                                  : DrawCharts(data: data),
+
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: RaisedButton(
+                                  child: temp != null
+                                      ? Text(
+                                          AppLocalizations.of(context)
+                                              .translate('details'),
+                                        )
+                                      : Text("a"),
+                                  onPressed: () => show("Bonjour"),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: widthCard = screenSize.width / numberOfCard,
+                      child: new GestureDetector(
+                        onTap: () {
+                          //TODO Check si l'@mac n'est pas nulle, auquel cas rediriger vers la connection BT
+                          dispose();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      /*Swimmer(
+                                        user: user,
+                                        appLanguage: appLanguage,
+                                      ))*/
+                                      LoadPage(
+                                        appLanguage: appLanguage,
+                                        page: "swimmer",
+                                        user: user,
+                                      )));
+                        },
+                        child: new Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 8,
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                Image.asset(
+                                  'assets/swim.png',
+                                  width: widthCard * 0.7,
+                                ),
+                            Text(AppLocalizations.of(context).translate('nageur'),
+                                style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: screenSize.width / numberOfCard,
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 8,
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: <Widget>[
+                              Text(AppLocalizations.of(context).translate('statistiques'),
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              //Graph à insérer
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: RaisedButton(
+                                  child: Text(AppLocalizations.of(context).translate('details')),
+                                  onPressed: () {
+                                    db.addScore(new Score(
+                                        scoreId: null,
+                                        activityId: 1,
+                                        userId: user.userId,
+                                        scoreDate: "29-05-2020",
+                                        scoreValue: 12));
+                                    show("Added");
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: widthCard = screenSize.width / numberOfCard,
+                      child: new GestureDetector(
+                        onTap: () => show("Lancement du jeu"),
+                        child: new Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 8,
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                Image.asset(
+                                  'assets/swim.png',
+                                  width: widthCard * 0.7,
+                                ),
+                                Text(AppLocalizations.of(context).translate('nageur'),
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Method to show a Snackbar,
+  // taking message as the text
+  Future show(
+    String message, {
+    Duration duration: const Duration(seconds: 3),
+  }) async {
+    await new Future.delayed(new Duration(milliseconds: 100));
+    _scaffoldKey.currentState.showSnackBar(
+      new SnackBar(
+        content: new Text(
+          message,
+        ),
+        duration: duration,
+      ),
     );
   }
 
@@ -82,11 +371,13 @@ class _MainTitle extends State<MainTitle> {
       setState(() {
         _selectedIndex = index;
 
-        if (appLanguage != null)
-          menuPage = Menu(
-            curUser: user,
+/*          menuPage = LoadPage(
             appLanguage: appLanguage,
-          );
+            user: user,
+            page: "menu",
+          );*/
+
+        menuPage = menu();
 
         settingsPage = ManageProfile(
           curUser: user,
@@ -94,9 +385,11 @@ class _MainTitle extends State<MainTitle> {
         bluetoothPage = BluetoothSync(
           curUser: user,
         );
-        loginPage = MyApp(
+        /*
+        loginPage = LoadPage(
           appLanguage: appLanguage,
-        );
+          page: "login",
+        );*/
       });
     }
 
@@ -106,17 +399,16 @@ class _MainTitle extends State<MainTitle> {
     }
 
     List<Widget> _widgetOptions = <Widget>[
-      menuPage,
+      menuPage = menu(),
       settingsPage,
       bluetoothPage,
     ];
 
     return MaterialApp(
-      key: _scaffoldKey,
       home: DefaultTabController(
         length: 3,
         child: Scaffold(
-          bottomNavigationBar: BottomNavigationBar(
+          bottomNavigationBar: new BottomNavigationBar(
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
                 icon: Icon(

@@ -14,10 +14,11 @@ import 'package:flame/flame.dart';
 import 'package:flame/util.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/BluetoothSync.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/MainTitle.dart';
-import 'package:gbsalternative/Menu.dart';
+import 'package:gbsalternative/Menu_bk.dart';
 import 'package:gbsalternative/Swimmer/box-game.dart';
 
 import 'Ui.dart';
@@ -38,31 +39,38 @@ class _Message {
 
 class Swimmer extends StatefulWidget {
   final User user;
+  final AppLanguage appLanguage;
 
-  Swimmer({
-    Key key,
-    @required this.user,
-  }) : super(key: key);
+  Swimmer({Key key, @required this.user, @required this.appLanguage})
+      : super(key: key);
 
   @override
-  _Swimmer createState() => new _Swimmer(user);
+  _Swimmer createState() => new _Swimmer(user, appLanguage);
 }
 
 class _Swimmer extends State<Swimmer> {
   User user;
+  AppLanguage appLanguage;
+
   static double delta = 102.0;
   double coefKg = 0.45359237;
   double result;
   String recording;
   Timer timer;
+  UI gameUI;
+  int score;
 
-  _Swimmer(User _user) {
+  _Swimmer(User _user, AppLanguage _appLanguage) {
     user = _user;
+    appLanguage = _appLanguage;
   }
 
   @override
   void initState() {
     //myGame = GameWrapper(game);
+    gameUI = UI();
+    score = 0;
+    refreshScore();
     connectBT();
     initSwimmer();
     testConnect();
@@ -73,8 +81,7 @@ class _Swimmer extends State<Swimmer> {
   initSwimmer() async {
     WidgetsFlutterBinding.ensureInitialized();
     game = BoxGame(getData, user);
-    UI gameUI = UI();
-    gameUI.state.game = game;
+    //gameUI.state.game = game;
     Util flameUtil = Util();
     flameUtil.fullScreen();
 
@@ -233,23 +240,38 @@ class _Swimmer extends State<Swimmer> {
     super.dispose();
   }
 
+  refreshScore() {
+    new Timer.periodic(Duration(milliseconds: 300), (timer) {
+      if(this.mounted) {
+        setState(() {
+          score = game.getScore();
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    UI gameUI = UI();
-    gameUI.state.game = game;
+    //UI gameUI = UI();
+    //gameUI.state.game = game;
 
-    return MaterialApp(
-      title: 'Shadow Training',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'HVD',
-      ),
-      home: Scaffold(
-        body: Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            game.widget,
-            /*Positioned.fill(
+    return Material(
+        child: Stack(
+      children: <Widget>[
+        game.widget,
+        Container(
+          padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+          child: gameUI.state
+              .closeButton(context, appLanguage, user, game.getScore()),
+        ),
+        Container(
+          padding: EdgeInsets.fromLTRB(game.screenSize.width * 0.4, 10, 10, 10),
+          child: gameUI.state.displayScore(score),
+        ),
+      ],
+    )
+
+        /*Positioned.fill(
 
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -257,13 +279,6 @@ class _Swimmer extends State<Swimmer> {
                 child: game.widget,
               ),
             ),*/
-            Positioned.fill(
-              child: gameUI,
-            ),
-          ],
-        ),
-      ),
-      debugShowCheckedModeBanner: false,
-    );
+        );
   }
 }

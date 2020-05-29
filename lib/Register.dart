@@ -60,6 +60,7 @@ class _Register extends State<Register> {
   double coefKg = 0.45359237;
   double result;
   String recording;
+  bool clickable = false;
 
   var name = new TextEditingController();
 
@@ -262,7 +263,7 @@ class _Register extends State<Register> {
               labelText: "Prénom",
             ),
             validator: (value) {
-              if (value.isEmpty) return 'Veuillez remplir ce champ';
+              if (value.isEmpty) clickable = true;
               return null;
             }),
       ),
@@ -337,8 +338,10 @@ class _Register extends State<Register> {
               //Image(image: AssetImage(_path)),
               Center(
                   child: imageFile == null
-                      ? Image.asset('assets/avatar.png',
-                    width: screenWidth * 0.3,)
+                      ? Image.asset(
+                          'assets/avatar.png',
+                          width: screenWidth * 0.3,
+                        )
                       : Image.file(File(_pathSaved),
                           height: screenHeight * 0.3, width: screenHeight * 0.3)
                   //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
@@ -460,12 +463,12 @@ class _Register extends State<Register> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5)),
                     onPressed: () async {
-                        User user = await addUser();
-                        //getUser();
-                        //connectBT();
+                      User user = await addUser();
+                      //getUser();
+                      //connectBT();
 
-                        if (user != null) {
-                          print("salut" + user.userId.toString());
+                      if (user != null) {
+                        print("salut " + user.userId.toString());
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -473,17 +476,16 @@ class _Register extends State<Register> {
                                       userIn: user,
                                       messageIn: 0,
                                     )));
-                        }
-                        else
-                          print("Something went wrong");
-                        // Navigator.pushReplacement(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //         builder: (context) =>
-                        //             Menu(
-                        //               BTDevice: BTDevice,
-                        //               curUser: user,
-                        //             )));
+                      } else
+                        print("Something went wrong");
+                      // Navigator.pushReplacement(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) =>
+                      //             Menu(
+                      //               BTDevice: BTDevice,
+                      //               curUser: user,
+                      //             )));
                     },
                   ),
                   FlatButton(
@@ -545,9 +547,10 @@ class _Register extends State<Register> {
                       Row(
                         children: <Widget>[
                           FlatButton(
-                            onPressed: () {
+
+                            onPressed: /*!clickable ? null : */(){
                               next();
-                              _controller.animateTo(posScroll += 75,
+                              _controller.animateTo(((currentStep) * 75).toDouble(),
                                   duration: Duration(milliseconds: 500),
                                   curve: Curves.linear);
                             },
@@ -560,7 +563,7 @@ class _Register extends State<Register> {
                           FlatButton(
                             onPressed: () {
                               back();
-                              _controller.animateTo(posScroll -= 75,
+                              _controller.animateTo(((currentStep) * -75).toDouble(),
                                   duration: Duration(milliseconds: 500),
                                   curve: Curves.linear);
                             },

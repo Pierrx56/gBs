@@ -1,31 +1,15 @@
 import 'dart:ui';
-import 'package:flame/components/parallax_component.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:gbsalternative/Swimmer/box-game.dart';
-
-Size screenSize;
-
-class Background {
-  final BoxGame game;
-  Sprite bgSprite;
-  Rect bgRect;
-
-  Background(this.game) {
-    bgSprite = Sprite('swimmer/background1.png');
-    bgRect = Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height);
-  }
-
-  void render(Canvas c) {
-    //bgSprite.render(c);
-    bgSprite.renderRect(c, bgRect);
-  }
-
-  void update(double t) {}
-}
+import 'package:gbsalternative/AppLanguage.dart';
+import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/DrawCharts.dart';
+import 'package:gbsalternative/LoadPage.dart';
+import 'package:gbsalternative/Login.dart';
+import 'package:gbsalternative/MainTitle.dart';
+import 'package:intl/intl.dart';
 
 class UI extends StatefulWidget {
   final UIState state = UIState();
@@ -33,20 +17,14 @@ class UI extends StatefulWidget {
   State<StatefulWidget> createState() => state;
 }
 
-class UIState extends State<UI> with WidgetsBindingObserver{
-
-  UIScreen currentScreen = UIScreen.home;
-  BoxGame game;
-
-
+class UIState extends State<UI> {
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    //WidgetsBinding.instance.addObserver(this);
   }
 
-
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    //WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -54,12 +32,12 @@ class UIState extends State<UI> with WidgetsBindingObserver{
     setState(() {});
   }
 
-  Widget scoreDisplay() {
+  Widget displayScore(int score) {
     return Text(
-      "22",
+      "Score: $score",
       style: TextStyle(
-        fontSize: 150,
-        color: Color(0x88000000),
+        fontSize: 70,
+        color: Colors.black,
         shadows: <Shadow>[
           Shadow(
             color: Color(0x88000000),
@@ -71,6 +49,14 @@ class UIState extends State<UI> with WidgetsBindingObserver{
     );
   }
 
+/*  Widget backGround() {
+    return Image.asset(
+      "assets/images/swimmer/background.png",
+      width: game.screenSize.width,
+      height: game.screenSize.height,
+    );
+  }*/
+
   Widget creditsButton() {
     return Ink(
       decoration: ShapeDecoration(
@@ -81,26 +67,92 @@ class UIState extends State<UI> with WidgetsBindingObserver{
         icon: Icon(
           Icons.nature_people,
         ),
-        onPressed: currentScreen == UIScreen.playing
-            ? null
-            : () {
-          currentScreen = currentScreen == UIScreen.credits ? UIScreen.home : UIScreen.credits;
+        onPressed: () {
           update();
         },
       ),
     );
   }
 
+  Widget closeButton(
+      BuildContext context, AppLanguage appLanguage, User user, int score) {
+    DatabaseHelper db = new DatabaseHelper();
+
+    return Container(
+      height: screenHeight * 0.2,
+      child: RaisedButton(
+        onPressed: () async {
+          //TODO insérer dans bdd
+          //Get date etc
+          db.getScore(user.userId);
+
+          //Date au format FR
+          String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
+
+          Score newScore = Score(
+              scoreId: null,
+              userId: user.userId,
+              activityId: 0,
+              scoreValue: score,
+              scoreDate: date);
+
+          //db.deleteScore(user.userId);
+
+          List<Scores> everyScores = await db.getScore(user.userId);
+
+          if (everyScores.length == 0)
+            db.addScore(newScore);
+          else
+            //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
+            for (int i = 0; i < everyScores.length; i++) {
+              //On remplace la valeur dans la bdd
+              if (everyScores[i].date == date && score > everyScores[i].score )
+                db.updateScore(Score(
+                    scoreId: everyScores[i].scoreId,
+                    userId: user.userId,
+                    activityId: 0,
+                    scoreValue: score,
+                    scoreDate: date));
+              //Sinon on enregistre si la dernière date enregistrée est différente du jour
+              else if(everyScores[everyScores.length - 1].date != date)
+                db.addScore(newScore);
+            }
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+              LoadPage(
+                appLanguage: appLanguage,
+                user: user,
+                messageIn: "0",
+                page: "mainTitle",
+              )
+              /*MainTitle(
+                      appLanguage: appLanguage,
+                      userIn: user,
+                      messageIn: 0,
+                    )*/
+                /*      MainTitle(
+                userIn: user,
+                appLanguage: appLanguage,
+                   )*/
+                ),
+          );
+        },
+        child: Text("Quitter le jeu"),
+      ),
+    );
+  }
+
   Widget buildScreenPlaying() {
-    return Positioned.fill(
-      child: Column(
-        children: <Widget>[
-          scoreDisplay(),
-          Padding(
-            padding: EdgeInsets.only(bottom: 30),
-            child: Row(
-              children: <Widget>[
-               /* GestureDetector(
+    return Row(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(bottom: 30),
+          child: Row(
+            children: <Widget>[
+              //scoreDisplay(),
+              /* GestureDetector(
                   //onTapDown: (TapDownDetails d) => game.boxer.punchLeft(),
                   behavior: HitTestBehavior.opaque,
                   child: LeftPunch(),
@@ -115,65 +167,20 @@ class UIState extends State<UI> with WidgetsBindingObserver{
                   behavior: HitTestBehavior.opaque,
                   child: RightPunch(),
                 ),*/
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: IndexedStack(
-            sizing: StackFit.expand,
-            children: <Widget>[
-              buildScreenPlaying(),
-              //scoreDisplay(),
-              //creditsButton(),
             ],
-            index: currentScreen.index,
           ),
-        )
+        ),
       ],
     );
-
-    //throw UnimplementedError();
   }
 
-
-
+  @override
+  Widget build(BuildContext context) {
+    return buildScreenPlaying();
+    //scoreDisplay(),
+    //creditsButton(),
+  }
 }
-
-class Close{
-  final BoxGame game;
-  Sprite spriteClose;
-  Rect RectClose;
-  bool inTouch;
-
-  Close(this.game) {
-    spriteClose = Sprite('swimmer/close.png');
-    //width: 500
-    //height: 300
-    RectClose = Rect.fromLTWH(0, 0, game.screenSize.height*0.1, game.screenSize.height*0.1);
-  }
-
-  void render(Canvas c) {
-    spriteClose.renderRect(c, RectClose);
-  }
-
-  void update(double t) {}
-
-  void resize(Size size) {
-    screenSize = size;
-  }
-
-
-}
-
 
 enum UIScreen {
   home,
