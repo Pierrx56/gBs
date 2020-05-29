@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
 import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
+import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothSync.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
@@ -59,7 +60,7 @@ class _Register extends State<Register> {
   static double delta = 102.0;
   double coefKg = 0.45359237;
   double result;
-  String recording;
+  String recording = "";
   bool clickable = false;
 
   var name = new TextEditingController();
@@ -67,7 +68,6 @@ class _Register extends State<Register> {
   @override
   void initState() {
     btData = "0.0";
-    recording = "Démarrer l'enregistrement";
     _controller = ScrollController();
     super.initState();
   }
@@ -252,15 +252,17 @@ class _Register extends State<Register> {
     screenHeight = MediaQuery.of(context).size.height;
     screenWidth = MediaQuery.of(context).size.width;
 
+    //recording = AppLocalizations.of(context).translate('demarrer_enregistrement');
+
     steps = [
       Step(
-        title: Text("Prénom"),
+        title: Text(AppLocalizations.of(context).translate('prenom')),
         isActive: currentStep > 0,
         state: currentStep > 0 ? StepState.complete : StepState.disabled,
         content: TextFormField(
             controller: name,
             decoration: InputDecoration(
-              labelText: "Prénom",
+              labelText: AppLocalizations.of(context).translate('prenom'),
             ),
             validator: (value) {
               if (value.isEmpty) clickable = true;
@@ -268,12 +270,12 @@ class _Register extends State<Register> {
             }),
       ),
       Step(
-        title: Text("Type d'utilisation"),
+        title: Text(AppLocalizations.of(context).translate('type_utilisation')),
         isActive: currentStep > 1,
         state: currentStep > 1 ? StepState.complete : StepState.disabled,
         content: Row(
           children: <Widget>[
-            Text("Normal"),
+            Text(AppLocalizations.of(context).translate('normal')),
             Switch(
               value: isSwitched,
               onChanged: (value) {
@@ -287,12 +289,12 @@ class _Register extends State<Register> {
               activeTrackColor: Colors.lightGreenAccent,
               activeColor: Colors.green,
             ),
-            Text("Sportif"),
+            Text(AppLocalizations.of(context).translate('sportif')),
           ],
         ),
       ),
       Step(
-        title: Text("Hauteur minimale"),
+        title: Text(AppLocalizations.of(context).translate('haut_min')),
         isActive: currentStep > 2,
         state: currentStep > 2 ? StepState.complete : StepState.disabled,
         content: TextFormField(
@@ -302,7 +304,7 @@ class _Register extends State<Register> {
               WhitelistingTextInputFormatter.digitsOnly
             ],
             decoration: InputDecoration(
-              labelText: "Hauteur minimale",
+              labelText: AppLocalizations.of(context).translate('haut_in'),
             ),
             validator: (value) {
               if (value.isEmpty) return 'Veuillez remplir ce champ';
@@ -310,7 +312,7 @@ class _Register extends State<Register> {
             }),
       ),
       Step(
-        title: Text("Hauteur maximale"),
+        title: Text(AppLocalizations.of(context).translate('haut_max')),
         isActive: currentStep > 3,
         state: currentStep > 3 ? StepState.complete : StepState.disabled,
         content: TextFormField(
@@ -320,7 +322,7 @@ class _Register extends State<Register> {
               WhitelistingTextInputFormatter.digitsOnly
             ],
             decoration: InputDecoration(
-              labelText: "Hauteur Maximale",
+              labelText: AppLocalizations.of(context).translate('haut_max'),
             ),
             validator: (value) {
               if (value.isEmpty) return 'Veuillez remplir ce champ';
@@ -328,7 +330,7 @@ class _Register extends State<Register> {
             }),
       ),
       Step(
-        title: Text("Sélectionner une image de profil"),
+        title: Text(AppLocalizations.of(context).translate('select_image')),
         isActive: currentStep > 4,
         state: currentStep > 4 ? StepState.complete : StepState.disabled,
         content: Column(
@@ -347,7 +349,7 @@ class _Register extends State<Register> {
                   //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
                   ),
               RaisedButton(
-                child: Text("Sélectionner une image"),
+                child: Text(AppLocalizations.of(context).translate('select_image')),
                 onPressed: () {
                   _pathSaved = pickImageFromGallery(ImageSource.gallery);
                 },
@@ -356,12 +358,12 @@ class _Register extends State<Register> {
             ]),
       ),
       Step(
-          title: Text("Connecter un appareil"),
+          title: Text(AppLocalizations.of(context).translate('connecter_app')),
           isActive: currentStep > 5,
           state: currentStep > 5 ? StepState.complete : StepState.disabled,
           content: Column(children: <Widget>[
             RaisedButton(
-              child: Text("Appairer un appareil"),
+              child: Text(AppLocalizations.of(context).translate('connecter_app')),
               onPressed: () async {
                 final macAddress = await Navigator.push(
                     context,
@@ -376,13 +378,12 @@ class _Register extends State<Register> {
             ),
           ])),
       Step(
-        title: Text("Première mesure"),
+        title: Text(AppLocalizations.of(context).translate('premiere_mesure')),
         isActive: currentStep > 6,
         state: currentStep > 6 ? StepState.complete : StepState.disabled,
         content: Column(
           children: <Widget>[
-            Text("Vous devez maintenir pendant 10 secondes entre 5 et 10."
-                " Appuyez sur démarrer l'enregistrement lorsque vous êtes prêt."),
+            Text(AppLocalizations.of(context).translate('explications_mesure')),
             RaisedButton(
                 //child: Text("Démarrer l'enregistrement."),
                 //TODO
@@ -403,14 +404,13 @@ class _Register extends State<Register> {
                           if (result <= 5.0 || result >= 10.0) {
                             //Mesure pas bonne, réajuster la toise
                             setState(() {
-                              recording =
-                                  "Mesure pas bonne, réajustez la toise et relancez la mesure";
+                              recording = AppLocalizations.of(context).translate('status_mesure_mauvais');
                               colorMesureButton = Colors.red;
                             });
                           } else
                             setState(() {
                               colorMesureButton = Colors.green;
-                              recording = "Mesure correcte";
+                              recording = AppLocalizations.of(context).translate('status_mesure_bon');
                             });
                         } else {
                           recording = _start.toString();
@@ -433,7 +433,7 @@ class _Register extends State<Register> {
         ),
       ),
       Step(
-          title: Text("Récapitulatif"),
+          title: Text(AppLocalizations.of(context).translate('recap')),
           isActive: currentStep > 7,
           state: currentStep > 7 ? StepState.complete : StepState.disabled,
           content: Column(
@@ -446,16 +446,16 @@ class _Register extends State<Register> {
                         _pathSaved,
                         width: screenWidth * 0.3,
                       ),
-                      Text("Prénom: ${name.text}"),
-                      Text("Type d'utilisation: $_userMode"),
-                      Text("Hauteur minimale: ${hauteur_min.text}"),
-                      Text("Hauteur maximale: ${hauteur_max.text}"),
-                      Text("Appareil correctement connecté"),
-                      Text("Première poussée: $result"),
+                      Text(AppLocalizations.of(context).translate('prenom') + name.text),
+                      Text(AppLocalizations.of(context).translate('type_utilisation') + _userMode),
+                      Text(AppLocalizations.of(context).translate('haut_min') + hauteur_min.text),
+                      Text(AppLocalizations.of(context).translate('haut_max') + hauteur_max.text),
+                      Text(AppLocalizations.of(context).translate('status_connexion_bon')),
+                      Text(AppLocalizations.of(context).translate('premiere_mesure') + result.toString()),
                     ],
                   ),
                   FlatButton(
-                    child: Text("S'inscrire"),
+                    child: Text(AppLocalizations.of(context).translate('inscription')),
                     color: Colors.blue,
                     textColor: Colors.white,
                     padding: EdgeInsets.only(
@@ -495,7 +495,7 @@ class _Register extends State<Register> {
                           duration: Duration(milliseconds: 500),
                           curve: Curves.linear);
                     },
-                    child: const Text('Retour'),
+                    child: Text(AppLocalizations.of(context).translate('retour')),
                   ),
                 ],
               )
@@ -556,7 +556,7 @@ class _Register extends State<Register> {
                             },
                             color: Colors.blue,
                             child: Text(
-                              "Suivant",
+                              AppLocalizations.of(context).translate('suivant'),
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
@@ -567,7 +567,7 @@ class _Register extends State<Register> {
                                   duration: Duration(milliseconds: 500),
                                   curve: Curves.linear);
                             },
-                            child: const Text('Retour'),
+                            child: Text(AppLocalizations.of(context).translate('retour')),
                           ),
                         ],
                       ),
