@@ -60,7 +60,7 @@ class _Register extends State<Register> {
   static double delta = 102.0;
   double coefKg = 0.45359237;
   double result;
-  String recording = "";
+  String recording;
   bool clickable = false;
 
   var name = new TextEditingController();
@@ -151,7 +151,7 @@ class _Register extends State<Register> {
           1,
           backspacesCounter > 0
               ? _messageBuffer.substring(
-                  0, _messageBuffer.length - backspacesCounter)
+              0, _messageBuffer.length - backspacesCounter)
               : _messageBuffer + dataString.substring(0, index),
         ),
       );
@@ -159,7 +159,7 @@ class _Register extends State<Register> {
     } else {
       _messageBuffer = (backspacesCounter > 0
           ? _messageBuffer.substring(
-              0, _messageBuffer.length - backspacesCounter)
+          0, _messageBuffer.length - backspacesCounter)
           : _messageBuffer + dataString);
     }
     //Conversion des données reçu en un String btData
@@ -249,10 +249,18 @@ class _Register extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
-    screenHeight = MediaQuery.of(context).size.height;
-    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
 
-    //recording = AppLocalizations.of(context).translate('demarrer_enregistrement');
+    if (recording == null)
+      recording =
+          AppLocalizations.of(context).translate('demarrer_enregistrement');
 
     steps = [
       Step(
@@ -304,7 +312,7 @@ class _Register extends State<Register> {
               WhitelistingTextInputFormatter.digitsOnly
             ],
             decoration: InputDecoration(
-              labelText: AppLocalizations.of(context).translate('haut_in'),
+              labelText: AppLocalizations.of(context).translate('haut_min'),
             ),
             validator: (value) {
               if (value.isEmpty) return 'Veuillez remplir ce champ';
@@ -341,15 +349,16 @@ class _Register extends State<Register> {
               Center(
                   child: imageFile == null
                       ? Image.asset(
-                          'assets/avatar.png',
-                          width: screenWidth * 0.3,
-                        )
+                    'assets/avatar.png',
+                    width: screenWidth * 0.3,
+                  )
                       : Image.file(File(_pathSaved),
-                          height: screenHeight * 0.3, width: screenHeight * 0.3)
-                  //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
-                  ),
+                      height: screenHeight * 0.3, width: screenHeight * 0.3)
+                //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
+              ),
               RaisedButton(
-                child: Text(AppLocalizations.of(context).translate('select_image')),
+                child: Text(
+                    AppLocalizations.of(context).translate('select_image')),
                 onPressed: () {
                   _pathSaved = pickImageFromGallery(ImageSource.gallery);
                 },
@@ -363,12 +372,14 @@ class _Register extends State<Register> {
           state: currentStep > 5 ? StepState.complete : StepState.disabled,
           content: Column(children: <Widget>[
             RaisedButton(
-              child: Text(AppLocalizations.of(context).translate('connecter_app')),
+              child: Text(
+                  AppLocalizations.of(context).translate('connecter_app')),
               onPressed: () async {
                 final macAddress = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => BluetoothSync(
+                        builder: (context) =>
+                            BluetoothSync(
                               curUser: null,
                               inputMessage: "inscription",
                             )));
@@ -385,41 +396,47 @@ class _Register extends State<Register> {
           children: <Widget>[
             Text(AppLocalizations.of(context).translate('explications_mesure')),
             RaisedButton(
-                //child: Text("Démarrer l'enregistrement."),
-                //TODO
+              //child: Text("Démarrer l'enregistrement."),
+              //TODO
                 onPressed: () async {
                   colorMesureButton = Colors.black;
                   const oneSec = const Duration(milliseconds: 500);
                   _timer = new Timer.periodic(
                     oneSec,
-                    (Timer timer) => setState(
-                      () {
-                        if (_start < 0.5) {
-                          timer.cancel();
-                          _start = _reset;
-                          result =
-                              average.reduce((a, b) => a + b) / average.length;
-                          print(result.toString());
-                          i = 20;
-                          if (result <= 5.0 || result >= 10.0) {
-                            //Mesure pas bonne, réajuster la toise
-                            setState(() {
-                              recording = AppLocalizations.of(context).translate('status_mesure_mauvais');
-                              colorMesureButton = Colors.red;
-                            });
-                          } else
-                            setState(() {
-                              colorMesureButton = Colors.green;
-                              recording = AppLocalizations.of(context).translate('status_mesure_bon');
-                            });
-                        } else {
-                          recording = _start.toString();
-                          _start = _start - 0.5;
-                          i--;
-                          average[i] = double.parse(btData);
-                        }
-                      },
-                    ),
+                        (Timer timer) =>
+                        setState(
+                              () {
+                            if (_start < 0.5) {
+                              timer.cancel();
+                              _start = _reset;
+                              result =
+                                  average.reduce((a, b) => a + b) /
+                                      average.length;
+                              print(result.toString());
+                              i = 20;
+                              if (result <= 5.0 || result >= 10.0) {
+                                //Mesure pas bonne, réajuster la toise
+                                setState(() {
+                                  recording =
+                                      AppLocalizations.of(context).translate(
+                                          'status_mesure_mauvais');
+                                  colorMesureButton = Colors.red;
+                                });
+                              } else
+                                setState(() {
+                                  colorMesureButton = Colors.green;
+                                  recording =
+                                      AppLocalizations.of(context).translate(
+                                          'status_mesure_bon');
+                                });
+                            } else {
+                              recording = _start.toString();
+                              _start = _start - 0.5;
+                              i--;
+                              average[i] = double.parse(btData);
+                            }
+                          },
+                        ),
                   );
                   //_showDialog();
                 },
@@ -446,16 +463,27 @@ class _Register extends State<Register> {
                         _pathSaved,
                         width: screenWidth * 0.3,
                       ),
-                      Text(AppLocalizations.of(context).translate('prenom') + name.text),
-                      Text(AppLocalizations.of(context).translate('type_utilisation') + _userMode),
-                      Text(AppLocalizations.of(context).translate('haut_min') + hauteur_min.text),
-                      Text(AppLocalizations.of(context).translate('haut_max') + hauteur_max.text),
-                      Text(AppLocalizations.of(context).translate('status_connexion_bon')),
-                      Text(AppLocalizations.of(context).translate('premiere_mesure') + result.toString()),
+                      Text(AppLocalizations.of(context).translate('prenom') +
+                          ": " + name.text),
+                      Text(AppLocalizations.of(context).translate(
+                          'type_utilisation') + ": " + _userMode),
+                      Text(AppLocalizations.of(context).translate('haut_min') +
+                          ": " + hauteur_min.text),
+                      Text(AppLocalizations.of(context).translate('haut_max') +
+                          ": " + hauteur_max.text),
+                      macAddress != null ? Text(AppLocalizations.of(context).translate(
+                          'status_connexion_bon')) : Text(
+                          AppLocalizations.of(context).translate(
+                              'status_connexion_mauvais'),
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      Text(AppLocalizations.of(context).translate(
+                          'premiere_mesure') + ": " + result.toString()),
                     ],
                   ),
                   FlatButton(
-                    child: Text(AppLocalizations.of(context).translate('inscription')),
+                    child: Text(
+                        AppLocalizations.of(context).translate('inscription')),
                     color: Colors.blue,
                     textColor: Colors.white,
                     padding: EdgeInsets.only(
@@ -472,7 +500,8 @@ class _Register extends State<Register> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => MainTitle(
+                                builder: (context) =>
+                                    MainTitle(
                                       userIn: user,
                                       messageIn: 0,
                                     )));
@@ -495,7 +524,8 @@ class _Register extends State<Register> {
                           duration: Duration(milliseconds: 500),
                           curve: Curves.linear);
                     },
-                    child: Text(AppLocalizations.of(context).translate('retour')),
+                    child: Text(
+                        AppLocalizations.of(context).translate('retour')),
                   ),
                 ],
               )
@@ -523,6 +553,8 @@ class _Register extends State<Register> {
               _userMode = "Sportif";
               hauteur_max.text = "125";
               hauteur_min.text = "115";
+              macAddress = "00:0E:EA:CF:52:62";
+              result = 6.31;
               _pathSaved = "assets/avatar.png";
             },
           ),
@@ -541,49 +573,50 @@ class _Register extends State<Register> {
           steps: steps,
           controlsBuilder: currentStep < steps.length - 1
               ? (BuildContext context,
-                  {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
-                  return Column(
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          FlatButton(
+              {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+            return Column(
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    FlatButton(
 
-                            onPressed: /*!clickable ? null : */(){
-                              next();
-                              _controller.animateTo(((currentStep) * 75).toDouble(),
-                                  duration: Duration(milliseconds: 500),
-                                  curve: Curves.linear);
-                            },
-                            color: Colors.blue,
-                            child: Text(
-                              AppLocalizations.of(context).translate('suivant'),
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                          FlatButton(
-                            onPressed: () {
-                              back();
-                              _controller.animateTo(((currentStep) * -75).toDouble(),
-                                  duration: Duration(milliseconds: 500),
-                                  curve: Curves.linear);
-                            },
-                            child: Text(AppLocalizations.of(context).translate('retour')),
-                          ),
-                        ],
+                      onPressed: /*!clickable ? null : */() {
+                        next();
+                        _controller.animateTo(((currentStep) * 75).toDouble(),
+                            duration: Duration(milliseconds: 500),
+                            curve: Curves.linear);
+                      },
+                      color: Colors.blue,
+                      child: Text(
+                        AppLocalizations.of(context).translate('suivant'),
+                        style: TextStyle(color: Colors.white),
                       ),
-                      Padding(
-                        padding:
-                            EdgeInsets.fromLTRB(0, 0, 0, screenWidth * 0.5),
-                      )
-                    ],
-                  );
-                }
+                    ),
+                    FlatButton(
+                      onPressed: () {
+                        back();
+                        _controller.animateTo(((currentStep) * -75).toDouble(),
+                            duration: Duration(milliseconds: 500),
+                            curve: Curves.linear);
+                      },
+                      child: Text(
+                          AppLocalizations.of(context).translate('retour')),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding:
+                  EdgeInsets.fromLTRB(0, 0, 0, screenWidth * 0.5),
+                )
+              ],
+            );
+          }
               : (BuildContext context,
-                  {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
-                  return Padding(
-                    padding: EdgeInsets.fromLTRB(0, 0, 0, screenWidth * 0.5),
-                  );
-                },
+              {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+            return Padding(
+              padding: EdgeInsets.fromLTRB(0, 0, 0, screenWidth * 0.5),
+            );
+          },
         ),
       ),
     );

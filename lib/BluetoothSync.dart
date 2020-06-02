@@ -13,7 +13,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gbsalternative/MainTitle.dart';
 
 import 'DatabaseHelper.dart';
-import 'Register_bk.dart';
+import 'Backup/Register_bk.dart';
 
 class _Message {
   int whom;

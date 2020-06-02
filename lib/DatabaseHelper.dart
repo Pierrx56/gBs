@@ -274,12 +274,12 @@ class DatabaseHelper {
     // Get a reference to the database.
     final db = await database;
 
-    // Update the given User.
+    // Update the given score.
     await db.update(
       TABLE_SCORE,
       score.toMap(),
-      // Ensure that the User has a matching id.
-      where: KEY_USER_ID + " = ?",
+      // Ensure that the score has a matching id.
+      where: KEY_SCORE_ID + " = ?",
       // Pass the User's id as a whereArg to prevent SQL injection.
       whereArgs: [score.userId],
     );
@@ -302,7 +302,7 @@ class DatabaseHelper {
 
 
   //ACTIVITY
-  //Define a function that inserts users into the database
+  //Define a function that inserts activity into the database
   Future<int> addActivity(Activity activity) async {
     // Get a reference to the database.
     final Database db = await database;
@@ -316,6 +316,18 @@ class DatabaseHelper {
     return id;
   }
 
+  Future<void> deleteActivity(int idActivity) async{
+    // Get a reference to the database.
+    final Database db = await database;
+
+    await db.delete(
+    TABLE_ACTIVITY,
+      // Use a `where` clause to delete a specific activity.
+      where: KEY_ACTIVITY_ID + " = ?",
+      // Pass the User's id as a whereArg to prevent SQL injection.
+      whereArgs: [idActivity],
+    );
+  }
 
   //END ACTIVITY
 }
@@ -380,109 +392,25 @@ class Score {
   }
 }
 
-
-
 //ACTIVITY
 class Activity {
   final int activityId;
   final String activityType;
   final String activityName;
-  final String activitydescription;
+  final String activityDescription;
 
   Activity(
       {this.activityId,
       this.activityType,
       this.activityName,
-      this.activitydescription});
+      this.activityDescription});
 
   Map<String, dynamic> toMap() {
     return {
       KEY_ACTIVITY_ID: activityId,
       KEY_ACTIVITY_TYPE: activityType,
       KEY_ACTIVITY_NAME: activityName,
-      KEY_ACTIVITY_DESCRIPTION: activitydescription
+      KEY_ACTIVITY_DESCRIPTION: activityDescription
     };
   }
 }
-
-/*
-  createDatabase() async {
-  String databasesPath = await getDatabasesPath();
-  String dbPath = join(databasesPath, 'gBsDatabase.db');
-
-  var database = await openDatabase(dbPath, version: 1, onCreate: gBsDb);
-  return database;
-  }
-
-  void gBsDb(Database database, int version) async {
-  await database.execute("CREATE TABLE User ("
-  "user_id INTEGER PRIMARY KEY,"
-  "user_name TEXT,"
-  "user_mode TEXT,"
-  "user_pic TEXT,"
-  "user_height_top TEXT,"
-  "user_height_down TEXT"
-  ")");
-
-  await database.execute("CREATE TABLE Score ("
-  "score_id INTEGER PRIMARY KEY,"
-  "user_id INTEGER,"
-  "activity_id INTEGER,"
-  "score_date TEXT,"
-  "score_value INTEGER,"
-  ")");
-
-  await database.execute("CREATE TABLE Activity ("
-  "activity_id INTEGER PRIMARY KEY,"
-  "activity_type INTEGER,"
-  "activity_name TEXT,"
-  "activity_description TEXT,"
-  ")");
-  }
-
-  class User {
-  int userID;
-  String userName;
-  String userMode;
-  String userPic;
-  String userHeightTop;
-  String userHeightDown;
-
-  User({
-  this.userID,
-  this.userName,
-  this.userMode,
-  this.userPic,
-  this.userHeightTop,
-  this.userHeightDown,
-  });
-
-
-  int get _userID => userID;
-  String get _userName => userName;
-  String get _userMode => userMode;
-  String get _userPic => userPic;
-  String get _userHeightTop => userHeightTop;
-  String get _userHeightDown => userHeightDown;
-
-
-  factory User.fromJson(Map<String, dynamic> data) => new User(
-  userID: data["user_id"],
-  userName: data["user_name"],
-  userMode: data["user_mode"],
-  userPic: data["user_pic"],
-  userHeightTop: data["user_height_top"],
-  userHeightDown: data["user_height_down"],
-  );
-
-  Map<String, dynamic> toJson() => {
-  "user_id": userID,
-  "user_name": userName,
-  "user_mode": userMode,
-  "user_pic": userPic,
-  "user_height_top": userHeightTop,
-  "user_height_down": userHeightDown,
-  };
-  }
-
- */

@@ -7,7 +7,6 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
-import 'package:gbsalternative/Menu_bk.dart';
 import 'package:gbsalternative/main.dart';
 import 'package:provider/provider.dart';
 

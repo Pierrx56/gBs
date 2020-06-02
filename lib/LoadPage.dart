@@ -5,18 +5,44 @@ import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
-import 'package:gbsalternative/Menu_bk.dart';
+import 'package:gbsalternative/ManageProfile.dart';
 import 'package:gbsalternative/Register.dart';
 import 'package:gbsalternative/Swimmer/Swimmer.dart';
 import 'package:provider/provider.dart';
 
-class LoadPage extends StatelessWidget {
+class LoadPage extends StatefulWidget{
   final AppLanguage appLanguage;
   final String page;
   final User user;
   final String messageIn;
 
-  LoadPage({this.appLanguage, this.page, this.user, this.messageIn});
+  LoadPage({
+    @required this.appLanguage,
+    @required this.page,
+    @required this.user,
+    @required this.messageIn,
+  });
+
+  @override
+  _LoadPage createState() => _LoadPage(appLanguage: appLanguage, messageIn: messageIn, page: page, user: user);
+
+}
+
+
+class _LoadPage extends State<LoadPage> {
+  final AppLanguage appLanguage;
+  final String page;
+  final User user;
+  final String messageIn;
+
+  _LoadPage({this.appLanguage, this.page, this.user, this.messageIn});
+
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +68,7 @@ class LoadPage extends StatelessWidget {
             page == "register" ? Register():
             //page == "menu" ? Menu(curUser: user, appLanguage: appLanguage, message: messageIn,):
             page == "swimmer" ? Swimmer(user: user, appLanguage: appLanguage):
+            page == "manageProfile" ? ManageProfile(curUser: user, appLanguage: appLanguage):
             page == "mainTitle" ? MainTitle(userIn: user, messageIn: int.parse(messageIn), appLanguage: appLanguage,): Container()
         );
       }),

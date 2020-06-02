@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/Swimmer/Background.dart';
+import 'package:gbsalternative/Swimmer/Swimmer.dart';
 import 'package:gbsalternative/Swimmer/WaterLines.dart';
 
 class BoxGame extends Game {
@@ -24,7 +25,7 @@ class BoxGame extends Game {
   double scoreTimer = 0.0;
   double tempPos = 0;
   int i = 0;
-  int difficulte = 5;
+  double difficulte = 1.0;
 
   double size = 230.0;
   List<String> tab = [
@@ -92,7 +93,7 @@ class BoxGame extends Game {
 
     if (canvas != null) {
       //Background
-      background.render(canvas);
+      if (background != null) background.render(canvas);
 
       /*
       //Close button
@@ -101,10 +102,10 @@ class BoxGame extends Game {
       canvas.save();
 
       //Ligne basse
-      downLine.render(canvas);
+      if (downLine != null) downLine.render(canvas);
 
       //Ligne haute
-      upLine.render(canvas);
+      if (upLine != null) upLine.render(canvas);
 
       //Nageur
       if (player != null) player.render(canvas);
@@ -147,7 +148,7 @@ class BoxGame extends Game {
       //Sinon on fait descendre le nageur
       else {
         player.y += tempPos;
-        tempPos = player.y + difficulte;
+        tempPos = player.y + difficulte * 2.0;
       }
 
       //component = new Component(dimensions);
@@ -160,12 +161,10 @@ class BoxGame extends Game {
       scoreTimer = 0.0;
     }
 
-    //print(getData());
-
     //getData = données reçues par le Bluetooth
     if (getData() > double.parse(user.userInitialPush)) {
       //print(player.y);
-      player.y -= 1.0;
+      player.y -= difficulte;
       tempPos = player.y;
       inTouch = false;
     }

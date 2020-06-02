@@ -44,7 +44,7 @@ class _MainTitle extends State<MainTitle> {
   List<Scores> data;
 
   //0:menu 1:settings 2:bluetooth
-  static int defaultIndex = 2;
+  static int defaultIndex = 0;
   int _selectedIndex = defaultIndex;
 
   // Initializing a global key, as it would help us in showing a SnackBar later
@@ -67,9 +67,14 @@ class _MainTitle extends State<MainTitle> {
       user: user,
     );*/
 
-    settingsPage = ManageProfile(
-      curUser: user,
+
+    settingsPage = LoadPage(
+      appLanguage: appLanguage,
+      user: user,
+      page: "manageProfile",
+      messageIn: "",
     );
+
     bluetoothPage = BluetoothSync(
       curUser: user,
     );
@@ -86,7 +91,6 @@ class _MainTitle extends State<MainTitle> {
     getScores(user.userId);
     super.initState();
   }
-
 
   @override
   void dispose() {
@@ -199,11 +203,9 @@ class _MainTitle extends State<MainTitle> {
                                           fontWeight: FontWeight.bold),
                                     )
                                   : Text("a"),
-
                               data == null
                                   ? Container()
                                   : DrawCharts(data: data),
-
                               Align(
                                 alignment: Alignment.bottomCenter,
                                 child: RaisedButton(
@@ -256,8 +258,10 @@ class _MainTitle extends State<MainTitle> {
                                   'assets/swim.png',
                                   width: widthCard * 0.7,
                                 ),
-                            Text(AppLocalizations.of(context).translate('nageur'),
-                                style: TextStyle(
+                                Text(
+                                  AppLocalizations.of(context)
+                                      .translate('nageur'),
+                                  style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -280,7 +284,9 @@ class _MainTitle extends State<MainTitle> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisSize: MainAxisSize.max,
                             children: <Widget>[
-                              Text(AppLocalizations.of(context).translate('statistiques'),
+                              Text(
+                                AppLocalizations.of(context)
+                                    .translate('statistiques'),
                                 style: TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.bold),
                               ),
@@ -288,7 +294,8 @@ class _MainTitle extends State<MainTitle> {
                               Align(
                                 alignment: Alignment.bottomCenter,
                                 child: RaisedButton(
-                                  child: Text(AppLocalizations.of(context).translate('details')),
+                                  child: Text(AppLocalizations.of(context)
+                                      .translate('details')),
                                   onPressed: () {
                                     db.addScore(new Score(
                                         scoreId: null,
@@ -324,7 +331,9 @@ class _MainTitle extends State<MainTitle> {
                                   'assets/swim.png',
                                   width: widthCard * 0.7,
                                 ),
-                                Text(AppLocalizations.of(context).translate('nageur'),
+                                Text(
+                                  AppLocalizations.of(context)
+                                      .translate('nageur'),
                                   style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold),
@@ -377,10 +386,15 @@ class _MainTitle extends State<MainTitle> {
             page: "menu",
           );*/
 
-        menuPage = menu();
+        setState(() {
+          menuPage = menu();
+        });
 
-        settingsPage = ManageProfile(
-          curUser: user,
+        settingsPage = LoadPage(
+          appLanguage: appLanguage,
+          user: user,
+          page: "manageProfile",
+          messageIn: "",
         );
         bluetoothPage = BluetoothSync(
           curUser: user,

@@ -102,32 +102,32 @@ class UIState extends State<UI> {
 
           if (everyScores.length == 0)
             db.addScore(newScore);
-          else
+          else {
             //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
             for (int i = 0; i < everyScores.length; i++) {
               //On remplace la valeur dans la bdd
-              if (everyScores[i].date == date && score > everyScores[i].score )
+              if (everyScores[i].date == date && score > everyScores[i].score)
                 db.updateScore(Score(
                     scoreId: everyScores[i].scoreId,
                     userId: user.userId,
                     activityId: 0,
                     scoreValue: score,
                     scoreDate: date));
-              //Sinon on enregistre si la dernière date enregistrée est différente du jour
-              else if(everyScores[everyScores.length - 1].date != date)
-                db.addScore(newScore);
             }
+            //Sinon on enregistre si la dernière date enregistrée est différente du jour
+            if (everyScores[everyScores.length - 1].date != date)
+              db.addScore(newScore);
+          }
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-              LoadPage(
-                appLanguage: appLanguage,
-                user: user,
-                messageIn: "0",
-                page: "mainTitle",
-              )
-              /*MainTitle(
+                builder: (context) => LoadPage(
+                      appLanguage: appLanguage,
+                      user: user,
+                      messageIn: "0",
+                      page: "mainTitle",
+                    )
+                /*MainTitle(
                       appLanguage: appLanguage,
                       userIn: user,
                       messageIn: 0,

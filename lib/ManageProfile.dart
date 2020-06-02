@@ -12,6 +12,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
 import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
+import 'package:gbsalternative/AppLanguage.dart';
+import 'package:gbsalternative/AppLocalizations.dart';
+import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:image_picker/image_picker.dart';
 import 'DatabaseHelper.dart';
@@ -20,7 +23,6 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'DatabaseHelper.dart';
-import 'Menu_bk.dart';
 
 class _Message {
   int whom;
@@ -35,11 +37,12 @@ List<_Message> messages = List<_Message>();
 
 class ManageProfile extends StatefulWidget {
   final User curUser;
+  final AppLanguage appLanguage;
 
-  ManageProfile({Key key, @required this.curUser}) : super(key: key);
+  ManageProfile({@required this.curUser, @required this.appLanguage});
 
   @override
-  _ManageProfile createState() => _ManageProfile(curUser);
+  _ManageProfile createState() => _ManageProfile(curUser, appLanguage);
 }
 
 class _ManageProfile extends State<ManageProfile> {
@@ -48,6 +51,7 @@ class _ManageProfile extends State<ManageProfile> {
   bool isDisconnecting = false;
   BluetoothConnection connection;
   bool isConnected = false;
+  AppLanguage appLanguage;
 
   Color colorMesureButton = Colors.black;
   Timer _timer;
@@ -61,8 +65,9 @@ class _ManageProfile extends State<ManageProfile> {
   double tempResult;
   String recording;
 
-  _ManageProfile(User curUser) {
+  _ManageProfile(User curUser, AppLanguage _appLanguage) {
     user = curUser;
+    appLanguage = _appLanguage;
 
     if (user.userMode == "Sportif") {
       isSwitched = true;
@@ -79,7 +84,7 @@ class _ManageProfile extends State<ManageProfile> {
 
   var hauteur_min = new TextEditingController();
   var hauteur_max = new TextEditingController();
-  String initialPush = "0";
+  String initialPush;
 
   Color colorButton = Colors.black;
 
@@ -134,7 +139,6 @@ class _ManageProfile extends State<ManageProfile> {
   @override
   void initState() {
     btData = "0.0";
-    recording = "Démarrer l'enregistrement";
     connectBT();
     testConnect();
 
@@ -304,7 +308,7 @@ class _ManageProfile extends State<ManageProfile> {
                     Align(
                       alignment: Alignment.topLeft,
                       child: Text(
-                        "Modifier",
+                        AppLocalizations.of(context).translate('modifier'),
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 28,
@@ -314,7 +318,7 @@ class _ManageProfile extends State<ManageProfile> {
                     ),
                     Row(
                       children: <Widget>[
-                        Text("Normal"),
+                        Text(AppLocalizations.of(context).translate('normal')),
                         Switch(
                           value: isSwitched,
                           onChanged: (value) {
@@ -329,7 +333,7 @@ class _ManageProfile extends State<ManageProfile> {
                           activeTrackColor: Colors.lightGreenAccent,
                           activeColor: Colors.green,
                         ),
-                        Text("Sportif"),
+                        Text(AppLocalizations.of(context).translate('sportif')),
                       ],
                     ),
                     SizedBox(
@@ -338,7 +342,10 @@ class _ManageProfile extends State<ManageProfile> {
                     TextFormField(
                         controller: name,
                         decoration: InputDecoration(
-                            labelText: "Prénom: " + user.userName,
+                            labelText: AppLocalizations.of(context)
+                                    .translate('prenom') +
+                                ": " +
+                                user.userName,
                             hasFloatingPlaceholder: true),
                         validator: (value) {
                           if (value.isEmpty) return 'Veuillez remplir ce champ';
@@ -354,7 +361,10 @@ class _ManageProfile extends State<ManageProfile> {
                           WhitelistingTextInputFormatter.digitsOnly
                         ],
                         decoration: InputDecoration(
-                            labelText: "Hauteur min: " + user.userHeightBottom,
+                            labelText: AppLocalizations.of(context)
+                                    .translate('haut_min') +
+                                ": " +
+                                user.userHeightBottom,
                             hasFloatingPlaceholder: true),
                         validator: (value) {
                           if (value.isEmpty) return 'Veuillez remplir ce champ';
@@ -370,7 +380,10 @@ class _ManageProfile extends State<ManageProfile> {
                           WhitelistingTextInputFormatter.digitsOnly
                         ],
                         decoration: InputDecoration(
-                            labelText: "Hauteur max: " + user.userHeightTop,
+                            labelText: AppLocalizations.of(context)
+                                    .translate('haut_max') +
+                                ": " +
+                                user.userHeightTop,
                             hasFloatingPlaceholder: true),
                         validator: (value) {
                           if (value.isEmpty) return 'Veuillez remplir ce champ';
@@ -391,7 +404,8 @@ class _ManageProfile extends State<ManageProfile> {
                             //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
                             ),
                         RaisedButton(
-                          child: Text("Changer d'image"),
+                          child: Text(AppLocalizations.of(context)
+                              .translate('changerImage')),
                           onPressed: () {
                             _pathSaved =
                                 pickImageFromGallery(ImageSource.gallery);
@@ -399,127 +413,19 @@ class _ManageProfile extends State<ManageProfile> {
                           textColor: colorButton,
                         ),
                         RaisedButton(
-                          child: Text("Ajuster sa poussée de référence"),
+                          child: Text(AppLocalizations.of(context)
+                              .translate('ajust_poussee')),
                           onPressed: () {
                             //TODO
                             setState(() {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return StatefulBuilder(
-                                        builder: (context, setState) {
-                                      return AlertDialog(
-                                        title: Text("Mesure"),
-                                        content: Row(
-                                          children: <Widget>[
-                                            SingleChildScrollView(
-                                              child: Container(
-                                                child: Column(
-                                                  children: <Widget>[
-                                                    Text(
-                                                        "Vous devez maintenir pendant 10 secondes entre 5 et 10."
-                                                        " Appuyez sur démarrer l'enregistrement lorsque vous êtes prêt."),
-                                                    RoundedProgressBar(
-                                                        percent: (double.parse(
-                                                            btData)),
-                                                        theme:
-                                                            RoundedProgressBarTheme
-                                                                .yellow,
-                                                        childCenter:
-                                                            Text("$btData")),
-                                                    RaisedButton(
-                                                        //child: Text("Démarrer l'enregistrement."),
-                                                        onPressed: () async {
-                                                          colorMesureButton =
-                                                              Colors.black;
-                                                          const oneSec =
-                                                              const Duration(
-                                                                  milliseconds:
-                                                                      500);
-                                                          _timer = new Timer
-                                                              .periodic(
-                                                            oneSec,
-                                                            (Timer timer) =>
-                                                                setState(
-                                                              () {
-                                                                if (_start <
-                                                                    0.5) {
-                                                                  timer
-                                                                      .cancel();
-                                                                  _start =
-                                                                      _reset;
-                                                                  result = average.reduce(
-                                                                          (a, b) =>
-                                                                              a +
-                                                                              b) /
-                                                                      average
-                                                                          .length;
-                                                                  print(result
-                                                                      .toString());
-                                                                  i = 20;
-                                                                  if (result <=
-                                                                          5.0 ||
-                                                                      result >=
-                                                                          10.0) {
-                                                                    //Mesure pas bonne, réajuster la toise
-                                                                    setState(
-                                                                        () {
-                                                                      recording =
-                                                                          "Mesure pas bonne, réajustez la toise et relancez la mesure";
-                                                                      colorMesureButton =
-                                                                          Colors
-                                                                              .red;
-                                                                    });
-                                                                  } else
-                                                                    setState(
-                                                                        () {
-                                                                      colorMesureButton =
-                                                                          Colors
-                                                                              .green;
-                                                                      recording =
-                                                                          "Mesure correcte";
-                                                                    });
-                                                                } else {
-                                                                  recording = _start
-                                                                      .toString();
-                                                                  _start =
-                                                                      _start -
-                                                                          0.5;
-                                                                  i--;
-                                                                  average[i] =
-                                                                      double.parse(
-                                                                          btData);
-                                                                }
-                                                              },
-                                                            ),
-                                                          );
-                                                          //_showDialog();
-                                                        },
-                                                        textColor:
-                                                            colorMesureButton,
-                                                        child: Text(recording)),
-                                                    RaisedButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                      child: Text("Retour"),
-                                                    )
-                                                  ],
-                                                ),
-                                                width: 300.0,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    });
-                                  });
+                              pousseeDialog();
                             });
                           },
                           textColor: colorButton,
                         ),
                         FlatButton(
-                          child: Text("Enregistrer les modifications"),
+                          child: Text(AppLocalizations.of(context)
+                              .translate('enregistrer')),
                           color: Colors.blue,
                           textColor: Colors.white,
                           padding: EdgeInsets.only(
@@ -529,7 +435,7 @@ class _ManageProfile extends State<ManageProfile> {
                           onPressed: () {
                             if (name.text == '') name.text = user.userName;
                             if (_pathSaved == '') _pathSaved = user.userPic;
-                            if (_userMode == '') _userMode = user.userMode;
+                            if (_userMode == null) _userMode = user.userMode;
                             if (hauteur_max.text == '')
                               hauteur_max.text = user.userHeightTop;
                             if (hauteur_min.text == '')
@@ -557,21 +463,24 @@ class _ManageProfile extends State<ManageProfile> {
                               userInitialPush: initialPush,
                               userMacAddress: macAddress,
                             ));
-                            //Navigator.pop(context, 'Modified');
-                            Navigator.push(
+
+                            /*Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => MainTitle(
-                                          userIn: user,
-                                          messageIn: 0,
-                                        )));
+                                    builder: (context) => LoadPage(
+                                          user: user,
+                                          appLanguage: appLanguage,
+                                          messageIn: "0",
+                                          page: "mainTitle",
+                                        )));*/
                           },
                         ),
                         Padding(
                           padding: EdgeInsets.only(top: 15, bottom: 15),
                         ),
                         FlatButton(
-                          child: Text("Supprimer son profil"),
+                          child: Text(AppLocalizations.of(context)
+                              .translate('supprimer')),
                           color: Colors.red,
                           textColor: Colors.white,
                           padding: EdgeInsets.only(
@@ -584,14 +493,16 @@ class _ManageProfile extends State<ManageProfile> {
                               builder: (BuildContext context) {
                                 // return object of type Dialog
                                 return AlertDialog(
-                                  title: new Text(
-                                      "Êtes-vous sûr de vouloir supprimer votre profil ?"),
-                                  content: new Text(
-                                      "Cette action est irréversible."),
+                                  title: new Text(AppLocalizations.of(context)
+                                      .translate('confirm_suppr')),
+                                  content: new Text(AppLocalizations.of(context)
+                                      .translate('info_suppr')),
                                   actions: <Widget>[
                                     // usually buttons at the bottom of the dialog
                                     new FlatButton(
-                                      child: new Text("Supprimer"),
+                                      child: new Text(
+                                          AppLocalizations.of(context)
+                                              .translate('supprimer')),
                                       onPressed: () {
                                         print("ID à SUPPR:" +
                                             user.userId.toString());
@@ -613,7 +524,9 @@ class _ManageProfile extends State<ManageProfile> {
                                       padding: EdgeInsets.all(12.0),
                                     ),
                                     new FlatButton(
-                                      child: new Text("Annuler"),
+                                      child: new Text(
+                                          AppLocalizations.of(context)
+                                              .translate('annuler')),
                                       onPressed: () {
                                         Navigator.of(context).pop();
                                       },
@@ -662,13 +575,117 @@ class _ManageProfile extends State<ManageProfile> {
     );
   }*/
 
+  void pousseeDialog() async {
+    //appLanguage = AppLanguage();
+    //await appLanguage.fetchLocale();
+
+    showDialog(
+        context: this.context,
+        builder: (BuildContext context) {
+          var temp = AppLocalizations.of(this.context);
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              title: Text(temp != null
+                  ? AppLocalizations.of(this.context).translate('mesure')
+                  : "Mesures"),
+              content: Row(
+                children: <Widget>[
+                  SingleChildScrollView(
+                    child: Container(
+                      child: Column(
+                        children: <Widget>[
+                          Text(temp != null
+                              ? AppLocalizations.of(this.context)
+                                  .translate('explications_mesure')
+                              : "Explications: mesures"),
+                          RoundedProgressBar(
+                              percent: (double.parse(btData)),
+                              theme: RoundedProgressBarTheme.yellow,
+                              childCenter: Text("$btData")),
+                          RaisedButton(
+                              //child: Text("Démarrer l'enregistrement."),
+                              onPressed: () async {
+                                colorMesureButton = Colors.black;
+                                const oneSec =
+                                    const Duration(milliseconds: 500);
+                                _timer = new Timer.periodic(
+                                  oneSec,
+                                  (Timer timer) => setState(
+                                    () {
+                                      if (_start < 0.5) {
+                                        timer.cancel();
+                                        _start = _reset;
+                                        result =
+                                            average.reduce((a, b) => a + b) /
+                                                average.length;
+                                        print(result.toString());
+                                        i = 20;
+                                        if (result <= 5.0 || result >= 10.0) {
+                                          //Mesure pas bonne, réajuster la toise
+                                          setState(() {
+                                            recording = temp != null
+                                                ? AppLocalizations.of(
+                                                        this.context)
+                                                    .translate(
+                                                        'status_mesure_mauvais')
+                                                : "Mesure ratée";
+                                            colorMesureButton = Colors.red;
+                                          });
+                                        } else
+                                          setState(() {
+                                            colorMesureButton = Colors.green;
+                                            recording = temp != null
+                                                ? AppLocalizations.of(
+                                                        this.context)
+                                                    .translate(
+                                                        'status_mesure_bon')
+                                                : "Mesure bonne";
+                                          });
+                                      } else {
+                                        recording = _start.toString();
+                                        _start = _start - 0.5;
+                                        i--;
+                                        average[i] = double.parse(btData);
+                                      }
+                                    },
+                                  ),
+                                );
+                                //_showDialog();
+                              },
+                              textColor: colorMesureButton,
+                              child: Text(recording)),
+                          RaisedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(temp != null
+                                ? AppLocalizations.of(this.context)
+                                    .translate('retour')
+                                : "Retourlol"),
+                          )
+                        ],
+                      ),
+                      width: 300.0,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          });
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
 
+    if (recording == null)
+      recording =
+          AppLocalizations.of(context).translate('demarrer_enregistrement');
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Modification de profil"),
+        title: Text(AppLocalizations.of(context).translate('modification')),
         backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(
