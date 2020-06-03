@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flame/components/component.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
@@ -7,16 +9,20 @@ import 'package:flutter/material.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/Swimmer/Background.dart';
 import 'package:gbsalternative/Swimmer/Swimmer.dart';
+import 'package:gbsalternative/Swimmer/Ui.dart';
 import 'package:gbsalternative/Swimmer/WaterLines.dart';
 
 class BoxGame extends Game {
   Size screenSize;
   bool inTouch = false;
   Background background;
-  DownLine downLine;
-  UpLine upLine;
+  BottomLine bottomLine;
+  TopLine topLine;
   SpriteComponent player;
   double tileSize;
+  bool redFilter;
+  bool start;
+  bool gameOver;
 
   int score = 0;
   bool pauseGame = false;
@@ -58,6 +64,9 @@ class BoxGame extends Game {
   double Function() getData;
   User user;
   int j = 0;
+  double posBottomLine;
+  double posTopLine;
+  UI gameUI;
 
   BoxGame(this.getData, User _user) {
     user = _user;
@@ -67,8 +76,15 @@ class BoxGame extends Game {
   void initialize() async {
     resize(await Flame.util.initialDimensions());
     background = Background(this);
-    downLine = DownLine(this);
-    upLine = UpLine(this);
+    bottomLine = BottomLine(this);
+    topLine = TopLine(this);
+    gameUI = UI();
+
+    gameOver = false;
+    start = false;
+    redFilter = false;
+    posBottomLine = bottomLine.getDownPosition();
+    posTopLine = bottomLine.getDownPosition();
   }
 
   void render(Canvas canvas) {
@@ -91,24 +107,41 @@ class BoxGame extends Game {
       boxPaint.color = Color(0xffffffff);
     }*/
 
-    if (canvas != null) {
-      //Background
-      if (background != null) background.render(canvas);
+      if (canvas != null) {
+        //Background
+        if (background != null) background.render(canvas);
 
-      /*
-      //Close button
-      closeButton.render(canvas);*/
+        canvas.save();
 
-      canvas.save();
+        if(!gameOver) {
+        //Ligne basse
+        if (bottomLine != null) bottomLine.render(canvas);
 
-      //Ligne basse
-      if (downLine != null) downLine.render(canvas);
+        //Ligne haute
+        if (topLine != null) topLine.render(canvas);
 
-      //Ligne haute
-      if (upLine != null) upLine.render(canvas);
+        //Nageur
+        if (player != null) player.render(canvas);
 
-      //Nageur
-      if (player != null) player.render(canvas);
+        double tempPos = player.y + player.height / 2;
+        //print("Position joueur: " + tempPos.toString());
+
+        if (tempPos < bottomLine.getDownPosition()) {
+          //TODO Conditions de défaite, début d'un timer
+          //print("Attention au bord bas !");
+          //setColorFilter(true);
+          //Rentre une fois dans la timer
+          if (!start) startTimer(start = true);
+        } else if (tempPos > topLine.getUpPosition()) {
+          //TODO Conditions de défaite, début d'un timer
+          //print("Attention au bord haut !");
+          //setColorFilter(true);
+          if (!start) startTimer(start = true);
+        } else {
+          setColorFilter(false);
+          startTimer(start = false);
+        }
+      }
     }
   }
 
@@ -116,66 +149,67 @@ class BoxGame extends Game {
     creationTimer += t;
     scoreTimer += t;
 
-    //Timer
-    if (creationTimer >= 0.04) {
-      if (i == 23)
-        i = 0;
-      else
-        i++;
+    if(!gameOver) {
+      //Timer
+      if (creationTimer >= 0.04) {
+        if (i == 23)
+          i = 0;
+        else
+          i++;
 
-      swimPic = tab[i];
+        swimPic = tab[i];
 
-      creationTimer = 0.0;
+        creationTimer = 0.0;
 
-      Sprite sprite = Sprite(swimPic);
+        Sprite sprite = Sprite(swimPic);
 
-      player = SpriteComponent.fromSprite(
-          size, size, sprite); // width, height, sprite
+        player = SpriteComponent.fromSprite(
+            size, size, sprite); // width, height, sprite
 
-      player.x = screenSize.width / 2 - player.width / 2;
-      //Définition des bords haut et bas de l'écran
+        player.x = screenSize.width / 2 - player.width / 2;
+        //Définition des bords haut et bas de l'écran
 
-      //Bas
-      if (tempPos >= screenSize.height - size / 2) {
-        player.y = tempPos;
+        //Bas
+        if (tempPos >= screenSize.height - size / 2) {
+          player.y = tempPos;
+        }
+        //Haut
+        else if (tempPos < -size / 2) {
+          print("SALUT " + player.y.toString());
+          tempPos = -size / 2;
+          player.y = tempPos;
+        }
+        //Sinon on fait descendre le nageur
+        else {
+          player.y += tempPos;
+          tempPos = player.y + difficulte * 2.0;
+        }
+
+        //component = new Component(dimensions);
+        //add(component);
       }
-      //Haut
-      else if (tempPos < -size / 2) {
-        print("SALUT " + player.y.toString());
-        tempPos = -size / 2;
-        player.y = tempPos;
-      }
-      //Sinon on fait descendre le nageur
-      else {
-        player.y += tempPos;
-        tempPos = player.y + difficulte * 2.0;
+
+      //On incrémente le score tous les x secondes
+      if (scoreTimer >= 0.5) {
+        score++;
+        scoreTimer = 0.0;
       }
 
-      //component = new Component(dimensions);
-      //add(component);
-    }
+      //getData = données reçues par le Bluetooth
+      if (getData() > double.parse(user.userInitialPush)) {
+        //print(player.y);
+        player.y -= difficulte;
+        tempPos = player.y;
+        inTouch = false;
+      }
 
-    //On incrémente le score tous les x secondes
-    if (scoreTimer >= 0.5) {
-      score++;
-      scoreTimer = 0.0;
+      if (inTouch) {
+        print(player.y);
+        player.y -= 20.0;
+        tempPos = player.y;
+        inTouch = false;
+      }
     }
-
-    //getData = données reçues par le Bluetooth
-    if (getData() > double.parse(user.userInitialPush)) {
-      //print(player.y);
-      player.y -= difficulte;
-      tempPos = player.y;
-      inTouch = false;
-    }
-
-    if (inTouch) {
-      print(player.y);
-      player.y -= 20.0;
-      tempPos = player.y;
-      inTouch = false;
-    }
-
     //super.update(t);
   }
 
@@ -198,4 +232,48 @@ class BoxGame extends Game {
   int getScore() {
     return score;
   }
+
+  void setColorFilter(bool boolean) {
+    redFilter = boolean;
+  }
+
+  ColorFilter getColorFilter() {
+    if (redFilter)
+      return ColorFilter.mode(Colors.redAccent, BlendMode.hue);
+    else
+      return ColorFilter.mode(Colors.transparent, BlendMode.luminosity);
+  }
+
+  void startTimer(bool boolean) async {
+    Timer _timer;
+    double _start = 5.0;
+
+    if (!boolean) {
+      _start = 5.0;
+      start = false;
+    } else {
+      const time = const Duration(milliseconds: 500);
+      _timer = new Timer.periodic(
+        time,
+        (Timer timer) {
+          // S'il ressort de la zone avant le timer, on reset le timer
+          if (!start) {
+            timer.cancel();
+            return;
+          }
+          if (_start < 0.5) {
+            //TODO Display menu ?
+            setColorFilter(true);
+            timer.cancel();
+            gameOver = true;
+          } else {
+            setColorFilter(!redFilter);
+            _start = _start - 0.5;
+            print(_start);
+          }
+        },
+      );
+    }
+  }
+
 }

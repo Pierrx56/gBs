@@ -2,91 +2,91 @@ import 'dart:ui';
 import 'package:flame/sprite.dart';
 import 'package:gbsalternative/Swimmer/box-game.dart';
 
-class WaterLine {
-
-}
+class WaterLine {}
 
 double linePosition = 0.1;
 int j = 0;
 int linesSpeed = 2;
 
-class DownLine{
+class BottomLine {
   final BoxGame game;
-  Sprite downLine;
-  Rect rectDown;
+  Sprite bottomLine;
+  Rect rectBottom;
 
-  DownLine(this.game) {
-    downLine = Sprite('swimmer/down_line.png');
+  BottomLine(this.game) {
+    bottomLine = Sprite('swimmer/down_line.png');
     //width: 500
     //height: 300
 
-    rectDown = Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height*0.05);
+    rectBottom = Rect.fromLTWH(
+        0, 0, game.screenSize.width, game.screenSize.height * 0.05);
   }
 
   void render(Canvas c) {
     //bgSprite.render(c);
 
-    c.translate(game.screenSize.width/2, game.screenSize.height);
-    c.translate(-game.screenSize.width/2, -game.screenSize.height*(linePosition));
+    c.translate(game.screenSize.width / 2, game.screenSize.height);
+    c.translate(
+        -game.screenSize.width / 2, -game.screenSize.height * (linePosition));
 
+    if (j >= game.screenSize.width) j = 0;
 
-    if(j >= game.screenSize.width)
-      j = 0;
+    c.translate(game.screenSize.width - j.toDouble(), 0);
 
-    c.translate(game.screenSize.width- j.toDouble(), 0);
-
-
-    downLine.renderRect(c, rectDown);
+    bottomLine.renderRect(c, rectBottom);
 
     c.translate(-game.screenSize.width, 0);
 
-    downLine.renderRect(c, rectDown);
+    bottomLine.renderRect(c, rectBottom);
     // restore original state
     c.restore();
   }
 
+  double getDownPosition() {
+    return game.screenSize.height * (linePosition);
+  }
 
   void update(double t) {}
-
 }
 
-class UpLine {
+class TopLine {
   final BoxGame game;
-  Sprite upLine;
-  Rect rectUp;
+  Sprite topLine;
+  Rect rectTop;
 
-  UpLine(this.game) {
-    upLine = Sprite('swimmer/up_line.png');
+  TopLine(this.game) {
+    topLine = Sprite('swimmer/up_line.png');
     //width: 500
     //height: 300
-    rectUp = Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height*0.05);
+    rectTop = Rect.fromLTWH(
+        0, 0, game.screenSize.width, game.screenSize.height * 0.05);
   }
 
   void render(Canvas c) {
     //bgSprite.render(c);
 
-    c.translate(game.screenSize.width/2, game.screenSize.height);
-    c.translate(-game.screenSize.width/2, -game.screenSize.height*(1-linePosition));
+    c.translate(game.screenSize.width / 2, game.screenSize.height);
+    c.translate(-game.screenSize.width / 2,
+        -game.screenSize.height * (1 - linePosition));
 
+    if (j >= game.screenSize.width) j = 0;
 
-    if(j >= game.screenSize.width)
-      j = 0;
-
-    c.translate(game.screenSize.width- j.toDouble(), 0);
+    c.translate(game.screenSize.width - j.toDouble(), 0);
     j += linesSpeed;
 
-
-    upLine.renderRect(c, rectUp);
+    topLine.renderRect(c, rectTop);
 
     c.translate(-game.screenSize.width, 0);
 
-    upLine.renderRect(c, rectUp);
+    topLine.renderRect(c, rectTop);
 
     // restore original state
     c.restore();
+  }
 
+  double getUpPosition() {
+    return game.screenSize.height * (1 - linePosition);
   }
 
   void update(double t) {}
-
 }

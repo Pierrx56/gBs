@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,6 +19,8 @@ class UI extends StatefulWidget {
 }
 
 class UIState extends State<UI> {
+  bool redFilter = false;
+
   void initState() {
     super.initState();
     //WidgetsBinding.instance.addObserver(this);
@@ -74,6 +77,7 @@ class UIState extends State<UI> {
     );
   }
 
+
   Widget closeButton(
       BuildContext context, AppLanguage appLanguage, User user, int score) {
     DatabaseHelper db = new DatabaseHelper();
@@ -106,6 +110,7 @@ class UIState extends State<UI> {
             //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
             for (int i = 0; i < everyScores.length; i++) {
               //On remplace la valeur dans la bdd
+              print(everyScores[i].scoreId);
               if (everyScores[i].date == date && score > everyScores[i].score)
                 db.updateScore(Score(
                     scoreId: everyScores[i].scoreId,
@@ -180,6 +185,10 @@ class UIState extends State<UI> {
     //scoreDisplay(),
     //creditsButton(),
   }
+
+
+
+
 }
 
 enum UIScreen {

@@ -71,13 +71,14 @@ class _Swimmer extends State<Swimmer> {
     score = 0;
     connectBT();
     testConnect();
+    refreshScore();
 
     super.initState();
   }
 
   initSwimmer() async {
     WidgetsFlutterBinding.ensureInitialized();
-    game = BoxGame(getData, user);
+    game = new BoxGame(getData, user);
     //gameUI.state.game = game;
     Util flameUtil = Util();
     flameUtil.fullScreen();
@@ -133,10 +134,8 @@ class _Swimmer extends State<Swimmer> {
     await BluetoothConnection.toAddress(user.userMacAddress)
         .then((_connection) {
       print('Connected to the device');
-      setState(() {
-        initSwimmer();
-        refreshScore();
-      });
+      initSwimmer();
+      //refreshScore();
 
       connection = _connection;
       isConnected = true;
@@ -241,14 +240,14 @@ class _Swimmer extends State<Swimmer> {
     super.dispose();
   }
 
-  refreshScore() {
-      new Timer.periodic(Duration(milliseconds: 300), (timer) {
-        if (this.mounted) {
-          setState(() {
-            score = game.getScore();
-          });
-        }
-      });
+  refreshScore() async{
+    new Timer.periodic(Duration(milliseconds: 300), (timer) {
+      if (this.mounted) {
+        setState(() {
+          score = game.getScore();
+        });
+      }
+    });
   }
 
   @override
@@ -257,19 +256,29 @@ class _Swimmer extends State<Swimmer> {
     //gameUI.state.game = game;
 
     return Material(
-        child: Stack(
-      children: <Widget>[
-        game == null ? Center(child: CircularProgressIndicator(),) : game.widget,
-        Container(
-          padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-          child: game == null ? Container() : gameUI.state
-              .closeButton(context, appLanguage, user, game.getScore()),
-        ),
-        Container(
-          padding: EdgeInsets.fromLTRB(300, 10, 10, 10),
-          child: game == null ? Container() : gameUI.state.displayScore(score),
-        ),
-      ],
+        child: ColorFiltered(
+      colorFilter: game.getColorFilter(),
+      child: Stack(
+        children: <Widget>[
+          game == null
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : game.widget,
+          Container(
+            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: game == null
+                ? Container()
+                : gameUI.state
+                    .closeButton(context, appLanguage, user, game.getScore()),
+          ),
+          Container(
+            padding: EdgeInsets.fromLTRB(300, 10, 10, 10),
+            child:
+                game == null ? Container() : gameUI.state.displayScore(score),
+          ),
+        ],
+      ),
     )
 
         /*Positioned.fill(
