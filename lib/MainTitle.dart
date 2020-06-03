@@ -33,6 +33,8 @@ class _MainTitle extends State<MainTitle> {
   Widget bluetoothPage;
   Widget loginPage;
   PageController _c;
+  bool _visible;
+  Color colorCard;
 
   AppLanguage appLanguage;
   User user;
@@ -51,7 +53,7 @@ class _MainTitle extends State<MainTitle> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const Color orangeColor = Colors.orange; //Colors.amber[800];
 
   _MainTitle(AppLanguage _appLanguage, User userIn, int messageIn) {
@@ -66,7 +68,6 @@ class _MainTitle extends State<MainTitle> {
       page: "menu",
       user: user,
     );*/
-
 
     settingsPage = LoadPage(
       appLanguage: appLanguage,
@@ -88,6 +89,8 @@ class _MainTitle extends State<MainTitle> {
   void initState() {
     // TODO: implement initState
     //db.deleteScore(user.userId);
+    _visible = true;
+    colorCard = Colors.white;
     getScores(user.userId);
     super.initState();
   }
@@ -109,7 +112,9 @@ class _MainTitle extends State<MainTitle> {
   }
 
   Widget menu() {
-    Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery
+        .of(context)
+        .size;
     int numberOfCard = 3;
 
     double widthCard, heightCard;
@@ -136,7 +141,7 @@ class _MainTitle extends State<MainTitle> {
               ),
               temp != null
                   ? Text(AppLocalizations.of(context).translate('bonjour') +
-                      user.userName)
+                  user.userName)
                   : Text("a"),
             ],
           ),
@@ -144,16 +149,53 @@ class _MainTitle extends State<MainTitle> {
           actions: <Widget>[
             FlatButton.icon(
               icon: Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
+              label: temp != null
+                  ? Text(
+                "Add score",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              )
+                  : Text("a"),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              splashColor: Colors.blue,
+              onPressed: () {
+                db.deleteScore(user.userId);
+
+                Score newScore = Score(
+                    scoreId: null,
+                    userId: user.userId,
+                    activityId: 0,
+                    scoreValue: 123,
+                    scoreDate: "01-06-2020");
+                Score newScore1 = Score(
+                    scoreId: null,
+                    userId: user.userId,
+                    activityId: 0,
+                    scoreValue: 156,
+                    scoreDate: "02-06-2020");
+
+                db.addScore(newScore);
+                db.addScore(newScore1);
+              },
+            ),
+            FlatButton.icon(
+              icon: Icon(
                 Icons.power_settings_new,
                 color: Colors.white,
               ),
               label: temp != null
                   ? Text(
-                      AppLocalizations.of(context).translate('deconnexion'),
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    )
+                AppLocalizations.of(context).translate('deconnexion'),
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              )
                   : Text("a"),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -163,7 +205,8 @@ class _MainTitle extends State<MainTitle> {
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => LoadPage(
+                        builder: (context) =>
+                            LoadPage(
                               appLanguage: appLanguage,
                               messageIn: "deconnexion",
                               page: "login",
@@ -196,12 +239,12 @@ class _MainTitle extends State<MainTitle> {
                             children: <Widget>[
                               temp != null
                                   ? Text(
-                                      AppLocalizations.of(context)
-                                          .translate('stat_nageur'),
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
-                                    )
+                                AppLocalizations.of(context)
+                                    .translate('stat_nageur'),
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold),
+                              )
                                   : Text("a"),
                               data == null
                                   ? Container()
@@ -211,9 +254,9 @@ class _MainTitle extends State<MainTitle> {
                                 child: RaisedButton(
                                   child: temp != null
                                       ? Text(
-                                          AppLocalizations.of(context)
-                                              .translate('details'),
-                                        )
+                                    AppLocalizations.of(context)
+                                        .translate('details'),
+                                  )
                                       : Text("a"),
                                   onPressed: () => show("Bonjour"),
                                 ),
@@ -233,37 +276,88 @@ class _MainTitle extends State<MainTitle> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      /*Swimmer(
+                                  /*Swimmer(
                                         user: user,
                                         appLanguage: appLanguage,
                                       ))*/
-                                      LoadPage(
-                                        appLanguage: appLanguage,
-                                        page: "swimmer",
-                                        user: user,
-                                      )));
+                                  LoadPage(
+                                    appLanguage: appLanguage,
+                                    page: "swimmer",
+                                    user: user,
+                                  )));
                         },
                         child: new Card(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                           elevation: 8,
+                          color: colorCard,
                           child: Container(
                             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.max,
+                            child: Stack(
                               children: <Widget>[
-                                Image.asset(
-                                  'assets/swim.png',
-                                  width: widthCard * 0.7,
+                                Container(
+                                  alignment: Alignment.bottomCenter,
+                                  child: FlatButton.icon(
+                                    label: temp != null
+                                        ? Text(
+                                      AppLocalizations.of(context)
+                                          .translate('nageur'),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 24,
+                                      ),
+                                    )
+                                        : Text("a"),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                    icon: Icon(
+                                      Icons.info_outline,
+                                      color: Colors.black,
+                                    ),
+                                    splashColor: Colors.blue,
+                                    onPressed: () {
+                                      setState(() {
+                                        _visible = !_visible;
+                                        !_visible
+                                            ? colorCard = Colors.grey
+                                            : colorCard = Colors.white;
+                                      });
+                                    },
+                                  ),
                                 ),
-                                Text(
-                                  AppLocalizations.of(context)
-                                      .translate('nageur'),
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
+                                Container(
+                                  alignment: Alignment.topCenter,
+                                  child: Image.asset(
+                                    'assets/swim.png',
+                                    width: widthCard * 0.6,
+                                  ),
+                                ),
+                                AnimatedOpacity(
+                                    duration: Duration(milliseconds: 1000),
+                                    opacity: _visible ? 0.0 : 1.0,
+                                    child:
+                                    Column(
+                                      children: <Widget>[
+
+                                        Container(
+                                          child:
+                                          !_visible
+                                              ? Container(
+                                            child: Text(
+                                              "Texte expliquant le fonctionnement du nageur",
+                                              style:
+                                              TextStyle(color: Colors.white),
+                                            ),
+                                          )
+                                              : Container(),
+                                          color: Colors.grey,
+                                          width: screenSize.width,
+                                          height: screenSize.height,
+                                        )
+                                      ],
+                                    )
                                 ),
                               ],
                             ),
@@ -356,8 +450,7 @@ class _MainTitle extends State<MainTitle> {
 
   // Method to show a Snackbar,
   // taking message as the text
-  Future show(
-    String message, {
+  Future show(String message, {
     Duration duration: const Duration(seconds: 3),
   }) async {
     await new Future.delayed(new Duration(milliseconds: 100));
@@ -373,8 +466,14 @@ class _MainTitle extends State<MainTitle> {
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    double screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     void _onItemTapped(int index) {
       setState(() {
@@ -441,7 +540,7 @@ class _MainTitle extends State<MainTitle> {
                   Icons.settings_bluetooth,
                 ),
                 title:
-                    Text(AppLocalizations.of(context).translate('bluetooth')),
+                Text(AppLocalizations.of(context).translate('bluetooth')),
               ),
             ],
             currentIndex: _selectedIndex,

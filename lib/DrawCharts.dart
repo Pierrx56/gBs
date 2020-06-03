@@ -69,6 +69,10 @@ class DrawCharts extends StatelessWidget {
       child: charts.BarChart(
         series,
         animate: animate,
+        domainAxis: new charts.OrdinalAxisSpec(
+          renderSpec: charts.SmallTickRendererSpec(labelRotation: 60,),
+        ),
+
       ),
     );
   }

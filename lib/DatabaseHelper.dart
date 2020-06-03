@@ -261,7 +261,7 @@ class DatabaseHelper {
     for (int i = 0; i < maps.length; i++) {
 
       if (score[i].userId == id) {
-        data.add(new Scores(score[i].userId, score[i].scoreId, score[i].activityId, score[i].scoreDate, score[i].scoreValue));
+        data.add(Scores(score[i].scoreId, score[i].activityId, score[i].userId, score[i].scoreDate, score[i].scoreValue));
       }
 
     }
@@ -281,7 +281,7 @@ class DatabaseHelper {
       // Ensure that the score has a matching id.
       where: KEY_SCORE_ID + " = ?",
       // Pass the User's id as a whereArg to prevent SQL injection.
-      whereArgs: [score.userId],
+      whereArgs: [score.scoreId],
     );
   }
 

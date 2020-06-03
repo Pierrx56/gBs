@@ -493,15 +493,15 @@ class _ManageProfile extends State<ManageProfile> {
                               builder: (BuildContext context) {
                                 // return object of type Dialog
                                 return AlertDialog(
-                                  title: new Text(AppLocalizations.of(context)
+                                  title: new Text(AppLocalizations.of(this.context)
                                       .translate('confirm_suppr')),
-                                  content: new Text(AppLocalizations.of(context)
+                                  content: new Text(AppLocalizations.of(this.context)
                                       .translate('info_suppr')),
                                   actions: <Widget>[
                                     // usually buttons at the bottom of the dialog
                                     new FlatButton(
                                       child: new Text(
-                                          AppLocalizations.of(context)
+                                          AppLocalizations.of(this.context)
                                               .translate('supprimer')),
                                       onPressed: () {
                                         print("ID à SUPPR:" +
@@ -525,7 +525,7 @@ class _ManageProfile extends State<ManageProfile> {
                                     ),
                                     new FlatButton(
                                       child: new Text(
-                                          AppLocalizations.of(context)
+                                          AppLocalizations.of(this.context)
                                               .translate('annuler')),
                                       onPressed: () {
                                         Navigator.of(context).pop();
