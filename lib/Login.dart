@@ -21,6 +21,7 @@ class Login extends StatefulWidget {
 }
 
 double screenHeight;
+double screenWidth;
 
 class _Login extends State<Login> {
   DatabaseHelper db = new DatabaseHelper();
@@ -52,6 +53,7 @@ class _Login extends State<Login> {
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
+    screenWidth = MediaQuery.of(context).size.width;
 
     return LoginWidget(db);
   }

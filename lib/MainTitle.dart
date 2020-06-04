@@ -285,9 +285,6 @@ class _MainTitle extends State<MainTitle> {
                                       user: user,
                                     )));
                           }
-                          else {
-
-                          }
                         },
                         child: new Card(
                           shape: RoundedRectangleBorder(

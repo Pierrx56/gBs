@@ -44,6 +44,9 @@ class _Register extends State<Register> {
   String _pathSaved = "assets/avatar.png";
   File imageFile;
 
+  // Initializing a global key, as it would help us in showing a SnackBar later
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   /* FORM */
   static String _userMode = "";
   final hauteur_min = new TextEditingController();
@@ -52,6 +55,7 @@ class _Register extends State<Register> {
   List<Step> steps;
   ScrollController _controller;
   double posScroll = 0.0;
+  bool isDisabled;
 
   /* END FORM */
 
@@ -69,6 +73,7 @@ class _Register extends State<Register> {
   void initState() {
     btData = "0.0";
     _controller = ScrollController();
+    isDisabled = false;
     super.initState();
   }
 
@@ -151,7 +156,7 @@ class _Register extends State<Register> {
           1,
           backspacesCounter > 0
               ? _messageBuffer.substring(
-              0, _messageBuffer.length - backspacesCounter)
+                  0, _messageBuffer.length - backspacesCounter)
               : _messageBuffer + dataString.substring(0, index),
         ),
       );
@@ -159,7 +164,7 @@ class _Register extends State<Register> {
     } else {
       _messageBuffer = (backspacesCounter > 0
           ? _messageBuffer.substring(
-          0, _messageBuffer.length - backspacesCounter)
+              0, _messageBuffer.length - backspacesCounter)
           : _messageBuffer + dataString);
     }
     //Conversion des données reçu en un String btData
@@ -249,14 +254,8 @@ class _Register extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
-    screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
-    screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    screenHeight = MediaQuery.of(context).size.height;
+    screenWidth = MediaQuery.of(context).size.width;
 
     if (recording == null)
       recording =
@@ -349,13 +348,13 @@ class _Register extends State<Register> {
               Center(
                   child: imageFile == null
                       ? Image.asset(
-                    'assets/avatar.png',
-                    width: screenWidth * 0.3,
-                  )
+                          'assets/avatar.png',
+                          width: screenWidth * 0.3,
+                        )
                       : Image.file(File(_pathSaved),
-                      height: screenHeight * 0.3, width: screenHeight * 0.3)
-                //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
-              ),
+                          height: screenHeight * 0.3, width: screenHeight * 0.3)
+                  //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
+                  ),
               RaisedButton(
                 child: Text(
                     AppLocalizations.of(context).translate('select_image')),
@@ -372,14 +371,13 @@ class _Register extends State<Register> {
           state: currentStep > 5 ? StepState.complete : StepState.disabled,
           content: Column(children: <Widget>[
             RaisedButton(
-              child: Text(
-                  AppLocalizations.of(context).translate('connecter_app')),
+              child:
+                  Text(AppLocalizations.of(context).translate('connecter_app')),
               onPressed: () async {
                 final macAddress = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            BluetoothSync(
+                        builder: (context) => BluetoothSync(
                               curUser: null,
                               inputMessage: "inscription",
                             )));
@@ -396,47 +394,42 @@ class _Register extends State<Register> {
           children: <Widget>[
             Text(AppLocalizations.of(context).translate('explications_mesure')),
             RaisedButton(
-              //child: Text("Démarrer l'enregistrement."),
-              //TODO
+                //child: Text("Démarrer l'enregistrement."),
                 onPressed: () async {
                   colorMesureButton = Colors.black;
                   const oneSec = const Duration(milliseconds: 500);
                   _timer = new Timer.periodic(
                     oneSec,
-                        (Timer timer) =>
-                        setState(
-                              () {
-                            if (_start < 0.5) {
-                              timer.cancel();
-                              _start = _reset;
-                              result =
-                                  average.reduce((a, b) => a + b) /
-                                      average.length;
-                              print(result.toString());
-                              i = 20;
-                              if (result <= 5.0 || result >= 10.0) {
-                                //Mesure pas bonne, réajuster la toise
-                                setState(() {
-                                  recording =
-                                      AppLocalizations.of(context).translate(
-                                          'status_mesure_mauvais');
-                                  colorMesureButton = Colors.red;
-                                });
-                              } else
-                                setState(() {
-                                  colorMesureButton = Colors.green;
-                                  recording =
-                                      AppLocalizations.of(context).translate(
-                                          'status_mesure_bon');
-                                });
-                            } else {
-                              recording = _start.toString();
-                              _start = _start - 0.5;
-                              i--;
-                              average[i] = double.parse(btData);
-                            }
-                          },
-                        ),
+                    (Timer timer) => setState(
+                      () {
+                        if (_start < 0.5) {
+                          timer.cancel();
+                          _start = _reset;
+                          result =
+                              average.reduce((a, b) => a + b) / average.length;
+                          print(result.toString());
+                          i = 20;
+                          if (result <= 5.0 || result >= 10.0) {
+                            //Mesure pas bonne, réajuster la toise
+                            setState(() {
+                              recording = AppLocalizations.of(context)
+                                  .translate('status_mesure_mauvais');
+                              colorMesureButton = Colors.red;
+                            });
+                          } else
+                            setState(() {
+                              colorMesureButton = Colors.green;
+                              recording = AppLocalizations.of(context)
+                                  .translate('status_mesure_bon');
+                            });
+                        } else {
+                          recording = _start.toString();
+                          _start = _start - 0.5;
+                          i--;
+                          average[i] = double.parse(btData);
+                        }
+                      },
+                    ),
                   );
                   //_showDialog();
                 },
@@ -464,21 +457,45 @@ class _Register extends State<Register> {
                         width: screenWidth * 0.3,
                       ),
                       Text(AppLocalizations.of(context).translate('prenom') +
-                          ": " + name.text),
-                      Text(AppLocalizations.of(context).translate(
-                          'type_utilisation') + ": " + _userMode),
+                          ": " +
+                          name.text),
+                      Text(AppLocalizations.of(context)
+                              .translate('type_utilisation') +
+                          ": " +
+                          _userMode),
                       Text(AppLocalizations.of(context).translate('haut_min') +
-                          ": " + hauteur_min.text),
-                      Text(AppLocalizations.of(context).translate('haut_max') +
-                          ": " + hauteur_max.text),
-                      macAddress != null ? Text(AppLocalizations.of(context).translate(
-                          'status_connexion_bon')) : Text(
-                          AppLocalizations.of(context).translate(
-                              'status_connexion_mauvais'),
-                        style: TextStyle(color: Colors.red),
-                      ),
-                      Text(AppLocalizations.of(context).translate(
-                          'premiere_mesure') + ": " + result.toString()),
+                          ": " +
+                          hauteur_min.text),
+
+                      //Si haut max est inf à haut min
+                      (hauteur_min.text != '' && hauteur_max.text != '') ?
+                      int.tryParse(hauteur_max.text) <=
+                                  int.tryParse(hauteur_min.text)
+                              ? Text(
+                                  "La hauteur max doit être supérieure à la hauteur min. \n"
+                                  "Veuillez corriger cela en revenant à l'étape 3",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              : Text(AppLocalizations.of(context)
+                                      .translate('haut_max') +
+                                  ": " +
+                                  hauteur_max.text)
+                          : Text(AppLocalizations.of(context)
+                          .translate('haut_max') +
+                          ": "),
+
+                      macAddress != null
+                          ? Text(AppLocalizations.of(context)
+                              .translate('status_connexion_bon'))
+                          : Text(
+                              AppLocalizations.of(context)
+                                  .translate('status_connexion_mauvais'),
+                              style: TextStyle(color: Colors.red),
+                            ),
+                      Text(AppLocalizations.of(context)
+                              .translate('premiere_mesure') +
+                          ": " +
+                          result.toString()),
                     ],
                   ),
                   FlatButton(
@@ -491,30 +508,52 @@ class _Register extends State<Register> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5)),
                     onPressed: () async {
-                      User user = await addUser();
-                      //getUser();
-                      //connectBT();
+                      //Conditions d'inscriptions
+                      //Prénom
+                      if (name.text == '') isDisabled = true;
+                      //Hauteur min et max
+                      else if (hauteur_min.text == '' || hauteur_max.text == '')
+                        isDisabled = true;
+                      //Hauteur max inférieur à hauteur min ?
+                      else if (hauteur_min.text != '' && hauteur_max.text != '' )
+                        if(int.tryParse(hauteur_max.text) <=
+                            int.tryParse(hauteur_min.text))
+                        isDisabled = true;
+                      //Adresse mac
+                      else if (macAddress == '')
+                        isDisabled = true;
+                      //Première poussée
+                      else if (result.toString() == null)
+                        isDisabled = true;
+                      else
+                        isDisabled = false;
 
-                      if (user != null) {
-                        print("salut " + user.userId.toString());
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    MainTitle(
-                                      userIn: user,
-                                      messageIn: 0,
-                                    )));
+                      if (!isDisabled) {
+                        User user = await addUser();
+                        //getUser();
+                        //connectBT();
+
+                        if (user != null) {
+                          print("salut " + user.userId.toString());
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MainTitle(
+                                        userIn: user,
+                                        messageIn: 0,
+                                      )));
+                        } else
+                          print("Something went wrong");
+                        // Navigator.pushReplacement(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) =>
+                        //             Menu(
+                        //               BTDevice: BTDevice,
+                        //               curUser: user,
+                        //             )));
                       } else
-                        print("Something went wrong");
-                      // Navigator.pushReplacement(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) =>
-                      //             Menu(
-                      //               BTDevice: BTDevice,
-                      //               curUser: user,
-                      //             )));
+                        show("Veuillez corriger toutes les erreurs");
                     },
                   ),
                   FlatButton(
@@ -524,8 +563,8 @@ class _Register extends State<Register> {
                           duration: Duration(milliseconds: 500),
                           curve: Curves.linear);
                     },
-                    child: Text(
-                        AppLocalizations.of(context).translate('retour')),
+                    child:
+                        Text(AppLocalizations.of(context).translate('retour')),
                   ),
                 ],
               )
@@ -534,6 +573,7 @@ class _Register extends State<Register> {
     ];
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text("Inscription"),
         backgroundColor: Colors.blue,
@@ -568,56 +608,74 @@ class _Register extends State<Register> {
           type: StepperType.vertical,
           currentStep: currentStep,
           onStepContinue: next,
-          //onStepTapped: (step) => goTo(step),
+          onStepTapped: (step) => goTo(step),
           onStepCancel: back,
           steps: steps,
           controlsBuilder: currentStep < steps.length - 1
               ? (BuildContext context,
-              {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
-            return Column(
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    FlatButton(
-
-                      onPressed: /*!clickable ? null : */() {
-                        next();
-                        _controller.animateTo(((currentStep) * 75).toDouble(),
-                            duration: Duration(milliseconds: 500),
-                            curve: Curves.linear);
-                      },
-                      color: Colors.blue,
-                      child: Text(
-                        AppLocalizations.of(context).translate('suivant'),
-                        style: TextStyle(color: Colors.white),
+                  {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+                  return Column(
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          FlatButton(
+                            onPressed: /*!clickable ? null : */ () {
+                              next();
+                              _controller.animateTo(
+                                  ((currentStep) * 75).toDouble(),
+                                  duration: Duration(milliseconds: 500),
+                                  curve: Curves.linear);
+                            },
+                            color: Colors.blue,
+                            child: Text(
+                              AppLocalizations.of(context).translate('suivant'),
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          FlatButton(
+                            onPressed: () {
+                              back();
+                              _controller.animateTo(
+                                  ((currentStep) * -75).toDouble(),
+                                  duration: Duration(milliseconds: 500),
+                                  curve: Curves.linear);
+                            },
+                            child: Text(AppLocalizations.of(context)
+                                .translate('retour')),
+                          ),
+                        ],
                       ),
-                    ),
-                    FlatButton(
-                      onPressed: () {
-                        back();
-                        _controller.animateTo(((currentStep) * -75).toDouble(),
-                            duration: Duration(milliseconds: 500),
-                            curve: Curves.linear);
-                      },
-                      child: Text(
-                          AppLocalizations.of(context).translate('retour')),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding:
-                  EdgeInsets.fromLTRB(0, 0, 0, screenWidth * 0.5),
-                )
-              ],
-            );
-          }
+                      Padding(
+                        padding:
+                            EdgeInsets.fromLTRB(0, 0, 0, screenWidth * 0.5),
+                      )
+                    ],
+                  );
+                }
               : (BuildContext context,
-              {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
-            return Padding(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, screenWidth * 0.5),
-            );
-          },
+                  {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+                  return Padding(
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, screenWidth * 0.5),
+                  );
+                },
         ),
+      ),
+    );
+  }
+
+  // Method to show a Snackbar,
+  // taking message as the text
+  Future show(
+    String message, {
+    Duration duration: const Duration(seconds: 3),
+  }) async {
+    await new Future.delayed(new Duration(milliseconds: 100));
+    _scaffoldKey.currentState.showSnackBar(
+      new SnackBar(
+        content: new Text(
+          message,
+        ),
+        duration: duration,
       ),
     );
   }

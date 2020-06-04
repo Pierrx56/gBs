@@ -70,14 +70,6 @@ class UIState extends State<UI> {
     );
   }
 
-/*  Widget backGround() {
-    return Image.asset(
-      "assets/images/swimmer/background.png",
-      width: game.screenSize.width,
-      height: game.screenSize.height,
-    );
-  }*/
-
   Widget creditsButton() {
     return Ink(
       decoration: ShapeDecoration(
@@ -101,6 +93,7 @@ class UIState extends State<UI> {
 
     return Container(
       height: screenHeight * 0.2,
+      width: screenWidth * 0.2,
       child: RaisedButton(
         onPressed: () async {
           //TODO insérer dans bdd
@@ -169,11 +162,23 @@ class UIState extends State<UI> {
   Widget pauseButton(BoxGame game) {
     return Container(
       height: screenHeight * 0.2,
+      width: screenWidth * 0.2,
       child: RaisedButton(
         onPressed: () async {
           game.pauseGame = !game.pauseGame;
         },
-        child: Text("Pause"),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+              Icon(
+                !game.pauseGame ?
+                Icons.pause : Icons.play_arrow,
+              ),
+                  !game.pauseGame ?
+              Text("Pause") : Text("Play"),
+          ],
+        ),
       ),
     );
   }
@@ -182,6 +187,7 @@ class UIState extends State<UI> {
       BuildContext context, AppLanguage appLanguage, User user) {
     return Container(
       height: screenHeight * 0.2,
+      width: screenWidth * 0.2,
       child: RaisedButton(
         onPressed: () async {
           Navigator.pushReplacement(
