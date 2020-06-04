@@ -22,7 +22,7 @@ class BottomLine {
         0, 0, game.screenSize.width, game.screenSize.height * 0.05);
   }
 
-  void render(Canvas c) {
+  void render(Canvas c, bool pause) {
     //bgSprite.render(c);
 
     c.translate(game.screenSize.width / 2, game.screenSize.height);
@@ -30,6 +30,9 @@ class BottomLine {
         -game.screenSize.width / 2, -game.screenSize.height * (linePosition));
 
     if (j >= game.screenSize.width) j = 0;
+
+    if(pause)
+      j -= linesSpeed;
 
     c.translate(game.screenSize.width - j.toDouble(), 0);
 

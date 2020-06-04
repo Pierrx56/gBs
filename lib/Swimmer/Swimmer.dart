@@ -231,7 +231,10 @@ class _Swimmer extends State<Swimmer> {
   }
 
   double getData() {
-    return double.parse(btData);
+    if (btData != null)
+      return double.parse(btData);
+    else
+      return 2.0;
   }
 
   @override
@@ -240,12 +243,14 @@ class _Swimmer extends State<Swimmer> {
     super.dispose();
   }
 
-  refreshScore() async{
+  refreshScore() async {
     new Timer.periodic(Duration(milliseconds: 300), (timer) {
       if (this.mounted) {
-        setState(() {
-          score = game.getScore();
-        });
+        if (game != null) {
+          setState(() {
+            score = game.getScore();
+          });
+        }
       }
     });
   }
@@ -257,7 +262,9 @@ class _Swimmer extends State<Swimmer> {
 
     return Material(
         child: ColorFiltered(
-      colorFilter: game.getColorFilter(),
+      colorFilter: game != null
+          ? game.getColorFilter()
+          : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
       child: Stack(
         children: <Widget>[
           game == null
@@ -265,17 +272,64 @@ class _Swimmer extends State<Swimmer> {
                   child: CircularProgressIndicator(),
                 )
               : game.widget,
-          Container(
-            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-            child: game == null
-                ? Container()
-                : gameUI.state
-                    .closeButton(context, appLanguage, user, game.getScore()),
+          Column(
+            children: <Widget>[
+              Container(
+                alignment: Alignment.topLeft,
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                child: game == null
+                    ? Container()
+                    : gameUI.state.closeButton(
+                        context, appLanguage, user, game.getScore()),
+              ),
+              Container(
+                alignment: Alignment.topLeft,
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                child: game == null ? Container() : gameUI.state.pauseButton(game),
+              ),
+              Container(
+                alignment: Alignment.topLeft,
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                child: game == null ? Container() : gameUI.state.restartButton(context, appLanguage, user),
+              ),
+            ],
           ),
           Container(
-            padding: EdgeInsets.fromLTRB(300, 10, 10, 10),
+            alignment: Alignment.topCenter,
+            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
             child:
                 game == null ? Container() : gameUI.state.displayScore(score),
+          ),
+          //Display message pour relancher
+          Container(
+            alignment: Alignment.center,
+            child: game != null
+                ? game.getColorFilterBool() &&
+                        game.getPosition() &&
+                        !game.getGameOver()
+                    ? gameUI.state.displayMessage("Relachez")
+                    : Container()
+                : Container(),
+          ),
+          //Display message pour pousser
+          Container(
+            alignment: Alignment.center,
+            child: game != null
+                ? game.getColorFilterBool() &&
+                        !game.getPosition() &&
+                        !game.getGameOver()
+                    ? gameUI.state.displayMessage("Poussez")
+                    : Container()
+                : Container(),
+          ),
+          //Display message Game Over
+          Container(
+            alignment: Alignment.center,
+            child: game != null
+                ? game.getGameOver()
+                    ? gameUI.state.displayMessage("Game Over")
+                    : Container()
+                : Container(),
           ),
         ],
       ),

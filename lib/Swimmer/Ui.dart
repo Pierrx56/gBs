@@ -10,6 +10,7 @@ import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
+import 'package:gbsalternative/Swimmer/box-game.dart';
 import 'package:intl/intl.dart';
 
 class UI extends StatefulWidget {
@@ -37,7 +38,24 @@ class UIState extends State<UI> {
 
   Widget displayScore(int score) {
     return Text(
-      "Score: $score",
+      "Score: $score m",
+      style: TextStyle(
+        fontSize: 70,
+        color: Colors.black,
+        shadows: <Shadow>[
+          Shadow(
+            color: Color(0x88000000),
+            blurRadius: 10,
+            offset: Offset(2, 2),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget displayMessage(String message) {
+    return Text(
+      "$message",
       style: TextStyle(
         fontSize: 70,
         color: Colors.black,
@@ -76,7 +94,6 @@ class UIState extends State<UI> {
       ),
     );
   }
-
 
   Widget closeButton(
       BuildContext context, AppLanguage appLanguage, User user, int score) {
@@ -149,6 +166,39 @@ class UIState extends State<UI> {
     );
   }
 
+  Widget pauseButton(BoxGame game) {
+    return Container(
+      height: screenHeight * 0.2,
+      child: RaisedButton(
+        onPressed: () async {
+          game.pauseGame = !game.pauseGame;
+        },
+        child: Text("Pause"),
+      ),
+    );
+  }
+
+  Widget restartButton(
+      BuildContext context, AppLanguage appLanguage, User user) {
+    return Container(
+      height: screenHeight * 0.2,
+      child: RaisedButton(
+        onPressed: () async {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      LoadPage(
+                        appLanguage: appLanguage,
+                        page: "swimmer",
+                        user: user,
+                      )));
+        },
+        child: Text("Restart"),
+      ),
+    );
+  }
+
   Widget buildScreenPlaying() {
     return Row(
       children: <Widget>[
@@ -185,10 +235,6 @@ class UIState extends State<UI> {
     //scoreDisplay(),
     //creditsButton(),
   }
-
-
-
-
 }
 
 enum UIScreen {

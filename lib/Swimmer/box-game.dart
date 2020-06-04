@@ -30,6 +30,7 @@ class BoxGame extends Game {
   double creationTimer = 0.0;
   double scoreTimer = 0.0;
   double tempPos = 0;
+  double pos = 0;
   int i = 0;
   double difficulte = 1.0;
 
@@ -66,6 +67,7 @@ class BoxGame extends Game {
   int j = 0;
   double posBottomLine;
   double posTopLine;
+  bool position;
   UI gameUI;
 
   BoxGame(this.getData, User _user) {
@@ -80,6 +82,7 @@ class BoxGame extends Game {
     topLine = TopLine(this);
     gameUI = UI();
 
+    position = false;
     gameOver = false;
     start = false;
     redFilter = false;
@@ -107,36 +110,44 @@ class BoxGame extends Game {
       boxPaint.color = Color(0xffffffff);
     }*/
 
-      if (canvas != null) {
-        //Background
-        if (background != null) background.render(canvas);
+    if (canvas != null) {
+      //Background
+      if (background != null) background.render(canvas);
 
-        canvas.save();
+      canvas.save();
 
-        if(!gameOver) {
+      if (!gameOver) {
         //Ligne basse
-        if (bottomLine != null) bottomLine.render(canvas);
+        if (bottomLine != null) bottomLine.render(canvas, pauseGame);
 
         //Ligne haute
         if (topLine != null) topLine.render(canvas);
 
         //Nageur
-        if (player != null) player.render(canvas);
+        if (player != null) {
+          player.render(canvas);
 
-        double tempPos = player.y + player.height / 2;
-        //print("Position joueur: " + tempPos.toString());
+          pos = player.y + player.height / 2;
+          //print("Position joueur: " + tempPos.toString());
+        }
 
-        if (tempPos < bottomLine.getDownPosition()) {
+        if (pos < bottomLine.getDownPosition()) {
           //TODO Conditions de défaite, début d'un timer
           //print("Attention au bord bas !");
           //setColorFilter(true);
+          position = true;
           //Rentre une fois dans la timer
-          if (!start) startTimer(start = true);
-        } else if (tempPos > topLine.getUpPosition()) {
+          if (!start) {
+            startTimer(start = true);
+          }
+        } else if (pos > topLine.getUpPosition()) {
           //TODO Conditions de défaite, début d'un timer
           //print("Attention au bord haut !");
           //setColorFilter(true);
-          if (!start) startTimer(start = true);
+          position = false;
+          if (!start) {
+            startTimer(start = true);
+          }
         } else {
           setColorFilter(false);
           startTimer(start = false);
@@ -149,13 +160,16 @@ class BoxGame extends Game {
     creationTimer += t;
     scoreTimer += t;
 
-    if(!gameOver) {
+    if (!gameOver) {
       //Timer
       if (creationTimer >= 0.04) {
         if (i == 23)
           i = 0;
         else
           i++;
+
+        if(pauseGame)
+          i--;
 
         swimPic = tab[i];
 
@@ -175,7 +189,6 @@ class BoxGame extends Game {
         }
         //Haut
         else if (tempPos < -size / 2) {
-          print("SALUT " + player.y.toString());
           tempPos = -size / 2;
           player.y = tempPos;
         }
@@ -183,6 +196,8 @@ class BoxGame extends Game {
         else {
           player.y += tempPos;
           tempPos = player.y + difficulte * 2.0;
+          if(pauseGame)
+            tempPos = player.y;
         }
 
         //component = new Component(dimensions);
@@ -190,24 +205,26 @@ class BoxGame extends Game {
       }
 
       //On incrémente le score tous les x secondes
-      if (scoreTimer >= 0.5) {
-        score++;
-        scoreTimer = 0.0;
-      }
+      if(!pauseGame){
+        if (scoreTimer >= 0.5) {
+          score++;
+          scoreTimer = 0.0;
+        }
 
-      //getData = données reçues par le Bluetooth
-      if (getData() > double.parse(user.userInitialPush)) {
-        //print(player.y);
-        player.y -= difficulte;
-        tempPos = player.y;
-        inTouch = false;
-      }
+        //getData = données reçues par le Bluetooth
+        if (getData() > double.parse(user.userInitialPush)) {
+          //print(player.y);
+          player.y -= difficulte;
+          tempPos = player.y;
+          inTouch = false;
+        }
 
-      if (inTouch) {
-        print(player.y);
-        player.y -= 20.0;
-        tempPos = player.y;
-        inTouch = false;
+        if (inTouch) {
+          print(player.y);
+          player.y -= 20.0;
+          tempPos = player.y;
+          inTouch = false;
+        }
       }
     }
     //super.update(t);
@@ -238,10 +255,25 @@ class BoxGame extends Game {
   }
 
   ColorFilter getColorFilter() {
-    if (redFilter)
+    if (redFilter){
       return ColorFilter.mode(Colors.redAccent, BlendMode.hue);
+    }
     else
       return ColorFilter.mode(Colors.transparent, BlendMode.luminosity);
+  }
+
+  bool getColorFilterBool(){
+    return redFilter;
+  }
+
+  bool getGameOver(){
+    return gameOver;
+  }
+
+  bool getPosition(){
+    //True: position haut
+    //False: position basse
+    return position;
   }
 
   void startTimer(bool boolean) async {
@@ -275,5 +307,4 @@ class BoxGame extends Game {
       );
     }
   }
-
 }
