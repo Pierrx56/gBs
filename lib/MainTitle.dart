@@ -53,7 +53,7 @@ class _MainTitle extends State<MainTitle> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   static const TextStyle optionStyle =
-  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const Color orangeColor = Colors.orange; //Colors.amber[800];
 
   _MainTitle(AppLanguage _appLanguage, User userIn, int messageIn) {
@@ -112,9 +112,7 @@ class _MainTitle extends State<MainTitle> {
   }
 
   Widget menu() {
-    Size screenSize = MediaQuery
-        .of(context)
-        .size;
+    Size screenSize = MediaQuery.of(context).size;
     int numberOfCard = 3;
 
     double widthCard, heightCard;
@@ -141,7 +139,7 @@ class _MainTitle extends State<MainTitle> {
               ),
               temp != null
                   ? Text(AppLocalizations.of(context).translate('bonjour') +
-                  user.userName)
+                      user.userName)
                   : Text("a"),
             ],
           ),
@@ -154,11 +152,11 @@ class _MainTitle extends State<MainTitle> {
               ),
               label: temp != null
                   ? Text(
-                "Add score",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              )
+                      "Add score",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    )
                   : Text("a"),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -191,11 +189,11 @@ class _MainTitle extends State<MainTitle> {
               ),
               label: temp != null
                   ? Text(
-                AppLocalizations.of(context).translate('deconnexion'),
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              )
+                      AppLocalizations.of(context).translate('deconnexion'),
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    )
                   : Text("a"),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -205,8 +203,7 @@ class _MainTitle extends State<MainTitle> {
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            LoadPage(
+                        builder: (context) => LoadPage(
                               appLanguage: appLanguage,
                               messageIn: "deconnexion",
                               page: "login",
@@ -239,12 +236,12 @@ class _MainTitle extends State<MainTitle> {
                             children: <Widget>[
                               temp != null
                                   ? Text(
-                                AppLocalizations.of(context)
-                                    .translate('stat_nageur'),
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold),
-                              )
+                                      AppLocalizations.of(context)
+                                          .translate('stat_nageur'),
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    )
                                   : Text("a"),
                               data == null
                                   ? Container()
@@ -254,9 +251,9 @@ class _MainTitle extends State<MainTitle> {
                                 child: RaisedButton(
                                   child: temp != null
                                       ? Text(
-                                    AppLocalizations.of(context)
-                                        .translate('details'),
-                                  )
+                                          AppLocalizations.of(context)
+                                              .translate('details'),
+                                        )
                                       : Text("a"),
                                   onPressed: () => show("Bonjour"),
                                 ),
@@ -270,21 +267,27 @@ class _MainTitle extends State<MainTitle> {
                       width: widthCard = screenSize.width / numberOfCard,
                       child: new GestureDetector(
                         onTap: () {
-                          //TODO Check si l'@mac n'est pas nulle, auquel cas rediriger vers la connection BT
-                          dispose();
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                  /*Swimmer(
+
+                          if(_visible) {
+                            //TODO Check si l'@mac n'est pas nulle, auquel cas rediriger vers la connection BT
+                            dispose();
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                    /*Swimmer(
                                         user: user,
                                         appLanguage: appLanguage,
                                       ))*/
-                                  LoadPage(
-                                    appLanguage: appLanguage,
-                                    page: "swimmer",
-                                    user: user,
-                                  )));
+                                    LoadPage(
+                                      appLanguage: appLanguage,
+                                      page: "swimmer",
+                                      user: user,
+                                    )));
+                          }
+                          else {
+
+                          }
                         },
                         child: new Card(
                           shape: RoundedRectangleBorder(
@@ -296,69 +299,144 @@ class _MainTitle extends State<MainTitle> {
                             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                             child: Stack(
                               children: <Widget>[
-                                Container(
-                                  alignment: Alignment.bottomCenter,
-                                  child: FlatButton.icon(
-                                    label: temp != null
-                                        ? Text(
-                                      AppLocalizations.of(context)
-                                          .translate('nageur'),
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 24,
-                                      ),
-                                    )
-                                        : Text("a"),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(50),
-                                    ),
-                                    icon: Icon(
-                                      Icons.info_outline,
-                                      color: Colors.black,
-                                    ),
-                                    splashColor: Colors.blue,
-                                    onPressed: () {
-                                      setState(() {
-                                        _visible = !_visible;
-                                        !_visible
-                                            ? colorCard = Colors.grey
-                                            : colorCard = Colors.white;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                Container(
-                                  alignment: Alignment.topCenter,
-                                  child: Image.asset(
-                                    'assets/swim.png',
-                                    width: widthCard * 0.6,
-                                  ),
-                                ),
                                 AnimatedOpacity(
-                                    duration: Duration(milliseconds: 1000),
-                                    opacity: _visible ? 0.0 : 1.0,
-                                    child:
-                                    Column(
-                                      children: <Widget>[
+                                  duration: Duration(milliseconds: 1000),
+                                  opacity: !_visible ? 1.0 : 0.0,
 
+                                  child: !_visible ? Column(
+                                    children: <Widget>[
+
+                                  Align(
+                                  alignment: Alignment.topCenter,
+                                    child:
+                                    //TODO Requête vers la bdd pour savoir le type d'activité et comment ça marche
+                                  Text("Le jeu du Nageur est un jeu qui consiste à effectuer "
+                                      "des poussées régulières pour maintenir le nageur le plus "
+                                      "proche de la ligne centrale. "
+                                      "600m parcourus = 5 minutes"),
+                                  ),
+                                    Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: RaisedButton(
+                                          child: temp != null
+                                              ? Text(
+                                                  AppLocalizations.of(context)
+                                                      .translate('retour'),
+                                                )
+                                              : Text("a"),
+                                          onPressed: (){
+                                            setState(() {
+                                              _visible = !_visible;
+                                              !_visible
+                                                  ? colorCard = Colors.white70
+                                                  : colorCard = Colors.white;
+                                            });
+                                          },
+                                        ),
+                                      ),
+
+                                      /*
                                         Container(
-                                          child:
-                                          !_visible
+                                          child: !_visible
                                               ? Container(
-                                            child: Text(
-                                              "Texte expliquant le fonctionnement du nageur",
-                                              style:
-                                              TextStyle(color: Colors.white),
-                                            ),
-                                          )
+                                                  child: Text(
+                                                    "Texte expliquant le fonctionnement du nageur",
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                )
                                               : Container(),
                                           color: Colors.grey,
                                           width: screenSize.width,
                                           height: screenSize.height,
-                                        )
-                                      ],
-                                    )
+                                        ),*/
+                                      /*
+                                        FlatButton.icon(
+                                          label: temp != null
+                                              ? Text(
+                                            AppLocalizations.of(context)
+                                                .translate('retour'),
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 24,
+                                            ),
+                                          )
+                                              : Text("a"),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(50),
+                                          ),
+                                          icon: Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                          ),
+                                          splashColor: Colors.blue,
+                                          onPressed: () {
+                                            setState(() {
+                                              _visible = !_visible;
+                                              !_visible
+                                                  ? colorCard = Colors.grey
+                                                  : colorCard = Colors.white;
+                                            });
+                                          },
+                                        ),*/
+                                    ],
+                                  ): Container(),
                                 ),
+                                AnimatedOpacity(
+                                    duration: Duration(milliseconds: 1000),
+                                    opacity: _visible ? 1.0 : 0.0,
+                                    child: _visible
+                                        ? Column(
+                                            children: <Widget>[
+                                              Container(
+                                                alignment: Alignment.topCenter,
+                                                child: Image.asset(
+                                                  'assets/swim.png',
+                                                  width: widthCard * 0.6,
+                                                ),
+                                              ),
+                                              Container(
+                                                alignment:
+                                                    Alignment.bottomCenter,
+                                                child: FlatButton.icon(
+                                                  label: temp != null
+                                                      ? Text(
+                                                          AppLocalizations.of(
+                                                                  context)
+                                                              .translate(
+                                                                  'nageur'),
+                                                          style: TextStyle(
+                                                            color: Colors.black,
+                                                            fontSize: 24,
+                                                          ),
+                                                        )
+                                                      : Text("a"),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            50),
+                                                  ),
+                                                  icon: Icon(
+                                                    Icons.info_outline,
+                                                    color: Colors.black,
+                                                  ),
+                                                  splashColor: Colors.blue,
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      _visible = !_visible;
+                                                      !_visible
+                                                          ? colorCard =
+                                                              Colors.white70
+                                                          : colorCard =
+                                                              Colors.white;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : Container()),
                               ],
                             ),
                           ),
@@ -450,7 +528,8 @@ class _MainTitle extends State<MainTitle> {
 
   // Method to show a Snackbar,
   // taking message as the text
-  Future show(String message, {
+  Future show(
+    String message, {
     Duration duration: const Duration(seconds: 3),
   }) async {
     await new Future.delayed(new Duration(milliseconds: 100));
@@ -466,14 +545,8 @@ class _MainTitle extends State<MainTitle> {
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
-    double screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
 
     void _onItemTapped(int index) {
       setState(() {
@@ -540,7 +613,7 @@ class _MainTitle extends State<MainTitle> {
                   Icons.settings_bluetooth,
                 ),
                 title:
-                Text(AppLocalizations.of(context).translate('bluetooth')),
+                    Text(AppLocalizations.of(context).translate('bluetooth')),
               ),
             ],
             currentIndex: _selectedIndex,

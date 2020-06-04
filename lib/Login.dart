@@ -210,6 +210,22 @@ class LoginWidget extends StatelessWidget {
                           const Divider(),
                     );
                   } else {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                          alignment: Alignment.center,
+                          child: CircularProgressIndicator(),
+                        ),
+                        Container(
+                            alignment: Alignment.center,
+                            child: Text("Loading..."))
+                      ],
+                    );
+
+                    /*
                     return Padding(
                       padding: EdgeInsets.fromLTRB(
                           12.0, screenHeight * 0.15, 12.0, screenHeight * 0.15),
@@ -234,7 +250,7 @@ class LoginWidget extends StatelessWidget {
                               )),
                         ),
                       ),
-                    ); //
+                    ); */
                   }
                 },
               ),

@@ -551,8 +551,8 @@ class _Register extends State<Register> {
             onPressed: () {
               name.text = "Jean";
               _userMode = "Sportif";
-              hauteur_max.text = "125";
               hauteur_min.text = "115";
+              hauteur_max.text = "125";
               macAddress = "00:0E:EA:CF:52:62";
               result = 6.31;
               _pathSaved = "assets/avatar.png";

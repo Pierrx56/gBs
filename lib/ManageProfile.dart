@@ -440,6 +440,7 @@ class _ManageProfile extends State<ManageProfile> {
                               hauteur_max.text = user.userHeightTop;
                             if (hauteur_min.text == '')
                               hauteur_min.text = user.userHeightBottom;
+                            if(initialPush == null) initialPush = user.userInitialPush;
                             /*
                             if (hauteur_min.text == '')
                               hauteur_min.text = user.userHeightBottom;
@@ -447,11 +448,11 @@ class _ManageProfile extends State<ManageProfile> {
 
                             //TODO
                             String macAddress = user.userMacAddress;
-
+/*
                             if (user.userInitialPush != result.toString())
                               initialPush = result.toString();
                             else
-                              initialPush = user.userInitialPush;
+                              initialPush = user.userInitialPush;*/
 
                             db.updateUser(User(
                               userId: user.userId,
@@ -511,13 +512,6 @@ class _ManageProfile extends State<ManageProfile> {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) => Login()));
-
-/*                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Login(
-                              BTDevice: BTDevice,
-                            )));*/
                                       },
                                     ),
                                     Padding(
@@ -548,32 +542,6 @@ class _ManageProfile extends State<ManageProfile> {
       ),
     );
   }
-
-  /*Widget showImage() {
-    return FutureBuilder<File>(
-      future: imageFile,
-      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.data != null) {
-          return Image.file(
-            snapshot.data,
-            width: screenHeight * 0.3,
-            height: screenHeight * 0.3,
-          );
-        } else if (snapshot.error != null) {
-          return const Text(
-            'Error Picking Image',
-            textAlign: TextAlign.center,
-          );
-        } else {
-          return const Text(
-            'No Image Selected',
-            textAlign: TextAlign.center,
-          );
-        }
-      },
-    );
-  }*/
 
   void pousseeDialog() async {
     //appLanguage = AppLanguage();
@@ -634,6 +602,7 @@ class _ManageProfile extends State<ManageProfile> {
                                         } else
                                           setState(() {
                                             colorMesureButton = Colors.green;
+                                            initialPush = result.toString();
                                             recording = temp != null
                                                 ? AppLocalizations.of(
                                                         this.context)
