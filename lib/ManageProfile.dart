@@ -111,7 +111,7 @@ class _ManageProfile extends State<ManageProfile> {
                   print("ID à SUPPR:" + user.userId.toString());
                   db.deleteUser(user.userId);
                   Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => Login()));
+                      MaterialPageRoute(builder: (context) => LoadPage(appLanguage: appLanguage,messageIn: "",page: "login",user: null,)));
 /*                Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -143,6 +143,11 @@ class _ManageProfile extends State<ManageProfile> {
     testConnect();
 
     super.initState();
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
   }
 
   pickImageFromGallery(ImageSource source) async {
@@ -398,7 +403,8 @@ class _ManageProfile extends State<ManageProfile> {
                         //showImage(),
                         //Image(image: AssetImage(_path)),
                         Center(
-                            child: Image.file(File(_pathSaved),
+                            child:
+                            Image.file(File(_pathSaved),
                                 height: screenHeight * 0.3,
                                 width: screenHeight * 0.3)
                             //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
@@ -508,10 +514,11 @@ class _ManageProfile extends State<ManageProfile> {
                                         print("ID à SUPPR:" +
                                             user.userId.toString());
                                         db.deleteUser(user.userId);
-                                        Navigator.push(
+                                        dispose();
+                                        Navigator.pushReplacement(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) => Login()));
+                                                builder: (context) => LoadPage(appLanguage: appLanguage,page: "login",user: null,messageIn: "0",)));
                                       },
                                     ),
                                     Padding(

@@ -41,5 +41,7 @@
   "status_mesure_bon": "Mesure correcte",
   "status_mesure_mauvais": "Mesure incorrecte, réajustez la toise et relancez la mesure",
   "supprimer": "Supprimer son profil",
-  "type_utilisation": "Type d'utilisation"
+  "type_utilisation": "Type d'utilisation",
+  "comment_swimmer": "-------- Page Swimmer --------"
+
 }

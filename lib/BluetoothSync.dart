@@ -10,6 +10,8 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 //import 'package:flutter_blue/flutter_blue.dart' as fb;
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:gbsalternative/AppLanguage.dart';
+import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
 
 import 'DatabaseHelper.dart';
@@ -25,15 +27,16 @@ class _Message {
 class BluetoothSync extends StatefulWidget {
   User curUser;
   String inputMessage;
+  AppLanguage appLanguage;
 
   BluetoothSync({
-    Key key,
     @required this.curUser,
     @required this.inputMessage,
-  }) : super(key: key);
+    @required this.appLanguage,
+  });
 
   @override
-  _BluetoothSync createState() => new _BluetoothSync(curUser, inputMessage);
+  _BluetoothSync createState() => new _BluetoothSync(curUser, inputMessage, appLanguage);
 }
 
 class _BluetoothSync extends State<BluetoothSync> {
@@ -69,10 +72,12 @@ class _BluetoothSync extends State<BluetoothSync> {
 
   User user;
   String inputMessage;
+  AppLanguage appLanguage;
 
-  _BluetoothSync(User curUser, String _inputMessage) {
+  _BluetoothSync(User curUser, String _inputMessage, AppLanguage _appLanguage) {
     user = curUser;
     inputMessage = _inputMessage;
+    appLanguage = _appLanguage;
   }
 
   // To track whether the device is still connected to Bluetooth
@@ -487,9 +492,12 @@ class _BluetoothSync extends State<BluetoothSync> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => MainTitle(
-                          userIn: user,
-                          messageIn: 0,
+                    builder: (context) => LoadPage(
+                      appLanguage: appLanguage,
+                      page: "mainTitle",
+                          user: user,
+                          messageIn: "0",
+
                         )));
             show('Vous êtes connecté à gBs');
           }

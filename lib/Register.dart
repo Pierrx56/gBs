@@ -11,8 +11,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
 import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
+import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothSync.dart';
+import 'package:gbsalternative/LoadPage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -32,8 +34,12 @@ String _messageBuffer = '';
 List<_Message> messages = List<_Message>();
 
 class Register extends StatefulWidget {
+  final AppLanguage appLanguage;
+
+  Register({@required this.appLanguage});
+
   @override
-  _Register createState() => _Register();
+  _Register createState() => _Register(appLanguage);
 }
 
 class _Register extends State<Register> {
@@ -41,7 +47,7 @@ class _Register extends State<Register> {
   double screenHeight;
   double screenWidth;
 
-  String _pathSaved = "assets/avatar.png";
+  String _pathSaved;
   File imageFile;
 
   // Initializing a global key, as it would help us in showing a SnackBar later
@@ -69,11 +75,18 @@ class _Register extends State<Register> {
 
   var name = new TextEditingController();
 
+  AppLanguage appLanguage;
+
+  _Register(AppLanguage _appLanguage) {
+    appLanguage = _appLanguage;
+  }
+
   @override
   void initState() {
     btData = "0.0";
     _controller = ScrollController();
     isDisabled = false;
+    _pathSaved = "assets/avatar.png";
     super.initState();
   }
 
@@ -201,6 +214,13 @@ class _Register extends State<Register> {
     });
 
     return _pathSaved = newImage.path;
+  }
+
+  //write to app path
+  Future<File> writeToFile(ByteData data, String path) {
+    final buffer = data.buffer;
+    return new File(path).writeAsBytes(buffer.asUint8List(
+        data.offsetInBytes, data.lengthInBytes));
   }
 
   addUser() async {
@@ -349,10 +369,9 @@ class _Register extends State<Register> {
                   child: imageFile == null
                       ? Image.asset(
                           'assets/avatar.png',
-                          width: screenWidth * 0.3,
+                          width: screenWidth * 0.2,
                         )
-                      : Image.file(File(_pathSaved),
-                          height: screenHeight * 0.3, width: screenHeight * 0.3)
+                      : Image.file(File(_pathSaved), width: screenHeight * 0.2)
                   //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
                   ),
               RaisedButton(
@@ -380,6 +399,7 @@ class _Register extends State<Register> {
                         builder: (context) => BluetoothSync(
                               curUser: null,
                               inputMessage: "inscription",
+                              appLanguage: appLanguage,
                             )));
                 updateMacAddress(macAddress);
               },
@@ -454,7 +474,7 @@ class _Register extends State<Register> {
                     children: <Widget>[
                       Image.asset(
                         _pathSaved,
-                        width: screenWidth * 0.3,
+                        width: screenWidth * 0.15,
                       ),
                       Text(AppLocalizations.of(context).translate('prenom') +
                           ": " +
@@ -468,8 +488,8 @@ class _Register extends State<Register> {
                           hauteur_min.text),
 
                       //Si haut max est inf à haut min
-                      (hauteur_min.text != '' && hauteur_max.text != '') ?
-                      int.tryParse(hauteur_max.text) <=
+                      (hauteur_min.text != '' && hauteur_max.text != '')
+                          ? int.tryParse(hauteur_max.text) <=
                                   int.tryParse(hauteur_min.text)
                               ? Text(
                                   "La hauteur max doit être supérieure à la hauteur min. \n"
@@ -481,8 +501,8 @@ class _Register extends State<Register> {
                                   ": " +
                                   hauteur_max.text)
                           : Text(AppLocalizations.of(context)
-                          .translate('haut_max') +
-                          ": "),
+                                  .translate('haut_max') +
+                              ": "),
 
                       macAddress != null
                           ? Text(AppLocalizations.of(context)
@@ -510,14 +530,16 @@ class _Register extends State<Register> {
                     onPressed: () async {
                       //Conditions d'inscriptions
                       //Prénom
-                      if (name.text == '') isDisabled = true;
+                      if (name.text == '')
+                        isDisabled = true;
                       //Hauteur min et max
                       else if (hauteur_min.text == '' || hauteur_max.text == '')
                         isDisabled = true;
                       //Hauteur max inférieur à hauteur min ?
-                      else if (hauteur_min.text != '' && hauteur_max.text != '' )
-                        if(int.tryParse(hauteur_max.text) <=
-                            int.tryParse(hauteur_min.text))
+                      else if (hauteur_min.text != '' &&
+                          hauteur_max.text !=
+                              '') if (int.tryParse(hauteur_max.text) <=
+                          int.tryParse(hauteur_min.text))
                         isDisabled = true;
                       //Adresse mac
                       else if (macAddress == '')
@@ -528,6 +550,19 @@ class _Register extends State<Register> {
                       else
                         isDisabled = false;
 
+                      if (_pathSaved == "assets/avatar.png") {
+                        var bytes =
+                            await rootBundle.load(_pathSaved);
+                        String dir =
+                            (await getApplicationDocumentsDirectory()).path;
+                        File tempFile = await writeToFile(bytes, '$dir/default.png');
+
+                        setState(() {
+                          _pathSaved = tempFile.path;
+                        });
+
+                      }
+
                       if (!isDisabled) {
                         User user = await addUser();
                         //getUser();
@@ -535,13 +570,16 @@ class _Register extends State<Register> {
 
                         if (user != null) {
                           print("salut " + user.userId.toString());
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => MainTitle(
-                                        userIn: user,
-                                        messageIn: 0,
+                                  builder: (context) => LoadPage(
+                                        appLanguage: appLanguage,
+                                        user: user,
+                                        messageIn: "0",
+                                        page: "mainTitle",
                                       )));
+                          dispose();
                         } else
                           print("Something went wrong");
                         // Navigator.pushReplacement(
@@ -559,7 +597,7 @@ class _Register extends State<Register> {
                   FlatButton(
                     onPressed: () {
                       back();
-                      _controller.animateTo(posScroll -= 75,
+                      _controller.animateTo((((currentStep) * 75)).toDouble(),
                           duration: Duration(milliseconds: 500),
                           curve: Curves.linear);
                     },
@@ -575,7 +613,8 @@ class _Register extends State<Register> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text("Inscription"),
+        title: Text(
+            AppLocalizations.of(context).translate('inscription')),
         backgroundColor: Colors.blue,
         key: _formKey,
         actions: <Widget>[
@@ -636,7 +675,7 @@ class _Register extends State<Register> {
                             onPressed: () {
                               back();
                               _controller.animateTo(
-                                  ((currentStep) * -75).toDouble(),
+                                  (((currentStep) * 75)).toDouble(),
                                   duration: Duration(milliseconds: 500),
                                   curve: Curves.linear);
                             },

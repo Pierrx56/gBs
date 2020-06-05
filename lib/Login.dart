@@ -16,8 +16,12 @@ import 'Register.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 
 class Login extends StatefulWidget {
+  final AppLanguage appLanguage;
+
+  Login({@required this.appLanguage});
+
   @override
-  _Login createState() => _Login();
+  _Login createState() => _Login(appLanguage);
 }
 
 double screenHeight;
@@ -40,8 +44,24 @@ class _Login extends State<Login> {
   // Initializing a global key, as it would help us in showing a SnackBar later
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  AppLanguage appLanguage;
+
+  _Login(AppLanguage _appLanguage) {
+    appLanguage = _appLanguage;
+  }
+
   @override
   void initState() {
+    //TODO Create activities types with bdd
+
+
+    //Nageur
+    db.addActivity(new Activity(activityId: 0, activityType: "CMV",));
+    //Deuxième activité
+    db.addActivity(new Activity(activityId: 1, activityType: "CSI",));
+    //Troisième activité
+    db.addActivity(new Activity(activityId: 2, activityType: "CSI",));
+
     super.initState();
   }
 
@@ -160,6 +180,7 @@ class LoginWidget extends StatelessWidget {
                                       ));
                             },
                             child: new Container(
+                              height: screenHeight * 0.3,
                               decoration: BoxDecoration(
                                 color: Theme.of(context).buttonColor,
                                 borderRadius: BorderRadius.circular(8.0),
@@ -169,10 +190,10 @@ class LoginWidget extends StatelessWidget {
                                 child: Row(
                                   children: <Widget>[
                                     Image.file(
-                                      File(snapshot.data[index].userPic),
-                                      height: screenHeight * 0.3,
-                                      width: screenHeight * 0.3,
-                                    ),
+                                            File(snapshot.data[index].userPic),
+                                            height: screenHeight * 0.3,
+                                            width: screenWidth * 0.3,
+                                          ),
                                     Text(item.userName),
                                   ],
                                 ),
@@ -186,7 +207,12 @@ class LoginWidget extends StatelessWidget {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Register()));
+                                      builder: (context) => LoadPage(
+                                            appLanguage: appLanguage,
+                                            page: "register",
+                                            messageIn: "",
+                                            user: null,
+                                          )));
                             },
                             child: new Container(
                               decoration: BoxDecoration(
@@ -217,7 +243,7 @@ class LoginWidget extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Container(
-                          padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                          padding: EdgeInsets.all(10),
                           alignment: Alignment.center,
                           child: CircularProgressIndicator(),
                         ),

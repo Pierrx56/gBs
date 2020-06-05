@@ -41,5 +41,6 @@
   "status_mesure_bon": "Good measurement",
   "status_mesure_mauvais": "Incorrect measurement, please readust the height and retry measurement",
   "supprimer": "Delete profile",
-  "type_utilisation": "Type of use"
+  "type_utilisation": "Type of use",
+  "comment_swimmer": "-------- Page Swimmer --------"
 }

@@ -70,13 +70,14 @@ final String CREATE_TABLE_ACTIVITY = "CREATE TABLE " +
     TABLE_ACTIVITY +
     "(" +
     KEY_ACTIVITY_ID +
-    " INTEGER PRIMARY KEY AUTOINCREMENT," +
+    " INTEGER PRIMARY," +
     KEY_ACTIVITY_TYPE +
-    " INTEGER, " +
+    " INTEGER, "
+    /*+
     KEY_ACTIVITY_NAME +
     " TEXT, " +
     KEY_ACTIVITY_DESCRIPTION +
-    " TEXT" +
+    " TEXT" +*/
     ");";
 
 class DatabaseHelper {
@@ -316,6 +317,7 @@ class DatabaseHelper {
     return id;
   }
 
+  //Useless ?
   Future<void> deleteActivity(int idActivity) async{
     // Get a reference to the database.
     final Database db = await database;
@@ -395,22 +397,27 @@ class Score {
 //ACTIVITY
 class Activity {
   final int activityId;
+  //CMV : Contraction maximale volontaire
+  //CSI: Contraction spontanée intermittent
   final String activityType;
+  /*
   final String activityName;
-  final String activityDescription;
+  final String activityDescription;*/
 
   Activity(
       {this.activityId,
       this.activityType,
+        /*
       this.activityName,
-      this.activityDescription});
+      this.activityDescription*/});
 
   Map<String, dynamic> toMap() {
     return {
       KEY_ACTIVITY_ID: activityId,
       KEY_ACTIVITY_TYPE: activityType,
+      /*
       KEY_ACTIVITY_NAME: activityName,
-      KEY_ACTIVITY_DESCRIPTION: activityDescription
+      KEY_ACTIVITY_DESCRIPTION: activityDescription*/
     };
   }
 }

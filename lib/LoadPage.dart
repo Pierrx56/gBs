@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
+import 'package:gbsalternative/BluetoothSync.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
@@ -64,11 +65,12 @@ class _LoadPage extends State<LoadPage> {
             //messageIn == "deconnexion" ? MainTitle(userIn: user, messageIn: 9, appLanguage: appLanguage,):
 
             //TODO -> Stateful into dispose ? Ou navigator
-            page == "login" ? Login():
-            page == "register" ? Register():
+            page == "login" ? Login(appLanguage: appLanguage):
+            page == "register" ? Register(appLanguage: appLanguage):
             //page == "menu" ? Menu(curUser: user, appLanguage: appLanguage, message: messageIn,):
             page == "swimmer" ? Swimmer(user: user, appLanguage: appLanguage):
             page == "manageProfile" ? ManageProfile(curUser: user, appLanguage: appLanguage):
+            page == "bluetoothSync" ? BluetoothSync(curUser: user, inputMessage: messageIn, appLanguage: appLanguage,):
             page == "mainTitle" ? MainTitle(userIn: user, messageIn: int.parse(messageIn), appLanguage: appLanguage,): Container()
         );
       }),
