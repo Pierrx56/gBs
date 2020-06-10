@@ -371,52 +371,6 @@ class _MainTitle extends State<MainTitle> {
                                                   },
                                                 ),
                                               ),
-
-                                              /*
-                                        Container(
-                                          child: !_visible
-                                              ? Container(
-                                                  child: Text(
-                                                    "Texte expliquant le fonctionnement du nageur",
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                )
-                                              : Container(),
-                                          color: Colors.grey,
-                                          width: screenSize.width,
-                                          height: screenSize.height,
-                                        ),*/
-                                              /*
-                                        FlatButton.icon(
-                                          label: temp != null
-                                              ? Text(
-                                            AppLocalizations.of(context)
-                                                .translate('retour'),
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 24,
-                                            ),
-                                          )
-                                              : Text("a"),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(50),
-                                          ),
-                                          icon: Icon(
-                                            Icons.close,
-                                            color: Colors.white,
-                                          ),
-                                          splashColor: Colors.blue,
-                                          onPressed: () {
-                                            setState(() {
-                                              _visible = !_visible;
-                                              !_visible
-                                                  ? colorCard = Colors.grey
-                                                  : colorCard = Colors.white;
-                                            });
-                                          },
-                                        ),*/
                                             ],
                                           )
                                         : Container(),

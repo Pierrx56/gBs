@@ -295,8 +295,8 @@ class _Swimmer extends State<Swimmer> {
             ],
           ),
           Container(
-            alignment: Alignment.topCenter,
-            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+            alignment: Alignment.bottomLeft,
+            padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
             child:
                 game == null ? Container() : gameUI.state.displayScore(score),
           ),

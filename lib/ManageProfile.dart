@@ -16,6 +16,7 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
+import 'package:gbsalternative/main.dart';
 import 'package:image_picker/image_picker.dart';
 import 'DatabaseHelper.dart';
 import 'Login.dart';
@@ -110,8 +111,15 @@ class _ManageProfile extends State<ManageProfile> {
                 onPressed: () {
                   print("ID à SUPPR:" + user.userId.toString());
                   db.deleteUser(user.userId);
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => LoadPage(appLanguage: appLanguage,messageIn: "",page: "login",user: null,)));
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => LoadPage(
+                                appLanguage: appLanguage,
+                                messageIn: "",
+                                page: "login",
+                                user: null,
+                              )));
 /*                Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -146,7 +154,7 @@ class _ManageProfile extends State<ManageProfile> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
   }
 
@@ -403,8 +411,7 @@ class _ManageProfile extends State<ManageProfile> {
                         //showImage(),
                         //Image(image: AssetImage(_path)),
                         Center(
-                            child:
-                            Image.file(File(_pathSaved),
+                            child: Image.file(File(_pathSaved),
                                 height: screenHeight * 0.3,
                                 width: screenHeight * 0.3)
                             //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
@@ -446,7 +453,8 @@ class _ManageProfile extends State<ManageProfile> {
                               hauteur_max.text = user.userHeightTop;
                             if (hauteur_min.text == '')
                               hauteur_min.text = user.userHeightBottom;
-                            if(initialPush == null) initialPush = user.userInitialPush;
+                            if (initialPush == null)
+                              initialPush = user.userInitialPush;
                             /*
                             if (hauteur_min.text == '')
                               hauteur_min.text = user.userHeightBottom;
@@ -470,6 +478,7 @@ class _ManageProfile extends State<ManageProfile> {
                               userInitialPush: initialPush,
                               userMacAddress: macAddress,
                             ));
+
 
                             /*Navigator.push(
                                 context,
@@ -500,10 +509,12 @@ class _ManageProfile extends State<ManageProfile> {
                               builder: (BuildContext context) {
                                 // return object of type Dialog
                                 return AlertDialog(
-                                  title: new Text(AppLocalizations.of(this.context)
-                                      .translate('confirm_suppr')),
-                                  content: new Text(AppLocalizations.of(this.context)
-                                      .translate('info_suppr')),
+                                  title: new Text(
+                                      AppLocalizations.of(this.context)
+                                          .translate('confirm_suppr')),
+                                  content: new Text(
+                                      AppLocalizations.of(this.context)
+                                          .translate('info_suppr')),
                                   actions: <Widget>[
                                     // usually buttons at the bottom of the dialog
                                     new FlatButton(
@@ -518,7 +529,12 @@ class _ManageProfile extends State<ManageProfile> {
                                         Navigator.pushReplacement(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) => LoadPage(appLanguage: appLanguage,page: "login",user: null,messageIn: "0",)));
+                                                builder: (context) => LoadPage(
+                                                      appLanguage: appLanguage,
+                                                      page: "login",
+                                                      user: null,
+                                                      messageIn: "0",
+                                                    )));
                                       },
                                     ),
                                     Padding(

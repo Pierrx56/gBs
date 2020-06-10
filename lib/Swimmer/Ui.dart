@@ -40,7 +40,7 @@ class UIState extends State<UI> {
     return Text(
       "Score: $score m",
       style: TextStyle(
-        fontSize: 70,
+        fontSize: 50,
         color: Colors.black,
         shadows: <Shadow>[
           Shadow(

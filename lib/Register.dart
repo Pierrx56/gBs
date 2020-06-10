@@ -287,6 +287,7 @@ class _Register extends State<Register> {
         isActive: currentStep > 0,
         state: currentStep > 0 ? StepState.complete : StepState.disabled,
         content: TextFormField(
+            autofocus: currentStep == 0 ? true : false,
             controller: name,
             decoration: InputDecoration(
               labelText: AppLocalizations.of(context).translate('prenom'),
@@ -325,6 +326,7 @@ class _Register extends State<Register> {
         isActive: currentStep > 2,
         state: currentStep > 2 ? StepState.complete : StepState.disabled,
         content: TextFormField(
+            autofocus: currentStep == 2 ? true : false,
             controller: hauteur_min,
             keyboardType: TextInputType.number,
             inputFormatters: <TextInputFormatter>[
@@ -343,6 +345,7 @@ class _Register extends State<Register> {
         isActive: currentStep > 3,
         state: currentStep > 3 ? StepState.complete : StepState.disabled,
         content: TextFormField(
+            autofocus: currentStep == 3 ? true : false,
             controller: hauteur_max,
             keyboardType: TextInputType.number,
             inputFormatters: <TextInputFormatter>[
@@ -427,7 +430,7 @@ class _Register extends State<Register> {
                           _start = _reset;
                           result =
                               average.reduce((a, b) => a + b) / average.length;
-                          print(result.toString());
+                          print(result.toStringAsFixed(2));
                           i = 20;
                           if (result <= 5.0 || result >= 10.0) {
                             //Mesure pas bonne, réajuster la toise
@@ -456,7 +459,7 @@ class _Register extends State<Register> {
                 textColor: colorMesureButton,
                 child: Text(recording)),
             RoundedProgressBar(
-                percent: (double.parse(btData)),
+                percent: (double.parse(btData)) >= 0 ? (double.parse(btData)) : 0.0,
                 theme: RoundedProgressBarTheme.yellow,
                 childCenter: Text("$btData")),
           ],
