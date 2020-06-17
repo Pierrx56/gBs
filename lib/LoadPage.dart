@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
-import 'package:gbsalternative/BluetoothSync.dart';
+import 'package:gbsalternative/BluetoothManager.dart';
+//import 'file:///C:/Users/Pierrick/Documents/Entreprise/Stage/Genourob/gBs/gbs_alternative/lib/Backup/BluetoothSync_shield.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
@@ -70,7 +71,7 @@ class _LoadPage extends State<LoadPage> {
             //page == "menu" ? Menu(curUser: user, appLanguage: appLanguage, message: messageIn,):
             page == "swimmer" ? Swimmer(user: user, appLanguage: appLanguage):
             page == "manageProfile" ? ManageProfile(curUser: user, appLanguage: appLanguage):
-            page == "bluetoothSync" ? BluetoothSync(curUser: user, inputMessage: messageIn, appLanguage: appLanguage,):
+            page == "bluetoothSync" ? BluetoothManager(user: user, inputMessage: messageIn, appLanguage: appLanguage): //BluetoothSync(curUser: user, inputMessage: messageIn, appLanguage: appLanguage,):
             page == "mainTitle" ? MainTitle(userIn: user, messageIn: int.parse(messageIn), appLanguage: appLanguage,): Container()
         );
       }),

@@ -13,8 +13,11 @@ import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
 import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
-import 'package:gbsalternative/BluetoothSync.dart';
+import 'package:gbsalternative/BluetoothManager.dart';
+
+//import 'file:///C:/Users/Pierrick/Documents/Entreprise/Stage/Genourob/gBs/gbs_alternative/lib/Backup/BluetoothSync_shield.dart';
 import 'package:gbsalternative/LoadPage.dart';
+import 'package:gbsalternative/Swimmer/Swimmer.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -44,6 +47,10 @@ class Register extends StatefulWidget {
 
 class _Register extends State<Register> {
   DatabaseHelper db = new DatabaseHelper();
+
+  BluetoothManager btManage =
+      new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
+
   double screenHeight;
   double screenWidth;
 
@@ -57,23 +64,32 @@ class _Register extends State<Register> {
   static String _userMode = "";
   final hauteur_min = new TextEditingController();
   final hauteur_max = new TextEditingController();
+  var name = new TextEditingController();
   bool isSwitched = false;
   List<Step> steps;
   ScrollController _controller;
   double posScroll = 0.0;
   bool isDisabled;
+  bool isFound;
 
   /* END FORM */
 
   String macAddress;
 
+  bool isConnected;
+  Timer _timer;
+  double _start = 10.0;
+  static double _reset = 10.0;
+  int i = 20;
+  List<double> average = new List(2 * _reset.toInt());
+
   static double delta = 102.0;
   double coefKg = 0.45359237;
   double result;
   String recording;
+  String discovering;
+  String statusBT;
   bool clickable = false;
-
-  var name = new TextEditingController();
 
   AppLanguage appLanguage;
 
@@ -87,113 +103,41 @@ class _Register extends State<Register> {
     _controller = ScrollController();
     isDisabled = false;
     _pathSaved = "assets/avatar.png";
+    isFound = false;
+    isConnected = false;
     super.initState();
   }
 
-  void updateMacAddress(String address) {
-    setState(() => macAddress = address);
-    connectBT();
+  @override
+  void dispose() {
+    super.dispose();
   }
 
-  bool isDisconnecting = false;
-  BluetoothConnection connection;
-  bool isConnected = false;
-  Timer _timer;
-  double _start = 10.0;
-  static double _reset = 10.0;
-  int i = 20;
-  List<double> average = new List(2 * _reset.toInt());
+  void connect() async {
+    btManage.createState().connect("connexion");
+    testConnect();
+  }
 
-  void connectBT() async {
-    //_disconnect();
-    await BluetoothConnection.toAddress(macAddress).then((_connection) {
-      print('Connected to the device');
-
-      connection = _connection;
-      isConnected = true;
-
-      connection.input.listen(_onDataReceived).onDone(() {
-        // Example: Detect which side closed the connection
-        // There should be `isDisconnecting` flag to show are we are (locally)
-        // in middle of disconnecting process, should be set before calling
-        // `dispose`, `finish` or `close`, which all causes to disconnect.
-        // If we except the disconnection, `onDone` should be fired as result.
-        // If we didn't except this (no flag set), it means closing by remote.
-        if (isDisconnecting) {
-          print('Disconnecting locally!');
-        } else {
-          print('Disconnected remotely!');
-        }
-      });
-    });
-
+  testConnect() async {
     if (!isConnected) {
-      connection = null;
-      connectBT();
+      new Timer.periodic(Duration(milliseconds: 300), (timer) {
+        setState(() async {
+          isConnected = await btManage.createState().connect("connexion");
+          if (isConnected) {
+            timer.cancel();
+          }
+        });
+        //isConnected = btManage.createState().isConnected;
+      });
     }
   }
 
-  void _onDataReceived(Uint8List data) async {
-    // Allocate buffer for parsed data
-    int backspacesCounter = 0;
-    data.forEach((byte) {
-      if (byte == 8 || byte == 127) {
-        backspacesCounter++;
-      }
-    });
+  Future<void> updateMacAddress(String address) async {
+    setState(() => macAddress = address);
+  }
 
-    Uint8List buffer = Uint8List(data.length - backspacesCounter);
-    int bufferIndex = buffer.length;
-
-    // Apply backspace control character
-    backspacesCounter = 0;
-    for (int i = data.length - 1; i >= 0; i--) {
-      if (data[i] == 8 || data[i] == 127) {
-        backspacesCounter++;
-      } else {
-        if (backspacesCounter > 0) {
-          backspacesCounter--;
-        } else {
-          buffer[--bufferIndex] = data[i];
-        }
-      }
-    }
-
-    // Create message if there is new line character
-    String dataString = String.fromCharCodes(buffer);
-
-    int index = buffer.indexOf(13);
-    if (~index != 0) {
-      messages.add(
-        _Message(
-          1,
-          backspacesCounter > 0
-              ? _messageBuffer.substring(
-                  0, _messageBuffer.length - backspacesCounter)
-              : _messageBuffer + dataString.substring(0, index),
-        ),
-      );
-      _messageBuffer = dataString.substring(index);
-    } else {
-      _messageBuffer = (backspacesCounter > 0
-          ? _messageBuffer.substring(
-              0, _messageBuffer.length - backspacesCounter)
-          : _messageBuffer + dataString);
-    }
-    //Conversion des données reçu en un String btData
-    //List inutile, sert juste à convertir.
-    final List<String> list = messages.map((_message) {
-      //Conversion de mv en LBS puis Kg
-      btData = (_message.text.trim());
-
-      double convVoltToLbs = (921 - delta) / 100;
-      double result = double.parse(
-          ((double.parse(btData) - delta) / (convVoltToLbs * coefKg))
-              .toStringAsExponential(1));
-
-      btData = result.toString();
-      //print(btData);
-    }).toList();
+  Future<void> getData() async {
+    btData = await btManage.createState().getData();
   }
 
   pickImageFromGallery(ImageSource source) async {
@@ -219,8 +163,8 @@ class _Register extends State<Register> {
   //write to app path
   Future<File> writeToFile(ByteData data, String path) {
     final buffer = data.buffer;
-    return new File(path).writeAsBytes(buffer.asUint8List(
-        data.offsetInBytes, data.lengthInBytes));
+    return new File(path).writeAsBytes(
+        buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
   }
 
   addUser() async {
@@ -258,6 +202,7 @@ class _Register extends State<Register> {
     currentStep + 1 != steps.length
         ? goTo(currentStep + 1)
         : setState(() => complete = true);
+    //if (currentStep == 2 || currentStep == 3) myFocusNode.requestFocus();
   }
 
   back() {
@@ -272,6 +217,12 @@ class _Register extends State<Register> {
 
   void _updateSwitch(bool value) => setState(() => isSwitched = value);
 
+  _fieldFocusChange(
+      BuildContext context, FocusNode currentFocus, FocusNode nextFocus) {
+    currentFocus.unfocus();
+    FocusScope.of(context).requestFocus(nextFocus);
+  }
+
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
@@ -280,6 +231,12 @@ class _Register extends State<Register> {
     if (recording == null)
       recording =
           AppLocalizations.of(context).translate('demarrer_enregistrement');
+
+    if (discovering == null)
+      discovering = AppLocalizations.of(context).translate('scan_app');
+
+    if (statusBT == null)
+      statusBT = AppLocalizations.of(context).translate('connecter_app');
 
     steps = [
       Step(
@@ -326,7 +283,7 @@ class _Register extends State<Register> {
         isActive: currentStep > 2,
         state: currentStep > 2 ? StepState.complete : StepState.disabled,
         content: TextFormField(
-            autofocus: currentStep == 2 ? true : false,
+            //autofocus: currentStep == 2 ? true : false,
             controller: hauteur_min,
             keyboardType: TextInputType.number,
             inputFormatters: <TextInputFormatter>[
@@ -345,7 +302,7 @@ class _Register extends State<Register> {
         isActive: currentStep > 3,
         state: currentStep > 3 ? StepState.complete : StepState.disabled,
         content: TextFormField(
-            autofocus: currentStep == 3 ? true : false,
+            //autofocus: currentStep == 3 ? true : false,
             controller: hauteur_max,
             keyboardType: TextInputType.number,
             inputFormatters: <TextInputFormatter>[
@@ -393,19 +350,62 @@ class _Register extends State<Register> {
           state: currentStep > 5 ? StepState.complete : StepState.disabled,
           content: Column(children: <Widget>[
             RaisedButton(
-              child:
-                  Text(AppLocalizations.of(context).translate('connecter_app')),
-              onPressed: () async {
-                final macAddress = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => BluetoothSync(
-                              curUser: null,
-                              inputMessage: "inscription",
-                              appLanguage: appLanguage,
-                            )));
-                updateMacAddress(macAddress);
-              },
+              child: Text(discovering),
+              onPressed: !isFound ? () async {
+                macAddress = await btManage.createState().getPairedDevices();
+
+                if (macAddress != null) {
+                  //Appareil trouvé
+                  setState(() {
+                    discovering =
+                        AppLocalizations.of(context).translate('app_trouve');
+                    isFound = true;
+                  });
+                } else {
+                  setState(() {
+                    discovering = AppLocalizations.of(context)
+                        .translate('app_non_trouve');
+                    isFound = false;
+                  });
+                }
+              }: null,
+            ),
+            RaisedButton(
+              child: Text(statusBT),
+              onPressed: isFound
+                  ? () async {
+                      final macAddress = btManage.createState().macAdress;
+
+                      //final macAddress = await Navigator.push(
+                      //    context,
+                      //    MaterialPageRoute(
+                      //        builder: (context) =>
+                      //            /*BluetoothSync(
+                      //              curUser: null,
+                      //              inputMessage: "inscription",
+                      //              appLanguage: appLanguage,
+                      //            )*/
+                      //            BluetoothManager(
+                      //                user: null,
+                      //                inputMessage: "inscription",
+                      //                appLanguage: appLanguage)));
+
+                      updateMacAddress(macAddress);
+                      connect();
+
+                      if (isConnected) {
+                        setState(() {
+                          statusBT = AppLocalizations.of(context)
+                              .translate('status_connexion_bon');
+                        });
+                      } else {
+                        setState(() {
+                          statusBT = AppLocalizations.of(context)
+                              .translate('status_connexion_mauvais');
+                        });
+                      }
+                    }
+                  : null,
               textColor: colorButton,
             ),
           ])),
@@ -428,8 +428,9 @@ class _Register extends State<Register> {
                         if (_start < 0.5) {
                           timer.cancel();
                           _start = _reset;
-                          result =
-                              average.reduce((a, b) => a + b) / average.length;
+                          result = double.parse(
+                              (average.reduce((a, b) => a + b) / average.length)
+                                  .toStringAsFixed(2));
                           print(result.toStringAsFixed(2));
                           i = 20;
                           if (result <= 5.0 || result >= 10.0) {
@@ -449,6 +450,7 @@ class _Register extends State<Register> {
                           recording = _start.toString();
                           _start = _start - 0.5;
                           i--;
+                          getData();
                           average[i] = double.parse(btData);
                         }
                       },
@@ -459,7 +461,8 @@ class _Register extends State<Register> {
                 textColor: colorMesureButton,
                 child: Text(recording)),
             RoundedProgressBar(
-                percent: (double.parse(btData)) >= 0 ? (double.parse(btData)) : 0.0,
+                percent:
+                    (double.parse(btData)) >= 0 ? (double.parse(btData)) : 0.0,
                 theme: RoundedProgressBarTheme.yellow,
                 childCenter: Text("$btData")),
           ],
@@ -519,6 +522,8 @@ class _Register extends State<Register> {
                               .translate('premiere_mesure') +
                           ": " +
                           result.toString()),
+
+                      Text("Adresse MAC $macAddress"),
                     ],
                   ),
                   FlatButton(
@@ -554,16 +559,15 @@ class _Register extends State<Register> {
                         isDisabled = false;
 
                       if (_pathSaved == "assets/avatar.png") {
-                        var bytes =
-                            await rootBundle.load(_pathSaved);
+                        var bytes = await rootBundle.load(_pathSaved);
                         String dir =
                             (await getApplicationDocumentsDirectory()).path;
-                        File tempFile = await writeToFile(bytes, '$dir/default.png');
+                        File tempFile =
+                            await writeToFile(bytes, '$dir/default.png');
 
                         setState(() {
                           _pathSaved = tempFile.path;
                         });
-
                       }
 
                       if (!isDisabled) {
@@ -616,8 +620,7 @@ class _Register extends State<Register> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(
-            AppLocalizations.of(context).translate('inscription')),
+        title: Text(AppLocalizations.of(context).translate('inscription')),
         backgroundColor: Colors.blue,
         key: _formKey,
         actions: <Widget>[
@@ -662,6 +665,9 @@ class _Register extends State<Register> {
                         children: <Widget>[
                           FlatButton(
                             onPressed: /*!clickable ? null : */ () {
+                              //Retirer le clavier
+                              FocusScope.of(context)
+                                  .requestFocus(new FocusNode());
                               next();
                               _controller.animateTo(
                                   ((currentStep) * 75).toDouble(),

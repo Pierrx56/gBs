@@ -9,11 +9,11 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
 import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
+import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/main.dart';
@@ -50,9 +50,11 @@ class _ManageProfile extends State<ManageProfile> {
   DatabaseHelper db = new DatabaseHelper();
   User user;
   bool isDisconnecting = false;
-  BluetoothConnection connection;
   bool isConnected = false;
   AppLanguage appLanguage;
+
+  BluetoothManager btManage =
+  new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
   Color colorMesureButton = Colors.black;
   Timer _timer;
@@ -147,8 +149,7 @@ class _ManageProfile extends State<ManageProfile> {
   @override
   void initState() {
     btData = "0.0";
-    connectBT();
-    testConnect();
+    connect();
 
     super.initState();
   }
@@ -188,109 +189,45 @@ class _ManageProfile extends State<ManageProfile> {
     return _pathSaved = newImage.path;
   }
 
-  void connectBT() async {
-    //_disconnect();
-    await BluetoothConnection.toAddress(user.userMacAddress)
-        .then((_connection) {
-      print('Connected to the device');
 
-      connection = _connection;
-      isConnected = true;
+  void connect() async{
+    btManage.createState().connect("connexion");
+    testConnect();
+  }
 
-      connection.input.listen(_onDataReceived).onDone(() {
-        // Example: Detect which side closed the connection
-        // There should be `isDisconnecting` flag to show are we are (locally)
-        // in middle of disconnecting process, should be set before calling
-        // `dispose`, `finish` or `close`, which all causes to disconnect.
-        // If we except the disconnection, `onDone` should be fired as result.
-        // If we didn't except this (no flag set), it means closing by remote.
-        if (isDisconnecting) {
-          print('Disconnecting locally!');
-          isConnected = false;
-          connectBT();
-        } else {
-          print('Disconnected remotely!');
-          isConnected = false;
-          connectBT();
-        }
+  testConnect() async {
+    if (!isConnected) {
+      new Timer.periodic(Duration(milliseconds: 300), (timer) {
+        setState(() async {
+          isConnected = await btManage.createState().connect("connexion");
+          if(isConnected) {
+            //Une fois connecté
+
+            timer.cancel();
+          }
+        });
+        //isConnected = btManage.createState().isConnected;
       });
-    });
+    }
   }
 
   // Method to disconnect bluetooth
   void _disconnect() async {
     isConnected = false;
-    await connection.close();
     print('Device disconnected');
   }
 
-  void testConnect() async {
-    if (!isConnected) {
-      connectBT();
-    }
+  void setData() async {
+    btData = await btManage.createState().getData();
   }
 
-  void _onDataReceived(Uint8List data) async {
-    // Allocate buffer for parsed data
-    int backspacesCounter = 0;
-    data.forEach((byte) {
-      if (byte == 8 || byte == 127) {
-        backspacesCounter++;
-      }
-    });
+  double getData() {
+    setData();
 
-    Uint8List buffer = Uint8List(data.length - backspacesCounter);
-    int bufferIndex = buffer.length;
-
-    // Apply backspace control character
-    backspacesCounter = 0;
-    for (int i = data.length - 1; i >= 0; i--) {
-      if (data[i] == 8 || data[i] == 127) {
-        backspacesCounter++;
-      } else {
-        if (backspacesCounter > 0) {
-          backspacesCounter--;
-        } else {
-          buffer[--bufferIndex] = data[i];
-        }
-      }
-    }
-
-    // Create message if there is new line character
-    String dataString = String.fromCharCodes(buffer);
-
-    int index = buffer.indexOf(13);
-    if (~index != 0) {
-      messages.add(
-        _Message(
-          1,
-          backspacesCounter > 0
-              ? _messageBuffer.substring(
-                  0, _messageBuffer.length - backspacesCounter)
-              : _messageBuffer + dataString.substring(0, index),
-        ),
-      );
-      _messageBuffer = dataString.substring(index);
-    } else {
-      _messageBuffer = (backspacesCounter > 0
-          ? _messageBuffer.substring(
-              0, _messageBuffer.length - backspacesCounter)
-          : _messageBuffer + dataString);
-    }
-    //Conversion des données reçu en un String btData
-    //List inutile, sert juste à convertir.
-    final List<String> list = messages.map((_message) {
-      //Conversion de mv en LBS puis Kg
-      btData = (_message.text.trim());
-
-      double convVoltToLbs = (921 - delta) / 100;
-      tempResult = double.parse(
-          ((double.parse(btData) - delta) / (convVoltToLbs * coefKg))
-              .toStringAsExponential(1));
-
-      btData = tempResult.toString();
-      //print(btData);
-    }).toList();
+    if (btData != null)
+      return double.parse(btData);
+    else
+      return 2.0;
   }
 
   //String savedImage = "";
@@ -607,9 +544,9 @@ class _ManageProfile extends State<ManageProfile> {
                                         timer.cancel();
                                         _start = _reset;
                                         result =
-                                            average.reduce((a, b) => a + b) /
-                                                average.length;
-                                        print(result.toString());
+                                        double.parse((average.reduce((a, b) => a + b) /
+                                                average.length).toStringAsFixed(2));
+
                                         i = 20;
                                         if (result <= 5.0 || result >= 10.0) {
                                           //Mesure pas bonne, réajuster la toise
@@ -635,6 +572,7 @@ class _ManageProfile extends State<ManageProfile> {
                                           });
                                       } else {
                                         recording = _start.toString();
+                                        getData();
                                         _start = _start - 0.5;
                                         i--;
                                         average[i] = double.parse(btData);

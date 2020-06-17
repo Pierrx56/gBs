@@ -55,12 +55,14 @@ class _Login extends State<Login> {
     //TODO Create activities types with bdd
 
 
+/*
     //Nageur
     db.addActivity(new Activity(activityId: 0, activityType: "CMV",));
     //Deuxième activité
     db.addActivity(new Activity(activityId: 1, activityType: "CSI",));
     //Troisième activité
     db.addActivity(new Activity(activityId: 2, activityType: "CSI",));
+*/
 
     super.initState();
   }

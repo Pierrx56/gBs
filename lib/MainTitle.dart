@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
-import 'package:gbsalternative/BluetoothSync.dart';
+import 'package:gbsalternative/BluetoothManager.dart';
+//import 'file:///C:/Users/Pierrick/Documents/Entreprise/Stage/Genourob/gBs/gbs_alternative/lib/Backup/BluetoothSync_shield.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/ManageProfile.dart';
@@ -76,9 +77,8 @@ class _MainTitle extends State<MainTitle> {
       messageIn: "",
     );
 
-    bluetoothPage = BluetoothSync(
-      curUser: user,
-    );
+    bluetoothPage = BluetoothManager(user: user, inputMessage: "0", appLanguage: appLanguage);
+    //BluetoothSync(curUser: user,);
     /*
     loginPage = LoadPage(
       page: "login",
@@ -558,9 +558,7 @@ class _MainTitle extends State<MainTitle> {
           page: "manageProfile",
           messageIn: "",
         );
-        bluetoothPage = BluetoothSync(
-          curUser: user,
-        );
+        bluetoothPage = BluetoothManager(user: user, inputMessage: "0", appLanguage: appLanguage);//BluetoothSync(curUser: user);
         /*
         loginPage = LoadPage(
           appLanguage: appLanguage,

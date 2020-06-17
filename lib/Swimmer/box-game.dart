@@ -212,6 +212,8 @@ class BoxGame extends Game {
         }
 
         //getData = données reçues par le Bluetooth
+
+        double.tryParse("2.3");
         if (getData() > double.parse(user.userInitialPush)) {
           //print(player.y);
           player.y -= difficulte;

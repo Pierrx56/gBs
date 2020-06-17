@@ -11,7 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
 import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
-import 'package:gbsalternative/BluetoothSync.dart';
+import 'package:gbsalternative/BluetoothManager.dart';
+//import 'file:///C:/Users/Pierrick/Documents/Entreprise/Stage/Genourob/gBs/gbs_alternative/lib/Backup/BluetoothSync_shield.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -342,10 +343,11 @@ class _Register extends State<Register> {
                             final macAddress = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => BluetoothSync(
+                                    builder: (context) => BluetoothManager()));
+                            /*BluetoothSync(
                                           curUser: null,
                                           inputMessage: "inscription",
-                                        )));
+                                        )));*/
                             updateMacAddress(macAddress);
                           },
                           textColor: colorButton,
