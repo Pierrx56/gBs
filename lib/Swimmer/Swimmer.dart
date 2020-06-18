@@ -107,9 +107,11 @@ class _Swimmer extends State<Swimmer> {
 
   testConnect() async {
     if (!isConnected) {
-      new Timer.periodic(Duration(milliseconds: 300), (timer) async {
-            isConnected = await btManage.createState().getStatus();
+      new Timer.periodic(Duration(milliseconds: 1000), (timer) async {
             btManage.createState().connect("swimmer");
+            isConnected = await btManage.createState().getStatus();
+            print("Status: $isConnected");
+
             if(isConnected) {
               initSwimmer();
               refreshScore();

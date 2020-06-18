@@ -94,21 +94,22 @@ class _BluetoothManager extends State<BluetoothManager> {
     return false;
   }
 
-  Future<String> getPairedDevices() async {
+  Future<String> getPairedDevices(String origin) async {
     String pairedDevices;
     try {
       final String paired =
-          await sensorChannel.invokeMethod('getPairedDevices');
+      await sensorChannel.invokeMethod('getPairedDevices');
       pairedDevices = 'Devices paired: $paired.';
       macAdress = paired;
     } on PlatformException {
       pairedDevices = 'Failed to get paired devices.';
     }
 
-    setState(() {
-      _pairedDevices = pairedDevices;
-    });
-
+    if (origin != "register"){
+      setState(() {
+        _pairedDevices = pairedDevices;
+      });
+  }
 
     return macAdress;
 
@@ -119,32 +120,52 @@ class _BluetoothManager extends State<BluetoothManager> {
     return isConnected;
   }
 
-  Future<bool> connect(String message) async {
+  Future<bool> connect(String origin) async {
     String connectStatus;
+    String result;
     if(inputMessage == null)
-      inputMessage = message;
+      inputMessage = origin;
     try {
-      final String result = await sensorChannel.invokeMethod('connect');
-      if (result != "Connected") connect(inputMessage);
-      isConnected = true;
-      startDataReceiver();
-      print("résulttaaaaaaaaat" + result);
+      result = await sensorChannel.invokeMethod('connect');
+      if (result != "Connected") {
+        Future.delayed(const Duration(milliseconds: 1000), () async {
+          connect(inputMessage);
+          isConnected = await getStatus();
+          if(isConnected)
+            connectStatus = 'Connection status: Connected.';
+          else {
+            connectStatus = 'Connection status: Failed';
+            connect(inputMessage);
+          }
+          if(origin == "connexion")
+            setState(() {
+              _connectDevices = connectStatus;
+            });
+        });
+      }
+      else {
+        startDataReceiver();
+        print("résulttaaaaaaaaat" + result);
+
+        isConnected = await getStatus();
+        if(isConnected)
+          connectStatus = 'Connection status: Connected.';
+        else {
+          connectStatus = 'Connection status: Failed';
+          connect(inputMessage);
+        }
+        if(origin == "connexion")
+          setState(() {
+            _connectDevices = connectStatus;
+          });
+      }
     } on PlatformException {
       //connect();
       //connect(inputMessage);
+      if(result == null)
+        connect(inputMessage);
       connectStatus = 'Connection status: Failed';
     }
-    Future.delayed(const Duration(milliseconds: 1000), () async {
-      isConnected = await getStatus();
-      if(isConnected)
-        connectStatus = 'Connection status: Connected.';
-      else
-        connectStatus = 'Connection status: Failed';
-      if(message != "swimmer")
-        setState(() {
-          _connectDevices = connectStatus;
-        });
-    });
 
 
     if (isConnected) {
@@ -159,6 +180,7 @@ class _BluetoothManager extends State<BluetoothManager> {
         );
       }
       else if(inputMessage == "connexion");
+      else if(inputMessage == "register");
       else if(inputMessage == "swimmer");
 
       else {
@@ -291,7 +313,7 @@ class _BluetoothManager extends State<BluetoothManager> {
                 // So, that when new devices are paired
                 // while the app is running, user can refresh
                 // the paired devices list.
-                getPairedDevices();
+                getPairedDevices("");
               },
             ),
           ],
@@ -306,7 +328,7 @@ class _BluetoothManager extends State<BluetoothManager> {
                   Text(_pairedDevices),
                   RaisedButton(
                     onPressed: () {
-                      getPairedDevices();
+                      getPairedDevices("");
                     },
                     child: Text("Get Devices"),
                   ),

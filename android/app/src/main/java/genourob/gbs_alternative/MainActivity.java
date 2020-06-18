@@ -279,16 +279,16 @@ public class MainActivity extends FlutterActivity {
 
     public String connect() {
 
-        String address = getPairedDevices();
+        //String address = getPairedDevices();
 
         bluetoothGatt = m_BTdevice.connectGatt(this, false, btleGattCallback);
 
 /*        if(bluetoothGatt.getConnectionState(m_BTdevice) == 2)
             //Connected
             return "Connected";*/
-
+/*
         if(bluetoothGatt.getConnectionState(m_BTdevice) == 2)
-            isConnected = true;
+            isConnected = true;*/
 
         if(isConnected)
             return "Connected";

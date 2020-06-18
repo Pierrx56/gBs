@@ -56,6 +56,9 @@ class _ManageProfile extends State<ManageProfile> {
   BluetoothManager btManage =
   new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
+  // Initializing a global key, as it would help us in showing a SnackBar later
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   Color colorMesureButton = Colors.black;
   Timer _timer;
   double _start = 10.0;
@@ -192,7 +195,7 @@ class _ManageProfile extends State<ManageProfile> {
 
   void connect() async{
     btManage.createState().connect("connexion");
-    testConnect();
+    //testConnect();
   }
 
   testConnect() async {
@@ -426,6 +429,7 @@ class _ManageProfile extends State<ManageProfile> {
                                           messageIn: "0",
                                           page: "mainTitle",
                                         )));*/
+                            show("done");
                           },
                         ),
                         Padding(
@@ -614,6 +618,7 @@ class _ManageProfile extends State<ManageProfile> {
           AppLocalizations.of(context).translate('demarrer_enregistrement');
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context).translate('modification')),
         backgroundColor: Colors.blue,
@@ -626,60 +631,20 @@ class _ManageProfile extends State<ManageProfile> {
     );
   }
 
-/*else {
-      return Scaffold(
-        appBar: AppBar(title: Text("Choix d'utilisateur")),
-        body: Center(
-          child: SingleChildScrollView(
-            child: Text(
-              BTDevice.address,
-              style: TextStyle(fontSize: 24),
-            ),
-          ),
+  // Method to show a Snackbar,
+  // taking message as the text
+  Future show(
+      String message, {
+        Duration duration: const Duration(seconds: 3),
+      }) async {
+    await new Future.delayed(new Duration(milliseconds: 100));
+    _scaffoldKey.currentState.showSnackBar(
+      new SnackBar(
+        content: new Text(
+          message,
         ),
-      );
-    }
-  }*/
-
-//@override
-//_Register createState() => new _Register();
-}
-
-/*
-class _Register extends State<Register> {
-
-  @override
-  void initState() {
-    super.initState();
-
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    final BluetoothDevice _device = ModalRoute.of(context).settings.arguments;
-
-    return Container(
-      decoration: BoxDecoration(color: Colors.white),
-      child: Center(
-        child:Container(
-          child: Column(
-            children: <Widget>[
-              Text("C'est qui ?"),
-              RaisedButton(
-                elevation: 2,
-                child: Text("Changer d'appareil"),
-                onPressed: () {
-                  Navigator.of(context).pushReplacementNamed('/BluetoothSync');
-                },
-              ),
-            ]
-          ),
-        ),
+        duration: duration,
       ),
     );
   }
-
 }
-
-   */

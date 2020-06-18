@@ -114,8 +114,8 @@ class _Register extends State<Register> {
   }
 
   void connect() async {
-    btManage.createState().connect("connexion");
-    testConnect();
+    btManage.createState().connect("register");
+    //testConnect();
   }
 
   testConnect() async {
@@ -351,24 +351,29 @@ class _Register extends State<Register> {
           content: Column(children: <Widget>[
             RaisedButton(
               child: Text(discovering),
-              onPressed: !isFound ? () async {
-                macAddress = await btManage.createState().getPairedDevices();
+              onPressed: !isFound
+                  ? () async {
+                      btManage.createState().enableBluetooth();
+                      macAddress = await btManage
+                          .createState()
+                          .getPairedDevices("register");
 
-                if (macAddress != null) {
-                  //Appareil trouvé
-                  setState(() {
-                    discovering =
-                        AppLocalizations.of(context).translate('app_trouve');
-                    isFound = true;
-                  });
-                } else {
-                  setState(() {
-                    discovering = AppLocalizations.of(context)
-                        .translate('app_non_trouve');
-                    isFound = false;
-                  });
-                }
-              }: null,
+                      if (macAddress != null) {
+                        //Appareil trouvé
+                        setState(() {
+                          discovering = AppLocalizations.of(context)
+                              .translate('app_trouve');
+                          isFound = true;
+                        });
+                      } else {
+                        setState(() {
+                          discovering = AppLocalizations.of(context)
+                              .translate('app_non_trouve');
+                          isFound = false;
+                        });
+                      }
+                    }
+                  : null,
             ),
             RaisedButton(
               child: Text(statusBT),
@@ -392,6 +397,11 @@ class _Register extends State<Register> {
 
                       updateMacAddress(macAddress);
                       connect();
+
+                      Future.delayed(const Duration(milliseconds: 1000),
+                          () async {
+                        isConnected = await btManage.createState().getStatus();
+                      });
 
                       if (isConnected) {
                         setState(() {
