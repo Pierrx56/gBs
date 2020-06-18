@@ -99,6 +99,16 @@ public class MainActivity extends FlutterActivity {
                                 result.error("UNAVAILABLE", "Can not connect", null);
                             }
                         }
+                        if (call.method.equals("getStatus")) {
+                            boolean status = getStatus();
+
+                            if (status) {
+                                result.success(status);
+                            } else {
+                                result.success(status);
+                                //result.error("UNAVAILABLE", "Can not connect", null);
+                            }
+                        }
                         if (call.method.equals("getBatteryLevel")) {
                             int batteryLevel = getBatteryLevel();
 
@@ -263,15 +273,22 @@ public class MainActivity extends FlutterActivity {
         return value;
     }
 
+    public boolean getStatus(){
+        return isConnected;
+    }
+
     public String connect() {
 
-        getPairedDevices();
+        String address = getPairedDevices();
 
         bluetoothGatt = m_BTdevice.connectGatt(this, false, btleGattCallback);
 
 /*        if(bluetoothGatt.getConnectionState(m_BTdevice) == 2)
             //Connected
             return "Connected";*/
+
+        if(bluetoothGatt.getConnectionState(m_BTdevice) == 2)
+            isConnected = true;
 
         if(isConnected)
             return "Connected";

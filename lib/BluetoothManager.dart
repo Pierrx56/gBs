@@ -35,7 +35,7 @@ class _BluetoothManager extends State<BluetoothManager> {
       MethodChannel('samples.flutter.io/sensor');
 
   String _pairedDevices = 'No devices paired';
-  String _connectDevices = "Disconnected";
+  String _connectDevices;
   String _incomeData = "Data: ";
   bool isConnected = false;
   bool isRunning = false;
@@ -65,7 +65,7 @@ class _BluetoothManager extends State<BluetoothManager> {
   @override
   void initState() {
     super.initState();
-
+    _connectDevices = "Disconnected";
     enableBluetooth();
   }
 
@@ -105,10 +105,18 @@ class _BluetoothManager extends State<BluetoothManager> {
       pairedDevices = 'Failed to get paired devices.';
     }
 
-    _pairedDevices = pairedDevices;
+    setState(() {
+      _pairedDevices = pairedDevices;
+    });
+
 
     return macAdress;
 
+  }
+
+  Future<bool> getStatus() async{
+    isConnected = await sensorChannel.invokeMethod('getStatus');
+    return isConnected;
   }
 
   Future<bool> connect(String message) async {
@@ -118,15 +126,26 @@ class _BluetoothManager extends State<BluetoothManager> {
     try {
       final String result = await sensorChannel.invokeMethod('connect');
       if (result != "Connected") connect(inputMessage);
-      connectStatus = 'Connection status: $result.';
-      print(result);
+      isConnected = true;
+      startDataReceiver();
+      print("résulttaaaaaaaaat" + result);
     } on PlatformException {
       //connect();
+      //connect(inputMessage);
       connectStatus = 'Connection status: Failed';
     }
-    startDataReceiver();
-    _connectDevices = connectStatus;
-    isConnected = true;
+    Future.delayed(const Duration(milliseconds: 1000), () async {
+      isConnected = await getStatus();
+      if(isConnected)
+        connectStatus = 'Connection status: Connected.';
+      else
+        connectStatus = 'Connection status: Failed';
+      if(message != "swimmer")
+        setState(() {
+          _connectDevices = connectStatus;
+        });
+    });
+
 
     if (isConnected) {
       //Lorsque l'on viens de l'inscription
@@ -140,6 +159,7 @@ class _BluetoothManager extends State<BluetoothManager> {
         );
       }
       else if(inputMessage == "connexion");
+      else if(inputMessage == "swimmer");
 
       else {
         //Insertion dans l'adresse MAC dans la BDD
@@ -166,11 +186,12 @@ class _BluetoothManager extends State<BluetoothManager> {
                       user: user,
                       messageIn: "0",
                     )));*/
-        show('Vous êtes connecté à gBs');
+        //show('Vous êtes connecté à gBs');
       }
-    } else
+    }
+    /*else
       show("Échec de connexion");
-    /*    connection.input.listen(_onDataReceived).onDone((){
+        connection.input.listen(_onDataReceived).onDone((){
           if (this.mounted) {
             setState(() {});
           }
@@ -282,8 +303,7 @@ class _BluetoothManager extends State<BluetoothManager> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text(
-                      _pairedDevices /*, key: const Key('Battery level label')*/),
+                  Text(_pairedDevices),
                   RaisedButton(
                     onPressed: () {
                       getPairedDevices();
@@ -296,6 +316,7 @@ class _BluetoothManager extends State<BluetoothManager> {
                     },
                     child: Text("Connect Device"),
                   ),
+                  /*
                   RaisedButton(
                     onPressed: () {
                       isRunning = true;
@@ -316,11 +337,10 @@ class _BluetoothManager extends State<BluetoothManager> {
                       child: const Text('Refresh'),
                       onPressed: () {},
                     ),
-                  ),
+                  ),*/
                 ],
               ),
               Text(_connectDevices),
-              Text(_incomeData),
             ],
           ),
         ),

@@ -100,21 +100,21 @@ class _Swimmer extends State<Swimmer> {
   bool isDisconnecting = false;
 
   void connect() async{
-    btManage.createState().connect("connexion");
+    btManage.createState().enableBluetooth();
+    btManage.createState().connect("swimmer");
     testConnect();
   }
 
   testConnect() async {
     if (!isConnected) {
-      new Timer.periodic(Duration(milliseconds: 300), (timer) {
-          setState(() async {
-            isConnected = await btManage.createState().connect("connexion");
+      new Timer.periodic(Duration(milliseconds: 300), (timer) async {
+            isConnected = await btManage.createState().getStatus();
+            btManage.createState().connect("swimmer");
             if(isConnected) {
               initSwimmer();
               refreshScore();
               timer.cancel();
             }
-          });
             //isConnected = btManage.createState().isConnected;
       });
     }
