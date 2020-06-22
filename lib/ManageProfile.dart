@@ -61,6 +61,7 @@ class _ManageProfile extends State<ManageProfile> {
 
   Color colorMesureButton = Colors.black;
   Timer _timer;
+  Timer timerConnexion;
   double _start = 10.0;
   static double _reset = 10.0;
   int i = 20;
@@ -194,22 +195,25 @@ class _ManageProfile extends State<ManageProfile> {
 
 
   void connect() async{
-    btManage.createState().connect("connexion");
-    //testConnect();
+
+    btManage.createState().enableBluetooth();
+    btManage.createState().getPairedDevices("manage");
+    btManage.createState().connect("manage");
+    isConnected = await btManage.createState().getStatus();
+    testConnect();
   }
 
   testConnect() async {
+    isConnected = await btManage.createState().getStatus();
     if (!isConnected) {
-      new Timer.periodic(Duration(milliseconds: 300), (timer) {
-        setState(() async {
-          isConnected = await btManage.createState().connect("connexion");
-          if(isConnected) {
-            //Une fois connecté
-
-            timer.cancel();
-          }
-        });
-        //isConnected = btManage.createState().isConnected;
+      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500), (timerConnexion) async {
+        btManage.createState().connect("swimmer");
+        print("Status: $isConnected");
+        isConnected = await btManage.createState().getStatus();
+        if(isConnected) {
+          timerConnexion.cancel();
+          //refreshScore();
+        }
       });
     }
   }

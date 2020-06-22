@@ -283,17 +283,12 @@ public class MainActivity extends FlutterActivity {
 
         bluetoothGatt = m_BTdevice.connectGatt(this, false, btleGattCallback);
 
-/*        if(bluetoothGatt.getConnectionState(m_BTdevice) == 2)
-            //Connected
-            return "Connected";*/
-/*
-        if(bluetoothGatt.getConnectionState(m_BTdevice) == 2)
-            isConnected = true;*/
-
-        if(isConnected)
+        if(isConnected != true)
             return "Connected";
-        else
+        else {
+            //connect();
             return "Disconnected";
+        }
     }
 
     // Device connect call back

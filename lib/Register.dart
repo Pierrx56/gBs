@@ -78,6 +78,7 @@ class _Register extends State<Register> {
 
   bool isConnected;
   Timer _timer;
+  Timer timerConnexion;
   double _start = 10.0;
   static double _reset = 10.0;
   int i = 20;
@@ -113,21 +114,27 @@ class _Register extends State<Register> {
     super.dispose();
   }
 
-  void connect() async {
+
+  void connect() async{
+    btManage.createState().enableBluetooth();
+    btManage.createState().getPairedDevices("register");
     btManage.createState().connect("register");
-    //testConnect();
+    isConnected = await btManage.createState().getStatus();
+    testConnect();
   }
 
+
   testConnect() async {
+    isConnected = await btManage.createState().getStatus();
     if (!isConnected) {
-      new Timer.periodic(Duration(milliseconds: 300), (timer) {
-        setState(() async {
-          isConnected = await btManage.createState().connect("connexion");
-          if (isConnected) {
-            timer.cancel();
-          }
-        });
-        //isConnected = btManage.createState().isConnected;
+      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500), (timerConnexion) async {
+        btManage.createState().connect("register");
+        print("Status: $isConnected");
+        isConnected = await btManage.createState().getStatus();
+        if(isConnected) {
+          timerConnexion.cancel();
+          //refreshScore();.
+        }
       });
     }
   }
@@ -358,6 +365,7 @@ class _Register extends State<Register> {
                           .createState()
                           .getPairedDevices("register");
 
+                      print("MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
                       if (macAddress != null) {
                         //Appareil trouvé
                         setState(() {
@@ -379,7 +387,7 @@ class _Register extends State<Register> {
               child: Text(statusBT),
               onPressed: isFound
                   ? () async {
-                      final macAddress = btManage.createState().macAdress;
+                      //final macAddress = btManage.createState().macAdress;
 
                       //final macAddress = await Navigator.push(
                       //    context,
@@ -395,25 +403,23 @@ class _Register extends State<Register> {
                       //                inputMessage: "inscription",
                       //                appLanguage: appLanguage)));
 
-                      updateMacAddress(macAddress);
+                      //updateMacAddress(macAddress);
                       connect();
 
-                      Future.delayed(const Duration(milliseconds: 1000),
-                          () async {
-                        isConnected = await btManage.createState().getStatus();
+                      Timer.periodic(const Duration(seconds: 1), (timer) {
+                        if (isConnected) {
+                          timer.cancel();
+                          setState(() {
+                            statusBT = AppLocalizations.of(context)
+                                .translate('status_connexion_bon');
+                          });
+                        } else {
+                          setState(() {
+                            statusBT = AppLocalizations.of(context)
+                                .translate('connection_en_cours');
+                          });
+                        }
                       });
-
-                      if (isConnected) {
-                        setState(() {
-                          statusBT = AppLocalizations.of(context)
-                              .translate('status_connexion_bon');
-                        });
-                      } else {
-                        setState(() {
-                          statusBT = AppLocalizations.of(context)
-                              .translate('status_connexion_mauvais');
-                        });
-                      }
                     }
                   : null,
               textColor: colorButton,
@@ -472,9 +478,9 @@ class _Register extends State<Register> {
                 child: Text(recording)),
             RoundedProgressBar(
                 percent:
-                    (double.parse(btData)) >= 0 ? (double.parse(btData)) : 0.0,
+                    (double.parse(btData)) >= 0 ? (double.parse(btData) * 10) : 0.0,
                 theme: RoundedProgressBarTheme.yellow,
-                childCenter: Text("$btData")),
+                childCenter: Text((double.parse(btData)*10).toString())),
           ],
         ),
       ),
@@ -648,7 +654,7 @@ class _Register extends State<Register> {
               _userMode = "Sportif";
               hauteur_min.text = "115";
               hauteur_max.text = "125";
-              macAddress = "00:0E:EA:CF:52:62";
+              macAddress = "78:DB:2F:BF:3B:03";
               result = 6.31;
               _pathSaved = "assets/avatar.png";
             },

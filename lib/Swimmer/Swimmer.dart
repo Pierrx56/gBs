@@ -61,6 +61,7 @@ class _Swimmer extends State<Swimmer> {
   double result;
   String recording;
   Timer timer;
+  Timer timerConnexion;
   UI gameUI;
   int score;
 
@@ -79,6 +80,12 @@ class _Swimmer extends State<Swimmer> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    timerConnexion?.cancel();
+    timer?.cancel();
+    super.dispose();
+  }
 
   initSwimmer() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -101,24 +108,30 @@ class _Swimmer extends State<Swimmer> {
 
   void connect() async{
     btManage.createState().enableBluetooth();
+    btManage.createState().getPairedDevices("swimmer");
     btManage.createState().connect("swimmer");
+    isConnected = await btManage.createState().getStatus();
     testConnect();
   }
 
-  testConnect() async {
-    if (!isConnected) {
-      new Timer.periodic(Duration(milliseconds: 1000), (timer) async {
-            btManage.createState().connect("swimmer");
-            isConnected = await btManage.createState().getStatus();
-            print("Status: $isConnected");
 
+  testConnect() async {
+    isConnected = await btManage.createState().getStatus();
+    if (!isConnected) {
+      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500), (timerConnexion) async {
+            btManage.createState().connect("swimmer");
+            print("Status: $isConnected");
+            isConnected = await btManage.createState().getStatus();
             if(isConnected) {
+              timerConnexion.cancel();
               initSwimmer();
-              refreshScore();
-              timer.cancel();
+              //refreshScore();
             }
-            //isConnected = btManage.createState().isConnected;
       });
+    }
+    if(isConnected) {
+      initSwimmer();
+      //refreshScore();
     }
   }
 
@@ -142,14 +155,9 @@ class _Swimmer extends State<Swimmer> {
       return 2.0;
   }
 
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
-  }
 
   refreshScore() async {
-    new Timer.periodic(Duration(milliseconds: 300), (timer) {
+    timer = new Timer.periodic(Duration(milliseconds: 300), (timer) {
       if (this.mounted) {
         if (game != null) {
           setState(() {

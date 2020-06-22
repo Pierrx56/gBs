@@ -38,7 +38,7 @@ class _BluetoothManager extends State<BluetoothManager> {
   String _connectDevices;
   String _incomeData = "Data: ";
   bool isConnected = false;
-  bool isRunning = false;
+  bool isRunning = true;
   Timer timer;
   String macAdress;
   String data;
@@ -105,7 +105,7 @@ class _BluetoothManager extends State<BluetoothManager> {
       pairedDevices = 'Failed to get paired devices.';
     }
 
-    if (origin != "register"){
+    if (origin == "connexion"){
       setState(() {
         _pairedDevices = pairedDevices;
       });
@@ -123,11 +123,12 @@ class _BluetoothManager extends State<BluetoothManager> {
   Future<bool> connect(String origin) async {
     String connectStatus;
     String result;
-    if(inputMessage == null)
-      inputMessage = origin;
     try {
-      result = await sensorChannel.invokeMethod('connect');
-      if (result != "Connected") {
+      sensorChannel.invokeMethod('connect');
+      result = await sensorChannel.invokeMethod('getStatus').toString();
+      connectStatus = 'Connection status: $result.';
+      isConnected = true;
+/*      if (result != "Connected") {
         Future.delayed(const Duration(milliseconds: 1000), () async {
           connect(inputMessage);
           isConnected = await getStatus();
@@ -158,19 +159,22 @@ class _BluetoothManager extends State<BluetoothManager> {
           setState(() {
             _connectDevices = connectStatus;
           });
-      }
+      }*/
     } on PlatformException {
       //connect();
       //connect(inputMessage);
-      if(result == null)
-        connect(inputMessage);
       connectStatus = 'Connection status: Failed';
     }
-
+    if(origin == "connexion"){
+      setState(() {
+        _connectDevices = connectStatus;
+        print(connectStatus);
+      });
+    }
 
     if (isConnected) {
       //Lorsque l'on viens de l'inscription
-      if (inputMessage == "inscription") {
+      if (origin == "inscription") {
         //Déconnexion immédiate sinon bug lors de lancement de jeux
         disconnect();
         inputMessage = "";
@@ -179,9 +183,9 @@ class _BluetoothManager extends State<BluetoothManager> {
           macAdress,
         );
       }
-      else if(inputMessage == "connexion");
-      else if(inputMessage == "register");
-      else if(inputMessage == "swimmer");
+      else if(origin == "connexion");
+      else if(origin == "register");
+      else if(origin == "swimmer");
 
       else {
         //Insertion dans l'adresse MAC dans la BDD
@@ -242,7 +246,7 @@ class _BluetoothManager extends State<BluetoothManager> {
 
   void startDataReceiver() async {
     const oneSec = const Duration(milliseconds: 500);
-    new Timer.periodic(oneSec, (timer) async {
+    timer = new Timer.periodic(oneSec, (timer) async {
       if (!isRunning) {
         timer.cancel();
       } else
