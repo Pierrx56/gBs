@@ -1,12 +1,12 @@
 import 'dart:ui';
 
 import 'package:flame/sprite.dart';
-import 'package:gbsalternative/Swimmer/box-game.dart';
+import 'package:gbsalternative/Swimmer/SwimGame.dart';
 
 Size screenSize;
 
 class Background {
-  final BoxGame game;
+  final SwimGame game;
   Sprite bgSprite;
   Rect bgRect;
 
@@ -25,7 +25,7 @@ class Background {
 
 
 class Close {
-  final BoxGame game;
+  final SwimGame game;
   Sprite spriteClose;
   Rect RectClose;
   bool inTouch;

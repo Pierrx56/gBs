@@ -85,7 +85,7 @@ class _Menu extends State<Menu> {
   }
 
   void getScores(int userId) async {
-    data = await db.getScore(userId);
+    data = await db.getScore(userId, 0);
     if (data == null) {
       getScores(userId);
       stop = false;

@@ -186,6 +186,7 @@ class _BluetoothManager extends State<BluetoothManager> {
       else if(origin == "connexion");
       else if(origin == "register");
       else if(origin == "swimmer");
+      else if(origin == "plane");
 
       else {
         //Insertion dans l'adresse MAC dans la BDD

@@ -9,7 +9,7 @@ import 'package:flame/components/component.dart';
 import 'package:flame/flame.dart';
 
 var game;
-var player;
+var plane;
 const SPEED = 120.0;
 const ComponentSize = 60.0;
 GameWrapper myGame;
@@ -42,7 +42,7 @@ List<Sprite> sprites = [
   23
 ].map((i) => new Sprite('swimmer/swim${i}.png')).toList();
 
-String swimPic;
+String planePic;
 const List<String> tab = [
   'swimmer/swim0.png',
   'swimmer/swim1.png',
@@ -136,8 +136,8 @@ class MyGame extends BaseGame {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    player.x = dimensions.width / 2;
-    player.render(canvas);
+    plane.x = dimensions.width / 2;
+    plane.render(canvas);
 
     /*String text = "Score: 0";
     TextSpan span =
@@ -162,30 +162,30 @@ class MyGame extends BaseGame {
       else
         i++;
 
-      swimPic = tab[i];
+      planePic = tab[i];
 
       creationTimer = 0.0;
 
-      Sprite sprite = Sprite(swimPic);
+      Sprite sprite = Sprite(planePic);
 
       const size = 100.0;
-      //player = AnimationComponent(size, size, new flanim.Animation.spriteList(sprites, stepTime: 0.01));
+      //plane = AnimationComponent(size, size, new flanim.Animation.spriteList(sprites, stepTime: 0.01));
 
-      player = SpriteComponent.fromSprite(
+      plane = SpriteComponent.fromSprite(
           size, size, sprite); // width, height, sprite
 
       if (tempPos >= dimensions.height - size)
-        player.y = tempPos;
+        plane.y = tempPos;
       else {
-        player.y += tempPos;
-        tempPos = player.y + difficulte;
+        plane.y += tempPos;
+        tempPos = plane.y + difficulte;
       }
       //component = new Component(dimensions);
       //add(component);
     }
     //Height: 360 Widht: 640
 
-    //print("Pos Y: " + player.y.toString());
+    //print("Pos Y: " + plane.y.toString());
 
     super.update(t);
   }
@@ -194,7 +194,7 @@ class MyGame extends BaseGame {
 class Component extends SpriteComponent {
   Size dimensions;
 
-  Component(this.dimensions) : super.square(ComponentSize, '$swimPic');
+  Component(this.dimensions) : super.square(ComponentSize, '$planePic');
   double maxY;
   bool remove = false;
 

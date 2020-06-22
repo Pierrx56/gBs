@@ -10,8 +10,10 @@ import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
-import 'package:gbsalternative/Swimmer/box-game.dart';
+import 'package:gbsalternative/Swimmer/SwimGame.dart';
 import 'package:intl/intl.dart';
+
+int ACTIVITY_NUMBER = 0;
 
 class UI extends StatefulWidget {
   final UIState state = UIState();
@@ -98,7 +100,7 @@ class UIState extends State<UI> {
         onPressed: () async {
           //TODO insérer dans bdd
           //Get date etc
-          db.getScore(user.userId);
+          //db.getScore(user.userId);
 
           //Date au format FR
           String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
@@ -106,13 +108,13 @@ class UIState extends State<UI> {
           Score newScore = Score(
               scoreId: null,
               userId: user.userId,
-              activityId: 0,
+              activityId: ACTIVITY_NUMBER,
               scoreValue: score,
               scoreDate: date);
 
           //db.deleteScore(user.userId);
 
-          List<Scores> everyScores = await db.getScore(user.userId);
+          List<Scores> everyScores = await db.getScore(user.userId, ACTIVITY_NUMBER);
 
           if (everyScores.length == 0)
             db.addScore(newScore);
@@ -125,7 +127,7 @@ class UIState extends State<UI> {
                 db.updateScore(Score(
                     scoreId: everyScores[i].scoreId,
                     userId: user.userId,
-                    activityId: 0,
+                    activityId: ACTIVITY_NUMBER,
                     scoreValue: score,
                     scoreDate: date));
             }
@@ -159,7 +161,7 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget pauseButton(BoxGame game) {
+  Widget pauseButton(SwimGame game) {
     return Container(
       height: screenHeight * 0.2,
       width: screenWidth * 0.2,

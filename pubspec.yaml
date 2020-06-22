@@ -63,6 +63,7 @@ flutter:
     - assets/flags/
     - assets/images/
     - assets/images/swimmer/
+    - assets/images/plane/
     - i18n/en.json
     - i18n/fr.json
   # To add assets to your application, add an assets section, like this:

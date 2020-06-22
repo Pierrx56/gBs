@@ -8,6 +8,7 @@ import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/ManageProfile.dart';
+import 'package:gbsalternative/Plane/Plane.dart';
 import 'package:gbsalternative/Register.dart';
 import 'package:gbsalternative/Swimmer/Swimmer.dart';
 import 'package:provider/provider.dart';
@@ -66,13 +67,13 @@ class _LoadPage extends State<LoadPage> {
             //messageIn == "deconnexion" ? MainTitle(userIn: user, messageIn: 9, appLanguage: appLanguage,):
 
             //TODO -> Stateful into dispose ? Ou navigator
+            page == "bluetoothManager" ? BluetoothManager(user: user, inputMessage: messageIn, appLanguage: appLanguage): //BluetoothSync(curUser: user, inputMessage: messageIn, appLanguage: appLanguage,):
             page == "login" ? Login(appLanguage: appLanguage):
-            page == "register" ? Register(appLanguage: appLanguage):
-            //page == "menu" ? Menu(curUser: user, appLanguage: appLanguage, message: messageIn,):
-            page == "swimmer" ? Swimmer(user: user, appLanguage: appLanguage):
+            page == "mainTitle" ? MainTitle(userIn: user, messageIn: int.parse(messageIn), appLanguage: appLanguage,):
             page == "manageProfile" ? ManageProfile(curUser: user, appLanguage: appLanguage):
-            page == "bluetoothSync" ? BluetoothManager(user: user, inputMessage: messageIn, appLanguage: appLanguage): //BluetoothSync(curUser: user, inputMessage: messageIn, appLanguage: appLanguage,):
-            page == "mainTitle" ? MainTitle(userIn: user, messageIn: int.parse(messageIn), appLanguage: appLanguage,): Container()
+            page == "plane" ? Plane(user: user, appLanguage: appLanguage):
+            page == "register" ? Register(appLanguage: appLanguage):
+            page == "swimmer" ? Swimmer(user: user, appLanguage: appLanguage): Container()
         );
       }),
     );

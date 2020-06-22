@@ -20,7 +20,7 @@ import 'package:gbsalternative/BluetoothManager.dart';
 //import 'file:///C:/Users/Pierrick/Documents/Entreprise/Stage/Genourob/gBs/gbs_alternative/lib/Backup/BluetoothSync_shield.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/MainTitle.dart';
-import 'package:gbsalternative/Swimmer/box-game.dart';
+import 'package:gbsalternative/Swimmer/SwimGame.dart';
 
 import 'Ui.dart';
 
@@ -29,7 +29,7 @@ String _messageBuffer = '';
 List<_Message> messages = List<_Message>();
 BluetoothConnection connection;
 bool isConnected;
-BoxGame game;
+SwimGame game;
 
 class _Message {
   int whom;
@@ -90,7 +90,7 @@ class _Swimmer extends State<Swimmer> {
   initSwimmer() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    game = new BoxGame(getData, user);
+    game = new SwimGame(getData, user);
     refreshScore();
     //gameUI.state.game = game;
     Util flameUtil = Util();

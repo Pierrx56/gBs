@@ -6,6 +6,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
+
 //import 'file:///C:/Users/Pierrick/Documents/Entreprise/Stage/Genourob/gBs/gbs_alternative/lib/Backup/BluetoothSync_shield.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
@@ -34,17 +35,19 @@ class _MainTitle extends State<MainTitle> {
   Widget bluetoothPage;
   Widget loginPage;
   PageController _c;
-  bool _visible;
-  Color colorCard;
+  bool visible_swim;
+  bool visible_plane;
+  Color colorCard_swim;
+  Color colorCard_plane;
 
   AppLanguage appLanguage;
   User user;
   int message;
 
   DatabaseHelper db = new DatabaseHelper();
-  bool stop = false;
   String _information = 'No Information Yet';
-  List<Scores> data;
+  List<Scores> data_swim;
+  List<Scores> data_plane;
 
   //0:menu 1:settings 2:bluetooth
   static int defaultIndex = 0;
@@ -77,7 +80,8 @@ class _MainTitle extends State<MainTitle> {
       messageIn: "",
     );
 
-    bluetoothPage = BluetoothManager(user: user, inputMessage: "0", appLanguage: appLanguage);
+    bluetoothPage = BluetoothManager(
+        user: user, inputMessage: "0", appLanguage: appLanguage);
     //BluetoothSync(curUser: user,);
     /*
     loginPage = LoadPage(
@@ -89,9 +93,12 @@ class _MainTitle extends State<MainTitle> {
   void initState() {
     // TODO: implement initState
     //db.deleteScore(user.userId);
-    _visible = true;
-    colorCard = Colors.white;
-    getScores(user.userId);
+    visible_swim = true;
+    visible_plane = true;
+    colorCard_swim = Colors.white;
+    colorCard_plane = Colors.white;
+    getScores(user.userId, 0);
+    getScores(user.userId, 1);
     super.initState();
   }
 
@@ -100,14 +107,24 @@ class _MainTitle extends State<MainTitle> {
     super.dispose();
   }
 
-  void getScores(int userId) async {
-    data = await db.getScore(userId);
-    if (data == null) {
-      getScores(userId);
-      stop = false;
-    } else if (!stop) {
-      setState(() {});
-      stop = true;
+  void getScores(int userId, int activityId) async {
+    //Nageur
+    if (activityId == 0) {
+      data_swim = await db.getScore(userId, activityId);
+      if (data_swim == null) {
+        getScores(userId, activityId);
+      } else {
+        setState(() {});
+      }
+    }
+    //Plane
+    else if (activityId == 1) {
+      data_plane = await db.getScore(userId, activityId);
+      if (data_plane == null) {
+        getScores(userId, activityId);
+      } else {
+        setState(() {});
+      }
     }
   }
 
@@ -257,9 +274,9 @@ class _MainTitle extends State<MainTitle> {
                                           fontWeight: FontWeight.bold),
                                     )
                                   : Text("a"),
-                              data == null
+                              data_swim == null
                                   ? Container()
-                                  : DrawCharts(data: data),
+                                  : DrawCharts(data: data_swim),
                               Align(
                                 alignment: Alignment.bottomCenter,
                                 child: RaisedButton(
@@ -272,7 +289,7 @@ class _MainTitle extends State<MainTitle> {
                                   onPressed: () {
                                     setState(
                                       () {
-                                        show("Bonjour");
+                                        show("A venir");
                                       },
                                     );
                                   },
@@ -287,7 +304,7 @@ class _MainTitle extends State<MainTitle> {
                       width: widthCard = screenSize.width / numberOfCard,
                       child: new GestureDetector(
                         onTap: () {
-                          if (_visible) {
+                          if (visible_swim) {
                             //TODO Check si l'@mac n'est pas nulle, auquel cas rediriger vers la connection BT
                             dispose();
                             Navigator.push(
@@ -302,6 +319,7 @@ class _MainTitle extends State<MainTitle> {
                                           appLanguage: appLanguage,
                                           page: "swimmer",
                                           user: user,
+                                          messageIn: "0",
                                         )));
                           }
                         },
@@ -310,7 +328,7 @@ class _MainTitle extends State<MainTitle> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           elevation: 8,
-                          color: colorCard,
+                          color: colorCard_swim,
                           child: SingleChildScrollView(
                             child: Container(
                               padding:
@@ -319,8 +337,8 @@ class _MainTitle extends State<MainTitle> {
                                 children: <Widget>[
                                   AnimatedOpacity(
                                     duration: Duration(milliseconds: 1000),
-                                    opacity: !_visible ? 1.0 : 0.0,
-                                    child: !_visible
+                                    opacity: !visible_swim ? 1.0 : 0.0,
+                                    child: !visible_swim
                                         ? Column(
                                             children: <Widget>[
                                               Align(
@@ -361,11 +379,12 @@ class _MainTitle extends State<MainTitle> {
                                                       : Text("a"),
                                                   onPressed: () {
                                                     setState(() {
-                                                      _visible = !_visible;
-                                                      !_visible
-                                                          ? colorCard =
+                                                      visible_swim =
+                                                          !visible_swim;
+                                                      !visible_swim
+                                                          ? colorCard_swim =
                                                               Colors.white70
-                                                          : colorCard =
+                                                          : colorCard_swim =
                                                               Colors.white;
                                                     });
                                                   },
@@ -377,8 +396,8 @@ class _MainTitle extends State<MainTitle> {
                                   ),
                                   AnimatedOpacity(
                                       duration: Duration(milliseconds: 1000),
-                                      opacity: _visible ? 1.0 : 0.0,
-                                      child: _visible
+                                      opacity: visible_swim ? 1.0 : 0.0,
+                                      child: visible_swim
                                           ? Column(
                                               children: <Widget>[
                                                 Container(
@@ -387,6 +406,7 @@ class _MainTitle extends State<MainTitle> {
                                                   child: Image.asset(
                                                     'assets/swim.png',
                                                     width: widthCard * 0.6,
+                                                    height: widthCard * 0.6,
                                                   ),
                                                 ),
                                                 Container(
@@ -419,11 +439,12 @@ class _MainTitle extends State<MainTitle> {
                                                     splashColor: Colors.blue,
                                                     onPressed: () {
                                                       setState(() {
-                                                        _visible = !_visible;
-                                                        !_visible
-                                                            ? colorCard =
+                                                        visible_swim =
+                                                            !visible_swim;
+                                                        !visible_swim
+                                                            ? colorCard_swim =
                                                                 Colors.white70
-                                                            : colorCard =
+                                                            : colorCard_swim =
                                                                 Colors.white;
                                                       });
                                                     },
@@ -446,26 +467,39 @@ class _MainTitle extends State<MainTitle> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         elevation: 8,
-                        child: Container(
+                        child: SingleChildScrollView(
                           padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisSize: MainAxisSize.max,
                             children: <Widget>[
-                              Text(
-                                AppLocalizations.of(context)
-                                    .translate('statistiques'),
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              //Graph à insérer
+                              temp != null
+                                  ? Text(
+                                      AppLocalizations.of(context)
+                                          .translate('stat_nageur'),
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  : Text("a"),
+                              data_plane == null
+                                  ? Container()
+                                  : DrawCharts(data: data_plane),
                               Align(
                                 alignment: Alignment.bottomCenter,
                                 child: RaisedButton(
-                                  child: Text(AppLocalizations.of(context)
-                                      .translate('details')),
+                                  child: temp != null
+                                      ? Text(
+                                          AppLocalizations.of(context)
+                                              .translate('details'),
+                                        )
+                                      : Text("a"),
                                   onPressed: () {
-                                    show("A venir");
+                                    setState(
+                                      () {
+                                        show("A venir");
+                                      },
+                                    );
                                   },
                                 ),
                               ),
@@ -477,30 +511,158 @@ class _MainTitle extends State<MainTitle> {
                     SizedBox(
                       width: widthCard = screenSize.width / numberOfCard,
                       child: new GestureDetector(
-                        onTap: () => show("Lancement du jeu"),
+                        onTap: () {
+                          if (visible_plane) {
+                            //TODO Check si l'@mac n'est pas nulle, auquel cas rediriger vers la connection BT
+                            dispose();
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        /*Swimmer(
+                                        user: user,
+                                        appLanguage: appLanguage,
+                                      ))*/
+                                        LoadPage(
+                                          appLanguage: appLanguage,
+                                          page: "plane",
+                                          user: user,
+                                          messageIn: "0",
+                                        )));
+                          }
+                        },
                         child: new Card(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                           elevation: 8,
-                          child: Container(
-                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.max,
-                              children: <Widget>[
-                                Image.asset(
-                                  'assets/swim.png',
-                                  width: widthCard * 0.7,
-                                ),
-                                Text(
-                                  AppLocalizations.of(context)
-                                      .translate('nageur'),
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
+                          color: colorCard_plane,
+                          child: SingleChildScrollView(
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                              child: Stack(
+                                children: <Widget>[
+                                  AnimatedOpacity(
+                                    duration: Duration(milliseconds: 1000),
+                                    opacity: !visible_plane ? 1.0 : 0.0,
+                                    child: !visible_plane
+                                        ? Column(
+                                            children: <Widget>[
+                                              Align(
+                                                alignment: Alignment.topCenter,
+                                                child: temp != null
+                                                    ? Text(
+                                                        AppLocalizations.of(
+                                                                    context)
+                                                                .translate(
+                                                                    'type_activite') +
+                                                            " " +
+                                                            AppLocalizations.of(
+                                                                    context)
+                                                                .translate(
+                                                                    'type_activite_CMV') +
+                                                            "\n\n" +
+                                                            AppLocalizations.of(
+                                                                    context)
+                                                                .translate(
+                                                                    'info_nageur'),
+                                                      )
+                                                    : Text("a"),
+
+                                                //TODO Requête vers la bdd pour savoir le type d'activité et comment ça marche
+                                                //Text("Le jeu du Nageur est un jeu qui consiste à effectuer des poussées régulières pour maintenir le nageur le plus proche de la ligne centrale. 600m parcourus = 5 minutes"),
+                                              ),
+                                              Align(
+                                                alignment:
+                                                    Alignment.bottomCenter,
+                                                child: RaisedButton(
+                                                  child: temp != null
+                                                      ? Text(
+                                                          AppLocalizations.of(
+                                                                  context)
+                                                              .translate(
+                                                                  'retour'),
+                                                        )
+                                                      : Text("a"),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      visible_plane =
+                                                          !visible_plane;
+                                                      !visible_plane
+                                                          ? colorCard_plane =
+                                                              Colors.white70
+                                                          : colorCard_plane =
+                                                              Colors.white;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : Container(),
+                                  ),
+                                  AnimatedOpacity(
+                                      duration: Duration(milliseconds: 1000),
+                                      opacity: visible_plane ? 1.0 : 0.0,
+                                      child: visible_plane
+                                          ? Column(
+                                              children: <Widget>[
+                                                Container(
+                                                  alignment:
+                                                      Alignment.topCenter,
+                                                  child: Image.asset(
+                                                    'assets/plane.png',
+                                                    width: widthCard * 0.6,
+                                                    height: widthCard * 0.6,
+                                                  ),
+                                                ),
+                                                Container(
+                                                  alignment:
+                                                      Alignment.bottomCenter,
+                                                  child: FlatButton.icon(
+                                                    label: temp != null
+                                                        ? Text(
+                                                            AppLocalizations.of(
+                                                                    context)
+                                                                .translate(
+                                                                    'nageur'),
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.black,
+                                                              fontSize: 24,
+                                                            ),
+                                                          )
+                                                        : Text("a"),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              50),
+                                                    ),
+                                                    icon: Icon(
+                                                      Icons.info_outline,
+                                                      color: Colors.black,
+                                                    ),
+                                                    splashColor: Colors.blue,
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        visible_plane =
+                                                            !visible_plane;
+                                                        !visible_plane
+                                                            ? colorCard_plane =
+                                                                Colors.white70
+                                                            : colorCard_plane =
+                                                                Colors.white;
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          : Container()),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -535,8 +697,7 @@ class _MainTitle extends State<MainTitle> {
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
+    Size screenSize = MediaQuery.of(context).size;
 
     void _onItemTapped(int index) {
       setState(() {
@@ -558,7 +719,10 @@ class _MainTitle extends State<MainTitle> {
           page: "manageProfile",
           messageIn: "",
         );
-        bluetoothPage = BluetoothManager(user: user, inputMessage: "0", appLanguage: appLanguage);//BluetoothSync(curUser: user);
+        bluetoothPage = BluetoothManager(
+            user: user,
+            inputMessage: "0",
+            appLanguage: appLanguage); //BluetoothSync(curUser: user);
         /*
         loginPage = LoadPage(
           appLanguage: appLanguage,

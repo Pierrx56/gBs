@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flame/sprite.dart';
-import 'package:gbsalternative/Swimmer/box-game.dart';
+import 'package:gbsalternative/Swimmer/SwimGame.dart';
 
 class WaterLine {}
 
@@ -8,13 +8,13 @@ double linePosition = 0.1;
 int j = 0;
 int linesSpeed = 2;
 
-class BottomLine {
-  final BoxGame game;
-  Sprite bottomLine;
+class BottomBalloon {
+  final SwimGame game;
+  Sprite bottomBalloon;
   Rect rectBottom;
 
-  BottomLine(this.game) {
-    bottomLine = Sprite('swimmer/down_line.png');
+  BottomBalloon(this.game) {
+    bottomBalloon = Sprite('swimmer/down_line.png');
     //width: 500
     //height: 300
 
@@ -36,11 +36,11 @@ class BottomLine {
 
     c.translate(game.screenSize.width - j.toDouble(), 0);
 
-    bottomLine.renderRect(c, rectBottom);
+    bottomBalloon.renderRect(c, rectBottom);
 
     c.translate(-game.screenSize.width, 0);
 
-    bottomLine.renderRect(c, rectBottom);
+    bottomBalloon.renderRect(c, rectBottom);
     // restore original state
     c.restore();
   }
@@ -52,13 +52,13 @@ class BottomLine {
   void update(double t) {}
 }
 
-class TopLine {
-  final BoxGame game;
-  Sprite topLine;
+class TopBalloon {
+  final SwimGame game;
+  Sprite topBalloon;
   Rect rectTop;
 
-  TopLine(this.game) {
-    topLine = Sprite('swimmer/up_line.png');
+  TopBalloon(this.game) {
+    topBalloon = Sprite('swimmer/up_line.png');
     //width: 500
     //height: 300
     rectTop = Rect.fromLTWH(
@@ -77,11 +77,11 @@ class TopLine {
     c.translate(game.screenSize.width - j.toDouble(), 0);
     j += linesSpeed;
 
-    topLine.renderRect(c, rectTop);
+    topBalloon.renderRect(c, rectTop);
 
     c.translate(-game.screenSize.width, 0);
 
-    topLine.renderRect(c, rectTop);
+    topBalloon.renderRect(c, rectTop);
 
     // restore original state
     c.restore();

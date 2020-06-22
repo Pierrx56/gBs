@@ -234,7 +234,7 @@ class DatabaseHelper {
 
 
   // A method that retrieves all the scores from the scores table.
-  Future<List<Scores>> getScore(int id) async{
+  Future<List<Scores>> getScore(int id, int activityId) async{
     // Get a reference to the database.
     final Database db = await database;
 
@@ -261,7 +261,7 @@ class DatabaseHelper {
 
     for (int i = 0; i < maps.length; i++) {
 
-      if (score[i].userId == id) {
+      if (score[i].userId == id && score[i].activityId == activityId) {
         data.add(Scores(score[i].scoreId, score[i].activityId, score[i].userId, score[i].scoreDate, score[i].scoreValue));
       }
 
