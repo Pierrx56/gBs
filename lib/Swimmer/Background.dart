@@ -11,12 +11,11 @@ class Background {
   Rect bgRect;
 
   Background(this.game) {
-    bgSprite = Sprite('swimmer/background1.png');
+    bgSprite = Sprite('swimmer/background.png');
     bgRect = Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height);
   }
 
   void render(Canvas c) {
-    //bgSprite.render(c);
     bgSprite.renderRect(c, bgRect);
   }
 

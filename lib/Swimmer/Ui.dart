@@ -9,7 +9,6 @@ import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
-import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Swimmer/SwimGame.dart';
 import 'package:intl/intl.dart';
 
@@ -94,8 +93,8 @@ class UIState extends State<UI> {
     DatabaseHelper db = new DatabaseHelper();
 
     return Container(
-      height: screenHeight * 0.2,
-      width: screenWidth * 0.2,
+      height: screenSize.height * 0.2,
+      width: screenSize.width * 0.2,
       child: RaisedButton(
         onPressed: () async {
           //TODO insérer dans bdd
@@ -163,8 +162,8 @@ class UIState extends State<UI> {
 
   Widget pauseButton(SwimGame game) {
     return Container(
-      height: screenHeight * 0.2,
-      width: screenWidth * 0.2,
+      height: screenSize.height * 0.2,
+      width: screenSize.width * 0.2,
       child: RaisedButton(
         onPressed: () async {
           game.pauseGame = !game.pauseGame;
@@ -188,8 +187,8 @@ class UIState extends State<UI> {
   Widget restartButton(
       BuildContext context, AppLanguage appLanguage, User user) {
     return Container(
-      height: screenHeight * 0.2,
-      width: screenWidth * 0.2,
+      height: screenSize.height * 0.2,
+      width: screenSize.width * 0.2,
       child: RaisedButton(
         onPressed: () async {
           Navigator.pushReplacement(

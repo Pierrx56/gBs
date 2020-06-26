@@ -4,15 +4,10 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gbsalternative/LoadPage.dart';
-import 'package:gbsalternative/MainTitle.dart';
-import 'package:gbsalternative/main.dart';
 import 'package:provider/provider.dart';
-
 import 'package:gbsalternative/AppLanguage.dart';
 import 'DatabaseHelper.dart';
-import 'Register.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 
 class Login extends StatefulWidget {
@@ -24,28 +19,15 @@ class Login extends StatefulWidget {
   _Login createState() => _Login(appLanguage);
 }
 
-double screenHeight;
-double screenWidth;
+Size screenSize;
 
 class _Login extends State<Login> {
+
   DatabaseHelper db = new DatabaseHelper();
-
   File imageFile;
-
-  // Initializing the Bluetooth connection state to be unknown
-  BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
-
-  // Track the Bluetooth connection with the remote device
-  BluetoothConnection connection;
-
-  // To track whether the device is still connected to Bluetooth
-  bool get isConnected => connection != null && connection.isConnected;
-
-  // Initializing a global key, as it would help us in showing a SnackBar later
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
   AppLanguage appLanguage;
 
+  //Constructeur
   _Login(AppLanguage _appLanguage) {
     appLanguage = _appLanguage;
   }
@@ -53,17 +35,6 @@ class _Login extends State<Login> {
   @override
   void initState() {
     //TODO Create activities types with bdd
-
-
-/*
-    //Nageur
-    db.addActivity(new Activity(activityId: 0, activityType: "CMV",));
-    //Deuxième activité
-    db.addActivity(new Activity(activityId: 1, activityType: "CSI",));
-    //Troisième activité
-    db.addActivity(new Activity(activityId: 2, activityType: "CSI",));
-*/
-
     super.initState();
   }
 
@@ -74,9 +45,6 @@ class _Login extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    screenHeight = MediaQuery.of(context).size.height;
-    screenWidth = MediaQuery.of(context).size.width;
-
     return LoginWidget(db);
   }
 }
@@ -91,7 +59,7 @@ class LoginWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    screenHeight = MediaQuery.of(context).size.height;
+    screenSize = MediaQuery.of(context).size;
     var appLanguage = Provider.of<AppLanguage>(context);
 
     return Scaffold(
@@ -157,14 +125,6 @@ class LoginWidget extends StatelessWidget {
                           User item = snapshot.data[index];
                           return GestureDetector(
                             onTap: () {
-                              //db.deleteUser(item.id);
-/*                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Menu(
-                                            curUser: snapshot.data[index],
-                                            appLanguage: appLanguage,
-                                          )));*/
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
@@ -174,15 +134,10 @@ class LoginWidget extends StatelessWidget {
                                             page: "mainTitle",
                                             messageIn: "0",
                                           )
-                                      /*MainTitle(
-                                            userIn: snapshot.data[index],
-                                            messageIn: 0,
-                                            appLanguage: appLanguage,
-                                          )*/
                                       ));
                             },
                             child: new Container(
-                              height: screenHeight * 0.3,
+                              height: screenSize.height * 0.3,
                               decoration: BoxDecoration(
                                 color: Theme.of(context).buttonColor,
                                 borderRadius: BorderRadius.circular(8.0),
@@ -193,8 +148,8 @@ class LoginWidget extends StatelessWidget {
                                   children: <Widget>[
                                     Image.file(
                                             File(snapshot.data[index].userPic),
-                                            height: screenHeight * 0.3,
-                                            width: screenWidth * 0.3,
+                                            height: screenSize.height * 0.3,
+                                            width: screenSize.width * 0.3,
                                           ),
                                     Text(item.userName),
                                   ],
@@ -205,7 +160,6 @@ class LoginWidget extends StatelessWidget {
                         } else if (index == size - 1) {
                           return GestureDetector(
                             onTap: () {
-                              //db.deleteUser(item.id);
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -224,9 +178,9 @@ class LoginWidget extends StatelessWidget {
                               child: Padding(
                                   padding: EdgeInsets.fromLTRB(
                                       0,
-                                      screenHeight * 0.15,
+                                      screenSize.height * 0.15,
                                       0,
-                                      screenHeight * 0.15),
+                                      screenSize.height * 0.15),
                                   child: Center(
                                     child: Text(AppLocalizations.of(context)
                                         .translate('inscription')),
@@ -254,33 +208,6 @@ class LoginWidget extends StatelessWidget {
                             child: Text("Loading..."))
                       ],
                     );
-
-                    /*
-                    return Padding(
-                      padding: EdgeInsets.fromLTRB(
-                          12.0, screenHeight * 0.15, 12.0, screenHeight * 0.15),
-                      child: GestureDetector(
-                        onTap: () {
-                          //db.deleteUser(item.id);
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Register()));
-                        },
-                        child: new Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).buttonColor,
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Padding(
-                              padding: EdgeInsets.fromLTRB(0,
-                                  screenHeight * 0.15, 0, screenHeight * 0.15),
-                              child: Center(
-                                child: Text("S'inscrire"),
-                              )),
-                        ),
-                      ),
-                    ); */
                   }
                 },
               ),

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:flame/components/component.dart';
 import 'package:flame/flame.dart';

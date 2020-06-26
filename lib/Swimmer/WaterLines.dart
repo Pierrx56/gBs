@@ -23,7 +23,6 @@ class BottomBalloon {
   }
 
   void render(Canvas c, bool pause) {
-    //bgSprite.render(c);
 
     c.translate(game.screenSize.width / 2, game.screenSize.height);
     c.translate(
@@ -66,7 +65,6 @@ class TopBalloon {
   }
 
   void render(Canvas c) {
-    //bgSprite.render(c);
 
     c.translate(game.screenSize.width / 2, game.screenSize.height);
     c.translate(-game.screenSize.width / 2,

@@ -1,25 +1,14 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:flame/components/animation_component.dart';
-import 'package:flame/animation.dart' as flanim;
-import 'package:flame/game.dart';
-import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flame/components/component.dart';
-import 'package:flame/flame.dart';
 import 'package:flame/util.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
-
-//import 'file:///C:/Users/Pierrick/Documents/Entreprise/Stage/Genourob/gBs/gbs_alternative/lib/Backup/BluetoothSync_shield.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
-import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Swimmer/SwimGame.dart';
 
 import 'Ui.dart';

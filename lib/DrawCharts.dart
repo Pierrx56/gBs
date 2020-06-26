@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'DatabaseHelper.dart';
 
+/*Classe Scores*/
 class Scores {
   final int userId;
   final int scoreId;
@@ -12,6 +13,7 @@ class Scores {
   Scores(this.scoreId, this.activityId, this.userId, this.date, this.score);
 }
 
+/*Classe qui gère la création et l'affichage de graphiques*/
 class DrawCharts extends StatelessWidget {
 /*
   final List<charts.Series> seriesList;

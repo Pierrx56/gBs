@@ -11,12 +11,16 @@ void main() async {
   AppLanguage appLanguage = AppLanguage();
   await appLanguage.fetchLocale();
 
+  //Lancement de la page Login
   runApp(new MaterialApp(
     color: Colors.white,
     home: new SplashScreen(),
     routes: <String, WidgetBuilder>{
       '/Login': (BuildContext context) => new LoadPage(
-        appLanguage: appLanguage, page: "login",
+            appLanguage: appLanguage,
+            page: "login",
+            messageIn: "0",
+            user: null,
           ),
     },
   ));

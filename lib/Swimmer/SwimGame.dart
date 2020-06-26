@@ -8,7 +8,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/Swimmer/Background.dart';
-import 'package:gbsalternative/Swimmer/Swimmer.dart';
 import 'package:gbsalternative/Swimmer/Ui.dart';
 import 'package:gbsalternative/Swimmer/WaterLines.dart';
 

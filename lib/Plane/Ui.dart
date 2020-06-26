@@ -94,8 +94,8 @@ class UIState extends State<UI> {
     DatabaseHelper db = new DatabaseHelper();
 
     return Container(
-      height: screenHeight * 0.2,
-      width: screenWidth * 0.2,
+      height: screenSize.height * 0.2,
+      width: screenSize.width * 0.2,
       child: RaisedButton(
         onPressed: () async {
           //TODO insérer dans bdd
@@ -163,8 +163,8 @@ class UIState extends State<UI> {
 
   Widget pauseButton(PlaneGame game) {
     return Container(
-      height: screenHeight * 0.2,
-      width: screenWidth * 0.2,
+      height: screenSize.height * 0.2,
+      width: screenSize.width * 0.2,
       child: RaisedButton(
         onPressed: () async {
           game.pauseGame = !game.pauseGame;
@@ -188,8 +188,8 @@ class UIState extends State<UI> {
   Widget restartButton(
       BuildContext context, AppLanguage appLanguage, User user) {
     return Container(
-      height: screenHeight * 0.2,
-      width: screenWidth * 0.2,
+      height: screenSize.height * 0.2,
+      width: screenSize.width * 0.2,
       child: RaisedButton(
         onPressed: () async {
           Navigator.pushReplacement(

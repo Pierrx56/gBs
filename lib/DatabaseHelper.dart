@@ -70,9 +70,9 @@ final String CREATE_TABLE_ACTIVITY = "CREATE TABLE " +
     TABLE_ACTIVITY +
     "(" +
     KEY_ACTIVITY_ID +
-    " INTEGER PRIMARY," +
+    " INTEGER PRIMARY KEY," +
     KEY_ACTIVITY_TYPE +
-    " INTEGER, "
+    " TEXT"
     /*+
     KEY_ACTIVITY_NAME +
     " TEXT, " +
@@ -80,11 +80,15 @@ final String CREATE_TABLE_ACTIVITY = "CREATE TABLE " +
     " TEXT" +*/
     ");";
 
+
+/*Classe qui gère la base de données
+* */
 class DatabaseHelper {
   static DatabaseHelper _databaseHelper; // Singleton DatabaseHelper
   static Database _database; // Singleton Database
   DatabaseHelper._createInstance(); // Named constructor to create instance of DatabaseHelper
 
+  //Constructeur
   factory DatabaseHelper() {
     if (_databaseHelper == null) {
       _databaseHelper = DatabaseHelper
@@ -96,11 +100,17 @@ class DatabaseHelper {
   Future<Database> get database async {
     if (_database == null) {
       _database = await initializeDatabase();
+
+      //Nageur
+      addActivity(new Activity(activityId: 0, activityType: "CMV",));
+      //Deuxième activité
+      addActivity(new Activity(activityId: 1, activityType: "CSI",));
+      //Troisième activité
+      addActivity(new Activity(activityId: 2, activityType: "CSI",));
     }
     return _database;
   }
 
-  //void DatabaseManager() async {
   Future<Database> initializeDatabase() async {
     var todoDatabase = openDatabase(
       join(await getDatabasesPath(), DATABASE_NAME),
@@ -111,6 +121,8 @@ class DatabaseHelper {
       },
       version: 1,
     );
+
+
     return todoDatabase;
   }
 
@@ -317,7 +329,7 @@ class DatabaseHelper {
     return id;
   }
 
-  //Useless ?
+  //TODO Useless ?
   Future<void> deleteActivity(int idActivity) async{
     // Get a reference to the database.
     final Database db = await database;
@@ -334,6 +346,8 @@ class DatabaseHelper {
   //END ACTIVITY
 }
 
+
+/*Classe User*/
 class User {
   final int userId;
   final String userName;
@@ -369,6 +383,7 @@ class User {
   }
 }
 
+/*Classe Score*/
 class Score {
   final int scoreId;
   final int userId;
@@ -394,7 +409,7 @@ class Score {
   }
 }
 
-//ACTIVITY
+/*Classe Activity*/
 class Activity {
   final int activityId;
   //CMV : Contraction maximale volontaire

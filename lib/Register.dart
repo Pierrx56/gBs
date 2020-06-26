@@ -1,29 +1,21 @@
 import 'dart:async';
 
-import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
 import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
-import 'package:gbsalternative/AppLanguage.dart';
-import 'package:gbsalternative/AppLocalizations.dart';
-import 'package:gbsalternative/BluetoothManager.dart';
-
-//import 'file:///C:/Users/Pierrick/Documents/Entreprise/Stage/Genourob/gBs/gbs_alternative/lib/Backup/BluetoothSync_shield.dart';
-import 'package:gbsalternative/LoadPage.dart';
-import 'package:gbsalternative/Swimmer/Swimmer.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-
-import 'DatabaseHelper.dart';
-import 'MainTitle.dart';
+import 'package:gbsalternative/AppLanguage.dart';
+import 'package:gbsalternative/AppLocalizations.dart';
+import 'package:gbsalternative/BluetoothManager.dart';
+import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/LoadPage.dart';
 
 class _Message {
   int whom;
@@ -33,7 +25,6 @@ class _Message {
 }
 
 String btData;
-String _messageBuffer = '';
 List<_Message> messages = List<_Message>();
 
 class Register extends StatefulWidget {
@@ -51,8 +42,7 @@ class _Register extends State<Register> {
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
-  double screenHeight;
-  double screenWidth;
+  Size screenSize;
 
   String _pathSaved;
   File imageFile;
@@ -94,9 +84,15 @@ class _Register extends State<Register> {
 
   AppLanguage appLanguage;
 
-  _Register(AppLanguage _appLanguage) {
-    appLanguage = _appLanguage;
-  }
+  Color colorButton = Colors.black;
+  Color colorMesureButton = Colors.black;
+  int valueHolder = 20;
+
+  final _formKey = GlobalKey<FormState>();
+
+  int currentStep = 0;
+  bool complete = false;
+
 
   @override
   void initState() {
@@ -114,6 +110,9 @@ class _Register extends State<Register> {
     super.dispose();
   }
 
+  _Register(AppLanguage _appLanguage) {
+    appLanguage = _appLanguage;
+  }
 
   void connect() async{
     btManage.createState().enableBluetooth();
@@ -133,7 +132,6 @@ class _Register extends State<Register> {
         isConnected = await btManage.createState().getStatus();
         if(isConnected) {
           timerConnexion.cancel();
-          //refreshScore();.
         }
       });
     }
@@ -154,8 +152,6 @@ class _Register extends State<Register> {
     final String path = directory.path;
 
     String nameImage = name.text + "_" + basename(imageFile.path);
-
-    print("Nom de l'image: " + nameImage);
 
     final File newImage = await imageFile.copy('$path/$nameImage');
 
@@ -194,17 +190,6 @@ class _Register extends State<Register> {
     return user;
   }
 
-  Color colorButton = Colors.black;
-  Color colorMesureButton = Colors.black;
-  int valueHolder = 20;
-
-  //String savedImage = "";
-
-  final _formKey = GlobalKey<FormState>();
-
-  int currentStep = 0;
-  bool complete = false;
-
   next() {
     currentStep + 1 != steps.length
         ? goTo(currentStep + 1)
@@ -224,16 +209,9 @@ class _Register extends State<Register> {
 
   void _updateSwitch(bool value) => setState(() => isSwitched = value);
 
-  _fieldFocusChange(
-      BuildContext context, FocusNode currentFocus, FocusNode nextFocus) {
-    currentFocus.unfocus();
-    FocusScope.of(context).requestFocus(nextFocus);
-  }
-
   @override
   Widget build(BuildContext context) {
-    screenHeight = MediaQuery.of(context).size.height;
-    screenWidth = MediaQuery.of(context).size.width;
+    screenSize = MediaQuery.of(context).size;
 
     if (recording == null)
       recording =
@@ -336,9 +314,9 @@ class _Register extends State<Register> {
                   child: imageFile == null
                       ? Image.asset(
                           'assets/avatar.png',
-                          width: screenWidth * 0.2,
+                          width: screenSize.width * 0.2,
                         )
-                      : Image.file(File(_pathSaved), width: screenHeight * 0.2)
+                      : Image.file(File(_pathSaved), width: screenSize.width * 0.2)
                   //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
                   ),
               RaisedButton(
@@ -496,7 +474,7 @@ class _Register extends State<Register> {
                     children: <Widget>[
                       Image.asset(
                         _pathSaved,
-                        width: screenWidth * 0.15,
+                        width: screenSize.width * 0.15,
                       ),
                       Text(AppLocalizations.of(context).translate('prenom') +
                           ": " +
@@ -711,7 +689,7 @@ class _Register extends State<Register> {
                       ),
                       Padding(
                         padding:
-                            EdgeInsets.fromLTRB(0, 0, 0, screenWidth * 0.5),
+                            EdgeInsets.fromLTRB(0, 0, 0, screenSize.width * 0.5),
                       )
                     ],
                   );
@@ -719,7 +697,7 @@ class _Register extends State<Register> {
               : (BuildContext context,
                   {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
                   return Padding(
-                    padding: EdgeInsets.fromLTRB(0, 0, 0, screenWidth * 0.5),
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, screenSize.width * 0.5),
                   );
                 },
         ),

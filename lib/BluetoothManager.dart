@@ -14,6 +14,11 @@ import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
 
+/*
+* Classe pour gérer la connexion bluetooth
+* Prend en paramètre un utilisatuer, un message et la langue choisie
+* */
+
 class BluetoothManager extends StatefulWidget {
   User user;
   String inputMessage;
@@ -31,12 +36,15 @@ class BluetoothManager extends StatefulWidget {
 }
 
 class _BluetoothManager extends State<BluetoothManager> {
+  //Initialisation de l'appel de fichiers externes
+  //android: android/app/src/main/java/genourob/gbs_alternative/MainActivity.java
+  //iOS: ios/Runner/AppDelegate.swift
   static const MethodChannel sensorChannel =
       MethodChannel('samples.flutter.io/sensor');
 
+  //Déclaration de variables
   String _pairedDevices = 'No devices paired';
   String _connectDevices;
-  String _incomeData = "Data: ";
   bool isConnected = false;
   bool isRunning = true;
   Timer timer;
@@ -46,7 +54,7 @@ class _BluetoothManager extends State<BluetoothManager> {
   String inputMessage;
   AppLanguage appLanguage;
 
-  //Initializing databse
+  //Initializing database
   DatabaseHelper db = new DatabaseHelper();
 
   // Initializing the Bluetooth connection state to be unknown
@@ -55,6 +63,7 @@ class _BluetoothManager extends State<BluetoothManager> {
   // Initializing a global key, as it would help us in showing a SnackBar later
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  //Constructeur _BluetoothManager
   _BluetoothManager(
       User _user, String _inputMessage, AppLanguage _appLanguage) {
     user = _user;
@@ -94,6 +103,7 @@ class _BluetoothManager extends State<BluetoothManager> {
     return false;
   }
 
+  //Fonction pour récupérer l'adresse mac de l'appareil bluetooth
   Future<String> getPairedDevices(String origin) async {
     String pairedDevices;
     try {
@@ -105,7 +115,8 @@ class _BluetoothManager extends State<BluetoothManager> {
       pairedDevices = 'Failed to get paired devices.';
     }
 
-    if (origin == "connexion"){
+    //On actualise uniquement si on est sur la page "BluetoothManager"
+    if (origin == "BluetoothManager"){
       setState(() {
         _pairedDevices = pairedDevices;
       });
@@ -115,17 +126,20 @@ class _BluetoothManager extends State<BluetoothManager> {
 
   }
 
+  //Fonction qui récupère le status de connexion
+  //Retourne true ou false
   Future<bool> getStatus() async{
     isConnected = await sensorChannel.invokeMethod('getStatus');
     return isConnected;
   }
 
+  //Fonction pour se connecter au gBs
   Future<bool> connect(String origin) async {
     String connectStatus;
     String result;
     try {
       sensorChannel.invokeMethod('connect');
-      result = await sensorChannel.invokeMethod('getStatus').toString();
+      result = await sensorChannel.invokeMethod('getStatus');
       connectStatus = 'Connection status: $result.';
       isConnected = true;
 /*      if (result != "Connected") {
@@ -138,7 +152,7 @@ class _BluetoothManager extends State<BluetoothManager> {
             connectStatus = 'Connection status: Failed';
             connect(inputMessage);
           }
-          if(origin == "connexion")
+          if(origin == "BluetoothManager")
             setState(() {
               _connectDevices = connectStatus;
             });
@@ -155,17 +169,16 @@ class _BluetoothManager extends State<BluetoothManager> {
           connectStatus = 'Connection status: Failed';
           connect(inputMessage);
         }
-        if(origin == "connexion")
+        if(origin == "BluetoothManager")
           setState(() {
             _connectDevices = connectStatus;
           });
       }*/
     } on PlatformException {
-      //connect();
-      //connect(inputMessage);
       connectStatus = 'Connection status: Failed';
     }
-    if(origin == "connexion"){
+    //On actualise uniquement si on est sur la page "BluetoothManager"
+    if(origin == "BluetoothManager"){
       setState(() {
         _connectDevices = connectStatus;
         print(connectStatus);
@@ -175,19 +188,19 @@ class _BluetoothManager extends State<BluetoothManager> {
     if (isConnected) {
       //Lorsque l'on viens de l'inscription
       if (origin == "inscription") {
-        //Déconnexion immédiate sinon bug lors de lancement de jeux
-        disconnect();
         inputMessage = "";
         Navigator.pop(
           context,
           macAdress,
         );
       }
-      else if(origin == "connexion");
+      else if(origin == "BluetoothManager");
       else if(origin == "register");
       else if(origin == "swimmer");
       else if(origin == "plane");
 
+
+      //TODO à voir si cette condition est tjrs utile
       else {
         //Insertion dans l'adresse MAC dans la BDD
         User updatedUser = User(
@@ -216,20 +229,13 @@ class _BluetoothManager extends State<BluetoothManager> {
         //show('Vous êtes connecté à gBs');
       }
     }
-    /*else
-      show("Échec de connexion");
-        connection.input.listen(_onDataReceived).onDone((){
-          if (this.mounted) {
-            setState(() {});
-          }
-        }
-        );*/
 
     //setState(() => _isButtonUnavailable = false);
     return isConnected;
   }
 
-  Future<void> disconnect() async {
+  //Fonction pour se déconnecter du gBs
+  Future<void> disconnect(String origin) async {
     String connectStatus;
     try {
       final String result = await sensorChannel.invokeMethod('disconnect');
@@ -238,13 +244,17 @@ class _BluetoothManager extends State<BluetoothManager> {
     } on PlatformException {
       connectStatus = 'Connection status: Disconnected';
     }
-    setState(() {
-      //startDataReceiver();
-      _connectDevices = connectStatus;
-      isConnected = false;
-    });
+
+    //On actualise uniquement si on est sur la page "BluetoothManager"
+    if(origin == "BluetoothManager") {
+      setState(() {
+        //startDataReceiver();
+        _connectDevices = connectStatus;
+      });
+    }
   }
 
+  //Fonction qui appelle toutes les 500 ms la fonction getData()
   void startDataReceiver() async {
     const oneSec = const Duration(milliseconds: 500);
     timer = new Timer.periodic(oneSec, (timer) async {
@@ -255,8 +265,10 @@ class _BluetoothManager extends State<BluetoothManager> {
     });
   }
 
+  //Fonction qui récupère les données du capteur de force
+  //Converti ces données en Kg
   Future<String> getData() async {
-    String result = "salut";
+    String result = "null";
     String data = "null";
 
     double delta = 102.0;
@@ -265,7 +277,6 @@ class _BluetoothManager extends State<BluetoothManager> {
     try {
       result = await sensorChannel.invokeMethod('getData');
       data = 'Data: $result';
-      _incomeData = data;
     } on PlatformException {
       data = 'Failed to get data from device.';
     }
@@ -333,13 +344,13 @@ class _BluetoothManager extends State<BluetoothManager> {
                   Text(_pairedDevices),
                   RaisedButton(
                     onPressed: () {
-                      getPairedDevices("");
+                      getPairedDevices("BluetoothManager");
                     },
                     child: Text("Get Devices"),
                   ),
                   RaisedButton(
                     onPressed: () {
-                      connect("connexion");
+                      connect("BluetoothManager");
                     },
                     child: Text("Connect Device"),
                   ),

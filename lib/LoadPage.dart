@@ -13,6 +13,9 @@ import 'package:gbsalternative/Register.dart';
 import 'package:gbsalternative/Swimmer/Swimmer.dart';
 import 'package:provider/provider.dart';
 
+
+/*Classe LoadPage
+* Est appelée à chaque changement de page pour garder la langue d'affichage*/
 class LoadPage extends StatefulWidget{
   final AppLanguage appLanguage;
   final String page;
@@ -64,10 +67,7 @@ class _LoadPage extends State<LoadPage> {
               GlobalWidgetsLocalizations.delegate,
             ],
             home:
-            //messageIn == "deconnexion" ? MainTitle(userIn: user, messageIn: 9, appLanguage: appLanguage,):
-
-            //TODO -> Stateful into dispose ? Ou navigator
-            page == "bluetoothManager" ? BluetoothManager(user: user, inputMessage: messageIn, appLanguage: appLanguage): //BluetoothSync(curUser: user, inputMessage: messageIn, appLanguage: appLanguage,):
+            page == "bluetoothManager" ? BluetoothManager(user: user, inputMessage: messageIn, appLanguage: appLanguage):
             page == "login" ? Login(appLanguage: appLanguage):
             page == "mainTitle" ? MainTitle(userIn: user, messageIn: int.parse(messageIn), appLanguage: appLanguage,):
             page == "manageProfile" ? ManageProfile(curUser: user, appLanguage: appLanguage):

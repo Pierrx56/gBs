@@ -2,16 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
-
-//import 'file:///C:/Users/Pierrick/Documents/Entreprise/Stage/Genourob/gBs/gbs_alternative/lib/Backup/BluetoothSync_shield.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
-import 'package:gbsalternative/ManageProfile.dart';
-
 import 'DatabaseHelper.dart';
 
 class MainTitle extends StatefulWidget {
@@ -34,7 +29,6 @@ class _MainTitle extends State<MainTitle> {
   Widget settingsPage;
   Widget bluetoothPage;
   Widget loginPage;
-  PageController _c;
   bool visible_swim;
   bool visible_plane;
   Color colorCard_swim;
@@ -45,7 +39,6 @@ class _MainTitle extends State<MainTitle> {
   int message;
 
   DatabaseHelper db = new DatabaseHelper();
-  String _information = 'No Information Yet';
   List<Scores> data_swim;
   List<Scores> data_plane;
 
@@ -64,29 +57,14 @@ class _MainTitle extends State<MainTitle> {
     appLanguage = _appLanguage;
     user = userIn;
     message = messageIn;
-
-    //menuPage = menu();
-
-/*    menuPage = LoadPage(
-      appLanguage: appLanguage,
-      page: "menu",
-      user: user,
-    );*/
-
     settingsPage = LoadPage(
       appLanguage: appLanguage,
       user: user,
       page: "manageProfile",
       messageIn: "",
     );
-
     bluetoothPage = BluetoothManager(
         user: user, inputMessage: "0", appLanguage: appLanguage);
-    //BluetoothSync(curUser: user,);
-    /*
-    loginPage = LoadPage(
-      page: "login",
-    );*/
   }
 
   @override
@@ -134,12 +112,9 @@ class _MainTitle extends State<MainTitle> {
 
     double widthCard, heightCard;
 
-    print("id: " + user.userId.toString());
+    //print("id: " + user.userId.toString());
 
-    //TODO Fix language problem
     var temp = AppLocalizations.of(context);
-
-    //return MenuUI(db, user, screenSize, appLanguage, data, numberOfCard);
 
     return MaterialApp(
       home: Scaffold(
@@ -235,6 +210,7 @@ class _MainTitle extends State<MainTitle> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => LoadPage(
+                              user: null,
                               appLanguage: appLanguage,
                               messageIn: "deconnexion",
                               page: "login",
@@ -305,7 +281,6 @@ class _MainTitle extends State<MainTitle> {
                       child: new GestureDetector(
                         onTap: () {
                           if (visible_swim) {
-                            //TODO Check si l'@mac n'est pas nulle, auquel cas rediriger vers la connection BT
                             dispose();
                             Navigator.push(
                                 context,
@@ -361,9 +336,6 @@ class _MainTitle extends State<MainTitle> {
                                                                     'info_nageur'),
                                                       )
                                                     : Text("a"),
-
-                                                //TODO Requête vers la bdd pour savoir le type d'activité et comment ça marche
-                                                //Text("Le jeu du Nageur est un jeu qui consiste à effectuer des poussées régulières pour maintenir le nageur le plus proche de la ligne centrale. 600m parcourus = 5 minutes"),
                                               ),
                                               Align(
                                                 alignment:
@@ -516,19 +488,16 @@ class _MainTitle extends State<MainTitle> {
                             //TODO Check si l'@mac n'est pas nulle, auquel cas rediriger vers la connection BT
                             dispose();
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        /*Swimmer(
-                                        user: user,
-                                        appLanguage: appLanguage,
-                                      ))*/
-                                        LoadPage(
-                                          appLanguage: appLanguage,
-                                          page: "plane",
-                                          user: user,
-                                          messageIn: "0",
-                                        )));
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoadPage(
+                                  appLanguage: appLanguage,
+                                  page: "plane",
+                                  user: user,
+                                  messageIn: "0",
+                                ),
+                              ),
+                            );
                           }
                         },
                         child: new Card(
@@ -626,7 +595,7 @@ class _MainTitle extends State<MainTitle> {
                                                             AppLocalizations.of(
                                                                     context)
                                                                 .translate(
-                                                                    'nageur'),
+                                                                    'avion'),
                                                             style: TextStyle(
                                                               color:
                                                                   Colors.black,
@@ -678,23 +647,6 @@ class _MainTitle extends State<MainTitle> {
     );
   }
 
-  // Method to show a Snackbar,
-  // taking message as the text
-  Future show(
-    String message, {
-    Duration duration: const Duration(seconds: 3),
-  }) async {
-    await new Future.delayed(new Duration(milliseconds: 100));
-    _scaffoldKey.currentState.showSnackBar(
-      new SnackBar(
-        content: new Text(
-          message,
-        ),
-        duration: duration,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -702,12 +654,6 @@ class _MainTitle extends State<MainTitle> {
     void _onItemTapped(int index) {
       setState(() {
         _selectedIndex = index;
-
-/*          menuPage = LoadPage(
-            appLanguage: appLanguage,
-            user: user,
-            page: "menu",
-          );*/
 
         setState(() {
           menuPage = menu();
@@ -723,11 +669,6 @@ class _MainTitle extends State<MainTitle> {
             user: user,
             inputMessage: "0",
             appLanguage: appLanguage); //BluetoothSync(curUser: user);
-        /*
-        loginPage = LoadPage(
-          appLanguage: appLanguage,
-          page: "login",
-        );*/
       });
     }
 
@@ -776,6 +717,23 @@ class _MainTitle extends State<MainTitle> {
             child: _widgetOptions.elementAt(_selectedIndex),
           ),
         ),
+      ),
+    );
+  }
+
+  // Method to show a Snackbar,
+  // taking message as the text
+  Future show(
+    String message, {
+    Duration duration: const Duration(seconds: 3),
+  }) async {
+    await new Future.delayed(new Duration(milliseconds: 100));
+    _scaffoldKey.currentState.showSnackBar(
+      new SnackBar(
+        content: new Text(
+          message,
+        ),
+        duration: duration,
       ),
     );
   }

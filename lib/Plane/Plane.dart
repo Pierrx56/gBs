@@ -1,33 +1,19 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:flame/components/animation_component.dart';
-import 'package:flame/animation.dart' as flanim;
-import 'package:flame/game.dart';
-import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flame/components/component.dart';
-import 'package:flame/flame.dart';
 import 'package:flame/util.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
-
-//import 'file:///C:/Users/Pierrick/Documents/Entreprise/Stage/Genourob/gBs/gbs_alternative/lib/Backup/BluetoothSync_shield.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
-import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Plane/PlaneGame.dart';
 
 import 'Ui.dart';
 
 String btData;
-String _messageBuffer = '';
 List<_Message> messages = List<_Message>();
-BluetoothConnection connection;
 bool isConnected;
 PlaneGame game;
 
@@ -72,7 +58,6 @@ class _Plane extends State<Plane> {
 
   @override
   void initState() {
-    //myGame = GameWrapper(game);
     gameUI = UI();
     score = 0;
     isConnected = false;
@@ -92,7 +77,6 @@ class _Plane extends State<Plane> {
 
     game = new PlaneGame(getData, user);
     refreshScore();
-    //gameUI.state.game = game;
     Util flameUtil = Util();
     flameUtil.fullScreen();
 
@@ -100,7 +84,6 @@ class _Plane extends State<Plane> {
 
     tapper.onTapDown = game.onTapDown;
 
-    //runApp(game.widget);
     flameUtil.addGestureRecognizer(tapper);
   }
 
@@ -131,14 +114,13 @@ class _Plane extends State<Plane> {
     }
     if(isConnected) {
       initPlane();
-      //refreshScore();
     }
   }
 
   // Method to disconnect bluetooth
   void _disconnect() async {
+    btManage.createState().disconnect("plane");
     isConnected = false;
-    await connection.close();
     print('Device disconnected');
   }
 
@@ -170,8 +152,6 @@ class _Plane extends State<Plane> {
 
   @override
   Widget build(BuildContext context) {
-    //UI gameUI = UI();
-    //gameUI.state.game = game;
 
     return Material(
         child: ColorFiltered(
@@ -250,15 +230,6 @@ class _Plane extends State<Plane> {
         ],
       ),
     )
-
-        /*Positioned.fill(
-
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTapDown: game.onTapDown,
-                child: game.widget,
-              ),
-            ),*/
         );
   }
 }

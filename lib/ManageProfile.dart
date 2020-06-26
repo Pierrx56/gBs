@@ -1,9 +1,6 @@
 import 'dart:async';
 
-import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -15,15 +12,10 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/LoadPage.dart';
-import 'package:gbsalternative/MainTitle.dart';
-import 'package:gbsalternative/main.dart';
 import 'package:image_picker/image_picker.dart';
 import 'DatabaseHelper.dart';
-import 'Login.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-
-import 'DatabaseHelper.dart';
 
 class _Message {
   int whom;
@@ -33,7 +25,6 @@ class _Message {
 }
 
 String btData;
-String _messageBuffer = '';
 List<_Message> messages = List<_Message>();
 
 class ManageProfile extends StatefulWidget {
@@ -60,7 +51,6 @@ class _ManageProfile extends State<ManageProfile> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   Color colorMesureButton = Colors.black;
-  Timer _timer;
   Timer timerConnexion;
   double _start = 10.0;
   static double _reset = 10.0;
@@ -72,16 +62,7 @@ class _ManageProfile extends State<ManageProfile> {
   double tempResult;
   String recording;
 
-  _ManageProfile(User curUser, AppLanguage _appLanguage) {
-    user = curUser;
-    appLanguage = _appLanguage;
-
-    if (user.userMode == "Sportif") {
-      isSwitched = true;
-    }
-  }
-
-  double screenHeight;
+  Size screenSize;
 
   String _pathSaved;
   File imageFile;
@@ -96,6 +77,29 @@ class _ManageProfile extends State<ManageProfile> {
   Color colorButton = Colors.black;
 
   var name = new TextEditingController();
+
+  @override
+  void initState() {
+    btData = "0.0";
+    connect();
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  //Constructeur
+  _ManageProfile(User curUser, AppLanguage _appLanguage) {
+    user = curUser;
+    appLanguage = _appLanguage;
+
+    if (user.userMode == "Sportif") {
+      isSwitched = true;
+    }
+  }
 
 // user defined function
   void _confirmDelete() {
@@ -150,18 +154,6 @@ class _ManageProfile extends State<ManageProfile> {
     );
   }
 
-  @override
-  void initState() {
-    btData = "0.0";
-    connect();
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   pickImageFromGallery(ImageSource source) async {
     final directory = await getApplicationDocumentsDirectory();
@@ -174,8 +166,6 @@ class _ManageProfile extends State<ManageProfile> {
     if (tmpFile.existsSync()) tmpFile.delete(recursive: true);
 
     imageFile = await ImagePicker.pickImage(source: source);
-
-    //print('$path/$picName' + '.jpg');
 
     String nameImage = tmpName + "_" + basename(imageFile.path);
 
@@ -242,7 +232,7 @@ class _ManageProfile extends State<ManageProfile> {
   final _formKey = GlobalKey<FormState>();
 
   Widget LoginCard(BuildContext context) {
-    screenHeight = MediaQuery.of(context).size.height;
+    screenSize = MediaQuery.of(context).size;
 
     if (_pathSaved == null) _pathSaved = user.userPic;
 
@@ -356,9 +346,8 @@ class _ManageProfile extends State<ManageProfile> {
                         //Image(image: AssetImage(_path)),
                         Center(
                             child: Image.file(File(_pathSaved),
-                                height: screenHeight * 0.3,
-                                width: screenHeight * 0.3)
-                            //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
+                                height: screenSize.height * 0.3,
+                                width: screenSize.height * 0.3)
                             ),
                         RaisedButton(
                           child: Text(AppLocalizations.of(context)
@@ -399,18 +388,9 @@ class _ManageProfile extends State<ManageProfile> {
                               hauteur_min.text = user.userHeightBottom;
                             if (initialPush == null)
                               initialPush = user.userInitialPush;
-                            /*
-                            if (hauteur_min.text == '')
-                              hauteur_min.text = user.userHeightBottom;
-                            */
 
                             //TODO
                             String macAddress = user.userMacAddress;
-/*
-                            if (user.userInitialPush != result.toString())
-                              initialPush = result.toString();
-                            else
-                              initialPush = user.userInitialPush;*/
 
                             db.updateUser(User(
                               userId: user.userId,
@@ -423,16 +403,6 @@ class _ManageProfile extends State<ManageProfile> {
                               userMacAddress: macAddress,
                             ));
 
-
-                            /*Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LoadPage(
-                                          user: user,
-                                          appLanguage: appLanguage,
-                                          messageIn: "0",
-                                          page: "mainTitle",
-                                        )));*/
                             show("done");
                           },
                         ),
@@ -544,7 +514,7 @@ class _ManageProfile extends State<ManageProfile> {
                                 colorMesureButton = Colors.black;
                                 const oneSec =
                                     const Duration(milliseconds: 500);
-                                _timer = new Timer.periodic(
+                                new Timer.periodic(
                                   oneSec,
                                   (Timer timer) => setState(
                                     () {
@@ -615,7 +585,7 @@ class _ManageProfile extends State<ManageProfile> {
 
   @override
   Widget build(BuildContext context) {
-    screenHeight = MediaQuery.of(context).size.height;
+    screenSize = MediaQuery.of(context).size;
 
     if (recording == null)
       recording =

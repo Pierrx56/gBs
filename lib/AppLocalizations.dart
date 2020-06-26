@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/*
+* Appel de la classe pour traduire les mots en chargeant les fichier fr.json et en.json
+* */
 class AppLocalizations {
   final Locale locale;
 
