@@ -1,4 +1,0 @@
-#Mon Jun 22 16:21:33 CEST 2020
-base.0=C\:\\Users\\Pierrick\\Documents\\Entreprise\\Stage\\Genourob\\gBs\\gbs_alternative\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\out\\classes.dex
-path.0=classes.dex
-renamed.0=classes.dex
