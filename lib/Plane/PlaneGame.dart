@@ -17,6 +17,7 @@ class PlaneGame extends Game {
   Background background;
   BottomBalloon bottomBalloon;
   TopBalloon topBalloon;
+  bool isDown = false;
   SpriteComponent plane;
   double tileSize;
   bool redFilter;
@@ -25,25 +26,24 @@ class PlaneGame extends Game {
 
   int score = 0;
   bool pauseGame = false;
+  bool reset = false;
   String planePic;
   double creationTimer = 0.0;
   double scoreTimer = 0.0;
   double tempPos = 0;
-  double pos = 0;
+  double posY = 0;
+  double posX = 0;
   int i = 0;
-  double difficulte = 1.0;
+  double difficulte = 3.0;
 
   double size = 130.0;
-  List<String> tab = [
-    'plane/plane1.png',
-    'plane/plane2.png'
-  ];
+  List<String> tab = ['plane/plane1.png', 'plane/plane2.png'];
 
   double Function() getData;
   User user;
   int j = 0;
-  double posBottomLine;
-  double posTopLine;
+  double posHeightBottomLine;
+  double posHeightTopLine;
   bool position;
   UI gameUI;
 
@@ -63,8 +63,8 @@ class PlaneGame extends Game {
     gameOver = false;
     start = false;
     redFilter = false;
-    posBottomLine = bottomBalloon.getDownPosition();
-    posTopLine = bottomBalloon.getDownPosition();
+    posHeightBottomLine = bottomBalloon.getHeightBottomPosition();
+    posHeightTopLine = topBalloon.getHeightTopPosition();
   }
 
   void render(Canvas canvas) {
@@ -78,15 +78,6 @@ class PlaneGame extends Game {
     double screenCenterX = screenSize.width / 2;
     double screenCenterY = screenSize.height / 2;
 
-    /*
-    if (hasWon) {
-      boxPaint.color = Color(0xff00ff00);
-      hasWon = false;
-
-    } else {
-      boxPaint.color = Color(0xffffffff);
-    }*/
-
     if (canvas != null) {
       //Background
       if (background != null) background.render(canvas);
@@ -94,34 +85,53 @@ class PlaneGame extends Game {
       canvas.save();
 
       if (!gameOver) {
-        //Ligne basse
-        if (bottomBalloon != null) bottomBalloon.render(canvas, pauseGame);
-
-        //Ligne haute
-        if (topBalloon != null) topBalloon.render(canvas);
-
+        //Ballon du bas
+        if (isDown) {
+          if (bottomBalloon != null) {
+            bottomBalloon.render(canvas, pauseGame, reset);
+          }
+        }
+        //Ballon du haut
+        else if (!isDown) {
+          if (topBalloon != null) {
+            topBalloon.render(canvas, pauseGame, reset);
+          }
+        }
+        reset = false;
         //Nageur
         if (plane != null) {
           plane.render(canvas);
 
-          pos = plane.y + plane.height / 2;
+          //game.screenSize.height * (1 - balloonPosition);
+          posY = screenSize.height - plane.y - plane.height/2;
+          //print("PosY Plane: $posY");
+
+          posX = screenSize.width / 2 - plane.width / 2;
           //print("Position joueur: " + tempPos.toString());
         }
 
-        if (pos < bottomBalloon.getDownPosition()) {
-          //TODO Conditions de défaite, début d'un timer
-          //print("Attention au bord bas !");
-          //setColorFilter(true);
-          position = true;
+        //print("PosY Plane: ${bottomBalloon.getHeightBottomPosition()}");
+
+        if (posY < bottomBalloon.getHeightBottomPosition() &&
+            posX == (bottomBalloon.getWidthBottomPosition() - plane.width/2)&&
+            isDown) {
+          print("TOUCHEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE bas !");
+          score++;
+          position = isDown;
+          reset = true;
+          isDown = !isDown;
           //Rentre une fois dans la timer
           if (!start) {
             startTimer(start = true);
           }
-        } else if (pos > topBalloon.getUpPosition()) {
-          //TODO Conditions de défaite, début d'un timer
-          //print("Attention au bord haut !");
-          //setColorFilter(true);
-          position = false;
+        } else if (posY > topBalloon.getHeightTopPosition() &&
+            posX == (topBalloon.getWidthTopPosition() - plane.width/2)&&
+            !isDown) {
+          print("TOUCHEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE haut !");
+          score++;
+          position = isDown;
+          reset = true;
+          isDown = !isDown;
           if (!start) {
             startTimer(start = true);
           }
@@ -145,8 +155,7 @@ class PlaneGame extends Game {
         else
           i++;
 
-        if(pauseGame)
-          i--;
+        if (pauseGame) i--;
 
         planePic = tab[i];
 
@@ -161,36 +170,31 @@ class PlaneGame extends Game {
         //Définition des bords haut et bas de l'écran
 
         //Bas
-        if (tempPos >= screenSize.height - size / 2) {
+        if (tempPos >= screenSize.height - size) {
           plane.y = tempPos;
         }
         //Haut
-        else if (tempPos < -size / 2) {
-          tempPos = -size / 2;
+        else if (tempPos < 0) {
+          tempPos = 0.01;
           plane.y = tempPos;
+          //tempPos = -size / 2;
+          //plane.y = tempPos;
         }
         //Sinon on fait descendre le nageur
         else {
           plane.y += tempPos;
-          tempPos = plane.y + difficulte * 2.0;
-          if(pauseGame)
-            tempPos = plane.y;
+          tempPos = plane.y + difficulte * 3.0;
+          if (pauseGame) tempPos = plane.y;
         }
 
         //component = new Component(dimensions);
         //add(component);
       }
 
-      //On incrémente le score tous les x secondes
-      if(!pauseGame){
-        if (scoreTimer >= 0.5) {
-          score++;
-          scoreTimer = 0.0;
-        }
+      if (!pauseGame) {
 
         //getData = données reçues par le Bluetooth
 
-        double.tryParse("2.3");
         if (getData() > double.parse(user.userInitialPush)) {
           //print(plane.y);
           plane.y -= difficulte;
@@ -234,22 +238,21 @@ class PlaneGame extends Game {
   }
 
   ColorFilter getColorFilter() {
-    if (redFilter){
+    if (redFilter) {
       return ColorFilter.mode(Colors.redAccent, BlendMode.hue);
-    }
-    else
+    } else
       return ColorFilter.mode(Colors.transparent, BlendMode.luminosity);
   }
 
-  bool getColorFilterBool(){
+  bool getColorFilterBool() {
     return redFilter;
   }
 
-  bool getGameOver(){
+  bool getGameOver() {
     return gameOver;
   }
 
-  bool getPosition(){
+  bool getPosition() {
     //True: position haut
     //False: position basse
     return position;

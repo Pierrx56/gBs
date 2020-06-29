@@ -40,7 +40,7 @@ class UIState extends State<UI> {
 
   Widget displayScore(int score) {
     return Text(
-      "Score: $score m",
+      "Score: $score ballons",
       style: TextStyle(
         fontSize: 50,
         color: Colors.black,

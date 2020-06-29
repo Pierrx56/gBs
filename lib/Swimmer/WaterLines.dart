@@ -4,9 +4,9 @@ import 'package:gbsalternative/Swimmer/SwimGame.dart';
 
 class WaterLine {}
 
-double linePosition = 0.1;
+double balloonPosition = 0.1;
 int j = 0;
-int linesSpeed = 2;
+int balloonSpeed = 2;
 
 class BottomBalloon {
   final SwimGame game;
@@ -26,12 +26,12 @@ class BottomBalloon {
 
     c.translate(game.screenSize.width / 2, game.screenSize.height);
     c.translate(
-        -game.screenSize.width / 2, -game.screenSize.height * (linePosition));
+        -game.screenSize.width / 2, -game.screenSize.height * (balloonPosition));
 
     if (j >= game.screenSize.width) j = 0;
 
     if(pause)
-      j -= linesSpeed;
+      j -= balloonSpeed;
 
     c.translate(game.screenSize.width - j.toDouble(), 0);
 
@@ -45,7 +45,7 @@ class BottomBalloon {
   }
 
   double getDownPosition() {
-    return game.screenSize.height * (linePosition);
+    return game.screenSize.height * (balloonPosition);
   }
 
   void update(double t) {}
@@ -68,12 +68,12 @@ class TopBalloon {
 
     c.translate(game.screenSize.width / 2, game.screenSize.height);
     c.translate(-game.screenSize.width / 2,
-        -game.screenSize.height * (1 - linePosition));
+        -game.screenSize.height * (1 - balloonPosition));
 
     if (j >= game.screenSize.width) j = 0;
 
     c.translate(game.screenSize.width - j.toDouble(), 0);
-    j += linesSpeed;
+    j += balloonSpeed;
 
     topBalloon.renderRect(c, rectTop);
 
@@ -86,7 +86,7 @@ class TopBalloon {
   }
 
   double getUpPosition() {
-    return game.screenSize.height * (1 - linePosition);
+    return game.screenSize.height * (1 - balloonPosition);
   }
 
   void update(double t) {}

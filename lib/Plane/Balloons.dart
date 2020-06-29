@@ -5,10 +5,12 @@ import 'package:gbsalternative/Plane/PlaneGame.dart';
 
 class WaterLine {}
 
-double linePosition = 0.1;
+double balloonPosition = 0.1;
+double posX = 0;
 int j = 0;
-int linesSpeed = 2;
+int balloonSpeed = 1;
 List<String> balloonArray = ["plane/balloon-green.png", "plane/balloon-pink.png"];
+
 
 class BottomBalloon {
   final PlaneGame game;
@@ -20,39 +22,48 @@ class BottomBalloon {
     var rng = new Random();
     //Génération de ballon de couleur aléatoire
     int number = rng.nextInt(2);
-    print("Ballon bas: $number");
+
     bottomBalloon = Sprite(balloonArray[number]);
+
     //width: 500
     //height: 300
-
     rectBottom = Rect.fromLTWH(
         0, 0, game.screenSize.width*0.05, game.screenSize.height * 0.2);
   }
 
-  void render(Canvas c, bool pause) {
+  void render(Canvas c, bool pause, bool reset) {
+
+    if(reset)
+      j = 50;
 
     c.translate(game.screenSize.width / 2, game.screenSize.height);
-    c.translate(
-        -game.screenSize.width / 2, -game.screenSize.height * (linePosition));
+    c.translate(-game.screenSize.width / 2,
+        -game.screenSize.height * (balloonPosition*2));
 
     if (j >= game.screenSize.width) j = 0;
 
-    if(pause)
-      j -= linesSpeed;
+    c.translate(posX = game.screenSize.width - j.toDouble(), 0);
+    j += balloonSpeed;
 
-    c.translate(game.screenSize.width - j.toDouble(), 0);
+    if(pause)
+      j -= balloonSpeed;
 
     bottomBalloon.renderRect(c, rectBottom);
 
     c.translate(-game.screenSize.width, 0);
 
     bottomBalloon.renderRect(c, rectBottom);
+
     // restore original state
     c.restore();
   }
 
-  double getDownPosition() {
-    return game.screenSize.height * (linePosition);
+  double getHeightBottomPosition() {
+    return game.screenSize.height * (balloonPosition*2);
+  }
+
+  double getWidthBottomPosition() {
+    return posX;
   }
 
   void update(double t) {}
@@ -68,38 +79,47 @@ class TopBalloon {
     var rng = new Random();
     //Génération de ballon de couleur aléatoire
     int number = rng.nextInt(2);
-    print("Ballon haut: $number");
-    topBalloon = Sprite(balloonArray[number]);
 
+    topBalloon = Sprite(balloonArray[number]);
     //width: 500
     //height: 300
+
     rectTop = Rect.fromLTWH(
         0, 0, game.screenSize.width*0.05, game.screenSize.height * 0.2);
   }
 
-  void render(Canvas c) {
+  void render(Canvas c, bool pause, bool reset) {
+
+    if(reset)
+      j = 50;
 
     c.translate(game.screenSize.width / 2, game.screenSize.height);
-    c.translate(-game.screenSize.width / 2,
-        -game.screenSize.height * (1 - linePosition));
+    c.translate(
+        -game.screenSize.width / 2, -game.screenSize.height * (1 - balloonPosition));
 
     if (j >= game.screenSize.width) j = 0;
+    j += balloonSpeed;
 
-    c.translate(game.screenSize.width - j.toDouble(), 0);
-    j += linesSpeed;
+    if(pause)
+      j -= balloonSpeed;
+
+    c.translate( posX = game.screenSize.width - j.toDouble(), 0);
 
     topBalloon.renderRect(c, rectTop);
 
     c.translate(-game.screenSize.width, 0);
 
     topBalloon.renderRect(c, rectTop);
-
     // restore original state
     c.restore();
   }
 
-  double getUpPosition() {
-    return game.screenSize.height * (1 - linePosition);
+  double getHeightTopPosition() {
+    return game.screenSize.height * (1 - balloonPosition);
+  }
+
+  double getWidthTopPosition() {
+    return posX;
   }
 
   void update(double t) {}
