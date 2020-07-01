@@ -9,6 +9,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Swimmer/SwimGame.dart';
 
 import 'Ui.dart';
@@ -62,10 +63,14 @@ class _Swimmer extends State<Swimmer> {
   @override
   void initState() {
     //myGame = GameWrapper(game);
-    gameUI = UI();
-    score = 0;
-    isConnected = false;
-    connect();
+    if(user.userInitialPush != "0.0") {
+      gameUI = UI();
+      score = 0;
+      isConnected = false;
+      connect();
+    }
+    game = null;
+
     super.initState();
   }
 
@@ -96,21 +101,21 @@ class _Swimmer extends State<Swimmer> {
   bool isDisconnecting = false;
 
   void connect() async{
-    btManage.createState().enableBluetooth();
-    btManage.createState().getPairedDevices("swimmer");
-    btManage.createState().connect("swimmer");
-    isConnected = await btManage.createState().getStatus();
+    btManage.enableBluetooth();
+    btManage.getPairedDevices("swimmer");
+    btManage.connect("swimmer");
+    isConnected = await btManage.getStatus();
     testConnect();
   }
 
 
   testConnect() async {
-    isConnected = await btManage.createState().getStatus();
+    isConnected = await btManage.getStatus();
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500), (timerConnexion) async {
-            btManage.createState().connect("swimmer");
+            btManage.connect("swimmer");
             print("Status: $isConnected");
-            isConnected = await btManage.createState().getStatus();
+            isConnected = await btManage.getStatus();
             if(isConnected) {
               timerConnexion.cancel();
               initSwimmer();
@@ -132,7 +137,7 @@ class _Swimmer extends State<Swimmer> {
   }
 
   void setData() async {
-    btData = await btManage.createState().getData();
+    btData = await btManage.getData();
   }
 
   double getData() {
@@ -169,9 +174,34 @@ class _Swimmer extends State<Swimmer> {
           : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
       child: Stack(
         children: <Widget>[
-          game == null
+          game == null || user.userInitialPush == "0.0"
               ? Center(
-                  child: CircularProgressIndicator(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      CircularProgressIndicator(),
+                      user.userInitialPush == "0.0" ?
+                      Text("Veuillez enregister la première poussée dans le menu précédent"):
+                      Text("Chargement du jeu en cours... \n"
+                          "Assurez vous que le gBs est alimenté"),
+                      RaisedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoadPage(
+                                  appLanguage: appLanguage,
+                                  user: user,
+                                  messageIn: "0",
+                                  page: "mainTitle",
+                                )),
+                          );
+                        },
+                        child: Text("Retour"),
+                      )
+                    ],
+                  ),
                 )
               : game.widget,
           Column(

@@ -22,7 +22,6 @@ class Login extends StatefulWidget {
 Size screenSize;
 
 class _Login extends State<Login> {
-
   DatabaseHelper db = new DatabaseHelper();
   File imageFile;
   AppLanguage appLanguage;
@@ -67,6 +66,34 @@ class LoginWidget extends StatelessWidget {
           title: Text(AppLocalizations.of(context).translate('bienvenue')),
           backgroundColor: Colors.blue,
           actions: <Widget>[
+            FlatButton.icon(
+              icon: Icon(
+                Icons.question_answer,
+                color: Colors.white,
+              ),
+              label: Text(
+                "FAQ",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              splashColor: Colors.blue,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoadPage(
+                        user: null,
+                        appLanguage: appLanguage,
+                        messageIn: "",
+                        page: "FAQ"),
+                  ),
+                );
+              },
+            ),
             FlatButton.icon(
               icon: Image(
                 image: new AssetImage("assets/flags/fr.png"),
@@ -133,8 +160,7 @@ class LoginWidget extends StatelessWidget {
                                             appLanguage: appLanguage,
                                             page: "mainTitle",
                                             messageIn: "0",
-                                          )
-                                      ));
+                                          )));
                             },
                             child: new Container(
                               height: screenSize.height * 0.3,
@@ -147,10 +173,10 @@ class LoginWidget extends StatelessWidget {
                                 child: Row(
                                   children: <Widget>[
                                     Image.file(
-                                            File(snapshot.data[index].userPic),
-                                            height: screenSize.height * 0.3,
-                                            width: screenSize.width * 0.3,
-                                          ),
+                                      File(snapshot.data[index].userPic),
+                                      height: screenSize.height * 0.3,
+                                      width: screenSize.width * 0.3,
+                                    ),
                                     Text(item.userName),
                                   ],
                                 ),

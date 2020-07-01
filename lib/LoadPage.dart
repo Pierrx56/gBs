@@ -5,6 +5,8 @@ import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 //import 'file:///C:/Users/Pierrick/Documents/Entreprise/Stage/Genourob/gBs/gbs_alternative/lib/Backup/BluetoothSync_shield.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/FAQ.dart';
+import 'package:gbsalternative/FirstPush.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/ManageProfile.dart';
@@ -67,7 +69,8 @@ class _LoadPage extends State<LoadPage> {
               GlobalWidgetsLocalizations.delegate,
             ],
             home:
-            page == "bluetoothManager" ? BluetoothManager(user: user, inputMessage: messageIn, appLanguage: appLanguage):
+            page == "FAQ" ? FAQ(inputMessage: messageIn, appLanguage: appLanguage):
+            page == "firstPush" ? FirstPush(user: user, inputMessage: messageIn, appLanguage: appLanguage):
             page == "login" ? Login(appLanguage: appLanguage):
             page == "mainTitle" ? MainTitle(userIn: user, messageIn: int.parse(messageIn), appLanguage: appLanguage,):
             page == "manageProfile" ? ManageProfile(curUser: user, appLanguage: appLanguage):

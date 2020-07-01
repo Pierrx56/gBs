@@ -9,7 +9,7 @@ import 'package:flame/components/component.dart';
 import 'package:flame/flame.dart';
 
 var game;
-var plane;
+var swimmer;
 const SPEED = 120.0;
 const ComponentSize = 60.0;
 GameWrapper myGame;
@@ -42,7 +42,7 @@ List<Sprite> sprites = [
   23
 ].map((i) => new Sprite('swimmer/swim${i}.png')).toList();
 
-String planePic;
+String swimmerPic;
 const List<String> tab = [
   'swimmer/swim0.png',
   'swimmer/swim1.png',
@@ -136,8 +136,8 @@ class MyGame extends BaseGame {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    plane.x = dimensions.width / 2;
-    plane.render(canvas);
+    swimmer.x = dimensions.width / 2;
+    swimmer.render(canvas);
 
     /*String text = "Score: 0";
     TextSpan span =
@@ -162,23 +162,23 @@ class MyGame extends BaseGame {
       else
         i++;
 
-      planePic = tab[i];
+      swimmerPic = tab[i];
 
       creationTimer = 0.0;
 
-      Sprite sprite = Sprite(planePic);
+      Sprite sprite = Sprite(swimmerPic);
 
       const size = 100.0;
-      //plane = AnimationComponent(size, size, new flanim.Animation.spriteList(sprites, stepTime: 0.01));
+      //swimmer = AnimationComponent(size, size, new flanim.Animation.spriteList(sprites, stepTime: 0.01));
 
-      plane = SpriteComponent.fromSprite(
+      swimmer = SpriteComponent.fromSprite(
           size, size, sprite); // width, height, sprite
 
       if (tempPos >= dimensions.height - size)
-        plane.y = tempPos;
+        swimmer.y = tempPos;
       else {
-        plane.y += tempPos;
-        tempPos = plane.y + difficulte;
+        swimmer.y += tempPos;
+        tempPos = swimmer.y + difficulte;
       }
       //component = new Component(dimensions);
       //add(component);
@@ -194,7 +194,7 @@ class MyGame extends BaseGame {
 class Component extends SpriteComponent {
   Size dimensions;
 
-  Component(this.dimensions) : super.square(ComponentSize, '$planePic');
+  Component(this.dimensions) : super.square(ComponentSize, '$swimmerPic');
   double maxY;
   bool remove = false;
 

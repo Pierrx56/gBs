@@ -113,9 +113,10 @@ class UIState extends State<UI> {
 
           //db.deleteScore(user.userId);
 
-          List<Scores> everyScores = await db.getScore(user.userId, ACTIVITY_NUMBER);
+          List<Scores> everyScores =
+              await db.getScore(user.userId, ACTIVITY_NUMBER);
 
-          if (everyScores.length == 0)
+          if (everyScores.length == 0 && score != 0)
             db.addScore(newScore);
           else {
             //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
@@ -137,22 +138,13 @@ class UIState extends State<UI> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                builder: (context) => LoadPage(
-                      appLanguage: appLanguage,
-                      user: user,
-                      messageIn: "0",
-                      page: "mainTitle",
-                    )
-                /*MainTitle(
-                      appLanguage: appLanguage,
-                      userIn: user,
-                      messageIn: 0,
-                    )*/
-                /*      MainTitle(
-                userIn: user,
+              builder: (context) => LoadPage(
                 appLanguage: appLanguage,
-                   )*/
-                ),
+                user: user,
+                messageIn: "0",
+                page: "mainTitle",
+              ),
+            ),
           );
         },
         child: Text("Quitter le jeu"),
@@ -172,12 +164,10 @@ class UIState extends State<UI> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-              Icon(
-                !game.pauseGame ?
-                Icons.pause : Icons.play_arrow,
-              ),
-                  !game.pauseGame ?
-              Text("Pause") : Text("Play"),
+            Icon(
+              !game.pauseGame ? Icons.pause : Icons.play_arrow,
+            ),
+            !game.pauseGame ? Text("Pause") : Text("Play"),
           ],
         ),
       ),
@@ -194,8 +184,8 @@ class UIState extends State<UI> {
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) =>
-                      LoadPage(
+                  builder: (context) => LoadPage(
+                    messageIn: "",
                         appLanguage: appLanguage,
                         page: "swimmer",
                         user: user,

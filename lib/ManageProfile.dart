@@ -12,6 +12,7 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/LoadPage.dart';
+import 'package:gbsalternative/Register.dart';
 import 'package:image_picker/image_picker.dart';
 import 'DatabaseHelper.dart';
 import 'package:path/path.dart';
@@ -45,7 +46,7 @@ class _ManageProfile extends State<ManageProfile> {
   AppLanguage appLanguage;
 
   BluetoothManager btManage =
-  new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
+      new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
   // Initializing a global key, as it would help us in showing a SnackBar later
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -56,6 +57,8 @@ class _ManageProfile extends State<ManageProfile> {
   static double _reset = 10.0;
   int i = 20;
   List<double> average = new List(2 * _reset.toInt());
+  RoundedProgressBarStyle colorProgressBar = RoundedProgressBarStyle(
+      colorProgress: Colors.blueAccent, colorProgressDark: Colors.blue);
   double delta = 102.0;
   double coefKg = 0.45359237;
   double result;
@@ -154,7 +157,6 @@ class _ManageProfile extends State<ManageProfile> {
     );
   }
 
-
   pickImageFromGallery(ImageSource source) async {
     final directory = await getApplicationDocumentsDirectory();
     final String path = directory.path;
@@ -183,26 +185,24 @@ class _ManageProfile extends State<ManageProfile> {
     return _pathSaved = newImage.path;
   }
 
-
-  void connect() async{
-
-    btManage.createState().enableBluetooth();
-    btManage.createState().getPairedDevices("manage");
-    btManage.createState().connect("manage");
-    isConnected = await btManage.createState().getStatus();
+  void connect() async {
+    btManage.enableBluetooth();
+    btManage.getPairedDevices("manageProfile");
+    btManage.connect("manageProfile");
+    isConnected = await btManage.getStatus();
     testConnect();
   }
 
   testConnect() async {
-    isConnected = await btManage.createState().getStatus();
+    isConnected = await btManage.getStatus();
     if (!isConnected) {
-      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500), (timerConnexion) async {
-        btManage.createState().connect("swimmer");
+      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
+          (timerConnexion) async {
+        btManage.connect("manageProfile");
         print("Status: $isConnected");
-        isConnected = await btManage.createState().getStatus();
-        if(isConnected) {
+        isConnected = await btManage.getStatus();
+        if (isConnected) {
           timerConnexion.cancel();
-          //refreshScore();
         }
       });
     }
@@ -215,7 +215,7 @@ class _ManageProfile extends State<ManageProfile> {
   }
 
   void setData() async {
-    btData = await btManage.createState().getData();
+    btData = await btManage.getData();
   }
 
   double getData() {
@@ -347,8 +347,7 @@ class _ManageProfile extends State<ManageProfile> {
                         Center(
                             child: Image.file(File(_pathSaved),
                                 height: screenSize.height * 0.3,
-                                width: screenSize.height * 0.3)
-                            ),
+                                width: screenSize.height * 0.3)),
                         RaisedButton(
                           child: Text(AppLocalizations.of(context)
                               .translate('changerImage')),
@@ -505,9 +504,20 @@ class _ManageProfile extends State<ManageProfile> {
                                   .translate('explications_mesure')
                               : "Explications: mesures"),
                           RoundedProgressBar(
-                              percent: (double.parse(btData)),
-                              theme: RoundedProgressBarTheme.yellow,
-                              childCenter: Text("$btData")),
+                            percent: (double.parse(btData)) >= 0
+                                ? (double.parse(btData) * 10)
+                                : 0.0,
+                            style: double.parse(btData) > 10.0
+                                ? colorProgressBar = RoundedProgressBarStyle(
+                                    colorProgress: Colors.redAccent,
+                                    colorProgressDark: Colors.red)
+                                : colorProgressBar = RoundedProgressBarStyle(
+                                    colorProgress: Colors.blueAccent,
+                                    colorProgressDark: Colors.blue),
+                            childCenter: Text(
+                              (double.parse(btData) * 10).toString(),
+                            ),
+                          ),
                           RaisedButton(
                               //child: Text("Démarrer l'enregistrement."),
                               onPressed: () async {
@@ -521,9 +531,10 @@ class _ManageProfile extends State<ManageProfile> {
                                       if (_start < 0.5) {
                                         timer.cancel();
                                         _start = _reset;
-                                        result =
-                                        double.parse((average.reduce((a, b) => a + b) /
-                                                average.length).toStringAsFixed(2));
+                                        result = double.parse(
+                                            (average.reduce((a, b) => a + b) /
+                                                    average.length)
+                                                .toStringAsFixed(2));
 
                                         i = 20;
                                         if (result <= 5.0 || result >= 10.0) {
@@ -608,9 +619,9 @@ class _ManageProfile extends State<ManageProfile> {
   // Method to show a Snackbar,
   // taking message as the text
   Future show(
-      String message, {
-        Duration duration: const Duration(seconds: 3),
-      }) async {
+    String message, {
+    Duration duration: const Duration(seconds: 3),
+  }) async {
     await new Future.delayed(new Duration(milliseconds: 100));
     _scaffoldKey.currentState.showSnackBar(
       new SnackBar(

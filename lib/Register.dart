@@ -67,17 +67,8 @@ class _Register extends State<Register> {
   String macAddress;
 
   bool isConnected;
-  Timer _timer;
   Timer timerConnexion;
-  double _start = 10.0;
-  static double _reset = 10.0;
-  int i = 20;
-  List<double> average = new List(2 * _reset.toInt());
 
-  static double delta = 102.0;
-  double coefKg = 0.45359237;
-  double result;
-  String recording;
   String discovering;
   String statusBT;
   bool clickable = false;
@@ -85,14 +76,12 @@ class _Register extends State<Register> {
   AppLanguage appLanguage;
 
   Color colorButton = Colors.black;
-  Color colorMesureButton = Colors.black;
   int valueHolder = 20;
 
   final _formKey = GlobalKey<FormState>();
 
   int currentStep = 0;
   bool complete = false;
-
 
   @override
   void initState() {
@@ -114,23 +103,23 @@ class _Register extends State<Register> {
     appLanguage = _appLanguage;
   }
 
-  void connect() async{
-    btManage.createState().enableBluetooth();
-    btManage.createState().getPairedDevices("register");
-    btManage.createState().connect("register");
-    isConnected = await btManage.createState().getStatus();
+  void connect() async {
+    btManage.enableBluetooth();
+    btManage.getPairedDevices("register");
+    btManage.connect("register");
+    isConnected = await btManage.getStatus();
     testConnect();
   }
 
-
   testConnect() async {
-    isConnected = await btManage.createState().getStatus();
+    isConnected = await btManage.getStatus();
     if (!isConnected) {
-      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500), (timerConnexion) async {
-        btManage.createState().connect("register");
+      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
+          (timerConnexion) async {
+        btManage.connect("register");
         print("Status: $isConnected");
-        isConnected = await btManage.createState().getStatus();
-        if(isConnected) {
+        isConnected = await btManage.getStatus();
+        if (isConnected) {
           timerConnexion.cancel();
         }
       });
@@ -142,7 +131,7 @@ class _Register extends State<Register> {
   }
 
   Future<void> getData() async {
-    btData = await btManage.createState().getData();
+    btData = await btManage.getData();
   }
 
   pickImageFromGallery(ImageSource source) async {
@@ -180,7 +169,7 @@ class _Register extends State<Register> {
       userPic: _pathSaved,
       userHeightTop: hauteur_max.text,
       userHeightBottom: hauteur_min.text,
-      userInitialPush: result.toString(),
+      userInitialPush: "0.0",
       userMacAddress: macAddress,
     ));
     print("ID INScr: " + id.toString());
@@ -212,10 +201,6 @@ class _Register extends State<Register> {
   @override
   Widget build(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
-
-    if (recording == null)
-      recording =
-          AppLocalizations.of(context).translate('demarrer_enregistrement');
 
     if (discovering == null)
       discovering = AppLocalizations.of(context).translate('scan_app');
@@ -305,29 +290,28 @@ class _Register extends State<Register> {
         title: Text(AppLocalizations.of(context).translate('select_image')),
         isActive: currentStep > 4,
         state: currentStep > 4 ? StepState.complete : StepState.disabled,
-        content: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              //showImage(),
-              //Image(image: AssetImage(_path)),
-              Center(
-                  child: imageFile == null
-                      ? Image.asset(
-                          'assets/avatar.png',
-                          width: screenSize.width * 0.2,
-                        )
-                      : Image.file(File(_pathSaved), width: screenSize.width * 0.2)
-                  //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
-                  ),
-              RaisedButton(
-                child: Text(
-                    AppLocalizations.of(context).translate('select_image')),
-                onPressed: () {
-                  _pathSaved = pickImageFromGallery(ImageSource.gallery);
-                },
-                textColor: colorButton,
+        content:
+            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <
+                Widget>[
+          //showImage(),
+          //Image(image: AssetImage(_path)),
+          Center(
+              child: imageFile == null
+                  ? Image.asset(
+                      'assets/avatar.png',
+                      width: screenSize.width * 0.2,
+                    )
+                  : Image.file(File(_pathSaved), width: screenSize.width * 0.2)
+              //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
               ),
-            ]),
+          RaisedButton(
+            child: Text(AppLocalizations.of(context).translate('select_image')),
+            onPressed: () {
+              _pathSaved = pickImageFromGallery(ImageSource.gallery);
+            },
+            textColor: colorButton,
+          ),
+        ]),
       ),
       Step(
           title: Text(AppLocalizations.of(context).translate('connecter_app')),
@@ -338,12 +322,12 @@ class _Register extends State<Register> {
               child: Text(discovering),
               onPressed: !isFound
                   ? () async {
-                      btManage.createState().enableBluetooth();
+                      btManage.enableBluetooth();
                       macAddress = await btManage
-                          .createState()
                           .getPairedDevices("register");
 
-                      print("MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
+                      print(
+                          "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
                       if (macAddress != null) {
                         //Appareil trouvé
                         setState(() {
@@ -404,68 +388,9 @@ class _Register extends State<Register> {
             ),
           ])),
       Step(
-        title: Text(AppLocalizations.of(context).translate('premiere_mesure')),
-        isActive: currentStep > 6,
-        state: currentStep > 6 ? StepState.complete : StepState.disabled,
-        content: Column(
-          children: <Widget>[
-            Text(AppLocalizations.of(context).translate('explications_mesure')),
-            RaisedButton(
-                //child: Text("Démarrer l'enregistrement."),
-                onPressed: () async {
-                  colorMesureButton = Colors.black;
-                  const oneSec = const Duration(milliseconds: 500);
-                  _timer = new Timer.periodic(
-                    oneSec,
-                    (Timer timer) => setState(
-                      () {
-                        if (_start < 0.5) {
-                          timer.cancel();
-                          _start = _reset;
-                          result = double.parse(
-                              (average.reduce((a, b) => a + b) / average.length)
-                                  .toStringAsFixed(2));
-                          print(result.toStringAsFixed(2));
-                          i = 20;
-                          if (result <= 5.0 || result >= 10.0) {
-                            //Mesure pas bonne, réajuster la toise
-                            setState(() {
-                              recording = AppLocalizations.of(context)
-                                  .translate('status_mesure_mauvais');
-                              colorMesureButton = Colors.red;
-                            });
-                          } else
-                            setState(() {
-                              colorMesureButton = Colors.green;
-                              recording = AppLocalizations.of(context)
-                                  .translate('status_mesure_bon');
-                            });
-                        } else {
-                          recording = _start.toString();
-                          _start = _start - 0.5;
-                          i--;
-                          getData();
-                          average[i] = double.parse(btData);
-                        }
-                      },
-                    ),
-                  );
-                  //_showDialog();
-                },
-                textColor: colorMesureButton,
-                child: Text(recording)),
-            RoundedProgressBar(
-                percent:
-                    (double.parse(btData)) >= 0 ? (double.parse(btData) * 10) : 0.0,
-                theme: RoundedProgressBarTheme.yellow,
-                childCenter: Text((double.parse(btData)*10).toString())),
-          ],
-        ),
-      ),
-      Step(
           title: Text(AppLocalizations.of(context).translate('recap')),
-          isActive: currentStep > 7,
-          state: currentStep > 7 ? StepState.complete : StepState.disabled,
+          isActive: currentStep > 6,
+          state: currentStep > 6 ? StepState.complete : StepState.disabled,
           content: Column(
             children: <Widget>[
               Row(
@@ -512,10 +437,10 @@ class _Register extends State<Register> {
                                   .translate('status_connexion_mauvais'),
                               style: TextStyle(color: Colors.red),
                             ),
-                      Text(AppLocalizations.of(context)
+                      /*Text(AppLocalizations.of(context)
                               .translate('premiere_mesure') +
                           ": " +
-                          result.toString()),
+                          result.toString()),*/
 
                       Text("Adresse MAC $macAddress"),
                     ],
@@ -546,9 +471,9 @@ class _Register extends State<Register> {
                       //Adresse mac
                       else if (macAddress == '')
                         isDisabled = true;
-                      //Première poussée
+/*                      //Première poussée
                       else if (result.toString() == null)
-                        isDisabled = true;
+                        isDisabled = true;*/
                       else
                         isDisabled = false;
 
@@ -577,7 +502,7 @@ class _Register extends State<Register> {
                                   builder: (context) => LoadPage(
                                         appLanguage: appLanguage,
                                         user: user,
-                                        messageIn: "0",
+                                        messageIn: "2",
                                         page: "mainTitle",
                                       )));
                           dispose();
@@ -633,7 +558,7 @@ class _Register extends State<Register> {
               hauteur_min.text = "115";
               hauteur_max.text = "125";
               macAddress = "78:DB:2F:BF:3B:03";
-              result = 6.31;
+              //result = 6.31;
               _pathSaved = "assets/avatar.png";
             },
           ),
@@ -688,8 +613,8 @@ class _Register extends State<Register> {
                         ],
                       ),
                       Padding(
-                        padding:
-                            EdgeInsets.fromLTRB(0, 0, 0, screenSize.width * 0.5),
+                        padding: EdgeInsets.fromLTRB(
+                            0, 0, 0, screenSize.width * 0.5),
                       )
                     ],
                   );
@@ -697,7 +622,8 @@ class _Register extends State<Register> {
               : (BuildContext context,
                   {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
                   return Padding(
-                    padding: EdgeInsets.fromLTRB(0, 0, 0, screenSize.width * 0.5),
+                    padding:
+                        EdgeInsets.fromLTRB(0, 0, 0, screenSize.width * 0.5),
                   );
                 },
         ),

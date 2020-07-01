@@ -45,6 +45,7 @@ class PlaneGame extends Game {
   double posHeightBottomLine;
   double posHeightTopLine;
   bool position;
+  bool posMax;
   UI gameUI;
 
   PlaneGame(this.getData, User _user) {
@@ -60,6 +61,7 @@ class PlaneGame extends Game {
     gameUI = UI();
 
     position = false;
+    posMax = false;
     gameOver = false;
     start = false;
     redFilter = false;
@@ -80,7 +82,7 @@ class PlaneGame extends Game {
 
     if (canvas != null) {
       //Background
-      if (background != null) background.render(canvas);
+      if (background != null) background.render(canvas, pauseGame);
 
       canvas.save();
 
@@ -88,12 +90,14 @@ class PlaneGame extends Game {
         //Ballon du bas
         if (isDown) {
           if (bottomBalloon != null) {
+            //bottomBalloon = BottomBalloon(this);
             bottomBalloon.render(canvas, pauseGame, reset);
           }
         }
         //Ballon du haut
         else if (!isDown) {
           if (topBalloon != null) {
+            //topBalloon = TopBalloon(this);
             topBalloon.render(canvas, pauseGame, reset);
           }
         }
@@ -103,41 +107,48 @@ class PlaneGame extends Game {
           plane.render(canvas);
 
           //game.screenSize.height * (1 - balloonPosition);
-          posY = screenSize.height - plane.y - plane.height/2;
+          posY = screenSize.height - plane.y - plane.height / 2;
           //print("PosY Plane: $posY");
 
           posX = screenSize.width / 2 - plane.width / 2;
           //print("Position joueur: " + tempPos.toString());
-        }
 
-        //print("PosY Plane: ${bottomBalloon.getHeightBottomPosition()}");
+          //print("PosY Plane: ${bottomBalloon.getHeightBottomPosition()}");
 
-        if (posY < bottomBalloon.getHeightBottomPosition() &&
-            posX == (bottomBalloon.getWidthBottomPosition() - plane.width/2)&&
-            isDown) {
-          print("TOUCHEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE bas !");
-          score++;
-          position = isDown;
-          reset = true;
-          isDown = !isDown;
-          //Rentre une fois dans la timer
-          if (!start) {
-            startTimer(start = true);
+          //HitBox ballon bas
+          if (posY <= bottomBalloon.getHeightBottomPosition() &&
+              posX ==
+                  (bottomBalloon.getWidthBottomPosition() - plane.width / 2) &&
+              isDown) {
+            print("TOUCHEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE bas !");
+            score++;
+            position = isDown;
+            reset = true;
+            isDown = !isDown;
+            bottomBalloon = BottomBalloon(this);
+            //Rentre une fois dans la timer
+            if (!start) {
+              startTimer(start = true);
+            }
           }
-        } else if (posY > topBalloon.getHeightTopPosition() &&
-            posX == (topBalloon.getWidthTopPosition() - plane.width/2)&&
-            !isDown) {
-          print("TOUCHEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE haut !");
-          score++;
-          position = isDown;
-          reset = true;
-          isDown = !isDown;
-          if (!start) {
-            startTimer(start = true);
+          //HitBox ballon haut
+          else if (posY >=
+                  (topBalloon.getHeightTopPosition() - plane.height / 2) &&
+              posX == (topBalloon.getWidthTopPosition() - plane.width / 2) &&
+              !isDown) {
+            print("TOUCHEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE haut !");
+            score++;
+            position = isDown;
+            reset = true;
+            isDown = !isDown;
+            topBalloon = TopBalloon(this);
+            if (!start) {
+              startTimer(start = true);
+            }
+          } else {
+            setColorFilter(false);
+            startTimer(start = false);
           }
-        } else {
-          setColorFilter(false);
-          startTimer(start = false);
         }
       }
     }
@@ -155,7 +166,7 @@ class PlaneGame extends Game {
         else
           i++;
 
-        if (pauseGame) i--;
+        if (pauseGame) i = 0;
 
         planePic = tab[i];
 
@@ -174,28 +185,31 @@ class PlaneGame extends Game {
           plane.y = tempPos;
         }
         //Haut
-        else if (tempPos < 0) {
-          tempPos = 0.01;
+        else if (tempPos <= 0.0 &&
+            getData() > double.parse(user.userInitialPush)) {
+          tempPos = 0.0;
           plane.y = tempPos;
+          posMax = true;
           //tempPos = -size / 2;
           //plane.y = tempPos;
         }
-        //Sinon on fait descendre le nageur
-        else {
+        //Sinon on fait descendre l'avion
+        else if (!posMax) {
           plane.y += tempPos;
           tempPos = plane.y + difficulte * 3.0;
           if (pauseGame) tempPos = plane.y;
-        }
+        } else
+          posMax = false;
 
         //component = new Component(dimensions);
         //add(component);
       }
 
       if (!pauseGame) {
-
         //getData = données reçues par le Bluetooth
 
-        if (getData() > double.parse(user.userInitialPush)) {
+        //Montée de l'avion
+        if (getData() > double.parse(user.userInitialPush) && !posMax) {
           //print(plane.y);
           plane.y -= difficulte;
           tempPos = plane.y;

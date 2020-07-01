@@ -1,0 +1,281 @@
+// Copyright 2014 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:gbsalternative/AppLanguage.dart';
+import 'package:gbsalternative/AppLocalizations.dart';
+import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/LoadPage.dart';
+
+class Questions {
+  final Icon icon;
+  final String question;
+  final String answer;
+
+  Questions({this.icon, this.question, this.answer});
+}
+
+/*
+* Classe pour gérer la FAQ
+* Prend en paramètre la langue choisie et un message éventuel
+* */
+
+class FAQ extends StatefulWidget {
+  String inputMessage;
+  AppLanguage appLanguage;
+
+  FAQ({
+    @required this.inputMessage,
+    @required this.appLanguage,
+  });
+
+  @override
+  _FAQ createState() => new _FAQ(inputMessage, appLanguage);
+}
+
+class _FAQ extends State<FAQ> {
+  //Déclaration de variables
+  String inputMessage;
+  AppLanguage appLanguage;
+
+  // Initializing a global key, as it would help us in showing a SnackBar later
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  //Constructeur _BluetoothManager
+  _FAQ(String _inputMessage, AppLanguage _appLanguage) {
+    inputMessage = _inputMessage;
+    appLanguage = _appLanguage;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // Avoid memory leak and disconnect
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Questions> qAndA = [
+      Questions(
+          icon: Icon(Icons.video_library),
+          question: AppLocalizations.of(context).translate('tutoriel'),
+          answer: ""),
+      Questions(
+          icon: Icon(Icons.power_settings_new),
+          question: AppLocalizations.of(context)
+              .translate('question_alimentation_gbs'),
+          answer: ""),
+      Questions(
+          icon: Icon(Icons.bluetooth),
+          question:
+              AppLocalizations.of(context).translate('question_bluetooth'),
+          answer: ""),
+      Questions(
+          icon: Icon(Icons.timer),
+          question: AppLocalizations.of(context)
+              .translate('question_changement_hauteur'),
+          answer: ""),
+      Questions(
+          icon: Icon(Icons.add),
+          question:
+              AppLocalizations.of(context).translate('explication_creation'),
+          answer: ""),
+      Questions(
+          icon: Icon(Icons.directions_run),
+          question:
+              AppLocalizations.of(context).translate('question_exercices'),
+          answer: ""),
+      Questions(
+          icon: Icon(Icons.airline_seat_recline_normal),
+          question:
+              AppLocalizations.of(context).translate('question_hauteur'),
+          answer: ""),
+      Questions(
+          icon: Icon(Icons.info),
+          question: AppLocalizations.of(context).translate('question_gbs'),
+          answer: ""),
+      Questions(
+          icon: Icon(Icons.help),
+          question: AppLocalizations.of(context)
+              .translate('question_maintenance'),
+          answer: ""),
+      Questions(
+          icon: Icon(Icons.iso),
+          question:
+              AppLocalizations.of(context).translate('question_modes'),
+          answer: ""),
+      Questions(
+          icon: Icon(Icons.airline_seat_recline_extra),
+          question: AppLocalizations.of(context)
+              .translate('question_positionnement'),
+          answer: ""),
+      Questions(
+          icon: Icon(Icons.delete_forever),
+          question: AppLocalizations.of(context).translate('explication_suppr'),
+          answer: ""),
+      Questions(
+          icon: Icon(Icons.info_outline),
+          question: AppLocalizations.of(context).translate('genourob'),
+          answer: ""),
+    ];
+
+    return MaterialApp(
+      supportedLocales: [
+        Locale('en', 'US'),
+        Locale('fr', 'FR'),
+      ],
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      home: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          //title: Text(AppLocalization.of(context).heyWorld),
+          leading: IconButton(icon:Icon(Icons.arrow_back, color: Colors.white,), onPressed: (){
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoadPage(
+                    user: null,
+                    appLanguage: appLanguage,
+                    messageIn: "",
+                    page: "login"),
+              ),
+            );
+
+          },),
+          title: Text("FAQ"),
+          backgroundColor: Colors.blue,
+          actions: <Widget>[
+          ],
+        ),
+        body: ListView.builder(
+            itemCount: qAndA.length,
+            itemBuilder: (context, index) {
+              Questions _model = qAndA[index];
+              return Column(
+                children: <Widget>[
+                  Divider(
+                    height: 12.0,
+                  ),
+                  ExpansionTile(
+                    leading: _model.icon,
+                    title: Text(_model.question),
+                    children: <Widget>[
+                      ListTile(
+                        onTap: (){
+                          show("message");
+                        },
+                        title: Row(
+                          children: <Widget>[
+                            Text(
+                              _model.answer,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }),
+      ),
+    );
+  }
+
+  // Method to show a Snackbar,
+  // taking message as the text
+  Future show(
+    String message, {
+    Duration duration: const Duration(seconds: 3),
+  }) async {
+    await new Future.delayed(new Duration(milliseconds: 100));
+    _scaffoldKey.currentState.showSnackBar(
+      new SnackBar(
+        content: new Text(
+          message,
+        ),
+        duration: duration,
+      ),
+    );
+  }
+}
+/*ListView(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.video_library),
+              title: Text(AppLocalizations.of(context).translate('tutoriel')),
+            ),
+            ListTile(
+              leading: Icon(Icons.power_settings_new),
+              title: Text(AppLocalizations.of(context).translate(
+                  'question_alimentation_gbs')),
+            ),
+            ListTile(
+              leading: Icon(Icons.bluetooth),
+              title: Text(AppLocalizations.of(context).translate(
+                  'question_bluetooth')),
+            ),
+            ListTile(
+              leading: Icon(Icons.timer),
+              title: Text(AppLocalizations.of(context).translate(
+                  'question_changement_hauteur')),
+            ),
+            ListTile(
+              leading: Icon(Icons.add),
+              title: Text(AppLocalizations.of(context).translate(
+                  'explication_creation')),
+            ),
+            ListTile(
+              leading: Icon(Icons.directions_run),
+              title: Text(AppLocalizations.of(context).translate(
+                  'question_exercices')),
+            ),
+            ListTile(
+              leading: Icon(Icons.airline_seat_recline_normal),
+              title: Text(AppLocalizations.of(context).translate(
+                  'question_hauteur')),
+            ),
+            ListTile(
+              leading: Icon(Icons.info),
+              title: Text(
+                  AppLocalizations.of(context).translate('question_gbs')),
+            ),
+            ListTile(
+              leading: Icon(Icons.help),
+              title: Text(AppLocalizations.of(context).translate(
+                  'question_maintenance')),
+            ),
+            ListTile(
+              leading: Icon(Icons.iso),
+              title: Text(
+                  AppLocalizations.of(context).translate('question_modes')),
+            ),
+            ListTile(
+              leading: Icon(Icons.airline_seat_recline_extra),
+              title: Text(AppLocalizations.of(context).translate(
+                  'question_positionnement')),
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_forever),
+              title: Text(
+                  AppLocalizations.of(context).translate('explication_suppr')),
+            ),
+            ListTile(
+              leading: Icon(Icons.info_outline),
+              title: Text(AppLocalizations.of(context).translate('genourob')),
+            ),
+          ],
+        ),*/

@@ -8,13 +8,13 @@ double balloonPosition = 0.1;
 int j = 0;
 int balloonSpeed = 2;
 
-class BottomBalloon {
+class BottomLine {
   final SwimGame game;
-  Sprite bottomBalloon;
+  Sprite bottomLine;
   Rect rectBottom;
 
-  BottomBalloon(this.game) {
-    bottomBalloon = Sprite('swimmer/down_line.png');
+  BottomLine(this.game) {
+    bottomLine = Sprite('swimmer/down_line.png');
     //width: 500
     //height: 300
 
@@ -35,11 +35,11 @@ class BottomBalloon {
 
     c.translate(game.screenSize.width - j.toDouble(), 0);
 
-    bottomBalloon.renderRect(c, rectBottom);
+    bottomLine.renderRect(c, rectBottom);
 
     c.translate(-game.screenSize.width, 0);
 
-    bottomBalloon.renderRect(c, rectBottom);
+    bottomLine.renderRect(c, rectBottom);
     // restore original state
     c.restore();
   }
@@ -51,13 +51,13 @@ class BottomBalloon {
   void update(double t) {}
 }
 
-class TopBalloon {
+class TopLine {
   final SwimGame game;
-  Sprite topBalloon;
+  Sprite topLine;
   Rect rectTop;
 
-  TopBalloon(this.game) {
-    topBalloon = Sprite('swimmer/up_line.png');
+  TopLine(this.game) {
+    topLine = Sprite('swimmer/up_line.png');
     //width: 500
     //height: 300
     rectTop = Rect.fromLTWH(
@@ -75,11 +75,11 @@ class TopBalloon {
     c.translate(game.screenSize.width - j.toDouble(), 0);
     j += balloonSpeed;
 
-    topBalloon.renderRect(c, rectTop);
+    topLine.renderRect(c, rectTop);
 
     c.translate(-game.screenSize.width, 0);
 
-    topBalloon.renderRect(c, rectTop);
+    topLine.renderRect(c, rectTop);
 
     // restore original state
     c.restore();

@@ -39,16 +39,27 @@ class UIState extends State<UI> {
   }
 
   Widget displayScore(int score) {
-    return Text(
-      "Score: $score ballons",
-      style: TextStyle(
-        fontSize: 50,
-        color: Colors.black,
-        shadows: <Shadow>[
-          Shadow(
-            color: Color(0x88000000),
-            blurRadius: 10,
-            offset: Offset(2, 2),
+    return Container(
+      child: Row(
+        children: <Widget>[
+          Text(
+            "Score: $score",
+            style: TextStyle(
+              fontSize: 50,
+              color: Colors.black,
+              shadows: <Shadow>[
+                Shadow(
+                  color: Color(0x88000000),
+                  blurRadius: 10,
+                  offset: Offset(2, 2),
+                ),
+              ],
+            ),
+          ),
+          Image.asset(
+            'assets/images/plane/balloon-green.png',
+            width: screenSize.width * 0.05,
+            height: screenSize.height * 0.2,
           ),
         ],
       ),
@@ -114,9 +125,10 @@ class UIState extends State<UI> {
 
           //db.deleteScore(user.userId);
 
-          List<Scores> everyScores = await db.getScore(user.userId, ACTIVITY_NUMBER);
+          List<Scores> everyScores =
+              await db.getScore(user.userId, ACTIVITY_NUMBER);
 
-          if (everyScores.length == 0)
+          if (everyScores.length == 0 && score != 0)
             db.addScore(newScore);
           else {
             //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
@@ -173,12 +185,10 @@ class UIState extends State<UI> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-              Icon(
-                !game.pauseGame ?
-                Icons.pause : Icons.play_arrow,
-              ),
-                  !game.pauseGame ?
-              Text("Pause") : Text("Play"),
+            Icon(
+              !game.pauseGame ? Icons.pause : Icons.play_arrow,
+            ),
+            !game.pauseGame ? Text("Pause") : Text("Play"),
           ],
         ),
       ),
@@ -195,8 +205,7 @@ class UIState extends State<UI> {
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) =>
-                      LoadPage(
+                  builder: (context) => LoadPage(
                         appLanguage: appLanguage,
                         page: "plane",
                         user: user,

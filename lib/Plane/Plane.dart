@@ -8,6 +8,7 @@ import 'package:flame/util.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Plane/PlaneGame.dart';
 
 import 'Ui.dart';
@@ -58,10 +59,14 @@ class _Plane extends State<Plane> {
 
   @override
   void initState() {
-    gameUI = UI();
-    score = 0;
-    isConnected = false;
-    connect();
+    game = null;
+    if(user.userInitialPush != "0.0") {
+      score = 0;
+      isConnected = false;
+      connect();
+    }
+
+
     super.initState();
   }
 
@@ -76,6 +81,8 @@ class _Plane extends State<Plane> {
     WidgetsFlutterBinding.ensureInitialized();
 
     game = new PlaneGame(getData, user);
+    print(game);
+    gameUI = UI();
     refreshScore();
     Util flameUtil = Util();
     flameUtil.fullScreen();
@@ -89,43 +96,43 @@ class _Plane extends State<Plane> {
 
   bool isDisconnecting = false;
 
-  void connect() async{
-    btManage.createState().enableBluetooth();
-    btManage.createState().getPairedDevices("plane");
-    btManage.createState().connect("plane");
-    isConnected = await btManage.createState().getStatus();
+  void connect() async {
+    btManage.enableBluetooth();
+    btManage.getPairedDevices("plane");
+    btManage.connect("plane");
+    isConnected = await btManage.getStatus();
     testConnect();
   }
 
-
   testConnect() async {
-    isConnected = await btManage.createState().getStatus();
+    isConnected = await btManage.getStatus();
     if (!isConnected) {
-      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500), (timerConnexion) async {
-            btManage.createState().connect("plane");
-            print("Status: $isConnected");
-            isConnected = await btManage.createState().getStatus();
-            if(isConnected) {
-              timerConnexion.cancel();
-              initPlane();
-              //refreshScore();
-            }
+      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
+          (timerConnexion) async {
+        btManage.connect("plane");
+        print("Status: $isConnected");
+        isConnected = await btManage.getStatus();
+        if (isConnected) {
+          timerConnexion.cancel();
+          initPlane();
+          //refreshScore();
+        }
       });
     }
-    if(isConnected) {
+    if (isConnected) {
       initPlane();
     }
   }
 
   // Method to disconnect bluetooth
   void _disconnect() async {
-    btManage.createState().disconnect("plane");
+    btManage.disconnect("plane");
     isConnected = false;
     print('Device disconnected');
   }
 
   void setData() async {
-    btData = await btManage.createState().getData();
+    btData = await btManage.getData();
   }
 
   double getData() {
@@ -136,7 +143,6 @@ class _Plane extends State<Plane> {
     else
       return 2.0;
   }
-
 
   refreshScore() async {
     timer = new Timer.periodic(Duration(milliseconds: 300), (timer) {
@@ -152,7 +158,6 @@ class _Plane extends State<Plane> {
 
   @override
   Widget build(BuildContext context) {
-
     return Material(
         child: ColorFiltered(
       colorFilter: game != null
@@ -162,7 +167,32 @@ class _Plane extends State<Plane> {
         children: <Widget>[
           game == null
               ? Center(
-                  child: CircularProgressIndicator(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      CircularProgressIndicator(),
+                      user.userInitialPush == "0.0" ?
+                      Text("Veuillez enregister la première poussée dans le menu précédent"):
+                      Text("Chargement du jeu en cours... \n"
+                          "Assurez vous que le gBs est alimenté"),
+                      RaisedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoadPage(
+                                      appLanguage: appLanguage,
+                                      user: user,
+                                      messageIn: "0",
+                                      page: "mainTitle",
+                                    )),
+                          );
+                        },
+                        child: Text("Retour"),
+                      )
+                    ],
+                  ),
                 )
               : game.widget,
           Column(
@@ -229,7 +259,6 @@ class _Plane extends State<Plane> {
           ),
         ],
       ),
-    )
-        );
+    ));
   }
 }

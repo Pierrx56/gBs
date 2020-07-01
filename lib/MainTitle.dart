@@ -6,6 +6,7 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DrawCharts.dart';
+import 'package:gbsalternative/FirstPush.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'DatabaseHelper.dart';
 
@@ -27,7 +28,7 @@ class MainTitle extends StatefulWidget {
 class _MainTitle extends State<MainTitle> {
   Widget menuPage;
   Widget settingsPage;
-  Widget bluetoothPage;
+  Widget firstPush;
   Widget loginPage;
   bool visible_swim;
   bool visible_plane;
@@ -63,8 +64,15 @@ class _MainTitle extends State<MainTitle> {
       page: "manageProfile",
       messageIn: "",
     );
-    bluetoothPage = BluetoothManager(
-        user: user, inputMessage: "0", appLanguage: appLanguage);
+    if (user.userInitialPush == "0.0") {
+      firstPush = LoadPage(
+        appLanguage: appLanguage,
+        user: user,
+        page: "firstPush",
+        messageIn: "0",
+      );
+    } else
+      firstPush = null;
   }
 
   @override
@@ -448,7 +456,7 @@ class _MainTitle extends State<MainTitle> {
                               temp != null
                                   ? Text(
                                       AppLocalizations.of(context)
-                                          .translate('stat_nageur'),
+                                          .translate('stat_avion'),
                                       style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold),
@@ -530,12 +538,12 @@ class _MainTitle extends State<MainTitle> {
                                                             AppLocalizations.of(
                                                                     context)
                                                                 .translate(
-                                                                    'type_activite_CMV') +
+                                                                    'type_activite_CSI') +
                                                             "\n\n" +
                                                             AppLocalizations.of(
                                                                     context)
                                                                 .translate(
-                                                                    'info_nageur'),
+                                                                    'info_avion'),
                                                       )
                                                     : Text("a"),
 
@@ -665,10 +673,20 @@ class _MainTitle extends State<MainTitle> {
           page: "manageProfile",
           messageIn: "",
         );
+        if (user.userInitialPush == "0.0")
+          firstPush = LoadPage(
+            appLanguage: appLanguage,
+            user: user,
+            page: "firstPush",
+            messageIn: "0",
+          );
+        else
+          firstPush = null;
+        /*
         bluetoothPage = BluetoothManager(
             user: user,
             inputMessage: "0",
-            appLanguage: appLanguage); //BluetoothSync(curUser: user);
+            appLanguage: appLanguage); */
       });
     }
 
@@ -676,39 +694,65 @@ class _MainTitle extends State<MainTitle> {
       _selectedIndex = message;
       message = defaultIndex;
     }
+    List<Widget> _widgetOptions;
 
-    List<Widget> _widgetOptions = <Widget>[
-      menuPage = menu(),
-      settingsPage,
-      bluetoothPage,
-    ];
+    if (user.userInitialPush == "0.0")
+      _widgetOptions = <Widget>[
+        menuPage = menu(),
+        settingsPage,
+        firstPush,
+      ];
+    else
+      _widgetOptions = <Widget>[
+        menuPage = menu(),
+        settingsPage,
+      ];
 
     return MaterialApp(
       home: DefaultTabController(
         length: 3,
         child: Scaffold(
           bottomNavigationBar: new BottomNavigationBar(
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home,
-                ),
-                title: Text(AppLocalizations.of(context).translate('accueil')),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.settings,
-                ),
-                title: Text(AppLocalizations.of(context).translate('reglages')),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.settings_bluetooth,
-                ),
-                title:
-                    Text(AppLocalizations.of(context).translate('bluetooth')),
-              ),
-            ],
+            items: user.userInitialPush == "0.0"
+                ? <BottomNavigationBarItem>[
+                    BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.home,
+                      ),
+                      title: Text(
+                          AppLocalizations.of(context).translate('accueil')),
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.settings,
+                      ),
+                      title: Text(
+                          AppLocalizations.of(context).translate('reglages')),
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.file_download,
+                      ),
+                      title: Text(AppLocalizations.of(context)
+                          .translate('premiere_poussee')),
+                    ),
+                  ]
+                : <BottomNavigationBarItem>[
+                    BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.home,
+                      ),
+                      title: Text(
+                          AppLocalizations.of(context).translate('accueil')),
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.settings,
+                      ),
+                      title: Text(
+                          AppLocalizations.of(context).translate('reglages')),
+                    ),
+                  ],
             currentIndex: _selectedIndex,
             selectedItemColor: orangeColor,
             onTap: _onItemTapped,

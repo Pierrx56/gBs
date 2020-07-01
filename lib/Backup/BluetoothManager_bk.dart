@@ -19,17 +19,23 @@ import 'package:gbsalternative/LoadPage.dart';
 * Prend en paramètre un utilisatuer, un message et la langue choisie
 * */
 
-class BluetoothManager {
+class BluetoothManagerBK extends StatefulWidget {
   User user;
   String inputMessage;
   AppLanguage appLanguage;
 
-  BluetoothManager({
+  BluetoothManagerBK({
     @required this.user,
     @required this.inputMessage,
     @required this.appLanguage,
   });
 
+  @override
+  _BluetoothManagerBK createState() =>
+      new _BluetoothManagerBK(user, inputMessage, appLanguage);
+}
+
+class _BluetoothManagerBK extends State<BluetoothManagerBK> {
   //Initialisation de l'appel de fichiers externes
   //android: android/app/src/main/java/genourob/gbs_alternative/MainActivity.java
   //iOS: ios/Runner/AppDelegate.swift
@@ -44,6 +50,9 @@ class BluetoothManager {
   Timer timer;
   String macAdress;
   String data;
+  User user;
+  String inputMessage;
+  AppLanguage appLanguage;
 
   //Initializing database
   DatabaseHelper db = new DatabaseHelper();
@@ -55,11 +64,30 @@ class BluetoothManager {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   //Constructeur _BluetoothManager
-  _BluetoothManager(
+  _BluetoothManagerBK(
       User _user, String _inputMessage, AppLanguage _appLanguage) {
     user = _user;
     inputMessage = _inputMessage;
     appLanguage = _appLanguage;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _connectDevices = "Disconnected";
+    enableBluetooth();
+  }
+
+  @override
+  void dispose() {
+    // Avoid memory leak and disconnect
+    if (isConnected) {
+/*      isDisconnecting = true;
+      connection.dispose();
+      connection = null;*/
+    }
+
+    super.dispose();
   }
 
   // Request Bluetooth permission from the user
@@ -87,6 +115,13 @@ class BluetoothManager {
       pairedDevices = 'Failed to get paired devices.';
     }
 
+    //On actualise uniquement si on est sur la page "BluetoothManager"
+    if (origin == "BluetoothManager"){
+      setState(() {
+        _pairedDevices = pairedDevices;
+      });
+  }
+
     return macAdress;
 
   }
@@ -101,7 +136,7 @@ class BluetoothManager {
   //Fonction pour se connecter au gBs
   Future<bool> connect(String origin) async {
     String connectStatus;
-    bool result;
+    String result;
     try {
       sensorChannel.invokeMethod('connect');
       result = await sensorChannel.invokeMethod('getStatus');
@@ -143,20 +178,23 @@ class BluetoothManager {
       connectStatus = 'Connection status: Failed';
     }
     //On actualise uniquement si on est sur la page "BluetoothManager"
-
+    if(origin == "BluetoothManager"){
+      setState(() {
+        _connectDevices = connectStatus;
+        print(connectStatus);
+      });
+    }
 
     if (isConnected) {
       //Lorsque l'on viens de l'inscription
-      if (origin == "inscription");/* {
+      if (origin == "inscription") {
         inputMessage = "";
         Navigator.pop(
           context,
           macAdress,
         );
-      }*/
+      }
       else if(origin == "BluetoothManager");
-      else if(origin == "manageProfile");
-      else if(origin == "firstPush");
       else if(origin == "register");
       else if(origin == "swimmer");
       else if(origin == "plane");
@@ -207,6 +245,13 @@ class BluetoothManager {
       connectStatus = 'Connection status: Disconnected';
     }
 
+    //On actualise uniquement si on est sur la page "BluetoothManager"
+    if(origin == "BluetoothManager") {
+      setState(() {
+        //startDataReceiver();
+        _connectDevices = connectStatus;
+      });
+    }
   }
 
   //Fonction qui appelle toutes les 500 ms la fonction getData()

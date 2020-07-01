@@ -15,9 +15,9 @@ class SwimGame extends Game {
   Size screenSize;
   bool inTouch = false;
   Background background;
-  BottomBalloon bottomBalloon;
-  TopBalloon topBalloon;
-  SpriteComponent plane;
+  BottomLine bottomLine;
+  TopLine topLine;
+  SpriteComponent swimmer;
   double tileSize;
   bool redFilter;
   bool start;
@@ -25,7 +25,8 @@ class SwimGame extends Game {
 
   int score = 0;
   bool pauseGame = false;
-  String planePic;
+  bool posMax;
+  String swimmerPic;
   double creationTimer = 0.0;
   double scoreTimer = 0.0;
   double tempPos = 0;
@@ -77,16 +78,17 @@ class SwimGame extends Game {
   void initialize() async {
     resize(await Flame.util.initialDimensions());
     background = Background(this);
-    bottomBalloon = BottomBalloon(this);
-    topBalloon = TopBalloon(this);
+    bottomLine = BottomLine(this);
+    topLine = TopLine(this);
     gameUI = UI();
 
     position = false;
+    posMax = false;
     gameOver = false;
     start = false;
     redFilter = false;
-    posBottomLine = bottomBalloon.getDownPosition();
-    posTopLine = bottomBalloon.getDownPosition();
+    posBottomLine = bottomLine.getDownPosition();
+    posTopLine = bottomLine.getDownPosition();
   }
 
   void render(Canvas canvas) {
@@ -117,20 +119,20 @@ class SwimGame extends Game {
 
       if (!gameOver) {
         //Ligne basse
-        if (bottomBalloon != null) bottomBalloon.render(canvas, pauseGame);
+        if (bottomLine != null) bottomLine.render(canvas, pauseGame);
 
         //Ligne haute
-        if (topBalloon != null) topBalloon.render(canvas);
+        if (topLine != null) topLine.render(canvas);
 
         //Nageur
-        if (plane != null) {
-          plane.render(canvas);
+        if (swimmer != null) {
+          swimmer.render(canvas);
 
-          pos = plane.y + plane.height / 2;
+          pos = swimmer.y + swimmer.height / 2;
           //print("Position joueur: " + tempPos.toString());
         }
 
-        if (pos < bottomBalloon.getDownPosition()) {
+        if (pos < bottomLine.getDownPosition()) {
           //TODO Conditions de défaite, début d'un timer
           //print("Attention au bord bas !");
           //setColorFilter(true);
@@ -139,7 +141,7 @@ class SwimGame extends Game {
           if (!start) {
             startTimer(start = true);
           }
-        } else if (pos > topBalloon.getUpPosition()) {
+        } else if (pos > topLine.getUpPosition()) {
           //TODO Conditions de défaite, début d'un timer
           //print("Attention au bord haut !");
           //setColorFilter(true);
@@ -170,34 +172,37 @@ class SwimGame extends Game {
         if(pauseGame)
           i--;
 
-        planePic = tab[i];
+        swimmerPic = tab[i];
 
         creationTimer = 0.0;
 
-        Sprite sprite = Sprite(planePic);
+        Sprite sprite = Sprite(swimmerPic);
 
-        plane = SpriteComponent.fromSprite(
+        swimmer = SpriteComponent.fromSprite(
             size, size, sprite); // width, height, sprite
 
-        plane.x = screenSize.width / 2 - plane.width / 2;
+        swimmer.x = screenSize.width / 2 - swimmer.width / 2;
         //Définition des bords haut et bas de l'écran
 
         //Bas
-        if (tempPos >= screenSize.height - size / 2) {
-          plane.y = tempPos;
+        if (tempPos >= screenSize.height - (size/2)) {
+          swimmer.y = tempPos;
         }
         //Haut
-        else if (tempPos < -size / 2) {
-          tempPos = -size / 2;
-          plane.y = tempPos;
+        else if (tempPos <= -(size/2) && getData() > double.parse(user.userInitialPush)) {
+          tempPos = -(size/2);
+          swimmer.y = tempPos;
+          posMax = true;
         }
         //Sinon on fait descendre le nageur
-        else {
-          plane.y += tempPos;
-          tempPos = plane.y + difficulte * 2.0;
+        else if(!posMax) {
+          swimmer.y += tempPos;
+          tempPos = swimmer.y + difficulte * 2.0;
           if(pauseGame)
-            tempPos = plane.y;
+            tempPos = swimmer.y;
         }
+        else
+          posMax = false;
 
         //component = new Component(dimensions);
         //add(component);
@@ -211,19 +216,18 @@ class SwimGame extends Game {
         }
 
         //getData = données reçues par le Bluetooth
-
-        double.tryParse("2.3");
-        if (getData() > double.parse(user.userInitialPush)) {
-          //print(plane.y);
-          plane.y -= difficulte;
-          tempPos = plane.y;
+        //Montée du nageur
+        if (getData() > double.parse(user.userInitialPush) && !posMax) {
+          //print(swimmer.y);
+          swimmer.y -= difficulte;
+          tempPos = swimmer.y;
           inTouch = false;
         }
 
         if (inTouch) {
-          print(plane.y);
-          plane.y -= 20.0;
-          tempPos = plane.y;
+          print(swimmer.y);
+          swimmer.y -= 20.0;
+          tempPos = swimmer.y;
           inTouch = false;
         }
       }

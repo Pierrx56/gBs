@@ -7,8 +7,10 @@ class WaterLine {}
 
 double balloonPosition = 0.1;
 double posX = 0;
+double posY = 0;
 int j = 0;
-int balloonSpeed = 1;
+int balloonSpeed = 2;
+int widthBalloon;
 List<String> balloonArray = ["plane/balloon-green.png", "plane/balloon-pink.png"];
 
 
@@ -21,9 +23,10 @@ class BottomBalloon {
 
     var rng = new Random();
     //Génération de ballon de couleur aléatoire
-    int number = rng.nextInt(2);
+    int number = rng.nextInt(balloonArray.length);
 
-    bottomBalloon = Sprite(balloonArray[number]);
+    bottomBalloon = new Sprite(balloonArray[number]);
+    widthBalloon = 30;//bottomBalloon.image.width;
 
     //width: 500
     //height: 300
@@ -34,15 +37,21 @@ class BottomBalloon {
   void render(Canvas c, bool pause, bool reset) {
 
     if(reset)
-      j = 50;
+      j = 10;
 
     c.translate(game.screenSize.width / 2, game.screenSize.height);
     c.translate(-game.screenSize.width / 2,
         -game.screenSize.height * (balloonPosition*2));
 
-    if (j >= game.screenSize.width) j = 0;
+    if (j >= game.screenSize.width) {
+      j = 0;
+      var rng = new Random();
+      //Génération de ballon de couleur aléatoire
+      int number = rng.nextInt(balloonArray.length);
 
-    c.translate(posX = game.screenSize.width - j.toDouble(), 0);
+      bottomBalloon = new Sprite(balloonArray[number]);
+    }
+    c.translate(posX = game.screenSize.width - widthBalloon - j.toDouble(), 0);
     j += balloonSpeed;
 
     if(pause)
@@ -50,7 +59,7 @@ class BottomBalloon {
 
     bottomBalloon.renderRect(c, rectBottom);
 
-    c.translate(-game.screenSize.width, 0);
+    c.translate(-game.screenSize.width - widthBalloon, 0);
 
     bottomBalloon.renderRect(c, rectBottom);
 
@@ -59,7 +68,8 @@ class BottomBalloon {
   }
 
   double getHeightBottomPosition() {
-    return game.screenSize.height * (balloonPosition*2);
+    posY = game.screenSize.height * (balloonPosition*2);
+    return posY;
   }
 
   double getWidthBottomPosition() {
@@ -78,9 +88,11 @@ class TopBalloon {
 
     var rng = new Random();
     //Génération de ballon de couleur aléatoire
-    int number = rng.nextInt(2);
+    int number = rng.nextInt(balloonArray.length);
 
-    topBalloon = Sprite(balloonArray[number]);
+    topBalloon = new Sprite(balloonArray[number]);
+
+    widthBalloon = 30;//topBalloon.image.width;
     //width: 500
     //height: 300
 
@@ -91,19 +103,26 @@ class TopBalloon {
   void render(Canvas c, bool pause, bool reset) {
 
     if(reset)
-      j = 50;
+      j = 10;
 
     c.translate(game.screenSize.width / 2, game.screenSize.height);
     c.translate(
         -game.screenSize.width / 2, -game.screenSize.height * (1 - balloonPosition));
 
-    if (j >= game.screenSize.width) j = 0;
+    if (j >= game.screenSize.width){
+      j = 0;
+      var rng = new Random();
+      //Génération de ballon de couleur aléatoire
+      int number = rng.nextInt(balloonArray.length);
+      topBalloon = new Sprite(balloonArray[number]);
+    }
+
     j += balloonSpeed;
 
     if(pause)
       j -= balloonSpeed;
 
-    c.translate( posX = game.screenSize.width - j.toDouble(), 0);
+    c.translate( posX = game.screenSize.width - widthBalloon - j.toDouble(), 0);
 
     topBalloon.renderRect(c, rectTop);
 
@@ -115,7 +134,9 @@ class TopBalloon {
   }
 
   double getHeightTopPosition() {
-    return game.screenSize.height * (1 - balloonPosition);
+    posY = game.screenSize.height * (1 - balloonPosition);
+    //print(posY);
+    return posY;
   }
 
   double getWidthTopPosition() {
