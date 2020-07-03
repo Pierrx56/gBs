@@ -379,6 +379,7 @@ public class MainActivity extends FlutterActivity {
             //m_BTdevice = mac;
         }
         else {
+            stopScanning();
             bluetoothGatt = m_BTdevice.connectGatt(this, false, btleGattCallback);
         }
         if(isConnected)
