@@ -130,7 +130,7 @@ class UIState extends State<UI> {
 
           if (everyScores.length == 0 && score != 0)
             db.addScore(newScore);
-          else {
+          else if (score != 0){
             //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
             for (int i = 0; i < everyScores.length; i++) {
               //On remplace la valeur dans la bdd

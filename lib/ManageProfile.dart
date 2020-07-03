@@ -187,8 +187,8 @@ class _ManageProfile extends State<ManageProfile> {
 
   void connect() async {
     btManage.enableBluetooth();
-    btManage.getPairedDevices("manageProfile");
-    btManage.connect("manageProfile");
+    //btManage.getPairedDevices("manageProfile");
+    btManage.connect(user.userMacAddress);
     isConnected = await btManage.getStatus();
     testConnect();
   }
@@ -198,7 +198,7 @@ class _ManageProfile extends State<ManageProfile> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
-        btManage.connect("manageProfile");
+        btManage.connect(user.userMacAddress);
         print("Status: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {
@@ -505,9 +505,9 @@ class _ManageProfile extends State<ManageProfile> {
                               : "Explications: mesures"),
                           RoundedProgressBar(
                             percent: (double.parse(btData)) >= 0
-                                ? (double.parse(btData) * 10)
+                                ? (double.parse(btData))
                                 : 0.0,
-                            style: double.parse(btData) > 10.0
+                            style: double.parse(btData) > 100.0
                                 ? colorProgressBar = RoundedProgressBarStyle(
                                     colorProgress: Colors.redAccent,
                                     colorProgressDark: Colors.red)
@@ -515,7 +515,7 @@ class _ManageProfile extends State<ManageProfile> {
                                     colorProgress: Colors.blueAccent,
                                     colorProgressDark: Colors.blue),
                             childCenter: Text(
-                              (double.parse(btData) * 10).toString(),
+                              (double.parse(btData)).toString(),
                             ),
                           ),
                           RaisedButton(
@@ -537,7 +537,7 @@ class _ManageProfile extends State<ManageProfile> {
                                                 .toStringAsFixed(2));
 
                                         i = 20;
-                                        if (result <= 5.0 || result >= 10.0) {
+                                        if (result <= 50.0 || result >= 100.0) {
                                           //Mesure pas bonne, réajuster la toise
                                           setState(() {
                                             recording = temp != null

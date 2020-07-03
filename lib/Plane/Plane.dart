@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/util.dart';
+import 'dart:math' as math;
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
@@ -36,7 +37,7 @@ class Plane extends StatefulWidget {
   _Plane createState() => new _Plane(user, appLanguage);
 }
 
-class _Plane extends State<Plane> {
+class _Plane extends State<Plane> with TickerProviderStateMixin {
   User user;
   AppLanguage appLanguage;
 
@@ -47,7 +48,9 @@ class _Plane extends State<Plane> {
   double coefKg = 0.45359237;
   double result;
   String recording;
+  String timeRemaining;
   Timer timer;
+  bool start;
   Timer timerConnexion;
   UI gameUI;
   int score;
@@ -60,12 +63,13 @@ class _Plane extends State<Plane> {
   @override
   void initState() {
     game = null;
-    if(user.userInitialPush != "0.0") {
+    if (user.userInitialPush != "0.0") {
       score = 0;
+      timeRemaining = "2:00";
+      start = false;
       isConnected = false;
       connect();
     }
-
 
     super.initState();
   }
@@ -81,8 +85,9 @@ class _Plane extends State<Plane> {
     WidgetsFlutterBinding.ensureInitialized();
 
     game = new PlaneGame(getData, user);
-    print(game);
-    gameUI = UI();
+    //Start timer of 2 minutes
+    startTimer(true);
+    gameUI = new UI();
     refreshScore();
     Util flameUtil = Util();
     flameUtil.fullScreen();
@@ -99,7 +104,7 @@ class _Plane extends State<Plane> {
   void connect() async {
     btManage.enableBluetooth();
     btManage.getPairedDevices("plane");
-    btManage.connect("plane");
+    btManage.connect(user.userMacAddress);
     isConnected = await btManage.getStatus();
     testConnect();
   }
@@ -109,7 +114,7 @@ class _Plane extends State<Plane> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
-        btManage.connect("plane");
+        btManage.connect(user.userMacAddress);
         print("Status: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {
@@ -132,7 +137,11 @@ class _Plane extends State<Plane> {
   }
 
   void setData() async {
-    btData = await btManage.getData();
+    var temp = await btManage.getStatus();
+    if (!temp)
+      btData = "-1.0";
+    else
+      btData = await btManage.getData();
   }
 
   double getData() {
@@ -140,8 +149,12 @@ class _Plane extends State<Plane> {
 
     if (btData != null)
       return double.parse(btData);
-    else
+    else if (btData == "-1.0")
+      return -1.0;
+    else {
+      //print("salut");
       return 2.0;
+    }
   }
 
   refreshScore() async {
@@ -154,6 +167,42 @@ class _Plane extends State<Plane> {
         }
       }
     });
+  }
+
+  void startTimer(bool boolean) async {
+    Timer _timer;
+    int _start = 120;
+    const int delay = 1;
+
+    if (!isConnected)
+      ;
+    else if (!boolean) {
+      _start = 120;
+    } else {
+      const time = const Duration(seconds: delay);
+      _timer = new Timer.periodic(
+        time,
+        (Timer timer) {
+          if (_start < delay.toDouble()) {
+            //TODO Display menu ?
+            timer.cancel();
+          } else if (!game.getConnectionState())
+            timer.cancel();
+          else {
+            _start -= delay;
+            timeRemaining = convertDuration(Duration(seconds: _start));
+          }
+        },
+      );
+    }
+  }
+
+  String convertDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    /*${twoDigits(duration.inHours)}:*/
+    return "$twoDigitMinutes:$twoDigitSeconds";
   }
 
   @override
@@ -172,10 +221,11 @@ class _Plane extends State<Plane> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       CircularProgressIndicator(),
-                      user.userInitialPush == "0.0" ?
-                      Text("Veuillez enregister la première poussée dans le menu précédent"):
-                      Text("Chargement du jeu en cours... \n"
-                          "Assurez vous que le gBs est alimenté"),
+                      user.userInitialPush == "0.0"
+                          ? Text(
+                              "Veuillez enregister la première poussée dans le menu précédent")
+                          : Text("Chargement du jeu en cours... \n"
+                              "Assurez vous que le gBs est alimenté"),
                       RaisedButton(
                         onPressed: () {
                           Navigator.pushReplacement(
@@ -256,6 +306,22 @@ class _Plane extends State<Plane> {
                     ? gameUI.state.displayMessage("Game Over")
                     : Container()
                 : Container(),
+          ),
+          //Display message Lost connexion
+          Container(
+            alignment: Alignment.center,
+            child: game != null
+                ? !game.getConnectionState()
+                    ? gameUI.state.displayMessage("Connexion perdue !")
+                    : Container()
+                : Container(),
+          ),
+          //Display timer
+          Container(
+            alignment: Alignment.bottomRight,
+            child: game != null
+                    ? gameUI.state.displayMessage(timeRemaining)
+                    : Container()
           ),
         ],
       ),

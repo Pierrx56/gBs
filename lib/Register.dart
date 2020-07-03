@@ -105,8 +105,8 @@ class _Register extends State<Register> {
 
   void connect() async {
     btManage.enableBluetooth();
-    btManage.getPairedDevices("register");
-    btManage.connect("register");
+    //btManage.getPairedDevices("register");
+    btManage.connect(macAddress);
     isConnected = await btManage.getStatus();
     testConnect();
   }
@@ -116,7 +116,7 @@ class _Register extends State<Register> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
-        btManage.connect("register");
+        btManage.connect(macAddress);
         print("Status: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {
@@ -314,79 +314,100 @@ class _Register extends State<Register> {
         ]),
       ),
       Step(
-          title: Text(AppLocalizations.of(context).translate('connecter_app')),
-          isActive: currentStep > 5,
-          state: currentStep > 5 ? StepState.complete : StepState.disabled,
-          content: Column(children: <Widget>[
+        title: Text(AppLocalizations.of(context).translate('connecter_app')),
+        isActive: currentStep > 5,
+        state: currentStep > 5 ? StepState.complete : StepState.disabled,
+        content: Column(
+          children: <Widget>[
             RaisedButton(
               child: Text(discovering),
               onPressed: !isFound
                   ? () async {
                       btManage.enableBluetooth();
-                      macAddress = await btManage
-                          .getPairedDevices("register");
+                      macAddress = await btManage.getPairedDevices("register");
 
                       print(
                           "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
-                      if (macAddress != null) {
-                        //Appareil trouvé
-                        setState(() {
-                          discovering = AppLocalizations.of(context)
-                              .translate('app_trouve');
-                          isFound = true;
-                        });
-                      } else {
-                        setState(() {
+
+                      int tempTimer = 0;
+                      //Check tant que l'adresse mac est égale à -1 toute les secondes
+                      //Si pas trouve au bout de 30 secondes, affiche message d'erreur
+                      Timer.periodic(const Duration(seconds: 1), (timer) async {
+                        if (macAddress != "-1") {
+                          timer.cancel();
+                          print("SAlut");
+                          //Appareil trouvé
+                          setState(() {
+                            discovering = AppLocalizations.of(context)
+                                .translate('app_trouve');
+                            isFound = true;
+                          });
+                        } else if(macAddress == "-1"){
+                          macAddress = await btManage.getMacAddress();
+                          setState(() {
+                            discovering = AppLocalizations.of(context)
+                                .translate('recherche_app');
+                            isFound = false;
+                          });
+                        }
+                        else if(tempTimer >= 30){
                           discovering = AppLocalizations.of(context)
                               .translate('app_non_trouve');
                           isFound = false;
-                        });
-                      }
+                        }
+                        tempTimer++;
+                      });
                     }
                   : null,
             ),
             RaisedButton(
               child: Text(statusBT),
-              onPressed: isFound
-                  ? () async {
-                      //final macAddress = btManage.createState().macAdress;
+              onPressed: statusBT !=
+                      AppLocalizations.of(context)
+                          .translate('status_connexion_bon')
+                  ? isFound
+                      ? () async {
+                          //final macAddress = btManage.createState().macAdress;
 
-                      //final macAddress = await Navigator.push(
-                      //    context,
-                      //    MaterialPageRoute(
-                      //        builder: (context) =>
-                      //            /*BluetoothSync(
-                      //              curUser: null,
-                      //              inputMessage: "inscription",
-                      //              appLanguage: appLanguage,
-                      //            )*/
-                      //            BluetoothManager(
-                      //                user: null,
-                      //                inputMessage: "inscription",
-                      //                appLanguage: appLanguage)));
+                          //final macAddress = await Navigator.push(
+                          //    context,
+                          //    MaterialPageRoute(
+                          //        builder: (context) =>
+                          //            /*BluetoothSync(
+                          //              curUser: null,
+                          //              inputMessage: "inscription",
+                          //              appLanguage: appLanguage,
+                          //            )*/
+                          //            BluetoothManager(
+                          //                user: null,
+                          //                inputMessage: "inscription",
+                          //                appLanguage: appLanguage)));
 
-                      //updateMacAddress(macAddress);
-                      connect();
+                          //updateMacAddress(macAddress);
+                          connect();
 
-                      Timer.periodic(const Duration(seconds: 1), (timer) {
-                        if (isConnected) {
-                          timer.cancel();
-                          setState(() {
-                            statusBT = AppLocalizations.of(context)
-                                .translate('status_connexion_bon');
-                          });
-                        } else {
-                          setState(() {
-                            statusBT = AppLocalizations.of(context)
-                                .translate('connection_en_cours');
+                          Timer.periodic(const Duration(seconds: 1), (timer) {
+                            if (isConnected) {
+                              timer.cancel();
+                              setState(() {
+                                statusBT = AppLocalizations.of(context)
+                                    .translate('status_connexion_bon');
+                              });
+                            } else {
+                              setState(() {
+                                statusBT = AppLocalizations.of(context)
+                                    .translate('connection_en_cours');
+                              });
+                            }
                           });
                         }
-                      });
-                    }
+                      : null
                   : null,
               textColor: colorButton,
             ),
-          ])),
+          ],
+        ),
+      ),
       Step(
           title: Text(AppLocalizations.of(context).translate('recap')),
           isActive: currentStep > 6,

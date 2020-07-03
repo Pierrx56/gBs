@@ -63,7 +63,7 @@ class _Swimmer extends State<Swimmer> {
   @override
   void initState() {
     //myGame = GameWrapper(game);
-    if(user.userInitialPush != "0.0") {
+    if (user.userInitialPush != "0.0") {
       gameUI = UI();
       score = 0;
       isConnected = false;
@@ -100,30 +100,30 @@ class _Swimmer extends State<Swimmer> {
 
   bool isDisconnecting = false;
 
-  void connect() async{
+  void connect() async {
     btManage.enableBluetooth();
-    btManage.getPairedDevices("swimmer");
-    btManage.connect("swimmer");
+    //btManage.getPairedDevices("swimmer");
+    btManage.connect(user.userMacAddress);
     isConnected = await btManage.getStatus();
     testConnect();
   }
 
-
   testConnect() async {
     isConnected = await btManage.getStatus();
     if (!isConnected) {
-      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500), (timerConnexion) async {
-            btManage.connect("swimmer");
-            print("Status: $isConnected");
-            isConnected = await btManage.getStatus();
-            if(isConnected) {
-              timerConnexion.cancel();
-              initSwimmer();
-              //refreshScore();
-            }
+      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
+          (timerConnexion) async {
+        btManage.connect(user.userMacAddress);
+        print("Status: $isConnected");
+        isConnected = await btManage.getStatus();
+        if (isConnected) {
+          timerConnexion.cancel();
+          initSwimmer();
+          //refreshScore();
+        }
       });
     }
-    if(isConnected) {
+    if (isConnected) {
       initSwimmer();
       //refreshScore();
     }
@@ -137,7 +137,11 @@ class _Swimmer extends State<Swimmer> {
   }
 
   void setData() async {
-    btData = await btManage.getData();
+    var temp = await btManage.getStatus();
+    if (!temp)
+      btData = "-1.0";
+    else
+      btData = await btManage.getData();
   }
 
   double getData() {
@@ -145,10 +149,13 @@ class _Swimmer extends State<Swimmer> {
 
     if (btData != null)
       return double.parse(btData);
-    else
+    else if (btData == "-1.0")
+      return -1.0;
+    else {
+      //print("salut");
       return 2.0;
+    }
   }
-
 
   refreshScore() async {
     timer = new Timer.periodic(Duration(milliseconds: 300), (timer) {
@@ -181,21 +188,22 @@ class _Swimmer extends State<Swimmer> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       CircularProgressIndicator(),
-                      user.userInitialPush == "0.0" ?
-                      Text("Veuillez enregister la première poussée dans le menu précédent"):
-                      Text("Chargement du jeu en cours... \n"
-                          "Assurez vous que le gBs est alimenté"),
+                      user.userInitialPush == "0.0"
+                          ? Text(
+                              "Veuillez enregister la première poussée dans le menu précédent")
+                          : Text("Chargement du jeu en cours... \n"
+                              "Assurez vous que le gBs est alimenté"),
                       RaisedButton(
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => LoadPage(
-                                  appLanguage: appLanguage,
-                                  user: user,
-                                  messageIn: "0",
-                                  page: "mainTitle",
-                                )),
+                                      appLanguage: appLanguage,
+                                      user: user,
+                                      messageIn: "0",
+                                      page: "mainTitle",
+                                    )),
                           );
                         },
                         child: Text("Retour"),
@@ -263,6 +271,15 @@ class _Swimmer extends State<Swimmer> {
             child: game != null
                 ? game.getGameOver()
                     ? gameUI.state.displayMessage("Game Over")
+                    : Container()
+                : Container(),
+          ),
+          //Display message Lost connexion
+          Container(
+            alignment: Alignment.center,
+            child: game != null
+                ? !game.getConnectionState()
+                    ? gameUI.state.displayMessage("Connexion perdue !")
                     : Container()
                 : Container(),
           ),

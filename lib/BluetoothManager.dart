@@ -82,6 +82,7 @@ class BluetoothManager {
       final String paired =
       await sensorChannel.invokeMethod('getPairedDevices');
       pairedDevices = 'Devices paired: $paired.';
+      print(pairedDevices);
       macAdress = paired;
     } on PlatformException {
       pairedDevices = 'Failed to get paired devices.';
@@ -98,12 +99,21 @@ class BluetoothManager {
     return isConnected;
   }
 
+  //Fonction qui récupère l'adresse mac
+  //Retourne l'adresse mac
+  Future<String> getMacAddress() async{
+    macAdress = await sensorChannel.invokeMethod('getMacAddress');
+    return macAdress;
+  }
+
   //Fonction pour se connecter au gBs
   Future<bool> connect(String origin) async {
     String connectStatus;
     bool result;
     try {
-      sensorChannel.invokeMethod('connect');
+      //Origin = adresse mac
+      //TODO modifier la fonction sous mac swift
+      sensorChannel.invokeMethod('connect,$origin');
       result = await sensorChannel.invokeMethod('getStatus');
       connectStatus = 'Connection status: $result.';
       isConnected = true;
@@ -163,7 +173,7 @@ class BluetoothManager {
 
 
       //TODO à voir si cette condition est tjrs utile
-      else {
+      else  if(origin == "a"){
         //Insertion dans l'adresse MAC dans la BDD
         User updatedUser = User(
           userId: user.userId,

@@ -67,12 +67,12 @@ class BottomBalloon {
     c.restore();
   }
 
-  double getHeightBottomPosition() {
+  double getYBottomPosition() {
     posY = game.screenSize.height * (balloonPosition*2);
     return posY;
   }
 
-  double getWidthBottomPosition() {
+  double getXBottomPosition() {
     return posX;
   }
 
@@ -133,13 +133,13 @@ class TopBalloon {
     c.restore();
   }
 
-  double getHeightTopPosition() {
+  double getYTopPosition() {
     posY = game.screenSize.height * (1 - balloonPosition);
     //print(posY);
     return posY;
   }
 
-  double getWidthTopPosition() {
+  double getXTopPosition() {
     return posX;
   }
 

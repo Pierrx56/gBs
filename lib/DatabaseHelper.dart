@@ -255,7 +255,7 @@ class DatabaseHelper {
 
     // Convert the List<Map<String, dynamic> into a List<Score>.
     List<Score> score = List.generate(maps.length, (i) {
-      print(maps[i]);
+      //maps[i]);
 
       return Score(
         scoreId: maps[i][KEY_SCORE_ID],

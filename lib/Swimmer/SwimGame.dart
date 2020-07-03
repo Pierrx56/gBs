@@ -22,6 +22,7 @@ class SwimGame extends Game {
   bool redFilter;
   bool start;
   bool gameOver;
+  bool isConnected;
 
   int score = 0;
   bool pauseGame = false;
@@ -85,6 +86,7 @@ class SwimGame extends Game {
     position = false;
     posMax = false;
     gameOver = false;
+    isConnected = true;
     start = false;
     redFilter = false;
     posBottomLine = bottomLine.getDownPosition();
@@ -118,40 +120,42 @@ class SwimGame extends Game {
       canvas.save();
 
       if (!gameOver) {
-        //Ligne basse
-        if (bottomLine != null) bottomLine.render(canvas, pauseGame);
+        if (isConnected) {
+          //Ligne basse
+          if (bottomLine != null) bottomLine.render(canvas, pauseGame);
 
-        //Ligne haute
-        if (topLine != null) topLine.render(canvas);
+          //Ligne haute
+          if (topLine != null) topLine.render(canvas);
 
-        //Nageur
-        if (swimmer != null) {
-          swimmer.render(canvas);
+          //Nageur
+          if (swimmer != null) {
+            swimmer.render(canvas);
 
-          pos = swimmer.y + swimmer.height / 2;
-          //print("Position joueur: " + tempPos.toString());
-        }
-
-        if (pos < bottomLine.getDownPosition()) {
-          //TODO Conditions de défaite, début d'un timer
-          //print("Attention au bord bas !");
-          //setColorFilter(true);
-          position = true;
-          //Rentre une fois dans la timer
-          if (!start) {
-            startTimer(start = true);
+            pos = swimmer.y + swimmer.height / 2;
+            //print("Position joueur: " + tempPos.toString());
           }
-        } else if (pos > topLine.getUpPosition()) {
-          //TODO Conditions de défaite, début d'un timer
-          //print("Attention au bord haut !");
-          //setColorFilter(true);
-          position = false;
-          if (!start) {
-            startTimer(start = true);
+
+          if (pos < bottomLine.getDownPosition()) {
+            //TODO Conditions de défaite, début d'un timer
+            //print("Attention au bord bas !");
+            //setColorFilter(true);
+            position = true;
+            //Rentre une fois dans la timer
+            if (!start) {
+              startTimer(start = true);
+            }
+          } else if (pos > topLine.getUpPosition()) {
+            //TODO Conditions de défaite, début d'un timer
+            //print("Attention au bord haut !");
+            //setColorFilter(true);
+            position = false;
+            if (!start) {
+              startTimer(start = true);
+            }
+          } else {
+            setColorFilter(false);
+            startTimer(start = false);
           }
-        } else {
-          setColorFilter(false);
-          startTimer(start = false);
         }
       }
     }
@@ -162,73 +166,79 @@ class SwimGame extends Game {
     scoreTimer += t;
 
     if (!gameOver) {
-      //Timer
-      if (creationTimer >= 0.04) {
-        if (i == tab.length - 1)
-          i = 0;
-        else
-          i++;
+      if (getData() != -1.0)
+        isConnected = true;
+      else
+        //TODO avertir la perte du bluetooth
+        isConnected = false;
 
-        if(pauseGame)
-          i--;
+      if (isConnected) {
+        //Timer
+        if (creationTimer >= 0.04) {
+          if (i == tab.length - 1)
+            i = 0;
+          else
+            i++;
 
-        swimmerPic = tab[i];
+          if (pauseGame) i--;
 
-        creationTimer = 0.0;
+          swimmerPic = tab[i];
 
-        Sprite sprite = Sprite(swimmerPic);
+          creationTimer = 0.0;
 
-        swimmer = SpriteComponent.fromSprite(
-            size, size, sprite); // width, height, sprite
+          Sprite sprite = Sprite(swimmerPic);
 
-        swimmer.x = screenSize.width / 2 - swimmer.width / 2;
-        //Définition des bords haut et bas de l'écran
+          swimmer = SpriteComponent.fromSprite(
+              size, size, sprite); // width, height, sprite
 
-        //Bas
-        if (tempPos >= screenSize.height - (size/2)) {
-          swimmer.y = tempPos;
+          swimmer.x = screenSize.width / 2 - swimmer.width / 2;
+          //Définition des bords haut et bas de l'écran
+
+          //Bas
+          if (tempPos >= screenSize.height - (size / 2)) {
+            swimmer.y = tempPos;
+          }
+          //Haut
+          else if (tempPos <= -(size / 2) &&
+              getData() > double.parse(user.userInitialPush)) {
+            tempPos = -(size / 2);
+            swimmer.y = tempPos;
+            posMax = true;
+          }
+          //Sinon on fait descendre le nageur
+          else if (!posMax) {
+            swimmer.y += tempPos;
+            tempPos = swimmer.y + difficulte * 2.0;
+            if (pauseGame) tempPos = swimmer.y;
+          } else
+            posMax = false;
+
+          //component = new Component(dimensions);
+          //add(component);
         }
-        //Haut
-        else if (tempPos <= -(size/2) && getData() > double.parse(user.userInitialPush)) {
-          tempPos = -(size/2);
-          swimmer.y = tempPos;
-          posMax = true;
-        }
-        //Sinon on fait descendre le nageur
-        else if(!posMax) {
-          swimmer.y += tempPos;
-          tempPos = swimmer.y + difficulte * 2.0;
-          if(pauseGame)
+
+        //On incrémente le score tous les x secondes
+        if (!pauseGame) {
+          if (scoreTimer >= 0.5) {
+            score++;
+            scoreTimer = 0.0;
+          }
+
+          //getData = données reçues par le Bluetooth
+          //Montée du nageur
+          if (getData() > double.parse(user.userInitialPush) && !posMax) {
+            //print(swimmer.y);
+            swimmer.y -= difficulte;
             tempPos = swimmer.y;
-        }
-        else
-          posMax = false;
+            inTouch = false;
+          }
 
-        //component = new Component(dimensions);
-        //add(component);
-      }
-
-      //On incrémente le score tous les x secondes
-      if(!pauseGame){
-        if (scoreTimer >= 0.5) {
-          score++;
-          scoreTimer = 0.0;
-        }
-
-        //getData = données reçues par le Bluetooth
-        //Montée du nageur
-        if (getData() > double.parse(user.userInitialPush) && !posMax) {
-          //print(swimmer.y);
-          swimmer.y -= difficulte;
-          tempPos = swimmer.y;
-          inTouch = false;
-        }
-
-        if (inTouch) {
-          print(swimmer.y);
-          swimmer.y -= 20.0;
-          tempPos = swimmer.y;
-          inTouch = false;
+          if (inTouch) {
+            print(swimmer.y);
+            swimmer.y -= 20.0;
+            tempPos = swimmer.y;
+            inTouch = false;
+          }
         }
       }
     }
@@ -260,22 +270,25 @@ class SwimGame extends Game {
   }
 
   ColorFilter getColorFilter() {
-    if (redFilter){
+    if (redFilter) {
       return ColorFilter.mode(Colors.redAccent, BlendMode.hue);
-    }
-    else
+    } else
       return ColorFilter.mode(Colors.transparent, BlendMode.luminosity);
   }
 
-  bool getColorFilterBool(){
+  bool getColorFilterBool() {
     return redFilter;
   }
 
-  bool getGameOver(){
+  bool getGameOver() {
     return gameOver;
   }
 
-  bool getPosition(){
+  bool getConnectionState() {
+    return isConnected;
+  }
+
+  bool getPosition() {
     //True: position haut
     //False: position basse
     return position;
@@ -285,7 +298,8 @@ class SwimGame extends Game {
     Timer _timer;
     double _start = 5.0;
 
-    if (!boolean) {
+    if(!isConnected);
+    else if (!boolean) {
       _start = 5.0;
       start = false;
     } else {
@@ -298,15 +312,21 @@ class SwimGame extends Game {
             timer.cancel();
             return;
           }
-          if (_start < 0.5) {
-            //TODO Display menu ?
-            setColorFilter(true);
+          if(isConnected) {
+            if (_start < 0.5) {
+              //TODO Display menu ?
+              setColorFilter(true);
+              timer.cancel();
+              gameOver = true;
+            } else {
+              setColorFilter(!redFilter);
+              _start = _start - 0.5;
+              print(_start);
+            }
+          }
+          else{
+            setColorFilter(false);
             timer.cancel();
-            gameOver = true;
-          } else {
-            setColorFilter(!redFilter);
-            _start = _start - 0.5;
-            print(_start);
           }
         },
       );

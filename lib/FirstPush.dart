@@ -195,7 +195,7 @@ class _FirstPush extends State<FirstPush> {
             children: <Widget>[
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
+                children: <Widget>[/*
                   RaisedButton(
                     onPressed: statusBT !=
                             AppLocalizations.of(context)
@@ -220,7 +220,7 @@ class _FirstPush extends State<FirstPush> {
                           }
                         : null,
                     child: Text(statusBT),
-                  ),
+                  ),*/
                   Column(
                     children: <Widget>[
                       Text(AppLocalizations.of(context)
@@ -243,7 +243,7 @@ class _FirstPush extends State<FirstPush> {
                                             .toStringAsFixed(2));
                                     print(result.toStringAsFixed(2));
                                     i = 20;
-                                    if (result <= 5.0 || result >= 10.0) {
+                                    if (result <= 50.0 || result >= 100.0) {
                                       //Mesure pas bonne, réajuster la toise
                                       setState(() {
                                         recording = AppLocalizations.of(context)
@@ -276,7 +276,7 @@ class _FirstPush extends State<FirstPush> {
                                     i--;
                                     getData();
                                     average[i] = double.parse(btData);
-                                    if (average[i] > 10.0) {
+                                    if (average[i] > 100.0) {
                                       setState(() {
                                         colorProgressBar =
                                             RoundedProgressBarTheme.red;
@@ -297,11 +297,11 @@ class _FirstPush extends State<FirstPush> {
                           child: Text(recording)),
                       RoundedProgressBar(
                           percent: (double.parse(btData)) >= 0
-                              ? (double.parse(btData) * 10)
+                              ? (double.parse(btData))
                               : 0.0,
                           theme: colorProgressBar,
                           childCenter:
-                              Text((double.parse(btData) * 10).toString())),
+                              Text((double.parse(btData)).toString())),
                     ],
                   ),
 

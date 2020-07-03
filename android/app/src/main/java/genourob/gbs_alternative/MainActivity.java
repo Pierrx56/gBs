@@ -1,5 +1,7 @@
 package genourob.gbs_alternative;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -9,7 +11,13 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.util.Log;
 import java.util.*;
 
@@ -26,7 +34,9 @@ import android.os.BatteryManager;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -40,7 +50,6 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugins.GeneratedPluginRegistrant;
 
 public class MainActivity extends FlutterActivity {
 
@@ -58,6 +67,8 @@ public class MainActivity extends FlutterActivity {
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
 
+    private final static int REQUEST_ENABLE_BT = 1;
+    private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
     String TAG = "BluetoothClass";
     String NAME_DEVICE = "gBs_Bluetooth";
@@ -70,15 +81,53 @@ public class MainActivity extends FlutterActivity {
     UUID serviceUUID = UUID.fromString("0000dfb0-0000-1000-8000-00805f9b34fb");
     UUID characteristicUUID = UUID.fromString("0000dfb1-0000-1000-8000-00805f9b34fb");
 
+    BluetoothManager btManager;
     BluetoothDevice m_BTdevice;
-    BluetoothDevice mBluetoothAdapter;
     BluetoothGatt bluetoothGatt;
-    private BluetoothGattCallback nativeCallback;
+    BluetoothLeScanner btScanner;
+    BluetoothAdapter btAdapter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+
+        btManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+        btAdapter = btManager.getAdapter();
+        btScanner = btAdapter.getBluetoothLeScanner();
+
+
+        if (btAdapter != null && !btAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent,REQUEST_ENABLE_BT);
+        }
+
+        // Make sure we have access coarse location enabled, if not, prompt the user to enable it
+        if (VERSION.SDK_INT >= VERSION_CODES.M) {
+            if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("This app needs location access");
+                builder.setMessage("Please grant location access so this app can detect peripherals.");
+                builder.setPositiveButton(android.R.string.ok, null);
+                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
+                    }
+                });
+                builder.show();
+            }
+        }
+    }
+
 
     @Override
     public void onDestroy() {
-        unregisterReceiver(mReceiver);
-
+        //unregisterReceiver(mReceiver);
+/*
+        btManager = null;
+        btAdapter = null;
+        btScanner = null;
+        isConnected = false;*/
         super.onDestroy();
     }
 
@@ -90,13 +139,17 @@ public class MainActivity extends FlutterActivity {
                     @Override
                     public void onMethodCall(MethodCall call, Result result) {
 
-                        if (call.method.equals("connect")) {
-                            String status = connect();
+                        if (call.method.contains("connect")) {
+
+                            String[] mac = call.method.split(",");
+
+                            String status = connect(mac[1]);
 
                             if (status == "Connected") {
                                 result.success(status);
                             } else {
-                                result.error("UNAVAILABLE", "Can not connect", null);
+                                result.success("Not connected");
+                                //result.error("UNAVAILABLE", "Can not connect", null);
                             }
                         }
                         if (call.method.equals("getStatus")) {
@@ -123,6 +176,15 @@ public class MainActivity extends FlutterActivity {
 
                             if (devices != "") {
                                 result.success(devices);
+                            } else {
+                                result.error("UNAVAILABLE", "Battery level not available.", null);
+                            }
+                        }
+                        if (call.method.equals("getMacAddress")) {
+                            String mac = getMacAddress();
+
+                            if (mac != "") {
+                                result.success(mac);
                             } else {
                                 result.error("UNAVAILABLE", "Battery level not available.", null);
                             }
@@ -161,8 +223,7 @@ public class MainActivity extends FlutterActivity {
                     intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         }
     }
-
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
@@ -174,54 +235,85 @@ public class MainActivity extends FlutterActivity {
                 //bluetooth device found
                 BluetoothDevice tempDevice = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 System.out.println(tempDevice.getName());
-                if(tempDevice.getName().equals(NAME_DEVICE))
+                if (tempDevice.getName().equals(NAME_DEVICE))
                     m_BTdevice = tempDevice;
-                    macAdress = m_BTdevice.getAddress();
+                macAdress = m_BTdevice.getAddress();
             }
         }
     };
 
-    private String getPairedDevices() {
-
-        BluetoothAdapter m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        Set<BluetoothDevice> pairedDevices = m_BluetoothAdapter.getBondedDevices();
-
-        /*IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        filter.addAction(BluetoothDevice.ACTION_FOUND);
-
-        registerReceiver(mReceiver, filter);
-
-        if (m_BluetoothAdapter.isDiscovering()) {
-            m_BluetoothAdapter.cancelDiscovery();
-        }
-
-        m_BluetoothAdapter.startDiscovery();
-*/
-
-
-        int response = 0;
-        if (pairedDevices.size() > 0) {
-
-
-            for (BluetoothDevice device : pairedDevices) {
-
-                Log.v(TAG, "paired = " + device.getName());
-                Log.v(TAG, "paired MAC = " + device.getAddress());
-
-                if (device.getName().equals(NAME_DEVICE)) {
-                    macAdress = device.getAddress();
-                    Log.d(TAG, "FIND ARDUINO");
-                    m_BTdevice = device;
-                    response = 1;
-                }
-            }
-        }
+    private String getMacAddress(){
         return macAdress;
     }
+
+    private void setMacAddress(String _macAddress){
+        macAdress = _macAddress;
+    }
+
+    private String getPairedDevices() {
+
+        startScanning();
+
+        macAdress = getMacAddress();
+
+        if(macAdress == "")
+            macAdress = "-1";
+
+        //Set<BluetoothDevice> pairedDevices = m_BluetoothAdapter.getBondedDevices();
+        int response = 0;
+
+
+        return macAdress;
+    }
+
+    public void startScanning() {
+        System.out.println("start scanning");
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                btScanner.startScan(leScanCallback);
+            }
+        });
+    }
+    public void stopScanning() {
+        System.out.println("stopping scanning");
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                btScanner.stopScan(leScanCallback);
+            }
+        });
+    }
+
+    // Device scan callback.
+    private ScanCallback leScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            //peripheralTextView.append("Device Name: " + result.getDevice().getName() + " rssi: " + result.getRssi() + "\n");
+
+            if(result.getDevice().getName() != null) {
+                System.out.println(result.getDevice().getName());
+                if (macAdress != null){
+                    System.out.println(result.getDevice().getAddress());
+                    if(result.getDevice().getAddress().contains(macAdress)){
+                        m_BTdevice = result.getDevice();
+                        stopScanning();
+                    }
+                }
+                else if (result.getDevice().getName().contains(NAME_DEVICE)) {
+                    setMacAddress(result.getDevice().getAddress());
+                    m_BTdevice = result.getDevice();
+                    stopScanning();
+                }
+            }
+
+            // auto scroll for text view
+            //final int scrollAmount = peripheralTextView.getLayout().getLineTop(peripheralTextView.getLineCount()) - peripheralTextView.getHeight();
+            // if there is no need to scroll, scrollAmount will be <=0
+            //if (scrollAmount > 0)
+            //    peripheralTextView.scrollTo(0, scrollAmount);
+        }
+    };
 
     // New services discovered
     public String onServicesDiscovered(BluetoothGatt gatt, int status) {
@@ -260,7 +352,7 @@ public class MainActivity extends FlutterActivity {
         }
         /*get the read characteristic from the service*/
         BluetoothGattCharacteristic mReadCharacteristic = mCustomService.getCharacteristic(characteristicUUID);
-        if (bluetoothGatt.readCharacteristic(mReadCharacteristic) == false) {
+        if (!bluetoothGatt.readCharacteristic(mReadCharacteristic)) {
             Log.w(TAG, "Failed to read characteristic");
         }
     }
@@ -277,13 +369,19 @@ public class MainActivity extends FlutterActivity {
         return isConnected;
     }
 
-    public String connect() {
+    public String connect(String mac) {
 
-        //String address = getPairedDevices();
+        macAdress = mac;
 
-        bluetoothGatt = m_BTdevice.connectGatt(this, false, btleGattCallback);
-
-        if(isConnected != true)
+        //Si null, on recherche l'adresse mac et on se connecte
+        if(m_BTdevice == null){
+            startScanning();
+            //m_BTdevice = mac;
+        }
+        else {
+            bluetoothGatt = m_BTdevice.connectGatt(this, false, btleGattCallback);
+        }
+        if(isConnected)
             return "Connected";
         else {
             //connect();
