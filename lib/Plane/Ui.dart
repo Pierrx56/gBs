@@ -134,7 +134,7 @@ class UIState extends State<UI> {
             //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
             for (int i = 0; i < everyScores.length; i++) {
               //On remplace la valeur dans la bdd
-              print(everyScores[i].scoreId);
+              //print(everyScores[i].scoreId);
               if (everyScores[i].date == date && score > everyScores[i].score)
                 db.updateScore(Score(
                     scoreId: everyScores[i].scoreId,

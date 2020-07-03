@@ -46,14 +46,16 @@ class _LoadPage extends State<LoadPage> {
   _LoadPage({this.appLanguage, this.page, this.user, this.messageIn});
 
 
-  @override
+/*  @override
   void dispose() {
     // TODO: implement dispose
+
     super.dispose();
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
+
     return ChangeNotifierProvider.value(
       value: appLanguage,
       child: Consumer<AppLanguage>(builder: (context, model, child) {

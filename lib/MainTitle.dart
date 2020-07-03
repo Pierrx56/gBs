@@ -163,7 +163,19 @@ class _MainTitle extends State<MainTitle> {
               ),
               splashColor: Colors.blue,
               onPressed: () {
-                db.deleteScore(user.userId);
+                //db.deleteScore(user.userId);
+
+                db.updateUser(
+                  User(
+                      userHeightBottom: user.userHeightBottom,
+                      userHeightTop: user.userHeightTop,
+                      userId: user.userId,
+                      userInitialPush: "0.0",
+                      userMacAddress: user.userMacAddress,
+                      userMode: user.userMode,
+                      userName: user.userName,
+                      userPic: user.userPic),
+                );
 
                 Score newScore = Score(
                     scoreId: null,
@@ -190,10 +202,11 @@ class _MainTitle extends State<MainTitle> {
                     scoreValue: 135,
                     scoreDate: "04-06-2020");
 
-                db.addScore(newScore);
-                db.addScore(newScore1);
-                db.addScore(newScore2);
-                db.addScore(newScore3);
+                //db.addScore(newScore);
+                //db.addScore(newScore1);
+                //db.addScore(newScore2);
+                //db.addScore(newScore3);
+                //setState(() {});
               },
             ),
             FlatButton.icon(
@@ -657,9 +670,11 @@ class _MainTitle extends State<MainTitle> {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    //Size screenSize = MediaQuery.of(context).size;
 
-    void _onItemTapped(int index) {
+    Future<void> _onItemTapped(int index) async {
+
+      user = await db.getUser(user.userId);
       setState(() {
         _selectedIndex = index;
 
@@ -714,6 +729,7 @@ class _MainTitle extends State<MainTitle> {
         child: Scaffold(
           bottomNavigationBar: new BottomNavigationBar(
             items: user.userInitialPush == "0.0"
+                //Si la poussée initiale n'a pas été enregistrée
                 ? <BottomNavigationBarItem>[
                     BottomNavigationBarItem(
                       icon: Icon(
@@ -737,6 +753,7 @@ class _MainTitle extends State<MainTitle> {
                           .translate('premiere_poussee')),
                     ),
                   ]
+                //Sinon on affiche que 2 boutons
                 : <BottomNavigationBarItem>[
                     BottomNavigationBarItem(
                       icon: Icon(

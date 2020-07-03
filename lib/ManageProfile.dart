@@ -55,12 +55,12 @@ class _ManageProfile extends State<ManageProfile> {
   Timer timerConnexion;
   double _start = 10.0;
   static double _reset = 10.0;
-  int i = 20;
-  List<double> average = new List(2 * _reset.toInt());
+  int i = 100;
+  List<double> average = new List(10 * _reset.toInt());
   RoundedProgressBarStyle colorProgressBar = RoundedProgressBarStyle(
       colorProgress: Colors.blueAccent, colorProgressDark: Colors.blue);
   double delta = 102.0;
-  double coefKg = 0.45359237;
+  double coefProgressBar = 2.0;
   double result;
   double tempResult;
   String recording;
@@ -520,15 +520,18 @@ class _ManageProfile extends State<ManageProfile> {
                           ),
                           RaisedButton(
                               //child: Text("Démarrer l'enregistrement."),
-                              onPressed: () async {
+                              onPressed: recording != AppLocalizations.of(
+                                  this.context)
+                                  .translate(
+                                  'status_mesure_bon') ? () async {
                                 colorMesureButton = Colors.black;
                                 const oneSec =
-                                    const Duration(milliseconds: 500);
+                                    const Duration(milliseconds: 100);
                                 new Timer.periodic(
                                   oneSec,
                                   (Timer timer) => setState(
                                     () {
-                                      if (_start < 0.5) {
+                                      if (_start < 0.1) {
                                         timer.cancel();
                                         _start = _reset;
                                         result = double.parse(
@@ -536,7 +539,7 @@ class _ManageProfile extends State<ManageProfile> {
                                                     average.length)
                                                 .toStringAsFixed(2));
 
-                                        i = 20;
+                                        i = 100;
                                         if (result <= 50.0 || result >= 100.0) {
                                           //Mesure pas bonne, réajuster la toise
                                           setState(() {
@@ -560,9 +563,9 @@ class _ManageProfile extends State<ManageProfile> {
                                                 : "Mesure bonne";
                                           });
                                       } else {
-                                        recording = _start.toString();
+                                        recording = _start.toStringAsFixed(1);
                                         getData();
-                                        _start = _start - 0.5;
+                                        _start = _start - 0.1;
                                         i--;
                                         average[i] = double.parse(btData);
                                       }
@@ -570,7 +573,7 @@ class _ManageProfile extends State<ManageProfile> {
                                   ),
                                 );
                                 //_showDialog();
-                              },
+                              } : null,
                               textColor: colorMesureButton,
                               child: Text(recording)),
                           RaisedButton(

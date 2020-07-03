@@ -13,6 +13,7 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
+import 'dart:math' as math;
 
 /*
 * Classe pour gérer la connexion bluetooth
@@ -247,11 +248,13 @@ class BluetoothManager {
     }
 
     double convVoltToLbs = (921 - delta) / 100;
-    double tempResult = double.parse(
-        ((double.parse(result) - delta) / (convVoltToLbs * coefKg))
-            .toStringAsExponential(1));
 
-    //print("Résultat: " + tempResult.toString());
+    double tempResult = 2.0 * double.parse(
+        ((double.parse(result) - delta) / (convVoltToLbs * coefKg))
+            .toStringAsExponential(1)).abs();
+
+
+    //print("Résultat: $tempResult");
     return tempResult.toString();
   }
 
