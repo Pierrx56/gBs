@@ -252,6 +252,7 @@ public class MainActivity extends FlutterActivity {
 
     private String getPairedDevices() {
 
+        System.out.println("start scanning");
         startScanning();
 
         macAdress = getMacAddress();
@@ -267,7 +268,6 @@ public class MainActivity extends FlutterActivity {
     }
 
     public void startScanning() {
-        System.out.println("start scanning");
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -375,6 +375,7 @@ public class MainActivity extends FlutterActivity {
 
         //Si null, on recherche l'adresse mac et on se connecte
         if(m_BTdevice == null){
+            System.out.println("start scanning");
             startScanning();
             //m_BTdevice = mac;
         }
@@ -468,7 +469,7 @@ public class MainActivity extends FlutterActivity {
         }
 
         public boolean setCharacteristicNotification(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic characteristic, boolean enable) {
-            Log.d("DEBUG", "setCharacteristicNotification");
+            //Log.d("DEBUG", "setCharacteristicNotification");
             bluetoothGatt.setCharacteristicNotification(characteristic, enable);
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(characteristicUUID);
             descriptor.setValue(enable ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : new byte[]{0x00, 0x00});
@@ -488,7 +489,7 @@ public class MainActivity extends FlutterActivity {
 
             final String uuid = gattService.getUuid().toString();
             if (uuid.equals("0000dfb0-0000-1000-8000-00805f9b34fb")) {
-                System.out.println("Service discovered: " + uuid);
+                //System.out.println("Service discovered: " + uuid);
                 MainActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
                         //peripheralTextView.append("Service disovered: " + uuid + "\n");
@@ -504,13 +505,17 @@ public class MainActivity extends FlutterActivity {
 
                     final String charUuid = gattCharacteristic.getUuid().toString();
 
-                    System.out.println("Characteristic discovered for service: " + charUuid);
+                    //System.out.println("Characteristic discovered for service: " + charUuid);
 
                     bluetoothGatt.setCharacteristicNotification(gattCharacteristic, true);
                     BluetoothGattDescriptor descriptor = gattCharacteristic.getDescriptor(gattCharacteristic.getUuid());
-                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                    bluetoothGatt.writeDescriptor(descriptor);
-                    System.out.println("NOTIFICATIONS ENABLED");
+                    try{
+                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                        bluetoothGatt.writeDescriptor(descriptor);
+                        //System.out.println("NOTIFICATIONS ENABLED");
+                    }catch (Exception e){
+                        //System.out.println(e);
+                    }
 
                     MainActivity.this.runOnUiThread(new Runnable() {
                         public void run() {

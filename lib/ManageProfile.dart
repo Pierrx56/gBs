@@ -361,10 +361,14 @@ class _ManageProfile extends State<ManageProfile> {
                           child: Text(AppLocalizations.of(context)
                               .translate('ajust_poussee')),
                           onPressed: () {
-                            //TODO
-                            setState(() {
-                              pousseeDialog();
-                            });
+                            if (isConnected) {
+                              setState(() {
+                                pousseeDialog();
+                              });
+                            } else {
+                              show(
+                                  "Connexion au gBs en cours, réessayez dans quelques instants");
+                            }
                           },
                           textColor: colorButton,
                         ),
@@ -520,60 +524,69 @@ class _ManageProfile extends State<ManageProfile> {
                           ),
                           RaisedButton(
                               //child: Text("Démarrer l'enregistrement."),
-                              onPressed: recording != AppLocalizations.of(
-                                  this.context)
-                                  .translate(
-                                  'status_mesure_bon') ? () async {
-                                colorMesureButton = Colors.black;
-                                const oneSec =
-                                    const Duration(milliseconds: 100);
-                                new Timer.periodic(
-                                  oneSec,
-                                  (Timer timer) => setState(
-                                    () {
-                                      if (_start < 0.1) {
-                                        timer.cancel();
-                                        _start = _reset;
-                                        result = double.parse(
-                                            (average.reduce((a, b) => a + b) /
-                                                    average.length)
-                                                .toStringAsFixed(2));
+                              onPressed: recording !=
+                                      AppLocalizations.of(this.context)
+                                          .translate('status_mesure_bon')
+                                  ? () async {
+                                      colorMesureButton = Colors.black;
+                                      const oneSec =
+                                          const Duration(milliseconds: 100);
+                                      new Timer.periodic(
+                                        oneSec,
+                                        (Timer timer) => setState(
+                                          () {
+                                            if (_start < 0.1) {
+                                              timer.cancel();
+                                              _start = _reset;
+                                              result = double.parse(
+                                                  (average.reduce(
+                                                              (a, b) => a + b) /
+                                                          average.length)
+                                                      .toStringAsFixed(2));
 
-                                        i = 100;
-                                        if (result <= 50.0 || result >= 100.0) {
-                                          //Mesure pas bonne, réajuster la toise
-                                          setState(() {
-                                            recording = temp != null
-                                                ? AppLocalizations.of(
-                                                        this.context)
-                                                    .translate(
-                                                        'status_mesure_mauvais')
-                                                : "Mesure ratée";
-                                            colorMesureButton = Colors.red;
-                                          });
-                                        } else
-                                          setState(() {
-                                            colorMesureButton = Colors.green;
-                                            initialPush = result.toString();
-                                            recording = temp != null
-                                                ? AppLocalizations.of(
-                                                        this.context)
-                                                    .translate(
-                                                        'status_mesure_bon')
-                                                : "Mesure bonne";
-                                          });
-                                      } else {
-                                        recording = _start.toStringAsFixed(1);
-                                        getData();
-                                        _start = _start - 0.1;
-                                        i--;
-                                        average[i] = double.parse(btData);
-                                      }
-                                    },
-                                  ),
-                                );
-                                //_showDialog();
-                              } : null,
+                                              i = 100;
+                                              if (result <= 50.0 ||
+                                                  result >= 100.0) {
+                                                //Mesure pas bonne, réajuster la toise
+                                                setState(() {
+                                                  recording = temp != null
+                                                      ? AppLocalizations.of(
+                                                              this.context)
+                                                          .translate(
+                                                              'status_mesure_mauvais')
+                                                      : "Mesure ratée";
+                                                  colorMesureButton =
+                                                      Colors.red;
+                                                });
+                                              } else
+                                                setState(
+                                                  () {
+                                                    colorMesureButton =
+                                                        Colors.green;
+                                                    initialPush =
+                                                        result.toString();
+                                                    recording = temp != null
+                                                        ? AppLocalizations.of(
+                                                                this.context)
+                                                            .translate(
+                                                                'status_mesure_bon')
+                                                        : "Mesure bonne";
+                                                  },
+                                                );
+                                            } else {
+                                              recording =
+                                                  _start.toStringAsFixed(1);
+                                              getData();
+                                              _start = _start - 0.1;
+                                              i--;
+                                              average[i] = double.parse(btData);
+                                            }
+                                          },
+                                        ),
+                                      );
+                                      //_showDialog();
+                                    }
+                                  : null,
                               textColor: colorMesureButton,
                               child: Text(recording)),
                           RaisedButton(
