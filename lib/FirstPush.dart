@@ -228,70 +228,65 @@ class _FirstPush extends State<FirstPush> {
                       Text(AppLocalizations.of(context)
                           .translate('explications_mesure')),
                       RaisedButton(
-                          //child: Text("Démarrer l'enregistrement."),
-                          onPressed: !isCorrect || user.userInitialPush != "0.0"
-                              ? () async {
-                                  colorMesureButton = Colors.black;
-                                  const oneSec =
-                                      const Duration(milliseconds: 100);
-                                  _timer = new Timer.periodic(
-                                    oneSec,
-                                    (Timer timer) => setState(
-                                      () {
-                                        if (_start < 0.1) {
-                                          timer.cancel();
-                                          _start = _reset;
-                                          result = double.parse(
-                                              (average.reduce((a, b) => a + b) /
-                                                      average.length)
-                                                  .toStringAsFixed(2));
-                                          print(result.toStringAsFixed(2));
-                                          i = 100;
-                                          if (result <= 50.0 ||
-                                              result >= 100.0) {
-                                            //Mesure pas bonne, réajuster la toise
-                                            setState(() {
-                                              recording = AppLocalizations.of(
-                                                      context)
-                                                  .translate(
-                                                      'status_mesure_mauvais');
-                                              colorMesureButton = Colors.red;
-                                            });
-                                          } else {
-                                            setState(() {
-                                              colorMesureButton = Colors.green;
-                                              recording =
-                                                  AppLocalizations.of(context)
-                                                      .translate(
-                                                          'status_mesure_bon');
-                                            });
-                                            isCorrect = true;
-                                            //update poussée
-                                            User updatedUser = User(
-                                              userId: user.userId,
-                                              userName: user.userName,
-                                              userMode: user.userMode,
-                                              userPic: user.userPic,
-                                              userHeightTop: user.userHeightTop,
-                                              userHeightBottom:
-                                                  user.userHeightBottom,
-                                              userInitialPush: result
-                                                  .toStringAsFixed(2)
-                                                  .toString(),
-                                              userMacAddress:
-                                                  user.userMacAddress,
-                                            );
+                        //child: Text("Démarrer l'enregistrement."),
+                        onPressed: !isCorrect || user.userInitialPush != "0.0"
+                            ? () async {
+                                colorMesureButton = Colors.black;
+                                const oneSec =
+                                    const Duration(milliseconds: 100);
+                                _timer = new Timer.periodic(
+                                  oneSec,
+                                  (Timer timer) => setState(
+                                    () {
+                                      if (_start < 0.1) {
+                                        timer.cancel();
+                                        _start = _reset;
+                                        result = double.parse(
+                                            (average.reduce((a, b) => a + b) /
+                                                    average.length)
+                                                .toStringAsFixed(2));
+                                        print(result.toStringAsFixed(2));
+                                        i = 100;
+                                        if (result <= 50.0 || result >= 100.0) {
+                                          //Mesure pas bonne, réajuster la toise
+                                          setState(() {
+                                            recording = AppLocalizations.of(
+                                                    context)
+                                                .translate(
+                                                    'status_mesure_mauvais');
+                                            colorMesureButton = Colors.red;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            colorMesureButton = Colors.green;
+                                            recording = AppLocalizations.of(
+                                                    context)
+                                                .translate('status_mesure_bon');
+                                          });
+                                          isCorrect = true;
+                                          //update poussée
+                                          User updatedUser = User(
+                                            userId: user.userId,
+                                            userName: user.userName,
+                                            userMode: user.userMode,
+                                            userPic: user.userPic,
+                                            userHeightTop: user.userHeightTop,
+                                            userHeightBottom:
+                                                user.userHeightBottom,
+                                            userInitialPush: result
+                                                .toStringAsFixed(2)
+                                                .toString(),
+                                            userMacAddress: user.userMacAddress,
+                                          );
 
-                                            db.updateUser(updatedUser);
+                                          db.updateUser(updatedUser);
 
-                                            MainTitle temp = MainTitle(
-                                                userIn: updatedUser,
-                                                appLanguage: appLanguage,
-                                                messageIn: 0);
+                                          MainTitle temp = MainTitle(
+                                              userIn: updatedUser,
+                                              appLanguage: appLanguage,
+                                              messageIn: 0);
 
-                                            temp.createState().message = 0;
-
-                                            /*
+                                          /*
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
@@ -301,34 +296,34 @@ class _FirstPush extends State<FirstPush> {
                                                     messageIn: 0),
                                               ),
                                             );*/
-                                          }
-                                        } else {
-                                          recording = _start.toStringAsFixed(1);
-                                          _start = _start - 0.1;
-                                          i--;
-                                          getData();
-                                          average[i] = double.parse(btData);
-                                          if (average[i] > 100.0) {
-                                            setState(() {
-                                              colorProgressBar =
-                                                  RoundedProgressBarTheme.red;
-                                            });
-                                          } else {
-                                            setState(() {
-                                              colorProgressBar =
-                                                  RoundedProgressBarTheme
-                                                      .yellow;
-                                            });
-                                          }
                                         }
-                                      },
-                                    ),
-                                  );
-                                  //_showDialog();
-                                }
-                              : null,
-                          textColor: colorMesureButton,
-                          child: Text(recording)),
+                                      } else {
+                                        recording = _start.toStringAsFixed(1);
+                                        _start = _start - 0.1;
+                                        i--;
+                                        getData();
+                                        average[i] = double.parse(btData);
+                                        if (average[i] > 100.0) {
+                                          setState(() {
+                                            colorProgressBar =
+                                                RoundedProgressBarTheme.red;
+                                          });
+                                        } else {
+                                          setState(() {
+                                            colorProgressBar =
+                                                RoundedProgressBarTheme.yellow;
+                                          });
+                                        }
+                                      }
+                                    },
+                                  ),
+                                );
+                                //_showDialog();
+                              }
+                            : null,
+                        textColor: colorMesureButton,
+                        child: Text(recording),
+                      ),
                       RoundedProgressBar(
                           percent: (double.parse(btData)) >= 0
                               ? (double.parse(btData))

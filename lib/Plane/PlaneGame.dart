@@ -117,7 +117,7 @@ class PlaneGame extends Game {
             //print("Position joueur: " + tempPos.toString());
 
             //print("PosY Plane: ${bottomBalloon.getHeightBottomPosition()}");
-            //TODO Conditions si le ballon dépasse la moitié de l'avion, on respawn un ballon
+            //Conditions si le ballon dépasse la moitié de l'avion, on respawn un ballon
 
             if (bottomBalloon.getXBottomPosition() == screenSize.width / 2) {
               //bottomBalloon = BottomBalloon(this);
@@ -173,7 +173,6 @@ class PlaneGame extends Game {
       if (getData() != -1.0)
         isConnected = true;
       else
-        //TODO avertir la perte du bluetooth
         isConnected = false;
 
       if (isConnected) {

@@ -358,7 +358,6 @@ class _Register extends State<Register> {
                                 " Appuyez sur démarrer l'enregistrement lorsque vous êtes prêt."),
                         RaisedButton(
                           //child: Text("Démarrer l'enregistrement."),
-                          //TODO
                           onPressed: () async {
                             colorMesureButton = Colors.black;
                             const oneSec = const Duration(milliseconds: 500);

@@ -392,7 +392,6 @@ class _ManageProfile extends State<ManageProfile> {
                             if (initialPush == null)
                               initialPush = user.userInitialPush;
 
-                            //TODO
                             String macAddress = user.userMacAddress;
 
                             db.updateUser(User(

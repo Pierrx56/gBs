@@ -17,7 +17,7 @@ import 'dart:math' as math;
 
 /*
 * Classe pour gérer la connexion bluetooth
-* Prend en paramètre un utilisatuer, un message et la langue choisie
+* Prend en paramètre un utilisateur, un message et la langue choisie
 * */
 
 class BluetoothManager {
@@ -43,7 +43,7 @@ class BluetoothManager {
   bool isConnected = false;
   bool isRunning = true;
   Timer timer;
-  String macAdress;
+  String macAddress;
   String data;
 
   //Initializing database
@@ -54,14 +54,6 @@ class BluetoothManager {
 
   // Initializing a global key, as it would help us in showing a SnackBar later
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
-  //Constructeur _BluetoothManager
-  _BluetoothManager(
-      User _user, String _inputMessage, AppLanguage _appLanguage) {
-    user = _user;
-    inputMessage = _inputMessage;
-    appLanguage = _appLanguage;
-  }
 
   // Request Bluetooth permission from the user
   Future<void> enableBluetooth() async {
@@ -84,12 +76,12 @@ class BluetoothManager {
       await sensorChannel.invokeMethod('getPairedDevices');
       pairedDevices = 'Devices paired: $paired.';
       print(pairedDevices);
-      macAdress = paired;
+      macAddress = paired;
     } on PlatformException {
       pairedDevices = 'Failed to get paired devices.';
     }
 
-    return macAdress;
+    return macAddress;
 
   }
 
@@ -103,8 +95,8 @@ class BluetoothManager {
   //Fonction qui récupère l'adresse mac
   //Retourne l'adresse mac
   Future<String> getMacAddress() async{
-    macAdress = await sensorChannel.invokeMethod('getMacAddress');
-    return macAdress;
+    macAddress = await sensorChannel.invokeMethod('getMacAddress');
+    return macAddress;
   }
 
   //Fonction pour se connecter au gBs
@@ -118,92 +110,11 @@ class BluetoothManager {
       result = await sensorChannel.invokeMethod('getStatus');
       connectStatus = 'Connection status: $result.';
       isConnected = true;
-/*      if (result != "Connected") {
-        Future.delayed(const Duration(milliseconds: 1000), () async {
-          connect(inputMessage);
-          isConnected = await getStatus();
-          if(isConnected)
-            connectStatus = 'Connection status: Connected.';
-          else {
-            connectStatus = 'Connection status: Failed';
-            connect(inputMessage);
-          }
-          if(origin == "BluetoothManager")
-            setState(() {
-              _connectDevices = connectStatus;
-            });
-        });
-      }
-      else {
-        startDataReceiver();
-        print("résulttaaaaaaaaat" + result);
 
-        isConnected = await getStatus();
-        if(isConnected)
-          connectStatus = 'Connection status: Connected.';
-        else {
-          connectStatus = 'Connection status: Failed';
-          connect(inputMessage);
-        }
-        if(origin == "BluetoothManager")
-          setState(() {
-            _connectDevices = connectStatus;
-          });
-      }*/
     } on PlatformException {
       connectStatus = 'Connection status: Failed';
     }
-    //On actualise uniquement si on est sur la page "BluetoothManager"
 
-
-    if (isConnected) {
-      //Lorsque l'on viens de l'inscription
-      if (origin == "inscription");/* {
-        inputMessage = "";
-        Navigator.pop(
-          context,
-          macAdress,
-        );
-      }*/
-      else if(origin == "BluetoothManager");
-      else if(origin == "manageProfile");
-      else if(origin == "firstPush");
-      else if(origin == "register");
-      else if(origin == "swimmer");
-      else if(origin == "plane");
-
-
-      //TODO à voir si cette condition est tjrs utile
-      else  if(origin == "a"){
-        //Insertion dans l'adresse MAC dans la BDD
-        User updatedUser = User(
-          userId: user.userId,
-          userName: user.userName,
-          userMode: user.userMode,
-          userPic: user.userPic,
-          userHeightTop: user.userHeightBottom,
-          userHeightBottom: user.userHeightBottom,
-          userMacAddress: macAdress,
-        );
-        db.updateUser(updatedUser);
-
-        //Déconnexion immédiate sinon bug lors de lancement de jeux
-        //disconnect();
-/*
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => LoadPage(
-                      appLanguage: appLanguage,
-                      page: "mainTitle",
-                      user: user,
-                      messageIn: "0",
-                    )));*/
-        //show('Vous êtes connecté à gBs');
-      }
-    }
-
-    //setState(() => _isButtonUnavailable = false);
     return isConnected;
   }
 
@@ -257,6 +168,7 @@ class BluetoothManager {
     //print("Résultat: $tempResult");
     return tempResult.toString();
   }
+/*
 
   @override
   Widget build(BuildContext context) {
@@ -322,7 +234,8 @@ class BluetoothManager {
                     },
                     child: Text("Connect Device"),
                   ),
-                  /*
+                  */
+/*
                   RaisedButton(
                     onPressed: () {
                       isRunning = true;
@@ -343,7 +256,8 @@ class BluetoothManager {
                       child: const Text('Refresh'),
                       onPressed: () {},
                     ),
-                  ),*/
+                  ),*//*
+
                 ],
               ),
               Text(_connectDevices),
@@ -353,6 +267,7 @@ class BluetoothManager {
       ),
     );
   }
+*/
 
   // Method to show a Snackbar,
   // taking message as the text

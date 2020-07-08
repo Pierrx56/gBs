@@ -9,13 +9,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
-import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Questions {
   final Icon icon;
   final String question;
-  final String answer;
+  final Container answer;
 
   Questions({this.icon, this.question, this.answer});
 }
@@ -46,6 +47,8 @@ class _FAQ extends State<FAQ> {
   // Initializing a global key, as it would help us in showing a SnackBar later
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  final gnrbWebsite = "https://www.genourob.com/";
+
   //Constructeur _BluetoothManager
   _FAQ(String _inputMessage, AppLanguage _appLanguage) {
     inputMessage = _inputMessage;
@@ -65,68 +68,81 @@ class _FAQ extends State<FAQ> {
 
   @override
   Widget build(BuildContext context) {
+    //Initialisation des questions, des réponses et des icones correspondantes
     final List<Questions> qAndA = [
       Questions(
           icon: Icon(Icons.video_library),
           question: AppLocalizations.of(context).translate('tutoriel'),
-          answer: ""),
+          answer: Container()),
       Questions(
           icon: Icon(Icons.power_settings_new),
           question: AppLocalizations.of(context)
               .translate('question_alimentation_gbs'),
-          answer: ""),
+          answer: Container()),
       Questions(
           icon: Icon(Icons.bluetooth),
           question:
               AppLocalizations.of(context).translate('question_bluetooth'),
-          answer: ""),
+          answer: Container()),
       Questions(
           icon: Icon(Icons.timer),
           question: AppLocalizations.of(context)
               .translate('question_changement_hauteur'),
-          answer: ""),
+          answer: Container()),
       Questions(
           icon: Icon(Icons.add),
           question:
               AppLocalizations.of(context).translate('explication_creation'),
-          answer: ""),
+          answer: Container()),
       Questions(
           icon: Icon(Icons.directions_run),
           question:
               AppLocalizations.of(context).translate('question_exercices'),
-          answer: ""),
+          answer: Container()),
       Questions(
           icon: Icon(Icons.airline_seat_recline_normal),
-          question:
-              AppLocalizations.of(context).translate('question_hauteur'),
-          answer: ""),
+          question: AppLocalizations.of(context).translate('question_hauteur'),
+          answer: Container()),
       Questions(
           icon: Icon(Icons.info),
           question: AppLocalizations.of(context).translate('question_gbs'),
-          answer: ""),
+          answer: Container()),
       Questions(
           icon: Icon(Icons.help),
-          question: AppLocalizations.of(context)
-              .translate('question_maintenance'),
-          answer: ""),
+          question:
+              AppLocalizations.of(context).translate('question_maintenance'),
+          answer: Container()),
       Questions(
           icon: Icon(Icons.iso),
-          question:
-              AppLocalizations.of(context).translate('question_modes'),
-          answer: ""),
+          question: AppLocalizations.of(context).translate('question_modes'),
+          answer: Container()),
       Questions(
           icon: Icon(Icons.airline_seat_recline_extra),
-          question: AppLocalizations.of(context)
-              .translate('question_positionnement'),
-          answer: ""),
+          question:
+              AppLocalizations.of(context).translate('question_positionnement'),
+          answer: Container()),
       Questions(
           icon: Icon(Icons.delete_forever),
           question: AppLocalizations.of(context).translate('explication_suppr'),
-          answer: ""),
+          answer: Container()),
       Questions(
-          icon: Icon(Icons.info_outline),
-          question: AppLocalizations.of(context).translate('genourob'),
-          answer: ""),
+        icon: Icon(Icons.info_outline),
+        question: AppLocalizations.of(context).translate('genourob'),
+        answer: Container(
+          margin: EdgeInsets.all(5.0),
+          child: Linkify(
+            onOpen: (gnrbWebsite) async {
+              if (await canLaunch(gnrbWebsite.url)) {
+                await launch(gnrbWebsite.url);
+              } else {
+                throw 'Could not launch $gnrbWebsite';
+              }
+            },
+            text: '$gnrbWebsite',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+          ),
+        ),
+      ),
     ];
 
     return MaterialApp(
@@ -143,23 +159,27 @@ class _FAQ extends State<FAQ> {
         key: _scaffoldKey,
         appBar: AppBar(
           //title: Text(AppLocalization.of(context).heyWorld),
-          leading: IconButton(icon:Icon(Icons.arrow_back, color: Colors.white,), onPressed: (){
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoadPage(
-                    user: null,
-                    appLanguage: appLanguage,
-                    messageIn: "",
-                    page: "login"),
-              ),
-            );
-
-          },),
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoadPage(
+                      user: null,
+                      appLanguage: appLanguage,
+                      messageIn: "",
+                      page: "login"),
+                ),
+              );
+            },
+          ),
           title: Text("FAQ"),
           backgroundColor: Colors.blue,
-          actions: <Widget>[
-          ],
+          actions: <Widget>[],
         ),
         body: ListView.builder(
             itemCount: qAndA.length,
@@ -175,14 +195,12 @@ class _FAQ extends State<FAQ> {
                     title: Text(_model.question),
                     children: <Widget>[
                       ListTile(
-                        onTap: (){
+                        onTap: () {
                           show("message");
                         },
                         title: Row(
                           children: <Widget>[
-                            Text(
-                              _model.answer,
-                            ),
+                            _model.answer,
                           ],
                         ),
                       ),

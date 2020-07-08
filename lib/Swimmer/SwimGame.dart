@@ -135,8 +135,8 @@ class SwimGame extends Game {
             //print("Position joueur: " + tempPos.toString());
           }
 
+          //Conditions de défaite
           if (pos < bottomLine.getDownPosition()) {
-            //TODO Conditions de défaite, début d'un timer
             //print("Attention au bord bas !");
             //setColorFilter(true);
             position = true;
@@ -145,7 +145,6 @@ class SwimGame extends Game {
               startTimer(start = true);
             }
           } else if (pos > topLine.getUpPosition()) {
-            //TODO Conditions de défaite, début d'un timer
             //print("Attention au bord haut !");
             //setColorFilter(true);
             position = false;
@@ -169,7 +168,6 @@ class SwimGame extends Game {
       if (getData() != -1.0)
         isConnected = true;
       else
-        //TODO avertir la perte du bluetooth
         isConnected = false;
 
       if (isConnected) {

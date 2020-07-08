@@ -77,8 +77,6 @@ class _MainTitle extends State<MainTitle> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    //db.deleteScore(user.userId);
     visible_swim = true;
     visible_plane = true;
     colorCard_swim = Colors.white;
@@ -506,8 +504,7 @@ class _MainTitle extends State<MainTitle> {
                       child: new GestureDetector(
                         onTap: () {
                           if (visible_plane) {
-                            //TODO Check si l'@mac n'est pas nulle, auquel cas rediriger vers la connection BT
-                            dispose();
+                             dispose();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -560,8 +557,7 @@ class _MainTitle extends State<MainTitle> {
                                                       )
                                                     : Text("a"),
 
-                                                //TODO Requête vers la bdd pour savoir le type d'activité et comment ça marche
-                                                //Text("Le jeu du Nageur est un jeu qui consiste à effectuer des poussées régulières pour maintenir le nageur le plus proche de la ligne centrale. 600m parcourus = 5 minutes"),
+                                               //Text("Le jeu du Nageur est un jeu qui consiste à effectuer des poussées régulières pour maintenir le nageur le plus proche de la ligne centrale. 600m parcourus = 5 minutes"),
                                               ),
                                               Align(
                                                 alignment:

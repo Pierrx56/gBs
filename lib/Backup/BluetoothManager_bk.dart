@@ -200,7 +200,6 @@ class _BluetoothManagerBK extends State<BluetoothManagerBK> {
       else if(origin == "plane");
 
 
-      //TODO à voir si cette condition est tjrs utile
       else {
         //Insertion dans l'adresse MAC dans la BDD
         User updatedUser = User(

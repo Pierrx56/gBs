@@ -329,7 +329,7 @@ class DatabaseHelper {
     return id;
   }
 
-  //TODO Useless ?
+  //Useless ?
   Future<void> deleteActivity(int idActivity) async{
     // Get a reference to the database.
     final Database db = await database;

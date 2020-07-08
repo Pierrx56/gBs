@@ -97,13 +97,11 @@ class _Menu extends State<Menu> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
   }
 
@@ -125,7 +123,6 @@ class _Menu extends State<Menu> {
       (context as Element).reassemble();
     } else if (_information == 'Deleted') Navigator.pop(context);
 
-    //TODO Fix language problem
     var temp = AppLocalizations.of(context);
 
     //return MenuUI(db, user, screenSize, appLanguage, data, numberOfCard);
@@ -241,7 +238,6 @@ class _Menu extends State<Menu> {
                                     )
                                   : Text("a"),
 
-                              //TODO Graph à insérer
                               data == null
                                   ? Container()
                                   : DrawCharts(data: data),
@@ -267,7 +263,6 @@ class _Menu extends State<Menu> {
                       width: widthCard = screenSize.width / numberOfCard,
                       child: new GestureDetector(
                         onTap: () {
-                          //TODO Check si l'@mac n'est pas nulle, auquel cas rediriger vers la connection BT
                           dispose();
                           Navigator.push(
                               context,
@@ -436,7 +431,6 @@ class MenuUI extends StatelessWidget {
   Widget build(BuildContext context) {
 
 
-    //TODO Fix language problem
     var temp = AppLocalizations.of(context);
 
 
@@ -553,7 +547,6 @@ class MenuUI extends StatelessWidget {
                                     )
                                   : Text("a"),
 
-                              //TODO Graph à insérer
                               data == null
                                   ? Container()
                                   : DrawCharts(data: data),
@@ -579,7 +572,6 @@ class MenuUI extends StatelessWidget {
                       width: widthCard = screenSize.width / numberOfCard,
                       child: new GestureDetector(
                         onTap: () {
-                          //TODO Check si l'@mac n'est pas nulle, auquel cas rediriger vers la connection BT
                           Navigator.push(
                               context,
                               MaterialPageRoute(

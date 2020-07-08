@@ -33,7 +33,6 @@ class _Login extends State<Login> {
 
   @override
   void initState() {
-    //TODO Create activities types with bdd
     super.initState();
   }
 

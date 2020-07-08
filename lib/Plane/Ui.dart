@@ -109,7 +109,6 @@ class UIState extends State<UI> {
       width: screenSize.width * 0.2,
       child: RaisedButton(
         onPressed: () async {
-          //TODO insérer dans bdd
           //Get date etc
           //db.getScore(user.userId);
 
