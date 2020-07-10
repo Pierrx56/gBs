@@ -103,7 +103,6 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
 
   void connect() async {
     btManage.enableBluetooth();
-    btManage.getPairedDevices("plane");
     btManage.connect(user.userMacAddress);
     isConnected = await btManage.getStatus();
     testConnect();

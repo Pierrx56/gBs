@@ -56,7 +56,7 @@ class BluetoothManager {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   // Request Bluetooth permission from the user
-  Future<void> enableBluetooth() async {
+  Future<bool> enableBluetooth() async {
     // Retrieving the current Bluetooth state
     _bluetoothState = await FlutterBluetoothSerial.instance.state;
 

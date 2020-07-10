@@ -489,39 +489,44 @@ class _Register extends State<Register> {
               ),
               onPressed: !isFound
                   ? () async {
-                      btManage.enableBluetooth();
+                if (await btManage.enableBluetooth()) {
+                  macAddress = await btManage.getPairedDevices("register");
+
+
+                  print(
+                      "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
+
+                  int tempTimer = 0;
+                  //Check tant que l'adresse mac est égale à -1 toute les secondes
+                  //Si pas trouve au bout de 30 secondes, affiche message d'erreur
+                  Timer.periodic(const Duration(seconds: 1), (timer) async {
+                    if (macAddress == "0") {
                       macAddress = await btManage.getPairedDevices("register");
-
-                      print(
-                          "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
-
-                      int tempTimer = 0;
-                      //Check tant que l'adresse mac est égale à -1 toute les secondes
-                      //Si pas trouve au bout de 30 secondes, affiche message d'erreur
-                      Timer.periodic(const Duration(seconds: 1), (timer) async {
-                        if (macAddress != "-1") {
-                          timer.cancel();
-                          //Appareil trouvé
-                          setState(() {
-                            discovering = AppLocalizations.of(context)
-                                .translate('app_trouve');
-                            isFound = true;
-                          });
-                        } else if (macAddress == "-1") {
-                          macAddress = await btManage.getMacAddress();
-                          setState(() {
-                            discovering = AppLocalizations.of(context)
-                                .translate('recherche_app');
-                            isFound = false;
-                          });
-                        } else if (tempTimer >= 30) {
-                          discovering = AppLocalizations.of(context)
-                              .translate('app_non_trouve');
-                          isFound = false;
-                        }
-                        tempTimer++;
-                      });
                     }
+                    if (macAddress != "-1") {
+                      timer.cancel();
+                      //Appareil trouvé
+                      setState(() {
+                        discovering = AppLocalizations.of(context)
+                            .translate('app_trouve');
+                        isFound = true;
+                      });
+                    } else if (macAddress == "-1") {
+                      macAddress = await btManage.getMacAddress();
+                      setState(() {
+                        discovering = AppLocalizations.of(context)
+                            .translate('recherche_app');
+                        isFound = false;
+                      });
+                    } else if (tempTimer >= 30) {
+                      discovering = AppLocalizations.of(context)
+                          .translate('app_non_trouve');
+                      isFound = false;
+                    }
+                    tempTimer++;
+                  });
+                }
+              }
                   : null,
             ),
             RaisedButton(
@@ -632,7 +637,7 @@ class _Register extends State<Register> {
                           ": " +
                           result.toString()),*/
 
-                      //Text("Adresse MAC $macAddress"),
+                      Text("Adresse MAC $macAddress"),
                     ],
                   ),
                   Expanded(
