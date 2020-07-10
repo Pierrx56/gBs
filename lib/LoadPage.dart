@@ -5,6 +5,8 @@ import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 //import 'file:///C:/Users/Pierrick/Documents/Entreprise/Stage/Genourob/gBs/gbs_alternative/lib/Backup/BluetoothSync_shield.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/DetailsCharts.dart';
+import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/FAQ.dart';
 import 'package:gbsalternative/FirstPush.dart';
 import 'package:gbsalternative/Login.dart';
@@ -23,16 +25,18 @@ class LoadPage extends StatefulWidget{
   final String page;
   final User user;
   final String messageIn;
+  final List<Scores> scores;
 
   LoadPage({
     @required this.appLanguage,
     @required this.page,
     @required this.user,
     @required this.messageIn,
+    this.scores
   });
 
   @override
-  _LoadPage createState() => _LoadPage(appLanguage: appLanguage, messageIn: messageIn, page: page, user: user);
+  _LoadPage createState() => _LoadPage(appLanguage: appLanguage, messageIn: messageIn, page: page, user: user, scores: scores);
 
 }
 
@@ -42,8 +46,9 @@ class _LoadPage extends State<LoadPage> {
   final String page;
   final User user;
   final String messageIn;
+  final List<Scores> scores;
 
-  _LoadPage({this.appLanguage, this.page, this.user, this.messageIn});
+  _LoadPage({this.appLanguage, this.page, this.user, this.messageIn, this.scores});
 
 
 /*  @override
@@ -70,6 +75,7 @@ class _LoadPage extends State<LoadPage> {
               GlobalWidgetsLocalizations.delegate,
             ],
             home:
+            page == "detailsCharts" ? DetailsCharts(appLanguage: appLanguage, scores: scores, user: user, messageIn: messageIn,):
             page == "FAQ" ? FAQ(inputMessage: messageIn, appLanguage: appLanguage):
             page == "firstPush" ? FirstPush(user: user, inputMessage: messageIn, appLanguage: appLanguage):
             page == "login" ? Login(appLanguage: appLanguage):

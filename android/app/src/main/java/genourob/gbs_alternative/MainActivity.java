@@ -223,24 +223,6 @@ public class MainActivity extends FlutterActivity {
                     intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         }
     }
-    final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
-                //discovery starts, we can show progress dialog or perform other tasks
-            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                //discovery finishes, dismis progress dialog
-            } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                //bluetooth device found
-                BluetoothDevice tempDevice = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                System.out.println(tempDevice.getName());
-                if (tempDevice.getName().equals(NAME_DEVICE))
-                    m_BTdevice = tempDevice;
-                macAdress = m_BTdevice.getAddress();
-            }
-        }
-    };
 
     private String getMacAddress(){
         return macAdress;
@@ -293,7 +275,7 @@ public class MainActivity extends FlutterActivity {
 
             if(result.getDevice().getName() != null) {
                 System.out.println(result.getDevice().getName());
-                if (macAdress != null){
+                if (macAdress != null && macAdress != "-1"){
                     System.out.println(result.getDevice().getAddress());
                     if(result.getDevice().getAddress().contains(macAdress)){
                         m_BTdevice = result.getDevice();

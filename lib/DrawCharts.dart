@@ -53,21 +53,20 @@ class DrawCharts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
+    Size screenSize = MediaQuery.of(context).size;
 
     List<charts.Series<Scores, String>> series = [
       new charts.Series<Scores, String>(
         id: 'Scores',
+        data: data,
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
         domainFn: (Scores score, _) => score.date,
         measureFn: (Scores score, _) => score.score,
-        data: data,
       )
     ];
 
     return Container(
-      height: screenHeight * 0.4,
+      height: screenSize.height * 0.4,
       child: charts.BarChart(
         series,
         animate: animate,

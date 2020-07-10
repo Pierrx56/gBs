@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flame/util.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/AppLanguage.dart';
+import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
@@ -84,7 +85,7 @@ class _Swimmer extends State<Swimmer> {
   initSwimmer() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    game = new SwimGame(getData, user);
+    game = new SwimGame(getData, user, appLanguage);
     refreshScore();
     //gameUI.state.game = game;
     Util flameUtil = Util();
@@ -114,7 +115,6 @@ class _Swimmer extends State<Swimmer> {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
         btManage.connect(user.userMacAddress);
-        print("Status: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {
           timerConnexion.cancel();
@@ -189,10 +189,10 @@ class _Swimmer extends State<Swimmer> {
                     children: <Widget>[
                       CircularProgressIndicator(),
                       user.userInitialPush == "0.0"
-                          ? Text(
-                              "Veuillez enregister la première poussée dans le menu précédent")
-                          : Text("Chargement du jeu en cours... \n"
-                              "Assurez vous que le gBs est alimenté"),
+                          ? Text(AppLocalizations.of(context)
+                              .translate('premiere_poussee_sw'))
+                          : Text(AppLocalizations.of(context)
+                              .translate('verif_alim')),
                       RaisedButton(
                         onPressed: () {
                           Navigator.pushReplacement(
@@ -206,7 +206,8 @@ class _Swimmer extends State<Swimmer> {
                                     )),
                           );
                         },
-                        child: Text("Retour"),
+                        child: Text(AppLocalizations.of(context)
+                            .translate('retour')),
                       )
                     ],
                   ),
@@ -226,7 +227,7 @@ class _Swimmer extends State<Swimmer> {
                 alignment: Alignment.topLeft,
                 padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                 child:
-                    game == null ? Container() : gameUI.state.pauseButton(game),
+                    game == null ? Container() : gameUI.state.pauseButton(context, appLanguage, game),
               ),
               Container(
                 alignment: Alignment.topLeft,
@@ -241,7 +242,7 @@ class _Swimmer extends State<Swimmer> {
             alignment: Alignment.bottomLeft,
             padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
             child:
-                game == null ? Container() : gameUI.state.displayScore(score),
+                game == null ? Container() : gameUI.state.displayScore(context, appLanguage, score),
           ),
           //Display message pour relancher
           Container(
@@ -250,7 +251,8 @@ class _Swimmer extends State<Swimmer> {
                 ? game.getColorFilterBool() &&
                         game.getPosition() &&
                         !game.getGameOver()
-                    ? gameUI.state.displayMessage("Relachez")
+                    ? gameUI.state.displayMessage(AppLocalizations.of(context)
+                .translate('relacher'))
                     : Container()
                 : Container(),
           ),
@@ -261,7 +263,8 @@ class _Swimmer extends State<Swimmer> {
                 ? game.getColorFilterBool() &&
                         !game.getPosition() &&
                         !game.getGameOver()
-                    ? gameUI.state.displayMessage("Poussez")
+                    ? gameUI.state.displayMessage(AppLocalizations.of(context)
+                .translate('pousser'))
                     : Container()
                 : Container(),
           ),
@@ -270,7 +273,8 @@ class _Swimmer extends State<Swimmer> {
             alignment: Alignment.center,
             child: game != null
                 ? game.getGameOver()
-                    ? gameUI.state.displayMessage("Game Over")
+                    ? gameUI.state.displayMessage(AppLocalizations.of(context)
+                .translate('game_over'))
                     : Container()
                 : Container(),
           ),
@@ -279,7 +283,8 @@ class _Swimmer extends State<Swimmer> {
             alignment: Alignment.center,
             child: game != null
                 ? !game.getConnectionState()
-                    ? gameUI.state.displayMessage("Connexion perdue !")
+                    ? gameUI.state.displayMessage(AppLocalizations.of(context)
+                .translate('connexion_perdue'))
                     : Container()
                 : Container(),
           ),

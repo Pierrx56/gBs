@@ -62,7 +62,7 @@ class LoginWidget extends StatelessWidget {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context).translate('bienvenue')),
+          title: Text(AppLocalizations.of(context).translate('bienvenue'),),
           backgroundColor: Colors.blue,
           actions: <Widget>[
             FlatButton.icon(
@@ -176,6 +176,7 @@ class LoginWidget extends StatelessWidget {
                                       height: screenSize.height * 0.3,
                                       width: screenSize.width * 0.3,
                                     ),
+                                    Text(AppLocalizations.of(context).translate('profil_existant') + ": "),
                                     Text(item.userName),
                                   ],
                                 ),

@@ -281,21 +281,15 @@ class _FirstPush extends State<FirstPush> {
 
                                           db.updateUser(updatedUser);
 
-                                          MainTitle temp = MainTitle(
-                                              userIn: updatedUser,
-                                              appLanguage: appLanguage,
-                                              messageIn: 0);
-
-                                          /*
-                                            Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => MainTitle(
-                                                    userIn: updatedUser,
-                                                    appLanguage: appLanguage,
-                                                    messageIn: 0),
-                                              ),
-                                            );*/
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => MainTitle(
+                                                  userIn: updatedUser,
+                                                  appLanguage: appLanguage,
+                                                  messageIn: 0),
+                                            ),
+                                          );
                                         }
                                       } else {
                                         recording = _start.toStringAsFixed(1);

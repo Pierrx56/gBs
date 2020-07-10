@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,8 @@ class _MainTitle extends State<MainTitle> {
   AppLanguage appLanguage;
   User user;
   int message;
+  bool isConnected;
+  Timer timerConnexion;
 
   DatabaseHelper db = new DatabaseHelper();
   List<Scores> data_swim;
@@ -54,10 +57,14 @@ class _MainTitle extends State<MainTitle> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const Color orangeColor = Colors.orange; //Colors.amber[800];
 
+  BluetoothManager btManage =
+      new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
+
   _MainTitle(AppLanguage _appLanguage, User userIn, int messageIn) {
     appLanguage = _appLanguage;
     user = userIn;
     message = messageIn;
+    isConnected = false;
     settingsPage = LoadPage(
       appLanguage: appLanguage,
       user: user,
@@ -81,14 +88,41 @@ class _MainTitle extends State<MainTitle> {
     visible_plane = true;
     colorCard_swim = Colors.white;
     colorCard_plane = Colors.white;
+    //Obtention des scores
+    //Swimmer
     getScores(user.userId, 0);
+    //Plane
     getScores(user.userId, 1);
+    //Connexion directement dès le login
+    connect();
     super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void connect() async {
+    btManage.enableBluetooth();
+    btManage.connect(user.userMacAddress);
+    isConnected = await btManage.getStatus();
+    testConnect();
+  }
+
+  testConnect() async {
+    isConnected = await btManage.getStatus();
+    if (!isConnected) {
+      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
+          (timerConnexion) async {
+        btManage.connect(user.userMacAddress);
+        print("Status: $isConnected");
+        isConnected = await btManage.getStatus();
+        if (isConnected) {
+          timerConnexion.cancel();
+        }
+      });
+    }
   }
 
   void getScores(int userId, int activityId) async {
@@ -176,34 +210,48 @@ class _MainTitle extends State<MainTitle> {
                 );
 
                 Score newScore = Score(
-                    scoreId: null,
+                    scoreId: 0,
                     userId: user.userId,
                     activityId: 0,
                     scoreValue: 123,
                     scoreDate: "01-06-2020");
                 Score newScore1 = Score(
-                    scoreId: null,
+                    scoreId: 1,
                     userId: user.userId,
                     activityId: 0,
                     scoreValue: 156,
                     scoreDate: "02-06-2020");
                 Score newScore2 = Score(
-                    scoreId: null,
+                    scoreId: 2,
                     userId: user.userId,
                     activityId: 0,
                     scoreValue: 196,
                     scoreDate: "03-06-2020");
                 Score newScore3 = Score(
-                    scoreId: null,
+                    scoreId: 3,
                     userId: user.userId,
                     activityId: 0,
                     scoreValue: 135,
                     scoreDate: "04-06-2020");
+                Score newScore4 = Score(
+                    scoreId: 4,
+                    userId: user.userId,
+                    activityId: 0,
+                    scoreValue: 155,
+                    scoreDate: "06-06-2020");
+                Score newScore5 = Score(
+                    scoreId: 5,
+                    userId: user.userId,
+                    activityId: 0,
+                    scoreValue: 195,
+                    scoreDate: "09-06-2020");
 
                 //db.addScore(newScore);
                 //db.addScore(newScore1);
                 //db.addScore(newScore2);
                 //db.addScore(newScore3);
+                //db.addScore(newScore4);
+                //db.addScore(newScore5);
                 //setState(() {});
               },
             ),
@@ -282,10 +330,17 @@ class _MainTitle extends State<MainTitle> {
                                         )
                                       : Text("a"),
                                   onPressed: () {
-                                    setState(
-                                      () {
-                                        show("A venir");
-                                      },
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => LoadPage(
+                                          appLanguage: appLanguage,
+                                          page: "detailsCharts",
+                                          user: user,
+                                          messageIn: "0",
+                                          scores: data_swim,
+                                        ),
+                                      ),
                                     );
                                   },
                                 ),
@@ -302,19 +357,16 @@ class _MainTitle extends State<MainTitle> {
                           if (visible_swim) {
                             dispose();
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        /*Swimmer(
-                                        user: user,
-                                        appLanguage: appLanguage,
-                                      ))*/
-                                        LoadPage(
-                                          appLanguage: appLanguage,
-                                          page: "swimmer",
-                                          user: user,
-                                          messageIn: "0",
-                                        )));
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoadPage(
+                                  appLanguage: appLanguage,
+                                  page: "swimmer",
+                                  user: user,
+                                  messageIn: "0",
+                                ),
+                              ),
+                            );
                           }
                         },
                         child: new Card(
@@ -486,10 +538,17 @@ class _MainTitle extends State<MainTitle> {
                                         )
                                       : Text("a"),
                                   onPressed: () {
-                                    setState(
-                                      () {
-                                        show("A venir");
-                                      },
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => LoadPage(
+                                          appLanguage: appLanguage,
+                                          page: "detailsCharts",
+                                          user: user,
+                                          messageIn: "1",
+                                          scores: data_plane,
+                                        ),
+                                      ),
                                     );
                                   },
                                 ),
@@ -504,7 +563,7 @@ class _MainTitle extends State<MainTitle> {
                       child: new GestureDetector(
                         onTap: () {
                           if (visible_plane) {
-                             dispose();
+                            dispose();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -557,7 +616,7 @@ class _MainTitle extends State<MainTitle> {
                                                       )
                                                     : Text("a"),
 
-                                               //Text("Le jeu du Nageur est un jeu qui consiste à effectuer des poussées régulières pour maintenir le nageur le plus proche de la ligne centrale. 600m parcourus = 5 minutes"),
+                                                //Text("Le jeu du Nageur est un jeu qui consiste à effectuer des poussées régulières pour maintenir le nageur le plus proche de la ligne centrale. 600m parcourus = 5 minutes"),
                                               ),
                                               Align(
                                                 alignment:
@@ -669,7 +728,6 @@ class _MainTitle extends State<MainTitle> {
     //Size screenSize = MediaQuery.of(context).size;
 
     Future<void> _onItemTapped(int index) async {
-
       user = await db.getUser(user.userId);
       setState(() {
         _selectedIndex = index;
@@ -684,14 +742,14 @@ class _MainTitle extends State<MainTitle> {
           page: "manageProfile",
           messageIn: "",
         );
-        if (user.userInitialPush == "0.0")
+        /*if (user.userInitialPush == "0.0")
           firstPush = LoadPage(
             appLanguage: appLanguage,
             user: user,
             page: "firstPush",
             messageIn: "0",
           );
-        else
+        else*/
           firstPush = null;
         /*
         bluetoothPage = BluetoothManager(
@@ -707,13 +765,13 @@ class _MainTitle extends State<MainTitle> {
     }
     List<Widget> _widgetOptions;
 
-    if (user.userInitialPush == "0.0")
+/*    if (user.userInitialPush == "0.0")
       _widgetOptions = <Widget>[
         menuPage = menu(),
         settingsPage,
         firstPush,
       ];
-    else
+    else*/
       _widgetOptions = <Widget>[
         menuPage = menu(),
         settingsPage,
@@ -724,7 +782,7 @@ class _MainTitle extends State<MainTitle> {
         length: 3,
         child: Scaffold(
           bottomNavigationBar: new BottomNavigationBar(
-            items: user.userInitialPush == "0.0"
+            items: /*user.userInitialPush == "0.0"
                 //Si la poussée initiale n'a pas été enregistrée
                 ? <BottomNavigationBarItem>[
                     BottomNavigationBarItem(
@@ -750,7 +808,7 @@ class _MainTitle extends State<MainTitle> {
                     ),
                   ]
                 //Sinon on affiche que 2 boutons
-                : <BottomNavigationBarItem>[
+                : */<BottomNavigationBarItem>[
                     BottomNavigationBarItem(
                       icon: Icon(
                         Icons.home,

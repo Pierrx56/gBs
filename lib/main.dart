@@ -13,6 +13,7 @@ void main() async {
 
   //Lancement de la page Login
   runApp(new MaterialApp(
+    debugShowCheckedModeBanner: false,
     color: Colors.white,
     home: new SplashScreen(),
     routes: <String, WidgetBuilder>{
@@ -53,6 +54,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: new Image.asset(
         'assets/ABSeat.png',
       ),

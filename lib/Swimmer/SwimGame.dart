@@ -6,6 +6,7 @@ import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/Swimmer/Background.dart';
 import 'package:gbsalternative/Swimmer/Ui.dart';
@@ -70,9 +71,11 @@ class SwimGame extends Game {
   double posTopLine;
   bool position;
   UI gameUI;
+  AppLanguage appLanguage;
 
-  SwimGame(this.getData, User _user) {
+  SwimGame(this.getData, User _user, AppLanguage _appLanguage) {
     user = _user;
+    appLanguage = _appLanguage;
     initialize();
   }
 
@@ -142,18 +145,18 @@ class SwimGame extends Game {
             position = true;
             //Rentre une fois dans la timer
             if (!start) {
-              startTimer(start = true);
+              startTimer(start = true, 10.0);
             }
           } else if (pos > topLine.getUpPosition()) {
             //print("Attention au bord haut !");
             //setColorFilter(true);
             position = false;
             if (!start) {
-              startTimer(start = true);
+              startTimer(start = true, 5.0);
             }
           } else {
             setColorFilter(false);
-            startTimer(start = false);
+            startTimer(start = false, 0.0);
           }
         }
       }
@@ -292,13 +295,12 @@ class SwimGame extends Game {
     return position;
   }
 
-  void startTimer(bool boolean) async {
+  void startTimer(bool isStarted, double _start) async {
     Timer _timer;
-    double _start = 5.0;
 
     if(!isConnected);
-    else if (!boolean) {
-      _start = 5.0;
+    else if (!isStarted) {
+      //_start = 5.0;
       start = false;
     } else {
       const time = const Duration(milliseconds: 500);

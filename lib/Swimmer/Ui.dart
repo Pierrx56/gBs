@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
+import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
@@ -37,7 +38,8 @@ class UIState extends State<UI> {
     setState(() {});
   }
 
-  Widget displayScore(int score) {
+  Widget displayScore(
+      BuildContext context, AppLanguage appLanguage, int score) {
     return Text(
       "Score: $score m",
       style: TextStyle(
@@ -71,23 +73,6 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget creditsButton() {
-    return Ink(
-      decoration: ShapeDecoration(
-        shape: CircleBorder(),
-      ),
-      child: IconButton(
-        color: Colors.white,
-        icon: Icon(
-          Icons.nature_people,
-        ),
-        onPressed: () {
-          update();
-        },
-      ),
-    );
-  }
-
   Widget closeButton(
       BuildContext context, AppLanguage appLanguage, User user, int score) {
     DatabaseHelper db = new DatabaseHelper();
@@ -117,7 +102,7 @@ class UIState extends State<UI> {
 
           if (everyScores.length == 0 && score != 0)
             db.addScore(newScore);
-          else if (score != 0){
+          else if (score != 0) {
             //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
             for (int i = 0; i < everyScores.length; i++) {
               //On remplace la valeur dans la bdd
@@ -146,12 +131,13 @@ class UIState extends State<UI> {
             ),
           );
         },
-        child: Text("Quitter le jeu"),
+        child: Text(AppLocalizations.of(context).translate('quitter')),
       ),
     );
   }
 
-  Widget pauseButton(SwimGame game) {
+  Widget pauseButton(
+      BuildContext context, AppLanguage appLanguage, SwimGame game) {
     return Container(
       height: screenSize.height * 0.2,
       width: screenSize.width * 0.2,
@@ -166,7 +152,13 @@ class UIState extends State<UI> {
             Icon(
               !game.pauseGame ? Icons.pause : Icons.play_arrow,
             ),
-            !game.pauseGame ? Text("Pause") : Text("Play"),
+            !game.pauseGame
+                ? Text(
+                    (AppLocalizations.of(context).translate('pause')),
+                  )
+                : Text(
+                    (AppLocalizations.of(context).translate('play')),
+                  ),
           ],
         ),
       ),
@@ -184,50 +176,22 @@ class UIState extends State<UI> {
               context,
               MaterialPageRoute(
                   builder: (context) => LoadPage(
-                    messageIn: "",
+                        messageIn: "",
                         appLanguage: appLanguage,
                         page: "swimmer",
                         user: user,
                       )));
         },
-        child: Text("Restart"),
-      ),
-    );
-  }
-
-  Widget buildScreenPlaying() {
-    return Row(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(bottom: 30),
-          child: Row(
-            children: <Widget>[
-              //scoreDisplay(),
-              /* GestureDetector(
-                  //onTapDown: (TapDownDetails d) => game.boxer.punchLeft(),
-                  behavior: HitTestBehavior.opaque,
-                  child: LeftPunch(),
-                ),
-                GestureDetector(
-                  onTapDown: (TapDownDetails d) => game.boxer.upperCut(),
-                  behavior: HitTestBehavior.opaque,
-                  child: Uppercut(),
-                ),
-                GestureDetector(
-                  onTapDown: (TapDownDetails d) => game.boxer.punchRight(),
-                  behavior: HitTestBehavior.opaque,
-                  child: RightPunch(),
-                ),*/
-            ],
-          ),
+        child: Text(
+          (AppLocalizations.of(context).translate('restart')),
         ),
-      ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return buildScreenPlaying();
+    return null;
     //scoreDisplay(),
     //creditsButton(),
   }
