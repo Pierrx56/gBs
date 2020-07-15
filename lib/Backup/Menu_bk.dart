@@ -143,7 +143,7 @@ class _Menu extends State<Menu> {
               temp != null
                   ? Text(AppLocalizations.of(context).translate('bonjour') +
                       user.userName)
-                  : Text("a"),
+                  : Text("Check Language file (en/fr.json)"),
             ],
           ),
           backgroundColor: Colors.blue,
@@ -179,7 +179,7 @@ class _Menu extends State<Menu> {
                         color: Colors.white,
                       ),
                     )
-                  : Text("a"),
+                  : Text("Check Language file (en/fr.json)"),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
@@ -236,7 +236,7 @@ class _Menu extends State<Menu> {
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold),
                                     )
-                                  : Text("a"),
+                                  : Text("Check Language file (en/fr.json)"),
 
                               data == null
                                   ? Container()
@@ -250,7 +250,7 @@ class _Menu extends State<Menu> {
                                           AppLocalizations.of(context)
                                               .translate('details'),
                                         )
-                                      : Text("a"),
+                                      : Text("Check Language file (en/fr.json)"),
                                   onPressed: () => show("Bonjour"),
                                 ),
                               ),
@@ -450,7 +450,7 @@ class MenuUI extends StatelessWidget {
               temp != null
                   ? Text(AppLocalizations.of(context).translate('bonjour') +
                       user.userName)
-                  : Text("a"),
+                  : Text("Check Language file (en/fr.json)"),
             ],
           ),
           backgroundColor: Colors.blue,
@@ -488,7 +488,7 @@ class MenuUI extends StatelessWidget {
                         color: Colors.white,
                       ),
                     )
-                  : Text("a"),
+                  : Text("Check Language file (en/fr.json)"),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
@@ -545,7 +545,7 @@ class MenuUI extends StatelessWidget {
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold),
                                     )
-                                  : Text("a"),
+                                  : Text("Check Language file (en/fr.json)"),
 
                               data == null
                                   ? Container()
@@ -559,7 +559,7 @@ class MenuUI extends StatelessWidget {
                                           AppLocalizations.of(context)
                                               .translate('details'),
                                         )
-                                      : Text("a"),
+                                      : Text("Check Language file (en/fr.json)"),
                                   onPressed: () => show("Bonjour"),
                                 ),
                               ),

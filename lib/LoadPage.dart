@@ -51,11 +51,11 @@ class _LoadPage extends State<LoadPage> {
   _LoadPage({this.appLanguage, this.page, this.user, this.messageIn, this.scores});
 
 
-/*  @override
+  @override
   void dispose() {
 
     super.dispose();
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -7,7 +7,6 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DrawCharts.dart';
-import 'package:gbsalternative/FirstPush.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'DatabaseHelper.dart';
 
@@ -100,6 +99,10 @@ class _MainTitle extends State<MainTitle> {
 
   @override
   void dispose() {
+    if (timerConnexion != null) timerConnexion.cancel();
+
+    btManage.disconnect("");
+
     super.dispose();
   }
 
@@ -113,15 +116,17 @@ class _MainTitle extends State<MainTitle> {
   testConnect() async {
     isConnected = await btManage.getStatus();
     if (!isConnected) {
-      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
-          (timerConnexion) async {
-        btManage.connect(user.userMacAddress);
-        print("Status: $isConnected");
-        isConnected = await btManage.getStatus();
-        if (isConnected) {
-          timerConnexion.cancel();
-        }
-      });
+      timerConnexion = new Timer.periodic(
+        Duration(milliseconds: 1500),
+        (timerConnexion) async {
+          btManage.connect(user.userMacAddress);
+          print("Status: $isConnected");
+          isConnected = await btManage.getStatus();
+          if (isConnected) {
+            timerConnexion.cancel();
+          }
+        },
+      );
     }
   }
 
@@ -132,7 +137,7 @@ class _MainTitle extends State<MainTitle> {
       if (data_swim == null) {
         getScores(userId, activityId);
       } else {
-        setState(() {});
+        if (mounted) setState(() {});
       }
     }
     //Plane
@@ -141,7 +146,7 @@ class _MainTitle extends State<MainTitle> {
       if (data_plane == null) {
         getScores(userId, activityId);
       } else {
-        setState(() {});
+        if (mounted) setState(() {});
       }
     }
   }
@@ -172,7 +177,7 @@ class _MainTitle extends State<MainTitle> {
               temp != null
                   ? Text(AppLocalizations.of(context).translate('bonjour') +
                       user.userName)
-                  : Text("a"),
+                  : Text("Check Language file (en/fr.json)"),
             ],
           ),
           backgroundColor: Colors.blue,
@@ -189,7 +194,7 @@ class _MainTitle extends State<MainTitle> {
                         color: Colors.white,
                       ),
                     )
-                  : Text("a"),
+                  : Text("Check Language file (en/fr.json)"),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
@@ -267,7 +272,7 @@ class _MainTitle extends State<MainTitle> {
                         color: Colors.white,
                       ),
                     )
-                  : Text("a"),
+                  : Text("Check Language file (en/fr.json)"),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
@@ -316,7 +321,7 @@ class _MainTitle extends State<MainTitle> {
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold),
                                     )
-                                  : Text("a"),
+                                  : Text("Check Language file (en/fr.json)"),
                               data_swim == null
                                   ? Container()
                                   : DrawCharts(data: data_swim),
@@ -328,7 +333,8 @@ class _MainTitle extends State<MainTitle> {
                                           AppLocalizations.of(context)
                                               .translate('details'),
                                         )
-                                      : Text("a"),
+                                      : Text(
+                                          "Check Language file (en/fr.json)"),
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -406,7 +412,8 @@ class _MainTitle extends State<MainTitle> {
                                                                 .translate(
                                                                     'info_nageur'),
                                                       )
-                                                    : Text("a"),
+                                                    : Text(
+                                                        "Check Language file (en/fr.json)"),
                                               ),
                                               Align(
                                                 alignment:
@@ -419,17 +426,19 @@ class _MainTitle extends State<MainTitle> {
                                                               .translate(
                                                                   'retour'),
                                                         )
-                                                      : Text("a"),
+                                                      : Text(
+                                                          "Check Language file (en/fr.json)"),
                                                   onPressed: () {
-                                                    setState(() {
-                                                      visible_swim =
-                                                          !visible_swim;
-                                                      !visible_swim
-                                                          ? colorCard_swim =
-                                                              Colors.white70
-                                                          : colorCard_swim =
-                                                              Colors.white;
-                                                    });
+                                                    if (mounted)
+                                                      setState(() {
+                                                        visible_swim =
+                                                            !visible_swim;
+                                                        !visible_swim
+                                                            ? colorCard_swim =
+                                                                Colors.white70
+                                                            : colorCard_swim =
+                                                                Colors.white;
+                                                      });
                                                   },
                                                 ),
                                               ),
@@ -468,7 +477,8 @@ class _MainTitle extends State<MainTitle> {
                                                               fontSize: 24,
                                                             ),
                                                           )
-                                                        : Text("a"),
+                                                        : Text(
+                                                            "Check Language file (en/fr.json)"),
                                                     shape:
                                                         RoundedRectangleBorder(
                                                       borderRadius:
@@ -481,15 +491,16 @@ class _MainTitle extends State<MainTitle> {
                                                     ),
                                                     splashColor: Colors.blue,
                                                     onPressed: () {
-                                                      setState(() {
-                                                        visible_swim =
-                                                            !visible_swim;
-                                                        !visible_swim
-                                                            ? colorCard_swim =
-                                                                Colors.white70
-                                                            : colorCard_swim =
-                                                                Colors.white;
-                                                      });
+                                                      if (mounted)
+                                                        setState(() {
+                                                          visible_swim =
+                                                              !visible_swim;
+                                                          !visible_swim
+                                                              ? colorCard_swim =
+                                                                  Colors.white70
+                                                              : colorCard_swim =
+                                                                  Colors.white;
+                                                        });
                                                     },
                                                   ),
                                                 ),
@@ -524,7 +535,7 @@ class _MainTitle extends State<MainTitle> {
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold),
                                     )
-                                  : Text("a"),
+                                  : Text("Check Language file (en/fr.json)"),
                               data_plane == null
                                   ? Container()
                                   : DrawCharts(data: data_plane),
@@ -536,7 +547,8 @@ class _MainTitle extends State<MainTitle> {
                                           AppLocalizations.of(context)
                                               .translate('details'),
                                         )
-                                      : Text("a"),
+                                      : Text(
+                                          "Check Language file (en/fr.json)"),
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -614,9 +626,8 @@ class _MainTitle extends State<MainTitle> {
                                                                 .translate(
                                                                     'info_avion'),
                                                       )
-                                                    : Text("a"),
-
-                                                //Text("Le jeu du Nageur est un jeu qui consiste à effectuer des poussées régulières pour maintenir le nageur le plus proche de la ligne centrale. 600m parcourus = 5 minutes"),
+                                                    : Text(
+                                                        "Check Language file (en/fr.json)"),
                                               ),
                                               Align(
                                                 alignment:
@@ -629,17 +640,19 @@ class _MainTitle extends State<MainTitle> {
                                                               .translate(
                                                                   'retour'),
                                                         )
-                                                      : Text("a"),
+                                                      : Text(
+                                                          "Check Language file (en/fr.json)"),
                                                   onPressed: () {
-                                                    setState(() {
-                                                      visible_plane =
-                                                          !visible_plane;
-                                                      !visible_plane
-                                                          ? colorCard_plane =
-                                                              Colors.white70
-                                                          : colorCard_plane =
-                                                              Colors.white;
-                                                    });
+                                                    if (mounted)
+                                                      setState(() {
+                                                        visible_plane =
+                                                            !visible_plane;
+                                                        !visible_plane
+                                                            ? colorCard_plane =
+                                                                Colors.white70
+                                                            : colorCard_plane =
+                                                                Colors.white;
+                                                      });
                                                   },
                                                 ),
                                               ),
@@ -678,7 +691,8 @@ class _MainTitle extends State<MainTitle> {
                                                               fontSize: 24,
                                                             ),
                                                           )
-                                                        : Text("a"),
+                                                        : Text(
+                                                            "Check Language file (en/fr.json)"),
                                                     shape:
                                                         RoundedRectangleBorder(
                                                       borderRadius:
@@ -691,15 +705,16 @@ class _MainTitle extends State<MainTitle> {
                                                     ),
                                                     splashColor: Colors.blue,
                                                     onPressed: () {
-                                                      setState(() {
-                                                        visible_plane =
-                                                            !visible_plane;
-                                                        !visible_plane
-                                                            ? colorCard_plane =
-                                                                Colors.white70
-                                                            : colorCard_plane =
-                                                                Colors.white;
-                                                      });
+                                                      if (mounted)
+                                                        setState(() {
+                                                          visible_plane =
+                                                              !visible_plane;
+                                                          !visible_plane
+                                                              ? colorCard_plane =
+                                                                  Colors.white70
+                                                              : colorCard_plane =
+                                                                  Colors.white;
+                                                        });
                                                     },
                                                   ),
                                                 ),
@@ -729,20 +744,21 @@ class _MainTitle extends State<MainTitle> {
 
     Future<void> _onItemTapped(int index) async {
       user = await db.getUser(user.userId);
-      setState(() {
-        _selectedIndex = index;
-
+      if (mounted)
         setState(() {
-          menuPage = menu();
-        });
+          _selectedIndex = index;
 
-        settingsPage = LoadPage(
-          appLanguage: appLanguage,
-          user: user,
-          page: "manageProfile",
-          messageIn: "",
-        );
-        /*if (user.userInitialPush == "0.0")
+          setState(() {
+            menuPage = menu();
+          });
+
+          settingsPage = LoadPage(
+            appLanguage: appLanguage,
+            user: user,
+            page: "manageProfile",
+            messageIn: "",
+          );
+          /*if (user.userInitialPush == "0.0")
           firstPush = LoadPage(
             appLanguage: appLanguage,
             user: user,
@@ -751,12 +767,12 @@ class _MainTitle extends State<MainTitle> {
           );
         else*/
           firstPush = null;
-        /*
+          /*
         bluetoothPage = BluetoothManager(
             user: user,
             inputMessage: "0",
             appLanguage: appLanguage); */
-      });
+        });
     }
 
     if (message != defaultIndex) {
@@ -772,10 +788,10 @@ class _MainTitle extends State<MainTitle> {
         firstPush,
       ];
     else*/
-      _widgetOptions = <Widget>[
-        menuPage = menu(),
-        settingsPage,
-      ];
+    _widgetOptions = <Widget>[
+      menuPage = menu(),
+      settingsPage,
+    ];
 
     return MaterialApp(
       home: DefaultTabController(
@@ -808,22 +824,21 @@ class _MainTitle extends State<MainTitle> {
                     ),
                   ]
                 //Sinon on affiche que 2 boutons
-                : */<BottomNavigationBarItem>[
-                    BottomNavigationBarItem(
-                      icon: Icon(
-                        Icons.home,
-                      ),
-                      title: Text(
-                          AppLocalizations.of(context).translate('accueil')),
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(
-                        Icons.settings,
-                      ),
-                      title: Text(
-                          AppLocalizations.of(context).translate('reglages')),
-                    ),
-                  ],
+                : */
+                <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.home,
+                ),
+                title: Text(AppLocalizations.of(context).translate('accueil')),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.settings,
+                ),
+                title: Text(AppLocalizations.of(context).translate('reglages')),
+              ),
+            ],
             currentIndex: _selectedIndex,
             selectedItemColor: orangeColor,
             onTap: _onItemTapped,

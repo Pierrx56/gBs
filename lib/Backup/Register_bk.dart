@@ -69,7 +69,7 @@ class _Register extends State<Register> {
   }
 
   bool isDisconnecting = false;
-  BluetoothConnection connection;
+  BluetoothConnection connexion;
   bool isConnected = false;
   Timer _timer;
   double _start = 10.0;
@@ -79,18 +79,18 @@ class _Register extends State<Register> {
 
   void connectBT() async {
     //_disconnect();
-    await BluetoothConnection.toAddress(macAddress).then((_connection) {
+    await BluetoothConnection.toAddress(macAddress).then((_connexion) {
       print('Connected to the device');
 
-      connection = _connection;
+      connexion = _connexion;
       isConnected = true;
 
-      connection.input.listen(_onDataReceived).onDone(() {
-        // Example: Detect which side closed the connection
+      connexion.input.listen(_onDataReceived).onDone(() {
+        // Example: Detect which side closed the connexion
         // There should be `isDisconnecting` flag to show are we are (locally)
         // in middle of disconnecting process, should be set before calling
         // `dispose`, `finish` or `close`, which all causes to disconnect.
-        // If we except the disconnection, `onDone` should be fired as result.
+        // If we except the disconnexion, `onDone` should be fired as result.
         // If we didn't except this (no flag set), it means closing by remote.
         if (isDisconnecting) {
           print('Disconnecting locally!');
@@ -101,7 +101,7 @@ class _Register extends State<Register> {
     });
 
     if (!isConnected) {
-      connection = null;
+      connexion = null;
       connectBT();
     }
   }

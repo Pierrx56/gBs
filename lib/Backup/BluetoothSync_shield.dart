@@ -43,7 +43,7 @@ class _BluetoothSync extends State<BluetoothSync> {
   //Initializing databse
   DatabaseHelper db = new DatabaseHelper();
 
-  // Initializing the Bluetooth connection state to be unknown
+  // Initializing the Bluetooth connexion state to be unknown
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
 
   // Initializing a global key, as it would help us in showing a SnackBar later
@@ -52,8 +52,8 @@ class _BluetoothSync extends State<BluetoothSync> {
   // Get the instance of the Bluetooth
   FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
 
-  // Track the Bluetooth connection with the remote device
-  BluetoothConnection connection;
+  // Track the Bluetooth connexion with the remote device
+  BluetoothConnection connexion;
 
   bool isEmpty = false;
 
@@ -81,7 +81,7 @@ class _BluetoothSync extends State<BluetoothSync> {
   }
 
   // To track whether the device is still connected to Bluetooth
-  bool get isConnected => connection != null && connection.isConnected;
+  bool get isConnected => connexion != null && connexion.isConnected;
 
   // Define some variables, which will be required later
   List<BluetoothDevice> _devicesList = [];
@@ -128,8 +128,8 @@ class _BluetoothSync extends State<BluetoothSync> {
     // Avoid memory leak and disconnect
     if (isConnected) {
       isDisconnecting = true;
-      connection.dispose();
-      connection = null;
+      connexion.dispose();
+      connexion = null;
     }
 
     super.dispose();
@@ -435,16 +435,16 @@ class _BluetoothSync extends State<BluetoothSync> {
     } else {
       if (!isConnected) {
         await BluetoothConnection.toAddress(_device.address)
-            .then((_connection) {
+            .then((_connexion) {
           print('Connected to the device');
-          connection = _connection;
+          connexion = _connexion;
 
-          connection.input.listen(_onDataReceived).onDone(() {
-            // Example: Detect which side closed the connection
+          connexion.input.listen(_onDataReceived).onDone(() {
+            // Example: Detect which side closed the connexion
             // There should be `isDisconnecting` flag to show are we are (locally)
             // in middle of disconnecting process, should be set before calling
             // `dispose`, `finish` or `close`, which all causes to disconnect.
-            // If we except the disconnection, `onDone` should be fired as result.
+            // If we except the disconnexion, `onDone` should be fired as result.
             // If we didn't except this (no flag set), it means closing by remote.
             if (isDisconnecting) {
               print('Disconnecting locally!');
@@ -503,7 +503,7 @@ class _BluetoothSync extends State<BluetoothSync> {
           }
         } else
           show("Échec de connexion");
-        /*    connection.input.listen(_onDataReceived).onDone((){
+        /*    connexion.input.listen(_onDataReceived).onDone((){
           if (this.mounted) {
             setState(() {});
           }
@@ -548,9 +548,9 @@ class _BluetoothSync extends State<BluetoothSync> {
       _deviceState = 0;
     });
 
-    await connection.close();
+    await connexion.close();
     //show('Device disconnected');
-    if (!connection.isConnected) {
+    if (!connexion.isConnected) {
       setState(() {
         _connected = false;
         _isButtonUnavailable = false;
@@ -561,8 +561,8 @@ class _BluetoothSync extends State<BluetoothSync> {
   // Method to send message,
   // for turning the Bluetooth device on
   void _sendOnMessageToBluetooth() async {
-    connection.output.add(utf8.encode("5" + "\r\n"));
-    await connection.output.allSent;
+    connexion.output.add(utf8.encode("5" + "\r\n"));
+    await connexion.output.allSent;
     show('Device Turned On');
     setState(() {
       _deviceState = 1; // device on
@@ -572,8 +572,8 @@ class _BluetoothSync extends State<BluetoothSync> {
   // Method to send message,
   // for turning the Bluetooth device off
   void _sendOffMessageToBluetooth() async {
-    connection.output.add(utf8.encode("0" + "\r\n"));
-    await connection.output.allSent;
+    connexion.output.add(utf8.encode("0" + "\r\n"));
+    await connexion.output.allSent;
     show('Device Turned Off');
     setState(() {
       _deviceState = -1; // device off

@@ -18,7 +18,7 @@ import 'Ui.dart';
 String btData;
 String _messageBuffer = '';
 List<_Message> messages = List<_Message>();
-BluetoothConnection connection;
+BluetoothConnection connexion;
 bool isConnected;
 SwimGame game;
 
@@ -132,7 +132,7 @@ class _Swimmer extends State<Swimmer> {
   // Method to disconnect bluetooth
   void _disconnect() async {
     isConnected = false;
-    await connection.close();
+    await connexion.close();
     print('Device disconnected');
   }
 

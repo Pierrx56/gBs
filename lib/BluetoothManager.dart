@@ -49,7 +49,7 @@ class BluetoothManager {
   //Initializing database
   DatabaseHelper db = new DatabaseHelper();
 
-  // Initializing the Bluetooth connection state to be unknown
+  // Initializing the Bluetooth connexion state to be unknown
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
 
   // Initializing a global key, as it would help us in showing a SnackBar later
@@ -122,7 +122,8 @@ class BluetoothManager {
   Future<void> disconnect(String origin) async {
     String connectStatus;
     try {
-      final String result = await sensorChannel.invokeMethod('disconnect');
+      //TODO Implement swift
+      final String result = await sensorChannel.invokeMethod('disco');
       connectStatus = 'Connection status: $result.';
       isConnected = false;
     } on PlatformException {

@@ -199,7 +199,7 @@ public class MainActivity extends FlutterActivity {
                                 //result.error("UNAVAILABLE", "No data available.", null);
                             }
                         }
-                        if (call.method.equals("disconnect")) {
+                        if (call.method.equals("disco")) {
                             disconnectDeviceSelected();
 
                             result.success("Disconnected");
@@ -275,14 +275,14 @@ public class MainActivity extends FlutterActivity {
 
             if(result.getDevice().getName() != null) {
                 System.out.println(result.getDevice().getName());
-                if (macAdress != null && macAdress != "-1"){
+                if (macAdress != null && macAdress != "-1" && macAdress != ""){
                     System.out.println(result.getDevice().getAddress());
                     if(result.getDevice().getAddress().contains(macAdress)){
                         m_BTdevice = result.getDevice();
                         stopScanning();
                     }
                 }
-                else if (result.getDevice().getName().contains(NAME_DEVICE)) {
+                if (result.getDevice().getName().contains(NAME_DEVICE)) {
                     setMacAddress(result.getDevice().getAddress());
                     m_BTdevice = result.getDevice();
                     stopScanning();
@@ -356,7 +356,7 @@ public class MainActivity extends FlutterActivity {
         macAdress = mac;
 
         //Si null, on recherche l'adresse mac et on se connecte
-        if(m_BTdevice == null){
+        if(m_BTdevice == null && !isConnected){
             System.out.println("start scanning");
             startScanning();
             //m_BTdevice = mac;
@@ -364,6 +364,7 @@ public class MainActivity extends FlutterActivity {
         else {
             stopScanning();
             bluetoothGatt = m_BTdevice.connectGatt(this, false, btleGattCallback);
+
         }
         if(isConnected)
             return "Connected";
@@ -512,10 +513,12 @@ public class MainActivity extends FlutterActivity {
 
     public void disconnectDeviceSelected() {
         //peripheralTextView.append("Disconnecting from device\n");
-        isConnected = false;
-        bluetoothGatt.disconnect();
-        bluetoothGatt.close();
-        //bluetoothGatt = null;
+        if(bluetoothGatt != null) {
+            isConnected = false;
+            bluetoothGatt.disconnect();
+            bluetoothGatt.close();
+
+        }
     }
 
     private void broadcastUpdate(final String action,

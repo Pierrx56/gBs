@@ -57,7 +57,7 @@ class _BluetoothManagerBK extends State<BluetoothManagerBK> {
   //Initializing database
   DatabaseHelper db = new DatabaseHelper();
 
-  // Initializing the Bluetooth connection state to be unknown
+  // Initializing the Bluetooth connexion state to be unknown
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
 
   // Initializing a global key, as it would help us in showing a SnackBar later
@@ -83,8 +83,8 @@ class _BluetoothManagerBK extends State<BluetoothManagerBK> {
     // Avoid memory leak and disconnect
     if (isConnected) {
 /*      isDisconnecting = true;
-      connection.dispose();
-      connection = null;*/
+      connexion.dispose();
+      connexion = null;*/
     }
 
     super.dispose();

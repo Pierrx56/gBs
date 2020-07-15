@@ -104,8 +104,8 @@ class _FirstPush extends State<FirstPush> {
     // Avoid memory leak and disconnect
     if (isConnected) {
 /*      isDisconnecting = true;
-      connection.dispose();
-      connection = null;*/
+      connexion.dispose();
+      connexion = null;*/
     }
 
     super.dispose();
@@ -215,7 +215,7 @@ class _FirstPush extends State<FirstPush> {
                               } else {
                                 setState(() {
                                   statusBT = AppLocalizations.of(context)
-                                      .translate('connection_en_cours');
+                                      .translate('connexion_en_cours');
                                 });
                               }
                             });

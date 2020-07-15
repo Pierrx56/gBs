@@ -53,6 +53,7 @@ class _Register extends State<Register> {
   final hauteur_min = new TextEditingController();
   final hauteur_max = new TextEditingController();
   var name = new TextEditingController();
+  var serialNumber = new TextEditingController();
   int tempHautMax;
   int tempHautMin;
   bool _validate = false;
@@ -63,6 +64,7 @@ class _Register extends State<Register> {
   FocusNode nameNode;
   FocusNode posBNode;
   FocusNode posTNode;
+  FocusNode serialNode;
   ScrollController _controller;
   double posScroll = 0.0;
   bool isDisabled;
@@ -101,6 +103,7 @@ class _Register extends State<Register> {
     nameNode = FocusNode();
     posBNode = FocusNode();
     posTNode = FocusNode();
+    serialNode = FocusNode();
     tempHautMin = 0;
     tempHautMax = 0;
 
@@ -259,6 +262,12 @@ class _Register extends State<Register> {
             _validate = true;
           else
             _validate = false;
+        } else if (currentStep == 5) {
+          //Bouton connexion
+          if(!isConnected){
+            show(AppLocalizations.of(context).translate('connect_av'));
+            return;
+          }
         }
 
         if (!_validate && !isEmpty) {
@@ -480,8 +489,18 @@ class _Register extends State<Register> {
         title: Text(AppLocalizations.of(context).translate('connecter_app')),
         isActive: currentStep > 5,
         state: currentStep > 5 ? StepState.complete : StepState.disabled,
-        content: Column(
+        content: Row(
           children: <Widget>[
+/*            Expanded(
+              child: TextFormField(
+                style: textStyle,
+                focusNode: serialNode,
+                controller: serialNumber,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).translate('num_serie'),
+                ),
+              ),
+            ),*/
             RaisedButton(
               child: Text(
                 discovering,
@@ -489,44 +508,42 @@ class _Register extends State<Register> {
               ),
               onPressed: !isFound
                   ? () async {
-                if (await btManage.enableBluetooth()) {
-                  macAddress = await btManage.getPairedDevices("register");
-
-
-                  print(
-                      "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
-
-                  int tempTimer = 0;
-                  //Check tant que l'adresse mac est égale à -1 toute les secondes
-                  //Si pas trouve au bout de 30 secondes, affiche message d'erreur
-                  Timer.periodic(const Duration(seconds: 1), (timer) async {
-                    if (macAddress == "0") {
                       macAddress = await btManage.getPairedDevices("register");
-                    }
-                    if (macAddress != "-1") {
-                      timer.cancel();
-                      //Appareil trouvé
-                      setState(() {
-                        discovering = AppLocalizations.of(context)
-                            .translate('app_trouve');
-                        isFound = true;
+
+                      print(
+                          "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
+
+                      int tempTimer = 0;
+                      //Check tant que l'adresse mac est égale à -1 toute les secondes
+                      //Si pas trouve au bout de 30 secondes, affiche message d'erreur
+                      Timer.periodic(const Duration(seconds: 1), (timer) async {
+                        if (macAddress == "0") {
+                          macAddress =
+                              await btManage.getPairedDevices("register");
+                        }
+                        if (macAddress != "-1") {
+                          timer.cancel();
+                          //Appareil trouvé
+                          setState(() {
+                            discovering = AppLocalizations.of(context)
+                                .translate('app_trouve');
+                            isFound = true;
+                          });
+                        } else if (macAddress == "-1") {
+                          macAddress = await btManage.getMacAddress();
+                          setState(() {
+                            discovering = AppLocalizations.of(context)
+                                .translate('recherche_app');
+                            isFound = false;
+                          });
+                        } else if (tempTimer >= 30) {
+                          discovering = AppLocalizations.of(context)
+                              .translate('app_non_trouve');
+                          isFound = false;
+                        }
+                        tempTimer++;
                       });
-                    } else if (macAddress == "-1") {
-                      macAddress = await btManage.getMacAddress();
-                      setState(() {
-                        discovering = AppLocalizations.of(context)
-                            .translate('recherche_app');
-                        isFound = false;
-                      });
-                    } else if (tempTimer >= 30) {
-                      discovering = AppLocalizations.of(context)
-                          .translate('app_non_trouve');
-                      isFound = false;
                     }
-                    tempTimer++;
-                  });
-                }
-              }
                   : null,
             ),
             RaisedButton(
@@ -568,7 +585,7 @@ class _Register extends State<Register> {
                             } else {
                               setState(() {
                                 statusBT = AppLocalizations.of(context)
-                                    .translate('connection_en_cours');
+                                    .translate('connexion_en_cours');
                               });
                             }
                           });
@@ -600,7 +617,6 @@ class _Register extends State<Register> {
                             name.text,
                         style: textStyle,
                       ),
-
                       Text(
                         AppLocalizations.of(context)
                                 .translate('type_utilisation') +
@@ -620,7 +636,6 @@ class _Register extends State<Register> {
                             hauteur_max.text,
                         style: textStyle,
                       ),
-
                       macAddress != null
                           ? Text(
                               AppLocalizations.of(context)
@@ -704,7 +719,7 @@ class _Register extends State<Register> {
                                 ),
                               ),
                             );
-                            dispose();
+                            //dispose();
                           } else
                             print("Something went wrong");
                         } else
@@ -776,6 +791,8 @@ class _Register extends State<Register> {
                         children: <Widget>[
                           currentStep >= 3 ? nextButton : Container(),
                           currentStep >= 3 ? backButton : Container(),
+                          currentStep == 5 ? Container() : Container(),
+                          currentStep == 5 ? Container() : Container(),
                         ],
                       ),
                       Padding(
