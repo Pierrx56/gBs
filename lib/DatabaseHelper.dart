@@ -13,6 +13,7 @@ String KEY_USER_HEIGHT_TOP = "user_height_top";
 String KEY_USER_HEIGHT_BOTTOM = "user_height_bottom";
 String KEY_USER_INITIAL_PUSH = "user_initial_push";
 String KEY_USER_MAC_ADDRESS = "user_mac_address";
+String KEY_USER_SERIAL = "user_serial_number";
 
 String KEY_SCORE_ID = "score_id";
 String KEY_SCORE_DATE = "score_date";
@@ -48,6 +49,8 @@ final String CREATE_TABLE_USERS = "CREATE TABLE " +
     KEY_USER_INITIAL_PUSH +
     " TEXT, " +
     KEY_USER_MAC_ADDRESS +
+    " TEXT, " +
+    KEY_USER_SERIAL +
     " TEXT" +
     ");";
 
@@ -161,6 +164,7 @@ class DatabaseHelper {
         userHeightBottom: maps[i][KEY_USER_HEIGHT_BOTTOM],
         userInitialPush: maps[i][KEY_USER_INITIAL_PUSH],
         userMacAddress: maps[i][KEY_USER_MAC_ADDRESS],
+        userSerialNumber: maps[i][KEY_USER_SERIAL],
       );
     });
   }
@@ -217,6 +221,7 @@ class DatabaseHelper {
         userHeightBottom: maps[i][KEY_USER_HEIGHT_BOTTOM],
         userInitialPush: maps[i][KEY_USER_INITIAL_PUSH],
         userMacAddress: maps[i][KEY_USER_MAC_ADDRESS],
+        userSerialNumber: maps[i][KEY_USER_SERIAL],
       );
     });
 
@@ -357,6 +362,7 @@ class User {
   final String userHeightBottom;
   final String userInitialPush;
   final String userMacAddress;
+  final String userSerialNumber;
 
   User({
     this.userId,
@@ -367,6 +373,7 @@ class User {
     this.userHeightBottom,
     this.userInitialPush,
     this.userMacAddress,
+    this.userSerialNumber,
   });
 
   Map<String, dynamic> toMap() {
@@ -379,6 +386,7 @@ class User {
       KEY_USER_HEIGHT_BOTTOM: userHeightBottom,
       KEY_USER_INITIAL_PUSH: userInitialPush,
       KEY_USER_MAC_ADDRESS: userMacAddress,
+      KEY_USER_SERIAL: userSerialNumber,
     };
   }
 }

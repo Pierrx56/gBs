@@ -104,7 +104,7 @@ class _Swimmer extends State<Swimmer> {
   void connect() async {
     btManage.enableBluetooth();
     //btManage.getPairedDevices("swimmer");
-    btManage.connect(user.userMacAddress);
+    btManage.connect(user.userMacAddress, user.userSerialNumber);
     isConnected = await btManage.getStatus();
     testConnect();
   }
@@ -114,7 +114,8 @@ class _Swimmer extends State<Swimmer> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
-        btManage.connect(user.userMacAddress);
+
+            btManage.connect(user.userMacAddress, user.userSerialNumber);
         isConnected = await btManage.getStatus();
         if (isConnected) {
           timerConnexion.cancel();
@@ -127,13 +128,6 @@ class _Swimmer extends State<Swimmer> {
       initSwimmer();
       //refreshScore();
     }
-  }
-
-  // Method to disconnect bluetooth
-  void _disconnect() async {
-    isConnected = false;
-    await connexion.close();
-    print('Device disconnected');
   }
 
   void setData() async {
@@ -159,7 +153,7 @@ class _Swimmer extends State<Swimmer> {
 
   refreshScore() async {
     timer = new Timer.periodic(Duration(milliseconds: 300), (timer) {
-      if (this.mounted) {
+      if (mounted) {
         if (game != null) {
           setState(() {
             score = game.getScore();

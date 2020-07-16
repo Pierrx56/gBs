@@ -39,6 +39,7 @@ class _MainTitle extends State<MainTitle> {
   User user;
   int message;
   bool isConnected;
+  bool isInformed;
   Timer timerConnexion;
 
   DatabaseHelper db = new DatabaseHelper();
@@ -101,14 +102,14 @@ class _MainTitle extends State<MainTitle> {
   void dispose() {
     if (timerConnexion != null) timerConnexion.cancel();
 
-    btManage.disconnect("");
+    //btManage.disconnect("");
 
     super.dispose();
   }
 
   void connect() async {
     btManage.enableBluetooth();
-    btManage.connect(user.userMacAddress);
+    btManage.connect(user.userMacAddress, user.userSerialNumber);
     isConnected = await btManage.getStatus();
     testConnect();
   }
@@ -119,12 +120,12 @@ class _MainTitle extends State<MainTitle> {
       timerConnexion = new Timer.periodic(
         Duration(milliseconds: 1500),
         (timerConnexion) async {
-          btManage.connect(user.userMacAddress);
-          print("Status: $isConnected");
-          isConnected = await btManage.getStatus();
-          if (isConnected) {
-            timerConnexion.cancel();
-          }
+            btManage.connect(user.userMacAddress, user.userSerialNumber);
+            print("Status: $isConnected");
+            isConnected = await btManage.getStatus();
+            if (isConnected) {
+              timerConnexion.cancel();
+            }
         },
       );
     }
@@ -207,12 +208,27 @@ class _MainTitle extends State<MainTitle> {
                       userHeightBottom: user.userHeightBottom,
                       userHeightTop: user.userHeightTop,
                       userId: user.userId,
-                      userInitialPush: "0.0",
-                      userMacAddress: user.userMacAddress,
+                      userInitialPush: "7.0",
                       userMode: user.userMode,
                       userName: user.userName,
-                      userPic: user.userPic),
+                      userPic: user.userPic,
+                      userMacAddress: user.userMacAddress,
+                      userSerialNumber: user.userSerialNumber),
                 );
+
+                /*
+                db.updateUser(
+                  User(
+                      userHeightBottom: user.userHeightBottom,
+                      userHeightTop: user.userHeightTop,
+                      userId: user.userId,
+                      userInitialPush: user.userInitialPush,
+                      userMode: user.userMode,
+                      userName: user.userName,
+                      userPic: user.userPic,
+                      userMacAddress: "78:DB:2F:BF:1F:72",
+                      userSerialNumber: user.userSerialNumber),
+                );*/
 
                 Score newScore = Score(
                     scoreId: 0,

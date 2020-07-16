@@ -84,7 +84,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
   initPlane() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    game = new PlaneGame(getData, user);
+    game = new PlaneGame(getData, user, appLanguage);
     //Start timer of 2 minutes
     startTimer(true);
     gameUI = new UI();
@@ -103,7 +103,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
 
   void connect() async {
     btManage.enableBluetooth();
-    btManage.connect(user.userMacAddress);
+    btManage.connect(user.userMacAddress, user.userSerialNumber);
     isConnected = await btManage.getStatus();
     testConnect();
   }
@@ -113,7 +113,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
-        btManage.connect(user.userMacAddress);
+            btManage.connect(user.userMacAddress, user.userSerialNumber);
         print("Status: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {

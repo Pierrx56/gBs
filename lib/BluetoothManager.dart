@@ -69,11 +69,11 @@ class BluetoothManager {
   }
 
   //Fonction pour récupérer l'adresse mac de l'appareil bluetooth
-  Future<String> getPairedDevices(String origin) async {
+  Future<String> getPairedDevices(String serialNumber) async {
     String pairedDevices;
     try {
-      final String paired =
-      await sensorChannel.invokeMethod('getPairedDevices');
+      final String paired = await sensorChannel
+          .invokeMethod('getPairedDevices,${"gBs" + serialNumber}');
       pairedDevices = 'Devices paired: $paired.';
       print(pairedDevices);
       macAddress = paired;
@@ -82,35 +82,33 @@ class BluetoothManager {
     }
 
     return macAddress;
-
   }
 
   //Fonction qui récupère le status de connexion
   //Retourne true ou false
-  Future<bool> getStatus() async{
+  Future<bool> getStatus() async {
     isConnected = await sensorChannel.invokeMethod('getStatus');
     return isConnected;
   }
 
   //Fonction qui récupère l'adresse mac
   //Retourne l'adresse mac
-  Future<String> getMacAddress() async{
+  Future<String> getMacAddress() async {
     macAddress = await sensorChannel.invokeMethod('getMacAddress');
     return macAddress;
   }
 
   //Fonction pour se connecter au gBs
-  Future<bool> connect(String origin) async {
+  Future<bool> connect(String macAddress, String serialNumber) async {
     String connectStatus;
     bool result;
     try {
       //Origin = adresse mac
       //TODO modifier la fonction sous mac swift
-      sensorChannel.invokeMethod('connect,$origin');
+      sensorChannel.invokeMethod('connect,$macAddress,$serialNumber');
       result = await sensorChannel.invokeMethod('getStatus');
       connectStatus = 'Connection status: $result.';
       isConnected = true;
-
     } on PlatformException {
       connectStatus = 'Connection status: Failed';
     }
@@ -129,7 +127,6 @@ class BluetoothManager {
     } on PlatformException {
       connectStatus = 'Connection status: Disconnected';
     }
-
   }
 
   //Fonction qui appelle toutes les 500 ms la fonction getData()
@@ -153,6 +150,7 @@ class BluetoothManager {
     double coefKg = 0.45359237;
 
     try {
+      //TODO Résoudre bug: 2 appareils connectés au même tel, on recoit les valeurs des 2 capteurs
       result = await sensorChannel.invokeMethod('getData');
       data = 'Data: $result';
     } on PlatformException {
@@ -161,14 +159,15 @@ class BluetoothManager {
 
     double convVoltToLbs = (921 - delta) / 100;
 
-    double tempResult = 2.0 * double.parse(
-        ((double.parse(result) - delta) / (convVoltToLbs * coefKg))
-            .toStringAsExponential(1)).abs();
-
+    double tempResult = 2.0 *
+        double.parse(((double.parse(result) - delta) / (convVoltToLbs * coefKg))
+                .toStringAsExponential(1))
+            .abs();
 
     //print("Résultat: $tempResult");
     return tempResult.toString();
   }
+
 /*
 
   @override
@@ -257,7 +256,7 @@ class BluetoothManager {
                       child: const Text('Refresh'),
                       onPressed: () {},
                     ),
-                  ),*//*
+                  ),*/ /*
 
                 ],
               ),

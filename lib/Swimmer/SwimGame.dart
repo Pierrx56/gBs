@@ -34,7 +34,7 @@ class SwimGame extends Game {
   double tempPos = 0;
   double pos = 0;
   int i = 0;
-  double difficulte = 1.0;
+  double difficulte = 0.50;
 
   double size = 230.0;
   List<String> tab = [
@@ -69,7 +69,7 @@ class SwimGame extends Game {
   int j = 0;
   double posBottomLine;
   double posTopLine;
-  bool position;
+  bool isTopPosition;
   UI gameUI;
   AppLanguage appLanguage;
 
@@ -86,7 +86,7 @@ class SwimGame extends Game {
     topLine = TopLine(this);
     gameUI = UI();
 
-    position = false;
+    isTopPosition = false;
     posMax = false;
     gameOver = false;
     isConnected = true;
@@ -142,7 +142,7 @@ class SwimGame extends Game {
           if (pos < bottomLine.getDownPosition()) {
             //print("Attention au bord bas !");
             //setColorFilter(true);
-            position = true;
+            isTopPosition = true;
             //Rentre une fois dans la timer
             if (!start) {
               startTimer(start = true, 10.0);
@@ -150,7 +150,7 @@ class SwimGame extends Game {
           } else if (pos > topLine.getUpPosition()) {
             //print("Attention au bord haut !");
             //setColorFilter(true);
-            position = false;
+            isTopPosition = false;
             if (!start) {
               startTimer(start = true, 5.0);
             }
@@ -192,7 +192,9 @@ class SwimGame extends Game {
           swimmer = SpriteComponent.fromSprite(
               size, size, sprite); // width, height, sprite
 
+          //Centrage du nageur en abscisses
           swimmer.x = screenSize.width / 2 - swimmer.width / 2;
+
           //Définition des bords haut et bas de l'écran
 
           //Bas
@@ -209,11 +211,14 @@ class SwimGame extends Game {
           //Sinon on fait descendre le nageur
           else if (!posMax) {
             swimmer.y += tempPos;
-            tempPos = swimmer.y + difficulte * 2.0;
+            tempPos = swimmer.y + difficulte * 4.0;
             if (pauseGame) tempPos = swimmer.y;
-          } else
+          } else {
+            if (swimmer.y == 0.0) {
+              swimmer.y = tempPos;
+            }
             posMax = false;
-
+          }
           //component = new Component(dimensions);
           //add(component);
         }
@@ -227,19 +232,24 @@ class SwimGame extends Game {
 
           //getData = données reçues par le Bluetooth
           //Montée du nageur
-          if (getData() > double.parse(user.userInitialPush) && !posMax) {
+          if (getData() > double.parse(user.userInitialPush) &&
+              !posMax &&
+              swimmer != null) {
             //print(swimmer.y);
             swimmer.y -= difficulte;
             tempPos = swimmer.y;
             inTouch = false;
           }
 
-          if (inTouch) {
+          //print("tempPos: $tempPos \nSwimmer.y: ${swimmer.y}\n");
+
+          //Pression sur l'écran avec le doigt
+/*          if (inTouch) {
             print(swimmer.y);
             swimmer.y -= 20.0;
             tempPos = swimmer.y;
             inTouch = false;
-          }
+          }*/
         }
       }
     }
@@ -292,14 +302,13 @@ class SwimGame extends Game {
   bool getPosition() {
     //True: position haut
     //False: position basse
-    return position;
+    return isTopPosition;
   }
 
   void startTimer(bool isStarted, double _start) async {
     Timer _timer;
 
-    if(!isConnected);
-    else if (!isStarted) {
+    if (!isStarted && isConnected) {
       //_start = 5.0;
       start = false;
     } else {
@@ -312,7 +321,7 @@ class SwimGame extends Game {
             timer.cancel();
             return;
           }
-          if(isConnected) {
+          if (isConnected) {
             if (_start < 0.5) {
               //TODO Display menu ?
               setColorFilter(true);
@@ -323,8 +332,7 @@ class SwimGame extends Game {
               _start = _start - 0.5;
               print(_start);
             }
-          }
-          else{
+          } else {
             setColorFilter(false);
             timer.cancel();
           }

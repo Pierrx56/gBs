@@ -6,6 +6,7 @@ import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/Plane/Background.dart';
 import 'package:gbsalternative/Plane/Ui.dart';
@@ -48,9 +49,11 @@ class PlaneGame extends Game {
   bool position;
   bool posMax;
   UI gameUI;
+  AppLanguage appLanguage;
 
-  PlaneGame(this.getData, User _user) {
+  PlaneGame(this.getData, User _user, AppLanguage _appLanguage) {
     user = _user;
+    appLanguage = _appLanguage;
     initialize();
   }
 
@@ -117,7 +120,7 @@ class PlaneGame extends Game {
             //print("Position joueur: " + tempPos.toString());
 
             //print("PosY Plane: ${bottomBalloon.getHeightBottomPosition()}");
-            //Conditions si le ballon dépasse la moitié de l'avion, on respawn un ballon
+            //TODO Conditions si le ballon dépasse la moitié de l'avion, on respawn un ballon
 
             if (bottomBalloon.getXBottomPosition() == screenSize.width / 2) {
               //bottomBalloon = BottomBalloon(this);
@@ -193,7 +196,7 @@ class PlaneGame extends Game {
 
           plane = SpriteComponent.fromSprite(
               size, size, sprite); // width, height, sprite
-
+          //Centrage de l'avion en abscisses
           plane.x = screenSize.width / 2 - plane.width / 2;
           //Définition des bords haut et bas de l'écran
 
@@ -215,9 +218,12 @@ class PlaneGame extends Game {
             plane.y += tempPos;
             tempPos = plane.y + difficulte * 3.0;
             if (pauseGame) tempPos = plane.y;
-          } else
+          } else {
+            if (plane.y == 0.0) {
+              plane.y = tempPos;
+            }
             posMax = false;
-
+          }
           //component = new Component(dimensions);
           //add(component);
         }
@@ -226,7 +232,7 @@ class PlaneGame extends Game {
           //getData = données reçues par le Bluetooth
 
           //Montée de l'avion
-          if (getData() > double.parse(user.userInitialPush) && !posMax) {
+          if (getData() > double.parse(user.userInitialPush) && !posMax && plane != null) {
             //print(plane.y);
             plane.y -= difficulte;
             tempPos = plane.y;

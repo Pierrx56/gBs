@@ -188,7 +188,7 @@ class _ManageProfile extends State<ManageProfile> {
   void connect() async {
     btManage.enableBluetooth();
     //btManage.getPairedDevices("manageProfile");
-    btManage.connect(user.userMacAddress);
+    btManage.connect(user.userMacAddress, user.userSerialNumber);
     isConnected = await btManage.getStatus();
     testConnect();
   }
@@ -198,7 +198,7 @@ class _ManageProfile extends State<ManageProfile> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
-        btManage.connect(user.userMacAddress);
+            btManage.connect(user.userMacAddress, user.userSerialNumber);
         print("Status: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {
@@ -393,6 +393,7 @@ class _ManageProfile extends State<ManageProfile> {
                               initialPush = user.userInitialPush;
 
                             String macAddress = user.userMacAddress;
+                            String serialNumber = user.userSerialNumber;
 
                             db.updateUser(User(
                               userId: user.userId,
@@ -403,6 +404,7 @@ class _ManageProfile extends State<ManageProfile> {
                               userHeightBottom: hauteur_min.text,
                               userInitialPush: initialPush,
                               userMacAddress: macAddress,
+                              userSerialNumber: serialNumber,
                             ));
 
                             show("done");

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -130,7 +131,7 @@ class _Register extends State<Register> {
   void connect() async {
     btManage.enableBluetooth();
     //btManage.getPairedDevices("register");
-    btManage.connect(macAddress);
+    btManage.connect(macAddress, "gBs" + serialNumber.text);
     isConnected = await btManage.getStatus();
     testConnect();
   }
@@ -140,7 +141,7 @@ class _Register extends State<Register> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
-        btManage.connect(macAddress);
+        btManage.connect(macAddress, "gBs" + serialNumber.text);
         print("Status: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {
@@ -148,10 +149,6 @@ class _Register extends State<Register> {
         }
       });
     }
-  }
-
-  Future<void> updateMacAddress(String address) async {
-    setState(() => macAddress = address);
   }
 
   Future<void> getData() async {
@@ -186,6 +183,8 @@ class _Register extends State<Register> {
   addUser() async {
     User user;
 
+    print(serialNumber.text);
+
     int id = await db.addUser(User(
       userId: null,
       userName: name.text,
@@ -195,10 +194,13 @@ class _Register extends State<Register> {
       userHeightBottom: hauteur_min.text,
       userInitialPush: "0.0",
       userMacAddress: macAddress,
+      userSerialNumber: "gBs" + serialNumber.text,
     ));
     print("ID INScr: " + id.toString());
     user = await db.getUser(id);
     print("USER ID: " + user.userId.toString());
+
+    macAddress = null;
 
     return user;
   }
@@ -264,7 +266,7 @@ class _Register extends State<Register> {
             _validate = false;
         } else if (currentStep == 5) {
           //Bouton connexion
-          if(!isConnected){
+          if (!isConnected) {
             show(AppLocalizations.of(context).translate('connect_av'));
             return;
           }
@@ -489,110 +491,118 @@ class _Register extends State<Register> {
         title: Text(AppLocalizations.of(context).translate('connecter_app')),
         isActive: currentStep > 5,
         state: currentStep > 5 ? StepState.complete : StepState.disabled,
-        content: Row(
+        content: Column(
           children: <Widget>[
-/*            Expanded(
-              child: TextFormField(
-                style: textStyle,
-                focusNode: serialNode,
-                controller: serialNumber,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context).translate('num_serie'),
-                ),
+            TextFormField(
+              style: textStyle,
+              focusNode: serialNode,
+              controller: serialNumber,
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context).translate('num_serie'),
               ),
-            ),*/
-            RaisedButton(
-              child: Text(
-                discovering,
-                style: textStyle,
-              ),
-              onPressed: !isFound
-                  ? () async {
-                      macAddress = await btManage.getPairedDevices("register");
-
-                      print(
-                          "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
-
-                      int tempTimer = 0;
-                      //Check tant que l'adresse mac est égale à -1 toute les secondes
-                      //Si pas trouve au bout de 30 secondes, affiche message d'erreur
-                      Timer.periodic(const Duration(seconds: 1), (timer) async {
-                        if (macAddress == "0") {
-                          macAddress =
-                              await btManage.getPairedDevices("register");
-                        }
-                        if (macAddress != "-1") {
-                          timer.cancel();
-                          //Appareil trouvé
-                          setState(() {
-                            discovering = AppLocalizations.of(context)
-                                .translate('app_trouve');
-                            isFound = true;
-                          });
-                        } else if (macAddress == "-1") {
-                          macAddress = await btManage.getMacAddress();
-                          setState(() {
-                            discovering = AppLocalizations.of(context)
-                                .translate('recherche_app');
-                            isFound = false;
-                          });
-                        } else if (tempTimer >= 30) {
-                          discovering = AppLocalizations.of(context)
-                              .translate('app_non_trouve');
-                          isFound = false;
-                        }
-                        tempTimer++;
-                      });
-                    }
-                  : null,
             ),
-            RaisedButton(
-              child: Text(
-                statusBT,
-                style: textStyle,
-              ),
-              onPressed: statusBT !=
-                      AppLocalizations.of(context)
-                          .translate('status_connexion_bon')
-                  ? isFound
+            Row(
+              children: <Widget>[
+                RaisedButton(
+                  child: Text(
+                    discovering,
+                    style: textStyle,
+                  ),
+                  onPressed: !isFound
                       ? () async {
-                          //final macAddress = btManage.createState().macAdress;
+                          macAddress = await btManage
+                              .getPairedDevices(serialNumber.text);
 
-                          //final macAddress = await Navigator.push(
-                          //    context,
-                          //    MaterialPageRoute(
-                          //        builder: (context) =>
-                          //            /*BluetoothSync(
-                          //              curUser: null,
-                          //              inputMessage: "inscription",
-                          //              appLanguage: appLanguage,
-                          //            )*/
-                          //            BluetoothManager(
-                          //                user: null,
-                          //                inputMessage: "inscription",
-                          //                appLanguage: appLanguage)));
+                          print(
+                              "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
 
-                          //updateMacAddress(macAddress);
-                          connect();
-
-                          Timer.periodic(const Duration(seconds: 1), (timer) {
-                            if (isConnected) {
+                          int tempTimer = 0;
+                          //Check tant que l'adresse mac est égale à -1 toute les secondes
+                          //Si pas trouve au bout de 30 secondes, affiche message d'erreur
+                          Timer.periodic(const Duration(seconds: 1),
+                              (timer) async {
+                            if (macAddress == "0") {
+                              macAddress = await btManage
+                                  .getPairedDevices(serialNumber.text);
+                            }
+                            if (macAddress != "-1") {
                               timer.cancel();
+                              //Appareil trouvé
                               setState(() {
-                                statusBT = AppLocalizations.of(context)
-                                    .translate('status_connexion_bon');
+                                discovering = AppLocalizations.of(context)
+                                    .translate('app_trouve');
+                                isFound = true;
                               });
-                            } else {
+                            } else if (macAddress == "-1") {
+                              macAddress = await btManage.getMacAddress();
                               setState(() {
-                                statusBT = AppLocalizations.of(context)
-                                    .translate('connexion_en_cours');
+                                discovering = AppLocalizations.of(context)
+                                    .translate('recherche_app');
+                                isFound = false;
+                              });
+                            } else if (tempTimer >= 30) {
+                              discovering = AppLocalizations.of(context)
+                                  .translate('app_non_trouve');
+                              isFound = false;
+                            }
+                            tempTimer++;
+                          });
+                        }
+                      : null,
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10),
+                ),
+                RaisedButton(
+                  child: Text(
+                    statusBT,
+                    style: textStyle,
+                  ),
+                  onPressed: isFound
+                      ? statusBT !=
+                              AppLocalizations.of(context)
+                                  .translate('status_connexion_bon')
+                          ? () async {
+                              //final macAddress = btManage.createState().macAdress;
+
+                              //final macAddress = await Navigator.push(
+                              //    context,
+                              //    MaterialPageRoute(
+                              //        builder: (context) =>
+                              //            /*BluetoothSync(
+                              //              curUser: null,
+                              //              inputMessage: "inscription",
+                              //              appLanguage: appLanguage,
+                              //            )*/
+                              //            BluetoothManager(
+                              //                user: null,
+                              //                inputMessage: "inscription",
+                              //                appLanguage: appLanguage)));
+
+                              //updateMacAddress(macAddress);
+                              connect();
+
+                              Timer.periodic(const Duration(seconds: 1),
+                                  (timer) {
+                                if (isConnected) {
+                                  timer.cancel();
+                                  setState(() {
+                                    statusBT = AppLocalizations.of(context)
+                                        .translate('status_connexion_bon');
+                                  });
+                                } else {
+                                  setState(() {
+                                    statusBT = AppLocalizations.of(context)
+                                        .translate('connexion_en_cours');
+                                  });
+                                }
                               });
                             }
-                          });
-                        }
-                      : null
-                  : null,
-              textColor: colorButton,
+                          : null
+                      : null,
+                  textColor: colorButton,
+                ),
+              ],
             ),
           ],
         ),
