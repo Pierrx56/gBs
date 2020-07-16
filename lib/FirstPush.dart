@@ -112,12 +112,19 @@ class _FirstPush extends State<FirstPush> {
   }
 
   void connect() async {
-    btManage.enableBluetooth();
-    btManage.getPairedDevices("firstPush");
-    btManage.connect(user.userMacAddress, user.userSerialNumber);
-    isConnected = await btManage.getStatus();
-    testConnect();
+    /*btManage.enableBluetooth();*/
+    if(await btManage.enableBluetooth()){
+      //print("salut");
+      connect();
+    }
+    else{
+      btManage.getPairedDevices("firstPush");
+      btManage.connect(user.userMacAddress, user.userSerialNumber);
+      isConnected = await btManage.getStatus();
+      testConnect();
+    }
   }
+
 
   testConnect() async {
     isConnected = await btManage.getStatus();

@@ -129,11 +129,16 @@ class _Register extends State<Register> {
   }
 
   void connect() async {
-    btManage.enableBluetooth();
-    //btManage.getPairedDevices("register");
-    btManage.connect(macAddress, "gBs" + serialNumber.text);
-    isConnected = await btManage.getStatus();
-    testConnect();
+    /*btManage.enableBluetooth();*/
+    if(await btManage.enableBluetooth()){
+      //print("salut");
+      connect();
+    }
+    else{
+      btManage.connect(macAddress, "gBs" + serialNumber.text);
+      isConnected = await btManage.getStatus();
+      testConnect();
+    }
   }
 
   testConnect() async {

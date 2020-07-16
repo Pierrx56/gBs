@@ -127,7 +127,7 @@ class _FAQ extends State<FAQ> {
           answer: Container()),
       Questions(
         icon: Icon(Icons.info_outline),
-        question: AppLocalizations.of(context).translate('genourob'),
+        question: AppLocalizations.of(context).translate('question_genourob'),
         answer: Container(
           margin: EdgeInsets.all(5.0),
           child: Linkify(
@@ -138,7 +138,7 @@ class _FAQ extends State<FAQ> {
                 throw 'Could not launch $gnrbWebsite';
               }
             },
-            text: '$gnrbWebsite',
+            text: AppLocalizations.of(context).translate('genourob'),
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
           ),
         ),

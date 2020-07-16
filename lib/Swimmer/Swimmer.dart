@@ -101,12 +101,18 @@ class _Swimmer extends State<Swimmer> {
 
   bool isDisconnecting = false;
 
+
   void connect() async {
-    btManage.enableBluetooth();
-    //btManage.getPairedDevices("swimmer");
-    btManage.connect(user.userMacAddress, user.userSerialNumber);
-    isConnected = await btManage.getStatus();
-    testConnect();
+    /*btManage.enableBluetooth();*/
+    if(await btManage.enableBluetooth()){
+      //print("salut");
+      connect();
+    }
+    else{
+      btManage.connect(user.userMacAddress, user.userSerialNumber);
+      isConnected = await btManage.getStatus();
+      testConnect();
+    }
   }
 
   testConnect() async {

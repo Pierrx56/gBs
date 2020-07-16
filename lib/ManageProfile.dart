@@ -185,12 +185,18 @@ class _ManageProfile extends State<ManageProfile> {
     return _pathSaved = newImage.path;
   }
 
+
   void connect() async {
-    btManage.enableBluetooth();
-    //btManage.getPairedDevices("manageProfile");
-    btManage.connect(user.userMacAddress, user.userSerialNumber);
-    isConnected = await btManage.getStatus();
-    testConnect();
+    /*btManage.enableBluetooth();*/
+    if(await btManage.enableBluetooth()){
+      //print("salut");
+      connect();
+    }
+    else{
+      btManage.connect(user.userMacAddress, user.userSerialNumber);
+      isConnected = await btManage.getStatus();
+      testConnect();
+    }
   }
 
   testConnect() async {
