@@ -124,7 +124,7 @@ class _FirstPush extends State<FirstPush> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
-            btManage.connect(user.userMacAddress, user.userSerialNumber);
+        btManage.connect(user.userMacAddress, user.userSerialNumber);
         print("Status: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {
@@ -146,6 +146,9 @@ class _FirstPush extends State<FirstPush> {
 
     if (statusBT == null)
       statusBT = AppLocalizations.of(context).translate('connecter_app');
+
+    TextStyle textStyle = TextStyle(
+        color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold);
 
     return MaterialApp(
       supportedLocales: [
@@ -277,20 +280,25 @@ class _FirstPush extends State<FirstPush> {
                                                 .toStringAsFixed(2)
                                                 .toString(),
                                             userMacAddress: user.userMacAddress,
-                                            userSerialNumber: user.userSerialNumber,
+                                            userSerialNumber:
+                                                user.userSerialNumber,
                                           );
 
                                           db.updateUser(updatedUser);
 
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => MainTitle(
-                                                  userIn: updatedUser,
-                                                  appLanguage: appLanguage,
-                                                  messageIn: 0),
-                                            ),
-                                          );
+                                          Future.delayed(
+                                              const Duration(
+                                                  milliseconds: 3000), () {
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => MainTitle(
+                                                    userIn: updatedUser,
+                                                    appLanguage: appLanguage,
+                                                    messageIn: 0),
+                                              ),
+                                            );
+                                          });
                                         }
                                       } else {
                                         recording = _start.toStringAsFixed(1);
@@ -325,6 +333,13 @@ class _FirstPush extends State<FirstPush> {
                               : 0.0,
                           theme: colorProgressBar,
                           childCenter: Text((double.parse(btData)).toString())),
+                      isCorrect
+                          ? Text(
+                              AppLocalizations.of(context)
+                                  .translate('redirection'),
+                              style: textStyle,
+                            )
+                          : Container(),
                     ],
                   ),
 

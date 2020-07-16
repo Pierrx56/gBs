@@ -190,7 +190,7 @@ class _MainTitle extends State<MainTitle> {
               ),
               label: temp != null
                   ? Text(
-                      "Add score",
+                      "Debug Button",
                       style: TextStyle(
                         color: Colors.white,
                       ),
@@ -203,6 +203,7 @@ class _MainTitle extends State<MainTitle> {
               onPressed: () {
                 //db.deleteScore(user.userId);
 
+/*
                 db.updateUser(
                   User(
                       userHeightBottom: user.userHeightBottom,
@@ -215,6 +216,7 @@ class _MainTitle extends State<MainTitle> {
                       userMacAddress: user.userMacAddress,
                       userSerialNumber: user.userSerialNumber),
                 );
+*/
 
                 /*
                 db.updateUser(
@@ -228,6 +230,19 @@ class _MainTitle extends State<MainTitle> {
                       userPic: user.userPic,
                       userMacAddress: "78:DB:2F:BF:1F:72",
                       userSerialNumber: user.userSerialNumber),
+                );*/
+
+                /*
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoadPage(
+                        user: user,
+                        appLanguage: appLanguage,
+                        messageIn : "0",
+                      page: "firstPush",
+                    ),
+                  ),
                 );*/
 
                 Score newScore = Score(

@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
+import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
@@ -129,7 +130,7 @@ class UIState extends State<UI> {
 
           if (everyScores.length == 0 && score != 0)
             db.addScore(newScore);
-          else if (score != 0){
+          else if (score != 0) {
             //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
             for (int i = 0; i < everyScores.length; i++) {
               //On remplace la valeur dans la bdd
@@ -172,7 +173,8 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget pauseButton(PlaneGame game) {
+  Widget pauseButton(
+      BuildContext context, AppLanguage appLanguage, PlaneGame game) {
     return Container(
       height: screenSize.height * 0.2,
       width: screenSize.width * 0.2,
@@ -187,7 +189,13 @@ class UIState extends State<UI> {
             Icon(
               !game.pauseGame ? Icons.pause : Icons.play_arrow,
             ),
-            !game.pauseGame ? Text("Pause") : Text("Play"),
+            !game.pauseGame
+                ? Text(
+                    (AppLocalizations.of(context).translate('pause')),
+                  )
+                : Text(
+                    (AppLocalizations.of(context).translate('play')),
+                  ),
           ],
         ),
       ),
@@ -205,12 +213,15 @@ class UIState extends State<UI> {
               context,
               MaterialPageRoute(
                   builder: (context) => LoadPage(
+                        messageIn: "",
                         appLanguage: appLanguage,
                         page: "plane",
                         user: user,
                       )));
         },
-        child: Text("Restart"),
+        child: Text(
+          (AppLocalizations.of(context).translate('restart')),
+        ),
       ),
     );
   }
