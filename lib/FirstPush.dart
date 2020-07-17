@@ -63,6 +63,7 @@ class _FirstPush extends State<FirstPush> {
   RoundedProgressBarTheme colorProgressBar = RoundedProgressBarTheme.yellow;
   Timer _timer;
   double _start = 10.0;
+  double countdown = 5.0;
   static double _reset = 10.0;
   int i = 100;
   List<double> average = new List(10 * _reset.toInt());
@@ -113,18 +114,16 @@ class _FirstPush extends State<FirstPush> {
 
   void connect() async {
     /*btManage.enableBluetooth();*/
-    if(await btManage.enableBluetooth()){
+    if (await btManage.enableBluetooth()) {
       //print("salut");
       connect();
-    }
-    else{
+    } else {
       btManage.getPairedDevices("firstPush");
       btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
       testConnect();
     }
   }
-
 
   testConnect() async {
     isConnected = await btManage.getStatus();
@@ -293,9 +292,36 @@ class _FirstPush extends State<FirstPush> {
 
                                           db.updateUser(updatedUser);
 
+                                          const time = const Duration(
+                                              milliseconds: 1000);
+                                          _timer = new Timer.periodic(
+                                            time,
+                                            (Timer timer) {
+                                              if (countdown < 1) {
+                                                //TODO Display menu ?
+                                                timer.cancel();
+                                                Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        MainTitle(
+                                                            userIn: updatedUser,
+                                                            appLanguage:
+                                                                appLanguage,
+                                                            messageIn: 0),
+                                                  ),
+                                                );
+                                              } else {
+                                                setState(() {
+                                                  countdown = countdown - 1;
+                                                });
+                                              }
+                                            },
+                                          );
+/*
                                           Future.delayed(
                                               const Duration(
-                                                  milliseconds: 3000), () {
+                                                  milliseconds: 5000), () {
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
@@ -305,7 +331,7 @@ class _FirstPush extends State<FirstPush> {
                                                     messageIn: 0),
                                               ),
                                             );
-                                          });
+                                          });*/
                                         }
                                       } else {
                                         recording = _start.toStringAsFixed(1);
@@ -343,7 +369,10 @@ class _FirstPush extends State<FirstPush> {
                       isCorrect
                           ? Text(
                               AppLocalizations.of(context)
-                                  .translate('redirection'),
+                                      .translate('redirection') +
+                                  "\n$countdown" +
+                                  AppLocalizations.of(context)
+                                      .translate('secondes'),
                               style: textStyle,
                             )
                           : Container(),

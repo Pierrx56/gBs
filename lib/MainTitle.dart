@@ -238,7 +238,6 @@ class _MainTitle extends State<MainTitle> {
                       userSerialNumber: user.userSerialNumber),
                 );*/
 
-                /*
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -249,7 +248,7 @@ class _MainTitle extends State<MainTitle> {
                       page: "firstPush",
                     ),
                   ),
-                );*/
+                );
 
                 Score newScore = Score(
                     scoreId: 0,
