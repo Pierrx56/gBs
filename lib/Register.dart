@@ -121,6 +121,7 @@ class _Register extends State<Register> {
     nameNode.dispose();
     posBNode.dispose();
     posTNode.dispose();
+    serialNode.dispose();
     super.dispose();
   }
 
@@ -211,6 +212,8 @@ class _Register extends State<Register> {
   }
 
   next() {
+    print("Length:${serialNumber.text.length}");
+    print("Text:${serialNumber.text}");
     currentStep + 1 != steps.length
         ? goTo(currentStep + 1)
         : setState(() => complete = true);
@@ -292,6 +295,8 @@ class _Register extends State<Register> {
             posTNode.requestFocus();
           } else if (currentStep == 3) {
             if (_userMode == "") _userMode = "Normale";
+          }else if (currentStep == 5) {
+            serialNode.requestFocus();
           }
 
           _controller.animateTo(((currentStep) * 75).toDouble(),
@@ -337,6 +342,7 @@ class _Register extends State<Register> {
         } else if (currentStep == 1)
           posBNode.requestFocus();
         else if (currentStep == 2) posTNode.requestFocus();
+        else if (currentStep == 5) serialNode.requestFocus();
 
         _controller.animateTo((((currentStep) * 75)).toDouble(),
             duration: Duration(milliseconds: 500), curve: Curves.linear);
@@ -440,6 +446,8 @@ class _Register extends State<Register> {
         isActive: currentStep > 3,
         state: currentStep > 3 ? StepState.complete : StepState.disabled,
         content: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
               AppLocalizations.of(context).translate('normal'),
@@ -508,104 +516,108 @@ class _Register extends State<Register> {
             ),
             Row(
               children: <Widget>[
-                RaisedButton(
-                  child: Text(
-                    discovering,
-                    style: textStyle,
-                  ),
-                  onPressed: !isFound
-                      ? () async {
-                          macAddress = await btManage
-                              .getPairedDevices(serialNumber.text);
+                Expanded(
+                  child: RaisedButton(
+                    child: Text(
+                      "1. " + discovering,
+                      style: textStyle,
+                    ),
+                    onPressed: !isFound && serialNumber.text.length >= 8
+                        ? () async {
+                            macAddress = await btManage
+                                .getPairedDevices(serialNumber.text);
 
-                          print(
-                              "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
+                            print(
+                                "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
 
-                          int tempTimer = 0;
-                          //Check tant que l'adresse mac est égale à -1 toute les secondes
-                          //Si pas trouve au bout de 30 secondes, affiche message d'erreur
-                          Timer.periodic(const Duration(seconds: 1),
-                              (timer) async {
-                            if (macAddress == "0") {
-                              macAddress = await btManage
-                                  .getPairedDevices(serialNumber.text);
-                            }
-                            if (macAddress != "-1") {
-                              timer.cancel();
-                              //Appareil trouvé
-                              setState(() {
+                            int tempTimer = 0;
+                            //Check tant que l'adresse mac est égale à -1 toute les secondes
+                            //Si pas trouve au bout de 30 secondes, affiche message d'erreur
+                            Timer.periodic(const Duration(seconds: 1),
+                                (timer) async {
+                              if (macAddress == "0") {
+                                macAddress = await btManage
+                                    .getPairedDevices(serialNumber.text);
+                              }
+                              if (macAddress != "-1") {
+                                timer.cancel();
+                                //Appareil trouvé
+                                setState(() {
+                                  discovering = AppLocalizations.of(context)
+                                      .translate('app_trouve');
+                                  isFound = true;
+                                });
+                              } else if (macAddress == "-1") {
+                                macAddress = await btManage.getMacAddress();
+                                setState(() {
+                                  discovering = AppLocalizations.of(context)
+                                      .translate('recherche_app');
+                                  isFound = false;
+                                });
+                              } else if (tempTimer >= 30) {
                                 discovering = AppLocalizations.of(context)
-                                    .translate('app_trouve');
-                                isFound = true;
-                              });
-                            } else if (macAddress == "-1") {
-                              macAddress = await btManage.getMacAddress();
-                              setState(() {
-                                discovering = AppLocalizations.of(context)
-                                    .translate('recherche_app');
+                                    .translate('app_non_trouve');
                                 isFound = false;
-                              });
-                            } else if (tempTimer >= 30) {
-                              discovering = AppLocalizations.of(context)
-                                  .translate('app_non_trouve');
-                              isFound = false;
-                            }
-                            tempTimer++;
-                          });
-                        }
-                      : null,
+                              }
+                              tempTimer++;
+                            });
+                          }
+                        : null,
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(10),
                 ),
-                RaisedButton(
-                  child: Text(
-                    statusBT,
-                    style: textStyle,
+                Expanded(
+                  child: RaisedButton(
+                    child: Text(
+                      "2. " + statusBT,
+                      style: textStyle,
+                    ),
+                    onPressed: isFound
+                        ? statusBT !=
+                                AppLocalizations.of(context)
+                                    .translate('status_connexion_bon')
+                            ? () async {
+                                //final macAddress = btManage.createState().macAdress;
+
+                                //final macAddress = await Navigator.push(
+                                //    context,
+                                //    MaterialPageRoute(
+                                //        builder: (context) =>
+                                //            /*BluetoothSync(
+                                //              curUser: null,
+                                //              inputMessage: "inscription",
+                                //              appLanguage: appLanguage,
+                                //            )*/
+                                //            BluetoothManager(
+                                //                user: null,
+                                //                inputMessage: "inscription",
+                                //                appLanguage: appLanguage)));
+
+                                //updateMacAddress(macAddress);
+                                connect();
+
+                                Timer.periodic(const Duration(seconds: 1),
+                                    (timer) {
+                                  if (isConnected) {
+                                    timer.cancel();
+                                    setState(() {
+                                      statusBT = AppLocalizations.of(context)
+                                          .translate('status_connexion_bon');
+                                    });
+                                  } else {
+                                    setState(() {
+                                      statusBT = AppLocalizations.of(context)
+                                          .translate('connexion_en_cours');
+                                    });
+                                  }
+                                });
+                              }
+                            : null
+                        : null,
+                    textColor: colorButton,
                   ),
-                  onPressed: isFound
-                      ? statusBT !=
-                              AppLocalizations.of(context)
-                                  .translate('status_connexion_bon')
-                          ? () async {
-                              //final macAddress = btManage.createState().macAdress;
-
-                              //final macAddress = await Navigator.push(
-                              //    context,
-                              //    MaterialPageRoute(
-                              //        builder: (context) =>
-                              //            /*BluetoothSync(
-                              //              curUser: null,
-                              //              inputMessage: "inscription",
-                              //              appLanguage: appLanguage,
-                              //            )*/
-                              //            BluetoothManager(
-                              //                user: null,
-                              //                inputMessage: "inscription",
-                              //                appLanguage: appLanguage)));
-
-                              //updateMacAddress(macAddress);
-                              connect();
-
-                              Timer.periodic(const Duration(seconds: 1),
-                                  (timer) {
-                                if (isConnected) {
-                                  timer.cancel();
-                                  setState(() {
-                                    statusBT = AppLocalizations.of(context)
-                                        .translate('status_connexion_bon');
-                                  });
-                                } else {
-                                  setState(() {
-                                    statusBT = AppLocalizations.of(context)
-                                        .translate('connexion_en_cours');
-                                  });
-                                }
-                              });
-                            }
-                          : null
-                      : null,
-                  textColor: colorButton,
                 ),
               ],
             ),
@@ -667,90 +679,95 @@ class _Register extends State<Register> {
                           ": " +
                           result.toString()),*/
 
-                      Text("Adresse MAC $macAddress"),
+                      //Text("Adresse MAC $macAddress"),
                     ],
                   ),
-                  Expanded(
-                    child: FlatButton(
-                      child: Text(AppLocalizations.of(context)
-                          .translate('valider_insc')),
-                      color: Colors.blue,
-                      textColor: Colors.white,
-                      padding: EdgeInsets.only(
-                          left: 38, right: 38, top: 15, bottom: 15),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5)),
-                      onPressed: () async {
-                        //Conditions d'inscriptions
-                        //Prénom
-                        if (name.text == '')
-                          isDisabled = true;
-                        //Hauteur min et max
-                        else if (hauteur_min.text == '' ||
-                            hauteur_max.text == '')
-                          isDisabled = true;
-                        //Hauteur max inférieur à hauteur min ?
-                        else if (hauteur_min.text != '' &&
-                            hauteur_max.text !=
-                                '') if (int.tryParse(hauteur_max.text) <=
-                            int.tryParse(hauteur_min.text))
-                          isDisabled = true;
-                        //Adresse mac
-                        else if (macAddress == '')
-                          isDisabled = true;
+                  Padding(
+                    padding:EdgeInsets.all(20) ,
+                  ),
+                  Column(
+                    children: <Widget>[
+                        FlatButton(
+                          child: Text(AppLocalizations.of(context)
+                              .translate('valider_insc')),
+                          color: Colors.blue,
+                          textColor: Colors.white,
+                          padding: EdgeInsets.only(
+                              left: 38, right: 38, top: 15, bottom: 15),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5)),
+                          onPressed: () async {
+                            //Conditions d'inscriptions
+                            //Prénom
+                            if (name.text == '')
+                              isDisabled = true;
+                            //Hauteur min et max
+                            else if (hauteur_min.text == '' ||
+                                hauteur_max.text == '')
+                              isDisabled = true;
+                            //Hauteur max inférieur à hauteur min ?
+                            else if (hauteur_min.text != '' &&
+                                hauteur_max.text !=
+                                    '') if (int.tryParse(hauteur_max.text) <=
+                                int.tryParse(hauteur_min.text))
+                              isDisabled = true;
+                            //Adresse mac
+                            else if (macAddress == '')
+                              isDisabled = true;
 /*                      //Première poussée
                       else if (result.toString() == null)
                         isDisabled = true;*/
-                        else
-                          isDisabled = false;
+                            else
+                              isDisabled = false;
 
-                        if (_pathSaved == "assets/avatar.png") {
-                          var bytes = await rootBundle.load(_pathSaved);
-                          String dir =
-                              (await getApplicationDocumentsDirectory()).path;
-                          File tempFile =
+                            if (_pathSaved == "assets/avatar.png") {
+                              var bytes = await rootBundle.load(_pathSaved);
+                              String dir =
+                                  (await getApplicationDocumentsDirectory()).path;
+                              File tempFile =
                               await writeToFile(bytes, '$dir/default.png');
 
-                          setState(() {
-                            _pathSaved = tempFile.path;
-                          });
-                        }
+                              setState(() {
+                                _pathSaved = tempFile.path;
+                              });
+                            }
 
-                        if (!isDisabled) {
-                          User user = await addUser();
-                          //getUser();
-                          //connectBT();
+                            if (!isDisabled) {
+                              User user = await addUser();
+                              //getUser();
+                              //connectBT();
 
-                          if (user != null) {
-                            print("salut " + user.userId.toString());
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoadPage(
-                                  appLanguage: appLanguage,
-                                  user: user,
-                                  page: "firstPush",
-                                  messageIn: "0",
-                                ),
-                              ),
-                            );
-                            //dispose();
-                          } else
-                            print("Something went wrong");
-                        } else
-                          show("Veuillez corriger toutes les erreurs");
-                      },
-                    ),
-                  ),
-                  FlatButton(
-                    onPressed: () {
-                      back();
-                      _controller.animateTo((((currentStep) * 75)).toDouble(),
-                          duration: Duration(milliseconds: 500),
-                          curve: Curves.linear);
-                    },
-                    child:
+                              if (user != null) {
+                                print("salut " + user.userId.toString());
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => LoadPage(
+                                      appLanguage: appLanguage,
+                                      user: user,
+                                      page: "firstPush",
+                                      messageIn: "0",
+                                    ),
+                                  ),
+                                );
+                                //dispose();
+                              } else
+                                print("Something went wrong");
+                            } else
+                              show("Veuillez corriger toutes les erreurs");
+                          },
+                        ),
+                      FlatButton(
+                        onPressed: () {
+                          back();
+                          _controller.animateTo((((currentStep) * 75)).toDouble(),
+                              duration: Duration(milliseconds: 500),
+                              curve: Curves.linear);
+                        },
+                        child:
                         Text(AppLocalizations.of(context).translate('retour')),
+                      ),
+                    ],
                   ),
                 ],
               )

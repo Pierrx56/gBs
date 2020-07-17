@@ -15,7 +15,7 @@
 
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="gbs_alternative"
+        android:label="gBs"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

@@ -48,7 +48,6 @@ class _FirstPush extends State<FirstPush> {
 
   //Déclaration de variables
   String _pairedDevices = 'No devices paired';
-  String _connectDevices;
   bool isConnected = false;
   bool isRunning = true;
   Timer timer;
@@ -95,9 +94,8 @@ class _FirstPush extends State<FirstPush> {
   @override
   void initState() {
     super.initState();
-    _connectDevices = "Disconnected";
     btData = "0.0";
-    btManage.enableBluetooth();
+    connect();
   }
 
   @override
@@ -370,7 +368,7 @@ class _FirstPush extends State<FirstPush> {
                           ? Text(
                               AppLocalizations.of(context)
                                       .translate('redirection') +
-                                  "\n$countdown" +
+                                  "\n$countdown " +
                                   AppLocalizations.of(context)
                                       .translate('secondes'),
                               style: textStyle,
@@ -378,7 +376,25 @@ class _FirstPush extends State<FirstPush> {
                           : Container(),
                     ],
                   ),
-
+                  inputMessage == "fromMain"
+                      ? RaisedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoadPage(
+                                  appLanguage: appLanguage,
+                                  page: "mainTitle",
+                                  user: user,
+                                  messageIn: "0",
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text(
+                              AppLocalizations.of(context).translate('retour')),
+                        )
+                      : Container(),
                   /*
                   RaisedButton(
                     onPressed: () {

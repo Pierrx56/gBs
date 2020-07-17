@@ -337,7 +337,52 @@ class _MainTitle extends State<MainTitle> {
                 child: Row(
                   children: <Widget>[
                     SizedBox(
-                      width: screenSize.width / numberOfCard,
+                      width: widthCard = screenSize.width / numberOfCard,
+                      height: screenSize.width / numberOfCard,
+                      child: GestureDetector(
+                        onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoadPage(
+                                  appLanguage: appLanguage,
+                                  page: "firstPush",
+                                  user: user,
+                                  messageIn: "fromMain",
+                                ),
+                              ),
+                            );
+                        },
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 8,
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                temp != null
+                                    ? Text(
+                                        AppLocalizations.of(context)
+                                            .translate('poussee_max'),
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                    : Text("Check Language file (en/fr.json)"),
+                                Container()
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: widthCard = screenSize.width / numberOfCard,
+                      height: screenSize.width / numberOfCard,
                       child: Card(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -394,6 +439,7 @@ class _MainTitle extends State<MainTitle> {
                     ),
                     SizedBox(
                       width: widthCard = screenSize.width / numberOfCard,
+                      height: screenSize.width / numberOfCard,
                       child: new GestureDetector(
                         onTap: () {
                           if (visible_swim) {
@@ -551,7 +597,8 @@ class _MainTitle extends State<MainTitle> {
                       ),
                     ),
                     SizedBox(
-                      width: screenSize.width / numberOfCard,
+                      width: widthCard = screenSize.width / numberOfCard,
+                      height: screenSize.width / numberOfCard,
                       child: Card(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -608,6 +655,7 @@ class _MainTitle extends State<MainTitle> {
                     ),
                     SizedBox(
                       width: widthCard = screenSize.width / numberOfCard,
+                      height: screenSize.width / numberOfCard,
                       child: new GestureDetector(
                         onTap: () {
                           if (visible_plane) {

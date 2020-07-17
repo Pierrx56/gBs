@@ -34,7 +34,7 @@ dependencies:
   provider: ^4.1.2
   shared_preferences: ^0.5.7+3
   url_launcher: ^5.4.11
-
+  flutter_launcher_icons: ^0.7.5
 
 
 
@@ -48,6 +48,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+#Commande pour actualiser l'icone: flutter packages pub run flutter_launcher_icons:main
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/gBs.png"
 
 
 # For information on the generic Dart part of this file, see the

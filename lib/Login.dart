@@ -147,15 +147,15 @@ class LoginWidget extends StatelessWidget {
                       padding: EdgeInsets.all(10.0),
                       itemCount: size = snapshot.data.length + 1,
                       itemBuilder: (BuildContext context, int index) {
-                        if (index < size - 1) {
-                          User item = snapshot.data[index];
+                        if (index < size && index > 0 ) {
+                          User item = snapshot.data[index - 1];
                           return GestureDetector(
                             onTap: () {
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => LoadPage(
-                                            user: snapshot.data[index],
+                                            user: snapshot.data[index - 1],
                                             appLanguage: appLanguage,
                                             page: "mainTitle",
                                             messageIn: "0",
@@ -172,18 +172,18 @@ class LoginWidget extends StatelessWidget {
                                 child: Row(
                                   children: <Widget>[
                                     Image.file(
-                                      File(snapshot.data[index].userPic),
+                                      File(snapshot.data[index - 1].userPic),
                                       height: screenSize.height * 0.3,
                                       width: screenSize.width * 0.3,
                                     ),
-                                    Text(AppLocalizations.of(context).translate('profil_existant') + ": "),
+                                    //Text(AppLocalizations.of(context).translate('profil_existant') + ": "),
                                     Text(item.userName),
                                   ],
                                 ),
                               ),
                             ),
                           );
-                        } else if (index == size - 1) {
+                        } else if (index == 0) {
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(

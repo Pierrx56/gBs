@@ -56,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
       home: new Image.asset(
-        'assets/ABSeat.png',
+        'assets/gBs.png',
       ),
     );
   }
