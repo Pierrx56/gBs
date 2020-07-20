@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -74,6 +75,11 @@ class _Register extends State<Register> {
   TextStyle textStyle =
       TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold);
 
+  CameraController controller;
+  List cameras;
+  int selectedCameraIdx;
+  String imagePath;
+
   /* END FORM */
 
   String macAddress;
@@ -122,6 +128,7 @@ class _Register extends State<Register> {
     posBNode.dispose();
     posTNode.dispose();
     serialNode.dispose();
+    controller?.dispose();
     super.dispose();
   }
 
@@ -136,7 +143,7 @@ class _Register extends State<Register> {
       connect();
     }
     else{
-      btManage.connect(macAddress, "gBs" + serialNumber.text);
+      btManage.connect(macAddress, "gBs" + serialNumber.text.toUpperCase());
       isConnected = await btManage.getStatus();
       testConnect();
     }
@@ -147,7 +154,7 @@ class _Register extends State<Register> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
-        btManage.connect(macAddress, "gBs" + serialNumber.text);
+        btManage.connect(macAddress, "gBs" + serialNumber.text.toUpperCase());
         print("Status: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {
@@ -161,7 +168,7 @@ class _Register extends State<Register> {
     btData = await btManage.getData();
   }
 
-  pickImageFromGallery(ImageSource source) async {
+  pickImage(ImageSource source) async {
     imageFile = await ImagePicker.pickImage(source: source);
 
     final directory = await getApplicationDocumentsDirectory();
@@ -179,6 +186,20 @@ class _Register extends State<Register> {
     return _pathSaved = newImage.path;
   }
 
+  pickImageFromCamera() async {
+
+    // Ensure that plugin services are initialized so that `availableCameras()`
+    // can be called before `runApp()`
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // Obtain a list of the available cameras on the device.
+    final cameras = await availableCameras();
+
+    // Get a specific camera from the list of available cameras.
+    final firstCamera = cameras.first;
+
+  }
+
   //write to app path
   Future<File> writeToFile(ByteData data, String path) {
     final buffer = data.buffer;
@@ -189,8 +210,6 @@ class _Register extends State<Register> {
   addUser() async {
     User user;
 
-    print(serialNumber.text);
-
     int id = await db.addUser(User(
       userId: null,
       userName: name.text,
@@ -200,7 +219,7 @@ class _Register extends State<Register> {
       userHeightBottom: hauteur_min.text,
       userInitialPush: "0.0",
       userMacAddress: macAddress,
-      userSerialNumber: "gBs" + serialNumber.text,
+      userSerialNumber: "gBs" + serialNumber.text.toUpperCase(),
     ));
     print("ID INScr: " + id.toString());
     user = await db.getUser(id);
@@ -212,8 +231,6 @@ class _Register extends State<Register> {
   }
 
   next() {
-    print("Length:${serialNumber.text.length}");
-    print("Text:${serialNumber.text}");
     currentStep + 1 != steps.length
         ? goTo(currentStep + 1)
         : setState(() => complete = true);
@@ -491,13 +508,33 @@ class _Register extends State<Register> {
                   : Image.file(File(_pathSaved), width: screenSize.width * 0.2)
               //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
               ),
-          RaisedButton(
-            child: Text(AppLocalizations.of(context).translate('select_image')),
-            onPressed: () {
-              _pathSaved = pickImageFromGallery(ImageSource.gallery);
-            },
-            textColor: colorButton,
-          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+            RaisedButton(
+              child:Row(children: <Widget>[
+                Icon(Icons.image),
+                Text(" " + AppLocalizations.of(context).translate('select_image')),
+              ],),
+              onPressed: () {
+                _pathSaved = pickImage(ImageSource.gallery);
+              },
+              textColor: colorButton,
+            ),
+            Padding(padding: EdgeInsets.all(10),),
+            RaisedButton(
+              child:Row(children: <Widget>[
+                Icon(Icons.camera_alt),
+                Text(" " + AppLocalizations.of(context).translate('prendre_photo')),
+              ],),
+              onPressed: () {
+                _pathSaved = pickImage(ImageSource.camera);
+              },
+              textColor: colorButton,
+            ),
+          ],),
+
         ]),
       ),
       Step(
@@ -525,7 +562,7 @@ class _Register extends State<Register> {
                     onPressed: !isFound && serialNumber.text.length >= 8
                         ? () async {
                             macAddress = await btManage
-                                .getPairedDevices(serialNumber.text);
+                                .getPairedDevices(serialNumber.text.toUpperCase());
 
                             print(
                                 "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
@@ -537,7 +574,7 @@ class _Register extends State<Register> {
                                 (timer) async {
                               if (macAddress == "0") {
                                 macAddress = await btManage
-                                    .getPairedDevices(serialNumber.text);
+                                    .getPairedDevices(serialNumber.text.toUpperCase());
                               }
                               if (macAddress != "-1") {
                                 timer.cancel();

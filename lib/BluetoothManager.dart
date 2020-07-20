@@ -159,7 +159,7 @@ class BluetoothManager {
 
     double convVoltToLbs = (921 - delta) / 100;
 
-    double tempResult = 2.0 *
+    double tempResult = 1.0 *
         double.parse(((double.parse(result) - delta) / (convVoltToLbs * coefKg))
                 .toStringAsExponential(1))
             .abs();

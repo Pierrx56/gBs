@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -59,7 +60,9 @@ class _FirstPush extends State<FirstPush> {
   AppLanguage appLanguage;
 
   Color colorMesureButton = Colors.black;
-  RoundedProgressBarTheme colorProgressBar = RoundedProgressBarTheme.yellow;
+
+  //RoundedProgressBarTheme colorProgressBar = RoundedProgressBarTheme.yellow;
+  Color colorProgressBar = Colors.red;
   Timer _timer;
   double _start = 10.0;
   double countdown = 5.0;
@@ -73,6 +76,7 @@ class _FirstPush extends State<FirstPush> {
   String statusBT;
   String btData;
   bool isCorrect = false;
+  Size screenSize;
 
   //Initializing database
   DatabaseHelper db = new DatabaseHelper();
@@ -144,6 +148,8 @@ class _FirstPush extends State<FirstPush> {
 
   @override
   Widget build(BuildContext context) {
+    screenSize = MediaQuery.of(context).size;
+
     if (recording == null)
       recording =
           AppLocalizations.of(context).translate('demarrer_enregistrement');
@@ -337,15 +343,16 @@ class _FirstPush extends State<FirstPush> {
                                         i--;
                                         getData();
                                         average[i] = double.parse(btData);
-                                        if (average[i] > 100.0) {
+                                        if (average[i] > 100.0 ||
+                                            average[i] < 50.0) {
                                           setState(() {
-                                            colorProgressBar =
-                                                RoundedProgressBarTheme.red;
+                                            colorMesureButton = Colors.red;
+                                            colorProgressBar = Colors.red;
                                           });
                                         } else {
                                           setState(() {
-                                            colorProgressBar =
-                                                RoundedProgressBarTheme.yellow;
+                                            colorMesureButton = Colors.green;
+                                            colorProgressBar = Colors.green;
                                           });
                                         }
                                       }
@@ -358,12 +365,91 @@ class _FirstPush extends State<FirstPush> {
                         textColor: colorMesureButton,
                         child: Text(recording),
                       ),
-                      RoundedProgressBar(
+                      /*
+                      Transform.translate(
+                        offset: Offset(0, 70),
+                        child: Transform.scale(
+                          scale: 0.25,
+                          child: Transform.rotate(
+                            angle: 4.7,
+                            child: RoundedProgressBar(
+                                percent: (double.parse(btData)) >= 0
+                                    ? (double.parse(btData))
+                                    : 0.0,
+                                theme: colorProgressBar,
+                                childCenter: Transform.rotate(
+                                    angle: -4.7,
+                                    child: Text(
+                                        (double.parse(btData)).toString()))),
+                          ),
+                        ),
+                      ),*/
+
+                      //Progress bar maison
+                      //Rotate 9.4 pour retourner les container de 180°
+                      Transform.rotate(
+                        angle: 9.4,
+                        child: Stack(
+                          children: <Widget>[
+                            //Container de fond
+                            Container(
+                              decoration: new BoxDecoration(
+                                  color: Colors.blue,
+                                  //new Color.fromRGBO(255, 0, 0, 0.0),
+                                  borderRadius: new BorderRadius.only(
+                                      topLeft: const Radius.circular(20.0),
+                                      topRight: const Radius.circular(20.0),
+                                      bottomLeft: const Radius.circular(20.0),
+                                      bottomRight:
+                                          const Radius.circular(20.0))),
+                              width: 100,
+                              height: screenSize.height / 2 - 10,
+                            ),
+                            //Container progress bar
+                            //Passe à vert au dessus de 50 et en dessous de 100
+                            //sinon rouge
+                            Container(
+                              decoration: new BoxDecoration(
+                                  color: colorProgressBar,
+                                  //new Color.fromRGBO(255, 0, 0, 0.0),
+                                  borderRadius: new BorderRadius.only(
+                                      topLeft: const Radius.circular(20.0),
+                                      topRight: const Radius.circular(20.0),
+                                      bottomLeft: const Radius.circular(20.0),
+                                      bottomRight:
+                                          const Radius.circular(20.0))),
+                              //40.0 pour éviter des bugs d'affichage
+                              height: double.parse(btData) < 40.0
+                                  ? 40.0
+                                  : double.parse(btData) > 100.0
+                                      ? screenSize.height / 2 - 10
+                                      //*1.7 pour remplir la progress bar à 100% lorsque le capteur renvoi 100
+                                      : double.parse(btData) * 1.7,
+                              width: 100,
+                            ),
+                            //Container d'affichage de la valeur du capteur
+                            Container(
+                              color: Colors.transparent,
+                              //new Color.fromRGBO(255, 0, 0, 0.0),
+                              child: Center(
+                                  child: Transform.rotate(
+                                      angle: 9.4,
+                                      child: Text(
+                                          (double.parse(btData)).toString(), style: textStyle,))),
+                              width: 100,
+                              height: screenSize.height / 2,
+                            ),
+                          ],
+                        ),
+                      ),
+                      /*RoundedProgressBar(
                           percent: (double.parse(btData)) >= 0
                               ? (double.parse(btData))
                               : 0.0,
                           theme: colorProgressBar,
                           childCenter: Text((double.parse(btData)).toString())),
+                      */
+
                       isCorrect
                           ? Text(
                               AppLocalizations.of(context)
@@ -373,7 +459,7 @@ class _FirstPush extends State<FirstPush> {
                                       .translate('secondes'),
                               style: textStyle,
                             )
-                          : Container(),
+                          : Text(""),
                     ],
                   ),
                   inputMessage == "fromMain"
@@ -394,29 +480,7 @@ class _FirstPush extends State<FirstPush> {
                           child: Text(
                               AppLocalizations.of(context).translate('retour')),
                         )
-                      : Container(),
-                  /*
-                  RaisedButton(
-                    onPressed: () {
-                      isRunning = true;
-                      startDataReceiver();
-                    },
-                    child: Text("Get Data"),
-                  ),
-                  RaisedButton(
-                    onPressed: () {
-                      isRunning = false;
-                      disconnect();
-                    },
-                    child: Text("Disconnect"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: RaisedButton(
-                      child: const Text('Refresh'),
-                      onPressed: () {},
-                    ),
-                  ),*/
+                      : Text(""),
                 ],
               ),
             ],

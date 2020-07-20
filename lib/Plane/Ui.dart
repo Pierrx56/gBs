@@ -173,8 +173,8 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget pauseButton(
-      BuildContext context, AppLanguage appLanguage, PlaneGame game) {
+  Widget pauseButton(BuildContext context, AppLanguage appLanguage,
+      PlaneGame game, User user) {
     return Container(
       height: screenSize.height * 0.2,
       width: screenSize.width * 0.2,
@@ -194,8 +194,8 @@ class UIState extends State<UI> {
                     (AppLocalizations.of(context).translate('pause')),
                   )
                 : Text(
-                    (AppLocalizations.of(context).translate('play')),
-                  ),
+              (AppLocalizations.of(context).translate('play'))),
+
           ],
         ),
       ),
@@ -221,6 +221,39 @@ class UIState extends State<UI> {
         },
         child: Text(
           (AppLocalizations.of(context).translate('restart')),
+        ),
+      ),
+    );
+  }
+
+  Widget menu(BuildContext context, AppLanguage appLanguage, PlaneGame game,
+      User user) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        decoration: new BoxDecoration(
+            color: Colors.blue,
+            //new Color.fromRGBO(255, 0, 0, 0.0),
+            borderRadius: new BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+                bottomLeft: const Radius.circular(20.0),
+                bottomRight:
+                const Radius.circular(20.0))),
+        width: screenSize.width/4,
+        height: screenSize.height*0.9,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text("MENU best of plus"),
+            Padding(padding: EdgeInsets.all(10),),
+            pauseButton(context, appLanguage, game, user),
+            Padding(padding: EdgeInsets.all(10),),
+            restartButton(context, appLanguage, user),
+            Padding(padding: EdgeInsets.all(10),),
+            closeButton(context, appLanguage, user, game.getScore()),
+          ],
         ),
       ),
     );

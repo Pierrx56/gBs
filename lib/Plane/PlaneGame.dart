@@ -64,6 +64,13 @@ class PlaneGame extends Game {
     topBalloon = TopBalloon(this);
     gameUI = UI();
 
+    //On double la vitesse des ballon et la vitesse de remontée/redescente de l'avion
+    //Le temps passe de 2 min à 3 min
+    if (user.userMode == "Sportif") {
+      difficulte = 6;
+      balloonSpeed = 4;
+    }
+
     position = false;
     posMax = false;
     gameOver = false;
@@ -124,16 +131,31 @@ class PlaneGame extends Game {
 
             if (bottomBalloon.getXBottomPosition() == screenSize.width / 2) {
               //bottomBalloon = BottomBalloon(this);
-            } else if (topBalloon.getXTopPosition() ==
-                screenSize.width / 2) {
+            } else if (topBalloon.getXTopPosition() == screenSize.width / 2) {
               //topBalloon = TopBalloon(this);
             }
 
             //HitBox ballon bas
             if (posY <= bottomBalloon.getYBottomPosition() &&
-                posX ==
-                    (bottomBalloon.getXBottomPosition() -
-                        plane.width / 2) &&
+                (posX ==
+                        (bottomBalloon.getXBottomPosition() -
+                            plane.width / 2) ||
+                    posX ==
+                        ((bottomBalloon.getXBottomPosition() -
+                                plane.width / 2) -
+                            1) ||
+                    posX ==
+                        ((bottomBalloon.getXBottomPosition() -
+                                plane.width / 2) -
+                            2) ||
+                    posX ==
+                        ((bottomBalloon.getXBottomPosition() -
+                                plane.width / 2) +
+                            1) ||
+                    posX ==
+                        ((bottomBalloon.getXBottomPosition() -
+                                plane.width / 2) +
+                            2)) &&
                 isDown) {
               score++;
               position = isDown;
@@ -148,7 +170,12 @@ class PlaneGame extends Game {
             //HitBox ballon haut
             else if (posY >=
                     (topBalloon.getYTopPosition() - plane.height / 2) &&
-                posX == (topBalloon.getXTopPosition() - plane.width / 2) &&
+                (
+                posX == (topBalloon.getXTopPosition() - plane.width / 2) ||
+                posX == ((topBalloon.getXTopPosition() - plane.width / 2) - 1) ||
+                posX == ((topBalloon.getXTopPosition() - plane.width / 2) - 2) ||
+                posX == ((topBalloon.getXTopPosition() - plane.width / 2) + 1) ||
+                posX == ((topBalloon.getXTopPosition() - plane.width / 2)+ 2)) &&
                 !isDown) {
               score++;
               position = isDown;
@@ -232,7 +259,9 @@ class PlaneGame extends Game {
           //getData = données reçues par le Bluetooth
 
           //Montée de l'avion
-          if (getData() > double.parse(user.userInitialPush) && !posMax && plane != null) {
+          if (getData() > double.parse(user.userInitialPush) &&
+              !posMax &&
+              plane != null) {
             //print(plane.y);
             plane.y -= difficulte;
             tempPos = plane.y;
