@@ -231,6 +231,7 @@ class UIState extends State<UI> {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
+        alignment: Alignment.topCenter,
         decoration: new BoxDecoration(
             color: Colors.blue,
             //new Color.fromRGBO(255, 0, 0, 0.0),

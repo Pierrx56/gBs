@@ -70,8 +70,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
       if (user.userMode == "Sportif") {
         timeRemaining = "3:00";
         seconds = 180;
-      }
-      else {
+      } else {
         timeRemaining = "2:00";
         seconds = 120;
       }
@@ -200,10 +199,9 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
             timer.cancel();
           } else if (!game.getConnectionState())
             timer.cancel();
-          else if(game.pauseGame){
+          else if (game.pauseGame) {
             timeRemaining = convertDuration(Duration(seconds: _start));
-          }
-          else {
+          } else {
             _start -= delay;
             timeRemaining = convertDuration(Duration(seconds: _start));
           }
@@ -274,16 +272,23 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                         : gameUI.state.closeButton(
                         context, appLanguage, user, game.getScore()),
                   ),*/
-                  !game.pauseGame ? Container(
-                    alignment: Alignment.topLeft,
-                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    child: game == null
-                        ? Container()
-                        : gameUI.state.pauseButton(context, appLanguage, game, user),
-                  ): Container(),
+                  game != null
+                      ? !game.pauseGame
+                          ? Container(
+                              alignment: Alignment.topLeft,
+                              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                              child: game == null
+                                  ? Container()
+                                  : gameUI.state.pauseButton(
+                                      context, appLanguage, game, user),
+                            )
+                          : Container(
+                              alignment: Alignment.topCenter,
+                              child: gameUI.state
+                                  .menu(context, appLanguage, game, user))
+                      : Container(),
 
-                  game.pauseGame ? gameUI.state.menu(context, appLanguage, game, user) : Container(),
-  /*              Container(
+                  /*              Container(
                     alignment: Alignment.topLeft,
                     padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                     child: game == null
