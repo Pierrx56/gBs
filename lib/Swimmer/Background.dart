@@ -3,8 +3,6 @@ import 'dart:ui';
 import 'package:flame/sprite.dart';
 import 'package:gbsalternative/Swimmer/SwimGame.dart';
 
-Size screenSize;
-
 class Background {
   final SwimGame game;
   Sprite bgSprite;
@@ -43,7 +41,4 @@ class Close {
 
   void update(double t) {}
 
-  void resize(Size size) {
-    screenSize = size;
-  }
 }

@@ -51,7 +51,10 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
   String recording;
   String timeRemaining;
   Timer timer;
+  Timer _timer;
+  int _start = 3;
   bool start;
+  bool gameOver;
   int seconds;
   Timer timerConnexion;
   UI gameUI;
@@ -76,6 +79,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
       }
 
       start = false;
+      gameOver = false;
       isConnected = false;
       connect();
     }
@@ -87,6 +91,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
   void dispose() {
     timerConnexion?.cancel();
     timer?.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -194,9 +199,14 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
       _timer = new Timer.periodic(
         time,
         (Timer timer) {
-          if (_start < delay.toDouble()) {
+          //FIN DU JEU
+          if (_start < delay) {
             //TODO Display menu ?
+            print("Salut");
+            game.pauseGame = true;
+            gameOver = true;
             timer.cancel();
+            redirection();
           } else if (!game.getConnectionState())
             timer.cancel();
           else if (game.pauseGame) {
@@ -216,6 +226,25 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     /*${twoDigits(duration.inHours)}:*/
     return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+
+  void redirection(){
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+      oneSec,
+          (Timer timer) => setState(
+            () {
+          if (_start < 1) {
+            timer.cancel();
+            gameUI.state.
+            saveAndExit(context, appLanguage, user, score, game);
+          } else {
+            _start = _start - 1;
+          }
+        },
+      ),
+    );
   }
 
   @override
@@ -282,10 +311,15 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                   : gameUI.state.pauseButton(
                                       context, appLanguage, game, user),
                             )
-                          : Container(
-                              alignment: Alignment.topCenter,
-                              child: gameUI.state
-                                  .menu(context, appLanguage, game, user))
+                          : !gameOver
+                              ? Container(
+                                  alignment: Alignment.topCenter,
+                                  child: gameUI.state
+                                      .menu(context, appLanguage, game, user))
+                              : Container(
+                                  alignment: Alignment.topCenter,
+                                  child: gameUI.state.endScreen(
+                                      context, appLanguage, game, user))
                       : Container(),
 
                   /*              Container(
@@ -302,8 +336,9 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
             Container(
               alignment: Alignment.bottomLeft,
               padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-              child:
-                  game == null ? Container() : gameUI.state.displayScore(score),
+              child: game == null
+                  ? Container()
+                  : gameUI.state.displayScore(score, game),
             ),
             //Display message pour relancher
             Container(

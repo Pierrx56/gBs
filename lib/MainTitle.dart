@@ -100,7 +100,7 @@ class _MainTitle extends State<MainTitle> {
 
   @override
   void dispose() {
-    if (timerConnexion != null) timerConnexion.cancel();
+    timerConnexion?.cancel();
 
     //btManage.disconnect("");
 

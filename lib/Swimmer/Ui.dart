@@ -74,120 +74,168 @@ class UIState extends State<UI> {
   }
 
   Widget closeButton(
-      BuildContext context, AppLanguage appLanguage, User user, int score) {
+      BuildContext context, AppLanguage appLanguage, User user, int score, SwimGame game) {
     DatabaseHelper db = new DatabaseHelper();
 
-    return Container(
-      height: screenSize.height * 0.2,
-      width: screenSize.width * 0.2,
-      child: RaisedButton(
-        onPressed: () async {
-          //Get date etc
-          //db.getScore(user.userId);
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        height: game.screenSize.height * 0.2,
+        width: game.screenSize.width /3,
+        child: RaisedButton(
+          onPressed: () async {
+            //Get date etc
+            //db.getScore(user.userId);
 
-          //Date au format FR
-          String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
+            //Date au format FR
+            String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
 
-          Score newScore = Score(
-              scoreId: null,
-              userId: user.userId,
-              activityId: ACTIVITY_NUMBER,
-              scoreValue: score,
-              scoreDate: date);
+            Score newScore = Score(
+                scoreId: null,
+                userId: user.userId,
+                activityId: ACTIVITY_NUMBER,
+                scoreValue: score,
+                scoreDate: date);
 
-          //db.deleteScore(user.userId);
+            //db.deleteScore(user.userId);
 
-          List<Scores> everyScores =
-              await db.getScore(user.userId, ACTIVITY_NUMBER);
+            List<Scores> everyScores =
+                await db.getScore(user.userId, ACTIVITY_NUMBER);
 
-          if (everyScores.length == 0 && score != 0)
-            db.addScore(newScore);
-          else if (score != 0) {
-            //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
-            for (int i = 0; i < everyScores.length; i++) {
-              //On remplace la valeur dans la bdd
-              //print(everyScores[i].scoreId);
-              if (everyScores[i].date == date && score > everyScores[i].score)
-                db.updateScore(Score(
-                    scoreId: everyScores[i].scoreId,
-                    userId: user.userId,
-                    activityId: ACTIVITY_NUMBER,
-                    scoreValue: score,
-                    scoreDate: date));
-            }
-            //Sinon on enregistre si la dernière date enregistrée est différente du jour
-            if (everyScores[everyScores.length - 1].date != date)
+            if (everyScores.length == 0 && score != 0)
               db.addScore(newScore);
-          }
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => LoadPage(
-                appLanguage: appLanguage,
-                user: user,
-                messageIn: "0",
-                page: "mainTitle",
+            else if (score != 0) {
+              //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
+              for (int i = 0; i < everyScores.length; i++) {
+                //On remplace la valeur dans la bdd
+                //print(everyScores[i].scoreId);
+                if (everyScores[i].date == date && score > everyScores[i].score)
+                  db.updateScore(Score(
+                      scoreId: everyScores[i].scoreId,
+                      userId: user.userId,
+                      activityId: ACTIVITY_NUMBER,
+                      scoreValue: score,
+                      scoreDate: date));
+              }
+              //Sinon on enregistre si la dernière date enregistrée est différente du jour
+              if (everyScores[everyScores.length - 1].date != date)
+                db.addScore(newScore);
+            }
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoadPage(
+                  appLanguage: appLanguage,
+                  user: user,
+                  messageIn: "0",
+                  page: "mainTitle",
+                ),
               ),
-            ),
-          );
-        },
-        child: Text(AppLocalizations.of(context).translate('quitter')),
+            );
+          },
+          child: Text(AppLocalizations.of(context).translate('quitter'),
+            style: textStyle,),
+        ),
       ),
     );
   }
 
   Widget pauseButton(
-      BuildContext context, AppLanguage appLanguage, SwimGame game) {
-    return Container(
-      height: screenSize.height * 0.2,
-      width: screenSize.width * 0.2,
-      child: RaisedButton(
-        onPressed: () async {
-          game.pauseGame = !game.pauseGame;
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              !game.pauseGame ? Icons.pause : Icons.play_arrow,
-            ),
-            !game.pauseGame
-                ? Text(
-                    (AppLocalizations.of(context).translate('pause')),
-                  )
-                : Text(
-                    (AppLocalizations.of(context).translate('play')),
-                  ),
-          ],
+      BuildContext context, AppLanguage appLanguage, SwimGame game, User user) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        height: game.screenSize.height * 0.2,
+        width: game.screenSize.width /3,
+        child: RaisedButton(
+          onPressed: () async {
+            game.pauseGame = !game.pauseGame;
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Icon(
+                !game.pauseGame ? Icons.pause : Icons.play_arrow,
+              ),
+              !game.pauseGame
+                  ? Text(
+                      (AppLocalizations.of(context).translate('pause')),
+                style: textStyle,
+                    )
+                  : Text(
+                      (AppLocalizations.of(context).translate('play')),
+                style: textStyle,
+                    ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget restartButton(
-      BuildContext context, AppLanguage appLanguage, User user) {
-    return Container(
-      height: screenSize.height * 0.2,
-      width: screenSize.width * 0.2,
-      child: RaisedButton(
-        onPressed: () async {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => LoadPage(
-                        messageIn: "",
-                        appLanguage: appLanguage,
-                        page: "swimmer",
-                        user: user,
-                      )));
-        },
-        child: Text(
-          (AppLocalizations.of(context).translate('restart')),
+      BuildContext context, AppLanguage appLanguage, User user, SwimGame game) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        height: game.screenSize.height * 0.2,
+        width: game.screenSize.width /3,
+        child: RaisedButton(
+          onPressed: () async {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => LoadPage(
+                          messageIn: "",
+                          appLanguage: appLanguage,
+                          page: "swimmer",
+                          user: user,
+                        )));
+          },
+          child: Text(
+            (AppLocalizations.of(context).translate('restart')),
+            style: textStyle,
+          ),
         ),
       ),
     );
   }
+
+
+
+  Widget menu(BuildContext context, AppLanguage appLanguage, SwimGame game,
+      User user) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        alignment: Alignment.topCenter,
+        decoration: new BoxDecoration(
+            color:Colors.blue.withAlpha(150),
+            //new Color.fromRGBO(255, 0, 0, 0.0),
+            borderRadius: new BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+                bottomLeft: const Radius.circular(20.0),
+                bottomRight:
+                const Radius.circular(20.0))),
+        width: game.screenSize.width/3,
+        height: game.screenSize.height*0.9,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text("MENU",
+              style: textStyle,),
+            pauseButton(context, appLanguage, game, user),
+            restartButton(context, appLanguage, user, game),
+            closeButton(context, appLanguage, user, game.getScore(), game),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {

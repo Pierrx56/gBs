@@ -5,6 +5,7 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'Login.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //Détection de la langue du portable

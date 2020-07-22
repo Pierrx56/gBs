@@ -39,7 +39,7 @@ class UIState extends State<UI> {
     setState(() {});
   }
 
-  Widget displayScore(int score) {
+  Widget displayScore(int score, PlaneGame game) {
     return Container(
       child: Row(
         children: <Widget>[
@@ -59,8 +59,8 @@ class UIState extends State<UI> {
           ),
           Image.asset(
             'assets/images/plane/balloon-green.png',
-            width: screenSize.width * 0.05,
-            height: screenSize.height * 0.2,
+            width: game.screenSize.width * 0.05,
+            height: game.screenSize.height * 0.2,
           ),
         ],
       ),
@@ -101,126 +101,145 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget closeButton(
-      BuildContext context, AppLanguage appLanguage, User user, int score) {
+  void saveAndExit (
+      BuildContext context, AppLanguage appLanguage, User user, int score, PlaneGame game) async{
+
     DatabaseHelper db = new DatabaseHelper();
+    //Date au format FR
+    String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
 
-    return Container(
-      height: screenSize.height * 0.2,
-      width: screenSize.width * 0.2,
-      child: RaisedButton(
-        onPressed: () async {
-          //Get date etc
-          //db.getScore(user.userId);
+    Score newScore = Score(
+        scoreId: null,
+        userId: user.userId,
+        activityId: ACTIVITY_NUMBER,
+        scoreValue: score,
+        scoreDate: date);
 
-          //Date au format FR
-          String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
+    //db.deleteScore(user.userId);
 
-          Score newScore = Score(
-              scoreId: null,
+    List<Scores> everyScores =
+        await db.getScore(user.userId, ACTIVITY_NUMBER);
+
+    if (everyScores.length == 0 && score != 0)
+      db.addScore(newScore);
+    else if (score != 0) {
+      //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
+      for (int i = 0; i < everyScores.length; i++) {
+        //On remplace la valeur dans la bdd
+        //print(everyScores[i].scoreId);
+        if (everyScores[i].date == date && score > everyScores[i].score)
+          db.updateScore(Score(
+              scoreId: everyScores[i].scoreId,
               userId: user.userId,
               activityId: ACTIVITY_NUMBER,
               scoreValue: score,
-              scoreDate: date);
+              scoreDate: date));
+      }
+      //Sinon on enregistre si la dernière date enregistrée est différente du jour
+      if (everyScores[everyScores.length - 1].date != date)
+        db.addScore(newScore);
+    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+          builder: (context) => LoadPage(
+            appLanguage: appLanguage,
+            user: user,
+            messageIn: "0",
+            page: "mainTitle",
+          )
+        /*MainTitle(
+                        appLanguage: appLanguage,
+                        userIn: user,
+                        messageIn: 0,
+                      )*/
+        /*      MainTitle(
+                  userIn: user,
+                  appLanguage: appLanguage,
+                     )*/
+      ),
+    );
+  }
 
-          //db.deleteScore(user.userId);
 
-          List<Scores> everyScores =
-              await db.getScore(user.userId, ACTIVITY_NUMBER);
+  Widget closeButton(
+      BuildContext context, AppLanguage appLanguage, User user, int score, PlaneGame game) {
 
-          if (everyScores.length == 0 && score != 0)
-            db.addScore(newScore);
-          else if (score != 0) {
-            //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
-            for (int i = 0; i < everyScores.length; i++) {
-              //On remplace la valeur dans la bdd
-              //print(everyScores[i].scoreId);
-              if (everyScores[i].date == date && score > everyScores[i].score)
-                db.updateScore(Score(
-                    scoreId: everyScores[i].scoreId,
-                    userId: user.userId,
-                    activityId: ACTIVITY_NUMBER,
-                    scoreValue: score,
-                    scoreDate: date));
-            }
-            //Sinon on enregistre si la dernière date enregistrée est différente du jour
-            if (everyScores[everyScores.length - 1].date != date)
-              db.addScore(newScore);
-          }
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => LoadPage(
-                      appLanguage: appLanguage,
-                      user: user,
-                      messageIn: "0",
-                      page: "mainTitle",
-                    )
-                /*MainTitle(
-                      appLanguage: appLanguage,
-                      userIn: user,
-                      messageIn: 0,
-                    )*/
-                /*      MainTitle(
-                userIn: user,
-                appLanguage: appLanguage,
-                   )*/
-                ),
-          );
-        },
-        child: Text("Quitter le jeu"),
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        height: game.screenSize.height * 0.2,
+        width: game.screenSize.width /3,
+        child: RaisedButton(
+          onPressed: () async {
+            //Get date etc
+            //db.getScore(user.userId);
+            saveAndExit(context, appLanguage, user, score, game);
+          },
+          child: Text("Quitter le jeu",
+            style: textStyle,),
+        ),
       ),
     );
   }
 
   Widget pauseButton(BuildContext context, AppLanguage appLanguage,
       PlaneGame game, User user) {
-    return Container(
-      height: screenSize.height * 0.2,
-      width: screenSize.width * 0.2,
-      child: RaisedButton(
-        onPressed: () async {
-          game.pauseGame = !game.pauseGame;
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              !game.pauseGame ? Icons.pause : Icons.play_arrow,
-            ),
-            !game.pauseGame
-                ? Text(
-                    (AppLocalizations.of(context).translate('pause')),
-                  )
-                : Text(
-              (AppLocalizations.of(context).translate('play'))),
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        height: game.screenSize.height * 0.2,
+        width: game.screenSize.width /3,
+        child: RaisedButton(
+          onPressed: () async {
+            game.pauseGame = !game.pauseGame;
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Icon(
+                !game.pauseGame ? Icons.pause : Icons.play_arrow,
+              ),
+              !game.pauseGame
+                  ? Text(
+                      (AppLocalizations.of(context).translate('pause')),
+                style: textStyle,
+                    )
+                  : Text(
+                (AppLocalizations.of(context).translate('play')),
+                style: textStyle,),
 
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget restartButton(
-      BuildContext context, AppLanguage appLanguage, User user) {
-    return Container(
-      height: screenSize.height * 0.2,
-      width: screenSize.width * 0.2,
-      child: RaisedButton(
-        onPressed: () async {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => LoadPage(
-                        messageIn: "",
-                        appLanguage: appLanguage,
-                        page: "plane",
-                        user: user,
-                      )));
-        },
-        child: Text(
-          (AppLocalizations.of(context).translate('restart')),
+      BuildContext context, AppLanguage appLanguage, User user, PlaneGame game) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        height: game.screenSize.height * 0.2,
+        width: game.screenSize.width /3,
+        child: RaisedButton(
+          onPressed: () async {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => LoadPage(
+                          messageIn: "",
+                          appLanguage: appLanguage,
+                          page: "plane",
+                          user: user,
+                        )));
+          },
+          child: Text(
+            (AppLocalizations.of(context).translate('restart')),
+            style: textStyle,
+          ),
         ),
       ),
     );
@@ -233,7 +252,7 @@ class UIState extends State<UI> {
       child: Container(
         alignment: Alignment.topCenter,
         decoration: new BoxDecoration(
-            color: Colors.blue,
+            color:Colors.blue.withAlpha(150),
             //new Color.fromRGBO(255, 0, 0, 0.0),
             borderRadius: new BorderRadius.only(
                 topLeft: const Radius.circular(20.0),
@@ -241,19 +260,47 @@ class UIState extends State<UI> {
                 bottomLeft: const Radius.circular(20.0),
                 bottomRight:
                 const Radius.circular(20.0))),
-        width: screenSize.width/4,
-        height: screenSize.height*0.9,
+        width: game.screenSize.width/3,
+        height: game.screenSize.height*0.9,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text("MENU best of plus"),
-            Padding(padding: EdgeInsets.all(10),),
+            Text("MENU",
+              style: textStyle,),
             pauseButton(context, appLanguage, game, user),
-            Padding(padding: EdgeInsets.all(10),),
-            restartButton(context, appLanguage, user),
-            Padding(padding: EdgeInsets.all(10),),
-            closeButton(context, appLanguage, user, game.getScore()),
+            restartButton(context, appLanguage, user, game),
+            closeButton(context, appLanguage, user, game.getScore(), game),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget endScreen(BuildContext context, AppLanguage appLanguage, PlaneGame game,
+      User user) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        alignment: Alignment.topCenter,
+        decoration: new BoxDecoration(
+            color:Colors.blue.withAlpha(150),
+            //new Color.fromRGBO(255, 0, 0, 0.0),
+            borderRadius: new BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+                bottomLeft: const Radius.circular(20.0),
+                bottomRight:
+                const Radius.circular(20.0))),
+        width: game.screenSize.width/3,
+        height: game.screenSize.height/3,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text("Fin du jeu, retour au menu !",
+              textAlign: TextAlign.center,
+              style: textStyle,),
           ],
         ),
       ),

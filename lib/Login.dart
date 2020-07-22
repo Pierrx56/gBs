@@ -10,6 +10,9 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'DatabaseHelper.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 
+TextStyle textStyle =
+    TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold);
+
 class Login extends StatefulWidget {
   final AppLanguage appLanguage;
 
@@ -18,8 +21,6 @@ class Login extends StatefulWidget {
   @override
   _Login createState() => _Login(appLanguage);
 }
-
-Size screenSize;
 
 class _Login extends State<Login> {
   DatabaseHelper db = new DatabaseHelper();
@@ -57,12 +58,14 @@ class LoginWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery.of(context).size;
     var appLanguage = Provider.of<AppLanguage>(context);
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context).translate('bienvenue'),),
+          title: Text(
+            AppLocalizations.of(context).translate('bienvenue'),
+          ),
           backgroundColor: Colors.blue,
           actions: <Widget>[
             FlatButton.icon(
@@ -147,7 +150,7 @@ class LoginWidget extends StatelessWidget {
                       padding: EdgeInsets.all(10.0),
                       itemCount: size = snapshot.data.length + 1,
                       itemBuilder: (BuildContext context, int index) {
-                        if (index < size && index > 0 ) {
+                        if (index < size && index > 0) {
                           User item = snapshot.data[index - 1];
                           return GestureDetector(
                             onTap: () {
@@ -177,7 +180,10 @@ class LoginWidget extends StatelessWidget {
                                       width: screenSize.width * 0.3,
                                     ),
                                     //Text(AppLocalizations.of(context).translate('profil_existant') + ": "),
-                                    Text(item.userName),
+                                    Text(
+                                      item.userName,
+                                      style: textStyle,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -197,20 +203,28 @@ class LoginWidget extends StatelessWidget {
                                           )));
                             },
                             child: new Container(
+                              height: screenSize.height * 0.3,
                               decoration: BoxDecoration(
                                 color: Theme.of(context).buttonColor,
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                               child: Padding(
-                                  padding: EdgeInsets.fromLTRB(
-                                      0,
-                                      screenSize.height * 0.15,
-                                      0,
-                                      screenSize.height * 0.15),
-                                  child: Center(
-                                    child: Text(AppLocalizations.of(context)
-                                        .translate('inscription')),
-                                  )),
+                                padding: EdgeInsets.all(12.0),
+                                child: Row(
+                                  children: <Widget>[
+                                    Image.asset(
+                                      "assets/add.png",
+                                      height: screenSize.height * 0.3,
+                                      width: screenSize.width * 0.3,
+                                    ),
+                                    Text(
+                                      AppLocalizations.of(context)
+                                          .translate('inscription'),
+                                      style: textStyle,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ); //
                         } else

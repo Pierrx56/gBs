@@ -16,6 +16,7 @@ import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
+import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 class _Message {
   int whom;
@@ -138,11 +139,10 @@ class _Register extends State<Register> {
 
   void connect() async {
     /*btManage.enableBluetooth();*/
-    if(await btManage.enableBluetooth()){
+    if (await btManage.enableBluetooth()) {
       //print("salut");
       connect();
-    }
-    else{
+    } else {
       btManage.connect(macAddress, "gBs" + serialNumber.text.toUpperCase());
       isConnected = await btManage.getStatus();
       testConnect();
@@ -187,7 +187,6 @@ class _Register extends State<Register> {
   }
 
   pickImageFromCamera() async {
-
     // Ensure that plugin services are initialized so that `availableCameras()`
     // can be called before `runApp()`
     WidgetsFlutterBinding.ensureInitialized();
@@ -197,7 +196,6 @@ class _Register extends State<Register> {
 
     // Get a specific camera from the list of available cameras.
     final firstCamera = cameras.first;
-
   }
 
   //write to app path
@@ -312,7 +310,7 @@ class _Register extends State<Register> {
             posTNode.requestFocus();
           } else if (currentStep == 3) {
             if (_userMode == "") _userMode = "Normale";
-          }else if (currentStep == 5) {
+          } else if (currentStep == 5) {
             serialNode.requestFocus();
           }
 
@@ -358,7 +356,8 @@ class _Register extends State<Register> {
           );
         } else if (currentStep == 1)
           posBNode.requestFocus();
-        else if (currentStep == 2) posTNode.requestFocus();
+        else if (currentStep == 2)
+          posTNode.requestFocus();
         else if (currentStep == 5) serialNode.requestFocus();
 
         _controller.animateTo((((currentStep) * 75)).toDouble(),
@@ -512,29 +511,38 @@ class _Register extends State<Register> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-            RaisedButton(
-              child:Row(children: <Widget>[
-                Icon(Icons.image),
-                Text(" " + AppLocalizations.of(context).translate('select_image')),
-              ],),
-              onPressed: () {
-                _pathSaved = pickImage(ImageSource.gallery);
-              },
-              textColor: colorButton,
-            ),
-            Padding(padding: EdgeInsets.all(10),),
-            RaisedButton(
-              child:Row(children: <Widget>[
-                Icon(Icons.camera_alt),
-                Text(" " + AppLocalizations.of(context).translate('prendre_photo')),
-              ],),
-              onPressed: () {
-                _pathSaved = pickImage(ImageSource.camera);
-              },
-              textColor: colorButton,
-            ),
-          ],),
-
+              RaisedButton(
+                child: Row(
+                  children: <Widget>[
+                    Icon(Icons.image),
+                    Text(" " +
+                        AppLocalizations.of(context).translate('select_image')),
+                  ],
+                ),
+                onPressed: () {
+                  _pathSaved = pickImage(ImageSource.gallery);
+                },
+                textColor: colorButton,
+              ),
+              Padding(
+                padding: EdgeInsets.all(10),
+              ),
+              RaisedButton(
+                child: Row(
+                  children: <Widget>[
+                    Icon(Icons.camera_alt),
+                    Text(" " +
+                        AppLocalizations.of(context)
+                            .translate('prendre_photo')),
+                  ],
+                ),
+                onPressed: () {
+                  _pathSaved = pickImage(ImageSource.camera);
+                },
+                textColor: colorButton,
+              ),
+            ],
+          ),
         ]),
       ),
       Step(
@@ -561,8 +569,8 @@ class _Register extends State<Register> {
                     ),
                     onPressed: !isFound && serialNumber.text.length >= 8
                         ? () async {
-                            macAddress = await btManage
-                                .getPairedDevices(serialNumber.text.toUpperCase());
+                            macAddress = await btManage.getPairedDevices(
+                                serialNumber.text.toUpperCase());
 
                             print(
                                 "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
@@ -573,8 +581,8 @@ class _Register extends State<Register> {
                             Timer.periodic(const Duration(seconds: 1),
                                 (timer) async {
                               if (macAddress == "0") {
-                                macAddress = await btManage
-                                    .getPairedDevices(serialNumber.text.toUpperCase());
+                                macAddress = await btManage.getPairedDevices(
+                                    serialNumber.text.toUpperCase());
                               }
                               if (macAddress != "-1") {
                                 timer.cancel();
@@ -720,89 +728,90 @@ class _Register extends State<Register> {
                     ],
                   ),
                   Padding(
-                    padding:EdgeInsets.all(20) ,
+                    padding: EdgeInsets.all(20),
                   ),
                   Column(
                     children: <Widget>[
-                        FlatButton(
-                          child: Text(AppLocalizations.of(context)
-                              .translate('valider_insc')),
-                          color: Colors.blue,
-                          textColor: Colors.white,
-                          padding: EdgeInsets.only(
-                              left: 38, right: 38, top: 15, bottom: 15),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5)),
-                          onPressed: () async {
-                            //Conditions d'inscriptions
-                            //Prénom
-                            if (name.text == '')
-                              isDisabled = true;
-                            //Hauteur min et max
-                            else if (hauteur_min.text == '' ||
-                                hauteur_max.text == '')
-                              isDisabled = true;
-                            //Hauteur max inférieur à hauteur min ?
-                            else if (hauteur_min.text != '' &&
-                                hauteur_max.text !=
-                                    '') if (int.tryParse(hauteur_max.text) <=
-                                int.tryParse(hauteur_min.text))
-                              isDisabled = true;
-                            //Adresse mac
-                            else if (macAddress == '')
-                              isDisabled = true;
+                      FlatButton(
+                        child: Text(AppLocalizations.of(context)
+                            .translate('valider_insc')),
+                        color: Colors.blue,
+                        textColor: Colors.white,
+                        padding: EdgeInsets.only(
+                            left: 38, right: 38, top: 15, bottom: 15),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5)),
+                        onPressed: () async {
+                          //Conditions d'inscriptions
+                          //Prénom
+                          if (name.text == '')
+                            isDisabled = true;
+                          //Hauteur min et max
+                          else if (hauteur_min.text == '' ||
+                              hauteur_max.text == '')
+                            isDisabled = true;
+                          //Hauteur max inférieur à hauteur min ?
+                          else if (hauteur_min.text != '' &&
+                              hauteur_max.text !=
+                                  '') if (int.tryParse(hauteur_max.text) <=
+                              int.tryParse(hauteur_min.text))
+                            isDisabled = true;
+                          //Adresse mac
+                          else if (macAddress == '')
+                            isDisabled = true;
 /*                      //Première poussée
                       else if (result.toString() == null)
                         isDisabled = true;*/
-                            else
-                              isDisabled = false;
+                          else
+                            isDisabled = false;
 
-                            if (_pathSaved == "assets/avatar.png") {
-                              var bytes = await rootBundle.load(_pathSaved);
-                              String dir =
-                                  (await getApplicationDocumentsDirectory()).path;
-                              File tempFile =
-                              await writeToFile(bytes, '$dir/default.png');
+                          if (_pathSaved == "assets/avatar.png") {
+                            var bytes = await rootBundle.load(_pathSaved);
+                            String dir =
+                                (await getApplicationDocumentsDirectory()).path;
+                            File tempFile =
+                                await writeToFile(bytes, '$dir/default.png');
 
-                              setState(() {
-                                _pathSaved = tempFile.path;
-                              });
-                            }
+                            setState(() {
+                              _pathSaved = tempFile.path;
+                            });
+                          }
 
-                            if (!isDisabled) {
-                              User user = await addUser();
-                              //getUser();
-                              //connectBT();
+                          if (!isDisabled) {
+                            User user = await addUser();
+                            //getUser();
+                            //connectBT();
 
-                              if (user != null) {
-                                print("salut " + user.userId.toString());
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => LoadPage(
-                                      appLanguage: appLanguage,
-                                      user: user,
-                                      page: "firstPush",
-                                      messageIn: "0",
-                                    ),
+                            if (user != null) {
+                              print("salut " + user.userId.toString());
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LoadPage(
+                                    appLanguage: appLanguage,
+                                    user: user,
+                                    page: "firstPush",
+                                    messageIn: "0",
                                   ),
-                                );
-                                //dispose();
-                              } else
-                                print("Something went wrong");
+                                ),
+                              );
+                              //dispose();
                             } else
-                              show("Veuillez corriger toutes les erreurs");
-                          },
-                        ),
+                              print("Something went wrong");
+                          } else
+                            show("Veuillez corriger toutes les erreurs");
+                        },
+                      ),
                       FlatButton(
                         onPressed: () {
                           back();
-                          _controller.animateTo((((currentStep) * 75)).toDouble(),
+                          _controller.animateTo(
+                              (((currentStep) * 75)).toDouble(),
                               duration: Duration(milliseconds: 500),
                               curve: Curves.linear);
                         },
-                        child:
-                        Text(AppLocalizations.of(context).translate('retour')),
+                        child: Text(
+                            AppLocalizations.of(context).translate('retour')),
                       ),
                     ],
                   ),
@@ -815,10 +824,19 @@ class _Register extends State<Register> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).translate('valider_insc')),
+        title: Text(AppLocalizations.of(context).translate('inscription')),
         backgroundColor: Colors.blue,
         key: _formKey,
         actions: <Widget>[
+          StepProgressIndicator(
+            totalSteps: 6,
+            currentStep: currentStep,
+            fallbackLength: screenSize.width / 2,
+            selectedColor: Colors.lightGreenAccent,
+            unselectedColor: Colors.white38,
+            roundedEdges: Radius.circular(10),
+            padding: 1,
+          ),
           new FlatButton(
             child: new Text(
               "AutoFill",
@@ -833,7 +851,8 @@ class _Register extends State<Register> {
               _userMode = "Sportif";
               hauteur_min.text = "115";
               hauteur_max.text = "125";
-              macAddress = "-1";
+              macAddress = "78:DB:2F:BF:3B:03";
+              serialNumber.text = "1230997P";
               //result = 6.31;
               _pathSaved = "assets/avatar.png";
             },

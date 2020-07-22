@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flame/sprite.dart';
 import 'package:gbsalternative/Plane/PlaneGame.dart';
 
-Size screenSize;
 double j = 0;
 double backgroundSpeed = 0.1;
 

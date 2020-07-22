@@ -213,30 +213,45 @@ class _Swimmer extends State<Swimmer> {
                   ),
                 )
               : game.widget,
-          Column(
-            children: <Widget>[
-              Container(
-                alignment: Alignment.topLeft,
-                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                child: game == null
-                    ? Container()
-                    : gameUI.state.closeButton(
+
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+/*                Container(
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    child: game == null
+                        ? Container()
+                        : gameUI.state.closeButton(
                         context, appLanguage, user, game.getScore()),
-              ),
-              Container(
-                alignment: Alignment.topLeft,
-                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                child:
-                    game == null ? Container() : gameUI.state.pauseButton(context, appLanguage, game),
-              ),
-              Container(
-                alignment: Alignment.topLeft,
-                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                child: game == null
-                    ? Container()
-                    : gameUI.state.restartButton(context, appLanguage, user),
-              ),
-            ],
+                  ),*/
+                game != null
+                    ? !game.pauseGame
+                    ? Container(
+                  alignment: Alignment.topLeft,
+                  padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                  child: game == null
+                      ? Container()
+                      : gameUI.state.pauseButton(
+                      context, appLanguage, game, user),
+                )
+                    : Container(
+                    alignment: Alignment.topCenter,
+                    child: gameUI.state
+                        .menu(context, appLanguage, game, user))
+                    : Container(),
+
+                /*              Container(
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    child: game == null
+                        ? Container()
+                        : gameUI.state.restartButton(context, appLanguage, user),
+                  ),
+*/
+              ],
+            ),
           ),
           Container(
             alignment: Alignment.bottomLeft,
