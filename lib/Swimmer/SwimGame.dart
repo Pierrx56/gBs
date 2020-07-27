@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Swimmer/Background.dart';
 import 'package:gbsalternative/Swimmer/Ui.dart';
 import 'package:gbsalternative/Swimmer/WaterLines.dart';
@@ -24,6 +25,8 @@ class SwimGame extends Game {
   bool start;
   bool gameOver;
   bool isConnected;
+  int counterHigh;
+  bool isTooHigh;
 
   int score = 0;
   bool pauseGame = false;
@@ -86,6 +89,8 @@ class SwimGame extends Game {
     topLine = TopLine(this);
     gameUI = UI();
 
+    isTooHigh = false;
+    counterHigh = 0;
     isTopPosition = false;
     posMax = false;
     gameOver = false;
@@ -143,8 +148,19 @@ class SwimGame extends Game {
             //print("Attention au bord bas !");
             //setColorFilter(true);
             isTopPosition = true;
-            //Rentre une fois dans la timer
+            //Rentre une fois dans le timer
             if (!start) {
+              counterHigh++;
+              //Si le joueur pousse trop fort 3 fois dans le jeu, on demande à ce qu'il réajuste la toise
+              if(counterHigh > 1) {
+                isTooHigh = true;
+                pauseGame = true;
+              }
+              else {
+                isTooHigh = false;
+                pauseGame = false;
+              }
+
               startTimer(start = true, 10.0);
             }
           } else if (pos > topLine.getUpPosition()) {
@@ -180,6 +196,7 @@ class SwimGame extends Game {
             i = 0;
           else
             i++;
+
 
           if (pauseGame) i--;
 
@@ -305,6 +322,11 @@ class SwimGame extends Game {
     return isTopPosition;
   }
 
+  bool getPauseStatus(){
+    return pauseGame;
+  }
+
+
   void startTimer(bool isStarted, double _start) async {
     Timer _timer;
 
@@ -327,7 +349,7 @@ class SwimGame extends Game {
               setColorFilter(true);
               timer.cancel();
               gameOver = true;
-            } else {
+            } else if(!pauseGame){
               setColorFilter(!redFilter);
               _start = _start - 0.5;
               print(_start);

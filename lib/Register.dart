@@ -138,10 +138,10 @@ class _Register extends State<Register> {
   }
 
   void connect() async {
-    /*btManage.enableBluetooth();*/
-    if (await btManage.enableBluetooth()) {
-      //print("salut");
+    //Tant que le bluetooth n'est pas activé, on demande son activation
+    if(await btManage.enableBluetooth()){
       connect();
+
     } else {
       btManage.connect(macAddress, "gBs" + serialNumber.text.toUpperCase());
       isConnected = await btManage.getStatus();

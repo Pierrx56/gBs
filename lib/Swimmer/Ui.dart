@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -56,39 +57,62 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget displayMessage(String message) {
-    return Text(
-      "$message",
-      style: TextStyle(
-        fontSize: 70,
-        color: Colors.black,
-        shadows: <Shadow>[
-          Shadow(
-            color: Color(0x88000000),
-            blurRadius: 10,
-            offset: Offset(2, 2),
-          ),
-        ],
+  Widget displayMessage(String message, SwimGame game) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        alignment: Alignment.topCenter,
+        decoration: new BoxDecoration(
+            color: Colors.blue.withAlpha(150),
+            //new Color.fromRGBO(255, 0, 0, 0.0),
+            borderRadius: new BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+                bottomLeft: const Radius.circular(20.0),
+                bottomRight: const Radius.circular(20.0))),
+        width: game.screenSize.width * 0.6,
+        height: game.screenSize.height * 0.4,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            AutoSizeText(
+              "$message",
+              maxLines: 3,
+              style: TextStyle(
+                fontSize: 70,
+                color: Colors.black,
+                shadows: <Shadow>[
+                  Shadow(
+                    color: Color(0x88000000),
+                    blurRadius: 10,
+                    offset: Offset(2, 2),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget closeButton(
-      BuildContext context, AppLanguage appLanguage, User user, int score, SwimGame game) {
+  Widget closeButton(BuildContext context, AppLanguage appLanguage, User user,
+      int score, SwimGame game) {
     DatabaseHelper db = new DatabaseHelper();
 
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
         height: game.screenSize.height * 0.2,
-        width: game.screenSize.width /3,
+        width: game.screenSize.width / 3,
         child: RaisedButton(
           onPressed: () async {
-            //Get date etc
             //db.getScore(user.userId);
 
             //Date au format FR
-            String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
+            String date =
+                new DateFormat('dd-MM-yyyy').format(new DateTime.now());
 
             Score newScore = Score(
                 scoreId: null,
@@ -133,8 +157,10 @@ class UIState extends State<UI> {
               ),
             );
           },
-          child: Text(AppLocalizations.of(context).translate('quitter'),
-            style: textStyle,),
+          child: Text(
+            AppLocalizations.of(context).translate('quitter'),
+            style: textStyle,
+          ),
         ),
       ),
     );
@@ -146,11 +172,15 @@ class UIState extends State<UI> {
       padding: const EdgeInsets.all(10.0),
       child: Container(
         height: game.screenSize.height * 0.2,
-        width: game.screenSize.width /3,
+        width: game.screenSize.width / 3,
         child: RaisedButton(
-          onPressed: () async {
-            game.pauseGame = !game.pauseGame;
-          },
+          onPressed: !game.getGameOver()
+              ? game.getConnectionState()
+                  ? () async {
+                      game.pauseGame = !game.pauseGame;
+                    }
+                  : null
+              : null,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -161,11 +191,11 @@ class UIState extends State<UI> {
               !game.pauseGame
                   ? Text(
                       (AppLocalizations.of(context).translate('pause')),
-                style: textStyle,
+                      style: textStyle,
                     )
                   : Text(
                       (AppLocalizations.of(context).translate('play')),
-                style: textStyle,
+                      style: textStyle,
                     ),
             ],
           ),
@@ -180,7 +210,7 @@ class UIState extends State<UI> {
       padding: const EdgeInsets.all(10.0),
       child: Container(
         height: game.screenSize.height * 0.2,
-        width: game.screenSize.width /3,
+        width: game.screenSize.width / 3,
         child: RaisedButton(
           onPressed: () async {
             Navigator.pushReplacement(
@@ -202,31 +232,30 @@ class UIState extends State<UI> {
     );
   }
 
-
-
-  Widget menu(BuildContext context, AppLanguage appLanguage, SwimGame game,
-      User user) {
+  Widget menu(
+      BuildContext context, AppLanguage appLanguage, SwimGame game, User user) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
         alignment: Alignment.topCenter,
         decoration: new BoxDecoration(
-            color:Colors.blue.withAlpha(150),
+            color: Colors.blue.withAlpha(150),
             //new Color.fromRGBO(255, 0, 0, 0.0),
             borderRadius: new BorderRadius.only(
                 topLeft: const Radius.circular(20.0),
                 topRight: const Radius.circular(20.0),
                 bottomLeft: const Radius.circular(20.0),
-                bottomRight:
-                const Radius.circular(20.0))),
-        width: game.screenSize.width/3,
-        height: game.screenSize.height*0.9,
+                bottomRight: const Radius.circular(20.0))),
+        width: game.screenSize.width * 0.3,
+        height: game.screenSize.height * 0.9,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text("MENU",
-              style: textStyle,),
+            Text(
+              "MENU",
+              style: textStyle,
+            ),
             pauseButton(context, appLanguage, game, user),
             restartButton(context, appLanguage, user, game),
             closeButton(context, appLanguage, user, game.getScore(), game),
@@ -235,7 +264,6 @@ class UIState extends State<UI> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {

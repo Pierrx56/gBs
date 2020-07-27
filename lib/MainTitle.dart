@@ -101,16 +101,15 @@ class _MainTitle extends State<MainTitle> {
   @override
   void dispose() {
     timerConnexion?.cancel();
-
     //btManage.disconnect("");
 
     super.dispose();
   }
 
   void connect() async {
-    /*btManage.enableBluetooth();*/
+
+    //Tant que le bluetooth n'est pas activé, on demande son activation
     if(await btManage.enableBluetooth()){
-      //print("salut");
       connect();
     }
     else{
@@ -128,6 +127,7 @@ class _MainTitle extends State<MainTitle> {
         (timerConnexion) async {
             btManage.connect(user.userMacAddress, user.userSerialNumber);
             print("Status: $isConnected");
+
             isConnected = await btManage.getStatus();
             if (isConnected) {
               timerConnexion.cancel();

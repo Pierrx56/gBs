@@ -39,7 +39,8 @@ class UIState extends State<UI> {
     setState(() {});
   }
 
-  Widget displayScore(int score, PlaneGame game) {
+/*
+  Widget displayScore(int score, PlaneGame game, String timeRemaining) {
     return Container(
       child: Row(
         children: <Widget>[
@@ -65,21 +66,116 @@ class UIState extends State<UI> {
         ],
       ),
     );
+  }*/
+
+  Widget displayScore(String message, PlaneGame game, String timeRemaining) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        alignment: Alignment.topCenter,
+        decoration: new BoxDecoration(
+            color: Colors.blue.withAlpha(150),
+            //new Color.fromRGBO(255, 0, 0, 0.0),
+            borderRadius: new BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+                bottomLeft: const Radius.circular(20.0),
+                bottomRight: const Radius.circular(20.0))),
+        width: game.screenSize.width * 0.25,
+        height: game.screenSize.height * 0.35,
+        child: FittedBox(
+          fit: BoxFit.fitWidth,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              FittedBox(
+                fit: BoxFit.fitWidth,
+                child: Text(
+                  "$timeRemaining",
+                  style: TextStyle(
+                    fontSize: 70,
+                    color: Colors.black,
+                    shadows: <Shadow>[
+                      Shadow(
+                        color: Color(0x88000000),
+                        blurRadius: 10,
+                        offset: Offset(2, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    "$message",
+                    style: TextStyle(
+                      fontSize: 50,
+                      color: Colors.black,
+                      shadows: <Shadow>[
+                        Shadow(
+                          color: Color(0x88000000),
+                          blurRadius: 10,
+                          offset: Offset(2, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Image.asset(
+                    'assets/images/plane/balloon-green.png',
+                    width: game.screenSize.width * 0.05,
+                    height: game.screenSize.height * 0.2,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
-  Widget displayMessage(String message) {
-    return Text(
-      "$message",
-      style: TextStyle(
-        fontSize: 70,
-        color: Colors.black,
-        shadows: <Shadow>[
-          Shadow(
-            color: Color(0x88000000),
-            blurRadius: 10,
-            offset: Offset(2, 2),
-          ),
-        ],
+  Widget displayMessage(String message, PlaneGame game) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        alignment: Alignment.topCenter,
+        decoration: new BoxDecoration(
+            color: Colors.blue.withAlpha(150),
+            //new Color.fromRGBO(255, 0, 0, 0.0),
+            borderRadius: new BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+                bottomLeft: const Radius.circular(20.0),
+                bottomRight: const Radius.circular(20.0))),
+        width: game.screenSize.width * 0.6,
+        height: game.screenSize.height * 0.4,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            FittedBox(
+              fit: BoxFit.fitWidth,
+              child: Text(
+                "$message",
+                style: TextStyle(
+                  fontSize: 70,
+                  color: Colors.black,
+                  shadows: <Shadow>[
+                    Shadow(
+                      color: Color(0x88000000),
+                      blurRadius: 10,
+                      offset: Offset(2, 2),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -101,9 +197,8 @@ class UIState extends State<UI> {
     );
   }
 
-  void saveAndExit (
-      BuildContext context, AppLanguage appLanguage, User user, int score, PlaneGame game) async{
-
+  void saveAndExit(BuildContext context, AppLanguage appLanguage, User user,
+      int score, PlaneGame game) async {
     DatabaseHelper db = new DatabaseHelper();
     //Date au format FR
     String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
@@ -117,8 +212,7 @@ class UIState extends State<UI> {
 
     //db.deleteScore(user.userId);
 
-    List<Scores> everyScores =
-        await db.getScore(user.userId, ACTIVITY_NUMBER);
+    List<Scores> everyScores = await db.getScore(user.userId, ACTIVITY_NUMBER);
 
     if (everyScores.length == 0 && score != 0)
       db.addScore(newScore);
@@ -143,41 +237,41 @@ class UIState extends State<UI> {
       context,
       MaterialPageRoute(
           builder: (context) => LoadPage(
-            appLanguage: appLanguage,
-            user: user,
-            messageIn: "0",
-            page: "mainTitle",
-          )
-        /*MainTitle(
+                appLanguage: appLanguage,
+                user: user,
+                messageIn: "0",
+                page: "mainTitle",
+              )
+          /*MainTitle(
                         appLanguage: appLanguage,
                         userIn: user,
                         messageIn: 0,
                       )*/
-        /*      MainTitle(
+          /*      MainTitle(
                   userIn: user,
                   appLanguage: appLanguage,
                      )*/
-      ),
+          ),
     );
   }
 
-
-  Widget closeButton(
-      BuildContext context, AppLanguage appLanguage, User user, int score, PlaneGame game) {
-
+  Widget closeButton(BuildContext context, AppLanguage appLanguage, User user,
+      int score, PlaneGame game) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
         height: game.screenSize.height * 0.2,
-        width: game.screenSize.width /3,
+        width: game.screenSize.width / 3,
         child: RaisedButton(
           onPressed: () async {
             //Get date etc
             //db.getScore(user.userId);
             saveAndExit(context, appLanguage, user, score, game);
           },
-          child: Text("Quitter le jeu",
-            style: textStyle,),
+          child: Text(
+            "Quitter le jeu",
+            style: textStyle,
+          ),
         ),
       ),
     );
@@ -189,7 +283,7 @@ class UIState extends State<UI> {
       padding: const EdgeInsets.all(10.0),
       child: Container(
         height: game.screenSize.height * 0.2,
-        width: game.screenSize.width /3,
+        width: game.screenSize.width / 3,
         child: RaisedButton(
           onPressed: () async {
             game.pauseGame = !game.pauseGame;
@@ -204,12 +298,12 @@ class UIState extends State<UI> {
               !game.pauseGame
                   ? Text(
                       (AppLocalizations.of(context).translate('pause')),
-                style: textStyle,
+                      style: textStyle,
                     )
                   : Text(
-                (AppLocalizations.of(context).translate('play')),
-                style: textStyle,),
-
+                      (AppLocalizations.of(context).translate('play')),
+                      style: textStyle,
+                    ),
             ],
           ),
         ),
@@ -217,13 +311,13 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget restartButton(
-      BuildContext context, AppLanguage appLanguage, User user, PlaneGame game) {
+  Widget restartButton(BuildContext context, AppLanguage appLanguage, User user,
+      PlaneGame game) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
         height: game.screenSize.height * 0.2,
-        width: game.screenSize.width /3,
+        width: game.screenSize.width / 3,
         child: RaisedButton(
           onPressed: () async {
             Navigator.pushReplacement(
@@ -252,22 +346,23 @@ class UIState extends State<UI> {
       child: Container(
         alignment: Alignment.topCenter,
         decoration: new BoxDecoration(
-            color:Colors.blue.withAlpha(150),
+            color: Colors.blue.withAlpha(150),
             //new Color.fromRGBO(255, 0, 0, 0.0),
             borderRadius: new BorderRadius.only(
                 topLeft: const Radius.circular(20.0),
                 topRight: const Radius.circular(20.0),
                 bottomLeft: const Radius.circular(20.0),
-                bottomRight:
-                const Radius.circular(20.0))),
-        width: game.screenSize.width/3,
-        height: game.screenSize.height*0.9,
+                bottomRight: const Radius.circular(20.0))),
+        width: game.screenSize.width / 3,
+        height: game.screenSize.height * 0.9,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text("MENU",
-              style: textStyle,),
+            Text(
+              "MENU",
+              style: textStyle,
+            ),
             pauseButton(context, appLanguage, game, user),
             restartButton(context, appLanguage, user, game),
             closeButton(context, appLanguage, user, game.getScore(), game),
@@ -277,30 +372,31 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget endScreen(BuildContext context, AppLanguage appLanguage, PlaneGame game,
-      User user) {
+  Widget endScreen(BuildContext context, AppLanguage appLanguage,
+      PlaneGame game, User user) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
         alignment: Alignment.topCenter,
         decoration: new BoxDecoration(
-            color:Colors.blue.withAlpha(150),
+            color: Colors.blue.withAlpha(150),
             //new Color.fromRGBO(255, 0, 0, 0.0),
             borderRadius: new BorderRadius.only(
                 topLeft: const Radius.circular(20.0),
                 topRight: const Radius.circular(20.0),
                 bottomLeft: const Radius.circular(20.0),
-                bottomRight:
-                const Radius.circular(20.0))),
-        width: game.screenSize.width/3,
-        height: game.screenSize.height/3,
+                bottomRight: const Radius.circular(20.0))),
+        width: game.screenSize.width / 3,
+        height: game.screenSize.height / 3,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text("Fin du jeu, retour au menu !",
+            Text(
+              "Fin du jeu, retour au menu !",
               textAlign: TextAlign.center,
-              style: textStyle,),
+              style: textStyle,
+            ),
           ],
         ),
       ),

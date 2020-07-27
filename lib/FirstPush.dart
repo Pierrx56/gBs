@@ -116,10 +116,10 @@ class _FirstPush extends State<FirstPush> {
   }
 
   void connect() async {
-    /*btManage.enableBluetooth();*/
-    if (await btManage.enableBluetooth()) {
-      //print("salut");
+    //Tant que le bluetooth n'est pas activé, on demande son activation
+    if(await btManage.enableBluetooth()){
       connect();
+
     } else {
       btManage.getPairedDevices("firstPush");
       btManage.connect(user.userMacAddress, user.userSerialNumber);
@@ -134,7 +134,7 @@ class _FirstPush extends State<FirstPush> {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
-        print("Status: $isConnected");
+        print("isConnected: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {
           timerConnexion.cancel();

@@ -45,10 +45,6 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
-  static double delta = 102.0;
-  double coefKg = 0.45359237;
-  double result;
-  String recording;
   String timeRemaining;
   Timer timer;
   Timer _timer;
@@ -116,10 +112,10 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
   bool isDisconnecting = false;
 
   void connect() async {
-    /*btManage.enableBluetooth();*/
-    if (await btManage.enableBluetooth()) {
-      //print("salut");
+    //Tant que le bluetooth n'est pas activé, on demande son activation
+    if(await btManage.enableBluetooth()){
       connect();
+
     } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
@@ -302,7 +298,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                         context, appLanguage, user, game.getScore()),
                   ),*/
                   game != null
-                      ? !game.pauseGame
+                      ? !game.pauseGame && !game.getGameOver() && game.getConnectionState()
                           ? Container(
                               alignment: Alignment.topLeft,
                               padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -313,7 +309,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                             )
                           : !gameOver
                               ? Container(
-                                  alignment: Alignment.topCenter,
+                                  alignment: Alignment.topLeft,
                                   child: gameUI.state
                                       .menu(context, appLanguage, game, user))
                               : Container(
@@ -333,63 +329,43 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                 ],
               ),
             ),
+            //Display message afficher le score
+            game != null
+                ?
+            !game.getGameOver() && game.getConnectionState() ?
             Container(
-              alignment: Alignment.bottomLeft,
+              alignment: Alignment.centerRight,
               padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
               child: game == null
                   ? Container()
-                  : gameUI.state.displayScore(score, game),
-            ),
-            //Display message pour relancher
-            Container(
-              alignment: Alignment.center,
-              child: game != null
-                  ? game.getColorFilterBool() &&
-                          game.getPosition() &&
-                          !game.getGameOver()
-                      ? gameUI.state.displayMessage(
-                          AppLocalizations.of(context).translate('relacher'))
-                      : Container()
-                  : Container(),
-            ),
-            //Display message pour pousser
-            Container(
-              alignment: Alignment.center,
-              child: game != null
-                  ? game.getColorFilterBool() &&
-                          !game.getPosition() &&
-                          !game.getGameOver()
-                      ? gameUI.state.displayMessage(
-                          AppLocalizations.of(context).translate('pousser'))
-                      : Container()
-                  : Container(),
-            ),
+                  : gameUI.state.displayScore(score.toString(), game, timeRemaining),
+            ) : Container(): Container(),
             //Display message Game Over
             Container(
-              alignment: Alignment.center,
+              alignment: Alignment.centerRight,
               child: game != null
                   ? game.getGameOver()
                       ? gameUI.state.displayMessage(
-                          AppLocalizations.of(context).translate('game_over'))
+                          AppLocalizations.of(context).translate('game_over'), game)
                       : Container()
                   : Container(),
             ),
             //Display message Lost connexion
             Container(
-              alignment: Alignment.center,
+              alignment: Alignment.centerRight,
               child: game != null
                   ? !game.getConnectionState()
                       ? gameUI.state.displayMessage(AppLocalizations.of(context)
-                          .translate('connexion_perdue'))
+                          .translate('connexion_perdue'), game)
                       : Container()
                   : Container(),
-            ),
+            ),/*
             //Display timer
             Container(
-                alignment: Alignment.bottomRight,
+                alignment: Alignment.centerRight,
                 child: game != null
-                    ? gameUI.state.displayMessage(timeRemaining)
-                    : Container()),
+                    ? gameUI.state.displayMessage(timeRemaining, game)
+                    : Container()),*/
           ],
         ),
       ),

@@ -67,8 +67,12 @@ class PlaneGame extends Game {
     //On double la vitesse des ballon et la vitesse de remontée/redescente de l'avion
     //Le temps passe de 2 min à 3 min
     if (user.userMode == "Sportif") {
-      difficulte = 6;
+      difficulte = 6.0;
       balloonSpeed = 4;
+    }
+    else{
+      difficulte = 3.0;
+      balloonSpeed = 2;
     }
 
     position = false;

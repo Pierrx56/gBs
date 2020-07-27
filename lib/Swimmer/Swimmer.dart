@@ -47,11 +47,11 @@ class _Swimmer extends State<Swimmer> {
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
-  static double delta = 102.0;
-  double coefKg = 0.45359237;
-  double result;
   String recording;
   Timer timer;
+  Timer _timer;
+  int _start = 5;
+  Timer timerThread;
   Timer timerConnexion;
   UI gameUI;
   int score;
@@ -79,6 +79,8 @@ class _Swimmer extends State<Swimmer> {
   void dispose() {
     timerConnexion?.cancel();
     timer?.cancel();
+    _timer?.cancel();
+    timerThread?.cancel();
     super.dispose();
   }
 
@@ -87,6 +89,7 @@ class _Swimmer extends State<Swimmer> {
 
     game = new SwimGame(getData, user, appLanguage);
     refreshScore();
+    mainThread();
     //gameUI.state.game = game;
     Util flameUtil = Util();
     flameUtil.fullScreen();
@@ -99,16 +102,12 @@ class _Swimmer extends State<Swimmer> {
     flameUtil.addGestureRecognizer(tapper);
   }
 
-  bool isDisconnecting = false;
-
-
   void connect() async {
     /*btManage.enableBluetooth();*/
-    if(await btManage.enableBluetooth()){
+    if (await btManage.enableBluetooth()) {
       //print("salut");
       connect();
-    }
-    else{
+    } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
       testConnect();
@@ -120,9 +119,9 @@ class _Swimmer extends State<Swimmer> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
-
-            btManage.connect(user.userMacAddress, user.userSerialNumber);
+        btManage.connect(user.userMacAddress, user.userSerialNumber);
         isConnected = await btManage.getStatus();
+
         if (isConnected) {
           timerConnexion.cancel();
           initSwimmer();
@@ -134,6 +133,41 @@ class _Swimmer extends State<Swimmer> {
       initSwimmer();
       //refreshScore();
     }
+  }
+
+  mainThread() async {
+    timerThread = new Timer.periodic(Duration(milliseconds: 1000),
+        (timerConnexion) async {
+      if (game.isTooHigh) {
+
+        const oneSec = const Duration(seconds: 1);
+        _timer = new Timer.periodic(
+            oneSec,
+              (Timer timer) {
+              if (_start < 1) {
+                timer.cancel();
+                //Redirection vers le menu
+                Navigator.pushReplacement(
+                  this.context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        LoadPage(
+                          appLanguage: appLanguage,
+                          user: user,
+                          messageIn: "0",
+                          page: "mainTitle",
+                        ),
+                  ),
+                );
+              }
+              else {
+                _start = _start - 1;
+              }
+          }
+        );
+
+      }
+    });
   }
 
   void setData() async {
@@ -206,8 +240,8 @@ class _Swimmer extends State<Swimmer> {
                                     )),
                           );
                         },
-                        child: Text(AppLocalizations.of(context)
-                            .translate('retour')),
+                        child: Text(
+                            AppLocalizations.of(context).translate('retour')),
                       )
                     ],
                   ),
@@ -227,19 +261,23 @@ class _Swimmer extends State<Swimmer> {
                         context, appLanguage, user, game.getScore()),
                   ),*/
                 game != null
-                    ? !game.pauseGame
-                    ? Container(
-                  alignment: Alignment.topLeft,
-                  padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                  child: game == null
-                      ? Container()
-                      : gameUI.state.pauseButton(
-                      context, appLanguage, game, user),
-                )
-                    : Container(
-                    alignment: Alignment.topCenter,
-                    child: gameUI.state
-                        .menu(context, appLanguage, game, user))
+                    ? !game.pauseGame &&
+                            !game.getGameOver() &&
+                            game.getConnectionState()
+                        ? Container(
+                            alignment: Alignment.topRight,
+                            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            child: game == null
+                                ? Container()
+                                : gameUI.state.pauseButton(
+                                    context, appLanguage, game, user),
+                          )
+                        : !game.isTooHigh
+                            ? Container(
+                                alignment: Alignment.topRight,
+                                child: gameUI.state
+                                    .menu(context, appLanguage, game, user))
+                            : Container()
                     : Container(),
 
                 /*              Container(
@@ -253,53 +291,88 @@ class _Swimmer extends State<Swimmer> {
               ],
             ),
           ),
+          //Display message pour afficher score
           Container(
             alignment: Alignment.bottomLeft,
             padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-            child:
-                game == null ? Container() : gameUI.state.displayScore(context, appLanguage, score),
+            child: game == null
+                ? Container()
+                : gameUI.state.displayScore(context, appLanguage, score),
           ),
           //Display message pour relancher
           Container(
-            alignment: Alignment.center,
+            alignment: Alignment.bottomCenter,
             child: game != null
                 ? game.getColorFilterBool() &&
                         game.getPosition() &&
-                        !game.getGameOver()
-                    ? gameUI.state.displayMessage(AppLocalizations.of(context)
-                .translate('relacher'))
+                        !game.getGameOver() &&
+                        !game.getPauseStatus() &&
+                        !game.isTooHigh
+                    ? gameUI.state.displayMessage(
+                        AppLocalizations.of(context).translate('relacher'),
+                        game)
                     : Container()
                 : Container(),
           ),
           //Display message pour pousser
           Container(
-            alignment: Alignment.center,
+            alignment: Alignment.topCenter,
             child: game != null
                 ? game.getColorFilterBool() &&
                         !game.getPosition() &&
-                        !game.getGameOver()
-                    ? gameUI.state.displayMessage(AppLocalizations.of(context)
-                .translate('pousser'))
+                        !game.getGameOver() &&
+                        !game.getPauseStatus() &&
+                        !game.isTooHigh
+                    ? gameUI.state.displayMessage(
+                        AppLocalizations.of(context).translate('pousser'), game)
                     : Container()
                 : Container(),
           ),
           //Display message Game Over
           Container(
-            alignment: Alignment.center,
+            alignment: Alignment.topCenter,
             child: game != null
-                ? game.getGameOver()
-                    ? gameUI.state.displayMessage(AppLocalizations.of(context)
-                .translate('game_over'))
+                ? game.getGameOver() && !game.isTooHigh
+                    ? Row(
+                        children: <Widget>[
+                          gameUI.state.displayMessage(
+                              AppLocalizations.of(context)
+                                  .translate('game_over'),
+                              game),
+                        ],
+                      )
+                    : Container()
+                : Container(),
+          ),
+          //Display message toise trop basse
+          Container(
+            alignment: Alignment.topCenter,
+            child: game != null
+                ? game.isTooHigh
+                    ? Row(
+                        children: <Widget>[
+                          gameUI.state.displayMessage(
+                              AppLocalizations.of(context)
+                                  .translate('reajuster_toise'),
+                              game),
+                        ],
+                      )
                     : Container()
                 : Container(),
           ),
           //Display message Lost connexion
           Container(
-            alignment: Alignment.center,
+            alignment: Alignment.topCenter,
             child: game != null
                 ? !game.getConnectionState()
-                    ? gameUI.state.displayMessage(AppLocalizations.of(context)
-                .translate('connexion_perdue'))
+                    ? Row(
+                        children: <Widget>[
+                          gameUI.state.displayMessage(
+                              AppLocalizations.of(context)
+                                  .translate('connexion_perdue'),
+                              game),
+                        ],
+                      )
                     : Container()
                 : Container(),
           ),

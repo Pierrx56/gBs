@@ -74,7 +74,7 @@ public class MainActivity extends FlutterActivity {
     String NAME_DEVICE = "";
     String macAdress = "";
 
-    public String value = "";
+    public String value = "1.0";
 
     boolean isConnected = false;
 
@@ -362,6 +362,9 @@ public class MainActivity extends FlutterActivity {
     }
 
     public String getValue(){
+        if(value == null)
+            value = "1.0";
+
         return value;
     }
 
@@ -382,6 +385,9 @@ public class MainActivity extends FlutterActivity {
         else {
             stopScanning();
             bluetoothGatt = m_BTdevice.connectGatt(this, false, btleGattCallback);
+
+            if(bluetoothGatt != null)
+                isConnected = true;
         }
         if(isConnected)
             return "Connected";
