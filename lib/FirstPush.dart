@@ -400,7 +400,7 @@ class _FirstPush extends State<FirstPush> {
                                     MaterialPageRoute(
                                       builder: (context) => LoadPage(
                                         appLanguage: appLanguage,
-                                        page: "mainTitle",
+                                        page: mainTitle,
                                         user: user,
                                         messageIn: "0",
                                       ),

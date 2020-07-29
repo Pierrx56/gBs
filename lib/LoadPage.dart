@@ -14,12 +14,28 @@ import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/ManageProfile.dart';
 import 'package:gbsalternative/Plane/Plane.dart';
 import 'package:gbsalternative/Register.dart';
+import 'package:gbsalternative/SelectGame.dart';
+import 'package:gbsalternative/SelectStatistic.dart';
 import 'package:gbsalternative/Swimmer/Swimmer.dart';
 import 'package:provider/provider.dart';
 
+//Déclaration du nom des pages
+String detailsCharts = "DetailsCharts";
+String faq = "FAQ";
+String firstPush = "FirstPush";
+String login = "Login";
+String mainTitle = "MainTitle";
+String manageProfile = "ManageProfile";
+String plane = "Plane";
+String register = "Register";
+String selectGame = "SelectGame";
+String selectStatistic = "SelectStatistic";
+String swimmer = "Swimmer";
 
 /*Classe LoadPage
-* Est appelée à chaque changement de page pour garder la langue d'affichage*/
+* Est appelée à chaque changement de page pour garder la langue d'affichage
+* !! Il faut ajouter le nom de la page au dessus pour pouvoir l'appeler par la suite !!
+* */
 class LoadPage extends StatefulWidget{
   final AppLanguage appLanguage;
   final String page;
@@ -64,6 +80,7 @@ class _LoadPage extends State<LoadPage> {
       value: appLanguage,
       child: Consumer<AppLanguage>(builder: (context, model, child) {
         return MaterialApp(
+            debugShowCheckedModeBanner: false,
             locale: model.appLocal != null ? model.appLocal : "",
             supportedLocales: [
               Locale('en', 'US'),
@@ -75,15 +92,17 @@ class _LoadPage extends State<LoadPage> {
               GlobalWidgetsLocalizations.delegate,
             ],
             home:
-            page == "detailsCharts" ? DetailsCharts(appLanguage: appLanguage, scores: scores, user: user, messageIn: messageIn,):
-            page == "FAQ" ? FAQ(inputMessage: messageIn, appLanguage: appLanguage):
-            page == "firstPush" ? FirstPush(user: user, inputMessage: messageIn, appLanguage: appLanguage):
-            page == "login" ? Login(appLanguage: appLanguage):
-            page == "mainTitle" ? MainTitle(userIn: user, messageIn: int.parse(messageIn), appLanguage: appLanguage,):
-            page == "manageProfile" ? ManageProfile(curUser: user, appLanguage: appLanguage):
-            page == "plane" ? Plane(user: user, appLanguage: appLanguage):
-            page == "register" ? Register(appLanguage: appLanguage):
-            page == "swimmer" ? Swimmer(user: user, appLanguage: appLanguage): Container()
+            page == detailsCharts ? DetailsCharts(appLanguage: appLanguage, scores: scores, user: user, messageIn: messageIn,):
+            page == faq ? FAQ(inputMessage: messageIn, appLanguage: appLanguage):
+            page == firstPush ? FirstPush(user: user, inputMessage: messageIn, appLanguage: appLanguage):
+            page == login ? Login(appLanguage: appLanguage):
+            page == mainTitle ? MainTitle(userIn: user, messageIn: int.parse(messageIn), appLanguage: appLanguage,):
+            page == manageProfile ? ManageProfile(curUser: user, appLanguage: appLanguage):
+            page == plane ? Plane(user: user, appLanguage: appLanguage):
+            page == register ? Register(appLanguage: appLanguage):
+            page == selectGame ? SelectGame(appLanguage: appLanguage, user: user, inputMessage: messageIn):
+            page == selectStatistic ? SelectStatistic(appLanguage: appLanguage, user: user, inputMessage: messageIn):
+            page == swimmer ? Swimmer(user: user, appLanguage: appLanguage): Container()
         );
       }),
     );

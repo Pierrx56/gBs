@@ -348,7 +348,7 @@ class _Register extends State<Register> {
             MaterialPageRoute(
               builder: (context) => LoadPage(
                 appLanguage: appLanguage,
-                page: "login",
+                page: login,
                 user: null,
                 messageIn: "0",
               ),
@@ -675,147 +675,150 @@ class _Register extends State<Register> {
           state: currentStep > 6 ? StepState.complete : StepState.disabled,
           content: Column(
             children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Image.asset(
-                        _pathSaved,
-                        width: screenSize.width * 0.15,
-                      ),
-                      Text(
-                        AppLocalizations.of(context).translate('prenom') +
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: <Widget>[
+                    Column(
+                      children: <Widget>[
+                        Image.asset(
+                          _pathSaved,
+                          width: screenSize.width * 0.15,
+                        ),
+                        Text(
+                          AppLocalizations.of(context).translate('prenom') +
+                              ": " +
+                              name.text,
+                          style: textStyle,
+                        ),
+                        Text(
+                          AppLocalizations.of(context)
+                                  .translate('type_utilisation') +
+                              ": " +
+                              _userMode,
+                          style: textStyle,
+                        ),
+                        Text(
+                          AppLocalizations.of(context).translate('haut_min') +
+                              ": " +
+                              hauteur_min.text,
+                          style: textStyle,
+                        ),
+                        Text(
+                          AppLocalizations.of(context).translate('haut_max') +
+                              ": " +
+                              hauteur_max.text,
+                          style: textStyle,
+                        ),
+                        macAddress != null
+                            ? Text(
+                                AppLocalizations.of(context)
+                                    .translate('status_connexion_bon'),
+                                style: textStyle,
+                              )
+                            : Text(
+                                AppLocalizations.of(context)
+                                    .translate('status_connexion_mauvais'),
+                                style: textStyle,
+                              ),
+                        /*Text(AppLocalizations.of(context)
+                                .translate('premiere_mesure') +
                             ": " +
-                            name.text,
-                        style: textStyle,
-                      ),
-                      Text(
-                        AppLocalizations.of(context)
-                                .translate('type_utilisation') +
-                            ": " +
-                            _userMode,
-                        style: textStyle,
-                      ),
-                      Text(
-                        AppLocalizations.of(context).translate('haut_min') +
-                            ": " +
-                            hauteur_min.text,
-                        style: textStyle,
-                      ),
-                      Text(
-                        AppLocalizations.of(context).translate('haut_max') +
-                            ": " +
-                            hauteur_max.text,
-                        style: textStyle,
-                      ),
-                      macAddress != null
-                          ? Text(
-                              AppLocalizations.of(context)
-                                  .translate('status_connexion_bon'),
-                              style: textStyle,
-                            )
-                          : Text(
-                              AppLocalizations.of(context)
-                                  .translate('status_connexion_mauvais'),
-                              style: textStyle,
-                            ),
-                      /*Text(AppLocalizations.of(context)
-                              .translate('premiere_mesure') +
-                          ": " +
-                          result.toString()),*/
+                            result.toString()),*/
 
-                      //Text("Adresse MAC $macAddress"),
-                    ],
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(20),
-                  ),
-                  Column(
-                    children: <Widget>[
-                      FlatButton(
-                        child: Text(AppLocalizations.of(context)
-                            .translate('valider_insc')),
-                        color: Colors.blue,
-                        textColor: Colors.white,
-                        padding: EdgeInsets.only(
-                            left: 38, right: 38, top: 15, bottom: 15),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5)),
-                        onPressed: () async {
-                          //Conditions d'inscriptions
-                          //Prénom
-                          if (name.text == '')
-                            isDisabled = true;
-                          //Hauteur min et max
-                          else if (hauteur_min.text == '' ||
-                              hauteur_max.text == '')
-                            isDisabled = true;
-                          //Hauteur max inférieur à hauteur min ?
-                          else if (hauteur_min.text != '' &&
-                              hauteur_max.text !=
-                                  '') if (int.tryParse(hauteur_max.text) <=
-                              int.tryParse(hauteur_min.text))
-                            isDisabled = true;
-                          //Adresse mac
-                          else if (macAddress == '')
-                            isDisabled = true;
+                        //Text("Adresse MAC $macAddress"),
+                      ],
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(20),
+                    ),
+                    Column(
+                      children: <Widget>[
+                        FlatButton(
+                          child: Text(AppLocalizations.of(context)
+                              .translate('valider_insc')),
+                          color: Colors.blue,
+                          textColor: Colors.white,
+                          padding: EdgeInsets.only(
+                              left: 38, right: 38, top: 15, bottom: 15),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5)),
+                          onPressed: () async {
+                            //Conditions d'inscriptions
+                            //Prénom
+                            if (name.text == '')
+                              isDisabled = true;
+                            //Hauteur min et max
+                            else if (hauteur_min.text == '' ||
+                                hauteur_max.text == '')
+                              isDisabled = true;
+                            //Hauteur max inférieur à hauteur min ?
+                            else if (hauteur_min.text != '' &&
+                                hauteur_max.text !=
+                                    '') if (int.tryParse(hauteur_max.text) <=
+                                int.tryParse(hauteur_min.text))
+                              isDisabled = true;
+                            //Adresse mac
+                            else if (macAddress == '')
+                              isDisabled = true;
 /*                      //Première poussée
-                      else if (result.toString() == null)
-                        isDisabled = true;*/
-                          else
-                            isDisabled = false;
+                        else if (result.toString() == null)
+                          isDisabled = true;*/
+                            else
+                              isDisabled = false;
 
-                          if (_pathSaved == "assets/avatar.png") {
-                            var bytes = await rootBundle.load(_pathSaved);
-                            String dir =
-                                (await getApplicationDocumentsDirectory()).path;
-                            File tempFile =
-                                await writeToFile(bytes, '$dir/default.png');
+                            if (_pathSaved == "assets/avatar.png") {
+                              var bytes = await rootBundle.load(_pathSaved);
+                              String dir =
+                                  (await getApplicationDocumentsDirectory()).path;
+                              File tempFile =
+                                  await writeToFile(bytes, '$dir/default.png');
 
-                            setState(() {
-                              _pathSaved = tempFile.path;
-                            });
-                          }
+                              setState(() {
+                                _pathSaved = tempFile.path;
+                              });
+                            }
 
-                          if (!isDisabled) {
-                            User user = await addUser();
-                            //getUser();
-                            //connectBT();
+                            if (!isDisabled) {
+                              User user = await addUser();
+                              //getUser();
+                              //connectBT();
 
-                            if (user != null) {
-                              print("salut " + user.userId.toString());
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LoadPage(
-                                    appLanguage: appLanguage,
-                                    user: user,
-                                    page: "firstPush",
-                                    messageIn: "0",
+                              if (user != null) {
+                                print("salut " + user.userId.toString());
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => LoadPage(
+                                      appLanguage: appLanguage,
+                                      user: user,
+                                      page: firstPush,
+                                      messageIn: "0",
+                                    ),
                                   ),
-                                ),
-                              );
-                              //dispose();
+                                );
+                                //dispose();
+                              } else
+                                print("Something went wrong");
                             } else
-                              print("Something went wrong");
-                          } else
-                            show("Veuillez corriger toutes les erreurs");
-                        },
-                      ),
-                      FlatButton(
-                        onPressed: () {
-                          back();
-                          _controller.animateTo(
-                              (((currentStep) * 75)).toDouble(),
-                              duration: Duration(milliseconds: 500),
-                              curve: Curves.linear);
-                        },
-                        child: Text(
-                            AppLocalizations.of(context).translate('retour')),
-                      ),
-                    ],
-                  ),
-                ],
+                              show("Veuillez corriger toutes les erreurs");
+                          },
+                        ),
+                        FlatButton(
+                          onPressed: () {
+                            back();
+                            _controller.animateTo(
+                                (((currentStep) * 75)).toDouble(),
+                                duration: Duration(milliseconds: 500),
+                                curve: Curves.linear);
+                          },
+                          child: Text(
+                              AppLocalizations.of(context).translate('retour')),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               )
             ],
           )),

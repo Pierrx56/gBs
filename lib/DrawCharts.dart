@@ -66,7 +66,6 @@ class DrawCharts extends StatelessWidget {
     ];
 
     return Container(
-      height: screenSize.height * 0.4,
       child: charts.BarChart(
         series,
         animate: animate,

@@ -177,7 +177,7 @@ class _ManageProfile extends State<ManageProfile> {
                           builder: (context) => LoadPage(
                                 appLanguage: appLanguage,
                                 messageIn: "",
-                                page: "login",
+                                page: login,
                                 user: null,
                               )));
 /*                Navigator.pushReplacement(
@@ -536,7 +536,7 @@ class _ManageProfile extends State<ManageProfile> {
                                             MaterialPageRoute(
                                                 builder: (context) => LoadPage(
                                                       appLanguage: appLanguage,
-                                                      page: "login",
+                                                      page: login,
                                                       user: null,
                                                       messageIn: "0",
                                                     )));

@@ -152,7 +152,7 @@ class UIState extends State<UI> {
                   appLanguage: appLanguage,
                   user: user,
                   messageIn: "0",
-                  page: "mainTitle",
+                  page: mainTitle,
                 ),
               ),
             );
@@ -219,7 +219,7 @@ class UIState extends State<UI> {
                     builder: (context) => LoadPage(
                           messageIn: "",
                           appLanguage: appLanguage,
-                          page: "swimmer",
+                          page: swimmer,
                           user: user,
                         )));
           },

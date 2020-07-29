@@ -494,7 +494,7 @@ class _BluetoothSync extends State<BluetoothSync> {
                 MaterialPageRoute(
                     builder: (context) => LoadPage(
                       appLanguage: appLanguage,
-                      page: "mainTitle",
+                      page: mainTitle,
                           user: user,
                           messageIn: "0",
 

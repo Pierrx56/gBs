@@ -20,7 +20,7 @@ void main() async {
     routes: <String, WidgetBuilder>{
       '/Login': (BuildContext context) => new LoadPage(
             appLanguage: appLanguage,
-            page: "login",
+            page: login,
             messageIn: "0",
             user: null,
           ),

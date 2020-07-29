@@ -117,6 +117,7 @@ class BluetoothManager {
   }
 
   //Fonction pour se déconnecter du gBs
+  //TODO Ne marche pas/N'est jamais appelée
   Future<void> disconnect(String origin) async {
     String connectStatus;
     try {
@@ -131,7 +132,7 @@ class BluetoothManager {
 
   //Fonction qui appelle toutes les 500 ms la fonction getData()
   void startDataReceiver() async {
-    const oneSec = const Duration(milliseconds: 500);
+    const oneSec = const Duration(milliseconds: 200);
     timer = new Timer.periodic(oneSec, (timer) async {
       if (!isRunning) {
         timer.cancel();

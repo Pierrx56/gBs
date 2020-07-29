@@ -172,7 +172,7 @@ class _FAQ extends State<FAQ> {
                       user: null,
                       appLanguage: appLanguage,
                       messageIn: "",
-                      page: "login"),
+                      page: login),
                 ),
               );
             },

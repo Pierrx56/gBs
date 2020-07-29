@@ -155,7 +155,7 @@ class _Swimmer extends State<Swimmer> {
                           appLanguage: appLanguage,
                           user: user,
                           messageIn: "0",
-                          page: "mainTitle",
+                          page: mainTitle,
                         ),
                   ),
                 );
@@ -236,7 +236,7 @@ class _Swimmer extends State<Swimmer> {
                                       appLanguage: appLanguage,
                                       user: user,
                                       messageIn: "0",
-                                      page: "mainTitle",
+                                      page: mainTitle,
                                     )),
                           );
                         },

@@ -31,6 +31,9 @@ String TABLE_ACTIVITY = "Activity";
 String DATABASE_NAME = "gBs_database";
 int DATABASE_VERSION = 1;
 
+int ID_SWIMMER_ACTIVITY = 0;
+int ID_PLANE_ACTIVITY = 1;
+
 final String CREATE_TABLE_USERS = "CREATE TABLE " +
     TABLE_USER +
     "(" +
@@ -81,7 +84,7 @@ final String CREATE_TABLE_ACTIVITY = "CREATE TABLE " +
     " TEXT, " +
     KEY_ACTIVITY_DESCRIPTION +
     " TEXT" +*/
-    ");";
+        ");";
 
 
 /*Classe qui gère la base de données
@@ -116,13 +119,22 @@ class DatabaseHelper {
 
   Future<Database> initializeDatabase() async {
     var todoDatabase = openDatabase(
-      join(await getDatabasesPath(), DATABASE_NAME),
-      onCreate: (db, version) {
-        db.execute(CREATE_TABLE_USERS);
-        db.execute(CREATE_TABLE_SCORE);
-        db.execute(CREATE_TABLE_ACTIVITY);
-      },
-      version: 1,
+
+        join(await getDatabasesPath(), DATABASE_NAME),
+        version: 1,
+        //Lors du premier lancement de l'appli
+        onCreate: (db, version) {
+          db.execute(CREATE_TABLE_USERS);
+          db.execute(CREATE_TABLE_SCORE);
+          db.execute(CREATE_TABLE_ACTIVITY);
+        },
+        //Si la structure de la table change lors d'une MàJ, cette fonction est appelée
+        //TODO à tester
+        onUpgrade: (Database db, int oldVersion, int newVersion) async {
+          db.execute(CREATE_TABLE_USERS);
+          db.execute(CREATE_TABLE_SCORE);
+          db.execute(CREATE_TABLE_ACTIVITY);
+        }
     );
 
 
@@ -195,7 +207,7 @@ class DatabaseHelper {
       where: KEY_USER_ID + " = ?",
       // Pass the User's id as a whereArg to prevent SQL injection.
       whereArgs: [id],
-    );    // Remove the User from the Database.
+    ); // Remove the User from the Database.
 
   }
 
@@ -251,7 +263,7 @@ class DatabaseHelper {
 
 
   // A method that retrieves all the scores from the scores table.
-  Future<List<Scores>> getScore(int id, int activityId) async{
+  Future<List<Scores>> getScore(int id, int activityId) async {
     // Get a reference to the database.
     final Database db = await database;
 
@@ -272,16 +284,16 @@ class DatabaseHelper {
       );
     });
 
-    int j, k = 0;
+    int j,
+        k = 0;
 
     List<Scores> data = [];
 
     for (int i = 0; i < maps.length; i++) {
-
       if (score[i].userId == id && score[i].activityId == activityId) {
-        data.add(Scores(score[i].scoreId, score[i].activityId, score[i].userId, score[i].scoreDate, score[i].scoreValue));
+        data.add(Scores(score[i].scoreId, score[i].activityId, score[i].userId,
+            score[i].scoreDate, score[i].scoreValue));
       }
-
     }
 
     return data;
@@ -303,7 +315,7 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> deleteScore(int idUser) async{
+  Future<void> deleteScore(int idUser) async {
     // Get a reference to the database.
     final Database db = await database;
 
@@ -335,12 +347,12 @@ class DatabaseHelper {
   }
 
   //Useless ?
-  Future<void> deleteActivity(int idActivity) async{
+  Future<void> deleteActivity(int idActivity) async {
     // Get a reference to the database.
     final Database db = await database;
 
     await db.delete(
-    TABLE_ACTIVITY,
+      TABLE_ACTIVITY,
       // Use a `where` clause to delete a specific activity.
       where: KEY_ACTIVITY_ID + " = ?",
       // Pass the User's id as a whereArg to prevent SQL injection.
@@ -348,7 +360,7 @@ class DatabaseHelper {
     );
   }
 
-  //END ACTIVITY
+//END ACTIVITY
 }
 
 
@@ -399,12 +411,11 @@ class Score {
   final String scoreDate;
   final int scoreValue;
 
-  Score(
-      {this.scoreId,
-      this.userId,
-      this.activityId,
-      this.scoreDate,
-      this.scoreValue});
+  Score({this.scoreId,
+    this.userId,
+    this.activityId,
+    this.scoreDate,
+    this.scoreValue});
 
   Map<String, dynamic> toMap() {
     return {
@@ -420,19 +431,21 @@ class Score {
 /*Classe Activity*/
 class Activity {
   final int activityId;
+
   //CMV : Contraction maximale volontaire
   //CSI: Contraction spontanée intermittent
   final String activityType;
+
   /*
   final String activityName;
   final String activityDescription;*/
 
-  Activity(
-      {this.activityId,
-      this.activityType,
-        /*
+  Activity({this.activityId,
+    this.activityType,
+    /*
       this.activityName,
-      this.activityDescription*/});
+      this.activityDescription*/
+  });
 
   Map<String, dynamic> toMap() {
     return {

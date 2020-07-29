@@ -91,7 +91,7 @@ class LoginWidget extends StatelessWidget {
                         user: null,
                         appLanguage: appLanguage,
                         messageIn: "",
-                        page: "FAQ"),
+                        page: faq),
                   ),
                 );
               },
@@ -160,7 +160,7 @@ class LoginWidget extends StatelessWidget {
                                       builder: (context) => LoadPage(
                                             user: snapshot.data[index - 1],
                                             appLanguage: appLanguage,
-                                            page: "mainTitle",
+                                            page: mainTitle,
                                             messageIn: "0",
                                           )));
                             },
@@ -197,7 +197,7 @@ class LoginWidget extends StatelessWidget {
                                   MaterialPageRoute(
                                       builder: (context) => LoadPage(
                                             appLanguage: appLanguage,
-                                            page: "register",
+                                            page: register,
                                             messageIn: "",
                                             user: null,
                                           )));

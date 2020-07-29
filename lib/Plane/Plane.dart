@@ -12,6 +12,7 @@ import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Plane/PlaneGame.dart';
+import 'package:gbsalternative/main.dart';
 
 import 'Ui.dart';
 
@@ -272,7 +273,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                         appLanguage: appLanguage,
                                         user: user,
                                         messageIn: "0",
-                                        page: "mainTitle",
+                                        page: mainTitle,
                                       )),
                             );
                           },
