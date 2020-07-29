@@ -283,7 +283,7 @@ class UIState extends State<UI> {
       padding: const EdgeInsets.all(10.0),
       child: Container(
         height: game.screenSize.height * 0.2,
-        width: game.screenSize.width / 3,
+        width: game.pauseGame ? game.screenSize.width / 3 :game.screenSize.width / 4 ,
         child: RaisedButton(
           onPressed: () async {
             game.pauseGame = !game.pauseGame;
@@ -297,7 +297,7 @@ class UIState extends State<UI> {
               ),
               !game.pauseGame
                   ? Text(
-                      (AppLocalizations.of(context).translate('pause')),
+                      (AppLocalizations.of(context).translate('menu')),
                       style: textStyle,
                     )
                   : Text(

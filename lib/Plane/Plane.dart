@@ -198,7 +198,6 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
           //FIN DU JEU
           if (_start < delay) {
             //TODO Display menu ?
-            print("Salut");
             game.pauseGame = true;
             gameOver = true;
             timer.cancel();

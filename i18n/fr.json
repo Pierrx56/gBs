@@ -37,6 +37,7 @@
   "connexion_en_cours": "Connexion en cours, veuillez patienter...",
   "demarrer_enregistrement": "Démarrer l'enregistrement",
   "enregistrer": "Enregister les modifications",
+  "enregistrer_avert": "N'oubliez pas d'enregistrer vos modifications en cliquant sur enregistrer en bas de la page.",
   "explications_mesure": "Vous devez maintenir pendant 10 secondes entre 50.0 et 100.0. Appuyez sur démarrer l'enregistrement lorsque vous êtes prêt.",
   "haut_max": "Hauteur maximale",
   "haut_min": "Hauteur minimale",

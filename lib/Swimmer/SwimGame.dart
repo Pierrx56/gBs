@@ -151,8 +151,8 @@ class SwimGame extends Game {
             //Rentre une fois dans le timer
             if (!start) {
               counterHigh++;
-              //Si le joueur pousse trop fort 3 fois dans le jeu, on demande à ce qu'il réajuste la toise
-              if(counterHigh > 1) {
+              //Si le joueur pousse trop fort 5 fois dans le jeu, on demande à ce qu'il réajuste la toise
+              if(counterHigh > 5) {
                 isTooHigh = true;
                 pauseGame = true;
               }

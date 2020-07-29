@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -69,9 +70,11 @@ class _ManageProfile extends State<ManageProfile> {
 
   String _pathSaved;
   File imageFile;
+  Timer timer;
 
   String _userMode;
   bool isSwitched = false;
+  bool hasChangedState = false;
 
   var hauteur_min = new TextEditingController();
   var hauteur_max = new TextEditingController();
@@ -84,13 +87,21 @@ class _ManageProfile extends State<ManageProfile> {
   @override
   void initState() {
     btData = "0.0";
-    connect();
+    _userMode = user.userMode;
+    name.text = '';
+    hauteur_min.text = '';
+    hauteur_max.text = '';
 
+    timer =
+        Timer.periodic(Duration(seconds: 1), (Timer t) => hasChangedThread());
+
+    connect();
     super.initState();
   }
 
   @override
   void dispose() {
+    timer?.cancel();
     super.dispose();
   }
 
@@ -102,6 +113,42 @@ class _ManageProfile extends State<ManageProfile> {
     if (user.userMode == "Sportif") {
       isSwitched = true;
     }
+  }
+
+  hasChangedThread() async {
+    if (name.text != '') {
+      setState(() {
+        hasChangedState = true;
+      });
+    }
+    if (_pathSaved != user.userPic) {
+      setState(() {
+        hasChangedState = true;
+      });
+    }
+    if (_userMode != user.userMode) {
+      setState(() {
+        hasChangedState = true;
+      });
+    }
+    if (hauteur_max.text != '') {
+      setState(() {
+        hasChangedState = true;
+      });
+    }
+    if (hauteur_min.text != '') {
+      setState(() {
+        hasChangedState = true;
+      });
+    }
+    if (name.text == '' &&
+        _pathSaved == user.userPic &&
+        _userMode == user.userMode &&
+        hauteur_min.text == '' &&
+        hauteur_max.text == '')
+      setState(() {
+        hasChangedState = false;
+      });
   }
 
 // user defined function
@@ -185,14 +232,12 @@ class _ManageProfile extends State<ManageProfile> {
     return _pathSaved = newImage.path;
   }
 
-
   void connect() async {
     /*btManage.enableBluetooth();*/
-    if(await btManage.enableBluetooth()){
+    if (await btManage.enableBluetooth()) {
       //print("salut");
       connect();
-    }
-    else{
+    } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
       testConnect();
@@ -204,7 +249,7 @@ class _ManageProfile extends State<ManageProfile> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
-            btManage.connect(user.userMacAddress, user.userSerialNumber);
+        btManage.connect(user.userMacAddress, user.userSerialNumber);
         print("Status: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {
@@ -237,7 +282,7 @@ class _ManageProfile extends State<ManageProfile> {
 
   final _formKey = GlobalKey<FormState>();
 
-  Widget LoginCard(BuildContext context) {
+  Widget manageCard(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
 
     if (_pathSaved == null) _pathSaved = user.userPic;
@@ -258,71 +303,106 @@ class _ManageProfile extends State<ManageProfile> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        AppLocalizations.of(context).translate('modifier'),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 28,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
                     Row(
                       children: <Widget>[
-                        Text(AppLocalizations.of(context).translate('normal')),
-                        Switch(
-                          value: isSwitched,
-                          onChanged: (value) {
-                            setState(() {
-                              isSwitched = value;
-                              if (isSwitched)
-                                _userMode = "Sportif";
-                              else
-                                _userMode = "Normal";
-                            });
-                          },
-                          activeTrackColor: Colors.lightGreenAccent,
-                          activeColor: Colors.green,
+                        Column(
+                          children: <Widget>[
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                AppLocalizations.of(context)
+                                    .translate('modifier'),
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Text(AppLocalizations.of(context)
+                                    .translate('normal')),
+                                Switch(
+                                  value: isSwitched,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      isSwitched = value;
+                                      if (isSwitched)
+                                        _userMode = "Sportif";
+                                      else
+                                        _userMode = "Normal";
+                                    });
+                                  },
+                                  activeTrackColor: Colors.lightGreenAccent,
+                                  activeColor: Colors.green,
+                                ),
+                                Text(AppLocalizations.of(context)
+                                    .translate('sportif')),
+                              ],
+                            ),
+                          ],
                         ),
-                        Text(AppLocalizations.of(context).translate('sportif')),
+                        Padding(padding: EdgeInsets.fromLTRB(50,0,0,0),),
+                        hasChangedState
+                            ? Icon(
+                                Icons.warning,
+                                color: Colors.red,
+                                size: screenSize.height / 4,
+                              )
+                            : Container(),
+                        hasChangedState
+                            ? Flexible(
+                              child: Container(
+                                  height: screenSize.height / 4,
+                                  width: screenSize.width / 2,
+                                  child: Stack(
+                                    children: <Widget>[
+                                      AutoSizeText(
+                                        AppLocalizations.of(context)
+                                            .translate('enregistrer_avert'),
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        maxLines: 5,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            )
+                            : Container(),
                       ],
                     ),
                     SizedBox(
                       height: 15,
                     ),
                     TextFormField(
-                        controller: name,
-                        decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)
-                                    .translate('prenom') +
-                                ": " +
-                                user.userName,
-                            hasFloatingPlaceholder: true),
-                        validator: (value) {
-                          if (value.isEmpty) return 'Veuillez remplir ce champ';
-                          return null;
-                        }),
+                      controller: name,
+                      decoration: InputDecoration(
+                          labelText:
+                              AppLocalizations.of(context).translate('prenom') +
+                                  ": " +
+                                  user.userName,
+                          hasFloatingPlaceholder: true),
+                    ),
                     SizedBox(
                       height: 20,
                     ),
                     TextFormField(
-                        controller: hauteur_min,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          WhitelistingTextInputFormatter.digitsOnly
-                        ],
-                        decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)
-                                    .translate('haut_min') +
-                                ": " +
-                                user.userHeightBottom,
-                            hasFloatingPlaceholder: true),
-                        validator: (value) {
-                          if (value.isEmpty) return 'Veuillez remplir ce champ';
-                          return null;
-                        }),
+                      controller: hauteur_min,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        WhitelistingTextInputFormatter.digitsOnly
+                      ],
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)
+                                  .translate('haut_min') +
+                              ": " +
+                              user.userHeightBottom,
+                          hasFloatingPlaceholder: true),
+                    ),
                     SizedBox(
                       height: 20,
                     ),
@@ -626,6 +706,7 @@ class _ManageProfile extends State<ManageProfile> {
           AppLocalizations.of(context).translate('demarrer_enregistrement');
 
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context).translate('modification')),
@@ -633,7 +714,7 @@ class _ManageProfile extends State<ManageProfile> {
       ),
       body: SingleChildScrollView(
         child: Stack(
-          children: <Widget>[LoginCard(context)],
+          children: <Widget>[manageCard(context)],
         ),
       ),
     );

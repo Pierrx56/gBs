@@ -69,8 +69,7 @@ class PlaneGame extends Game {
     if (user.userMode == "Sportif") {
       difficulte = 6.0;
       balloonSpeed = 4;
-    }
-    else{
+    } else {
       difficulte = 3.0;
       balloonSpeed = 2;
     }
@@ -127,11 +126,11 @@ class PlaneGame extends Game {
             posY = screenSize.height - plane.y - plane.height / 2;
             //print("PosY Plane: $posY");
 
-            posX = screenSize.width / 2 - plane.width / 2;
+            posX = screenSize.width / 2.5 - plane.width / 2;
             //print("Position joueur: " + tempPos.toString());
 
             //print("PosY Plane: ${bottomBalloon.getHeightBottomPosition()}");
-            //TODO Conditions si le ballon dépasse la moitié de l'avion, on respawn un ballon
+            //TODO ? Conditions si le ballon dépasse la moitié de l'avion, on respawn un ballon
 
             if (bottomBalloon.getXBottomPosition() == screenSize.width / 2) {
               //bottomBalloon = BottomBalloon(this);
@@ -141,25 +140,14 @@ class PlaneGame extends Game {
 
             //HitBox ballon bas
             if (posY <= bottomBalloon.getYBottomPosition() &&
-                (posX ==
-                        (bottomBalloon.getXBottomPosition() -
-                            plane.width / 2) ||
-                    posX ==
-                        ((bottomBalloon.getXBottomPosition() -
-                                plane.width / 2) -
-                            1) ||
-                    posX ==
-                        ((bottomBalloon.getXBottomPosition() -
-                                plane.width / 2) -
-                            2) ||
-                    posX ==
+                (posX <=
                         ((bottomBalloon.getXBottomPosition() -
                                 plane.width / 2) +
-                            1) ||
-                    posX ==
+                            3) &&
+                    posX >=
                         ((bottomBalloon.getXBottomPosition() -
-                                plane.width / 2) +
-                            2)) &&
+                                plane.width / 2) -
+                            3)) &&
                 isDown) {
               score++;
               position = isDown;
@@ -174,12 +162,12 @@ class PlaneGame extends Game {
             //HitBox ballon haut
             else if (posY >=
                     (topBalloon.getYTopPosition() - plane.height / 2) &&
-                (
-                posX == (topBalloon.getXTopPosition() - plane.width / 2) ||
-                posX == ((topBalloon.getXTopPosition() - plane.width / 2) - 1) ||
-                posX == ((topBalloon.getXTopPosition() - plane.width / 2) - 2) ||
-                posX == ((topBalloon.getXTopPosition() - plane.width / 2) + 1) ||
-                posX == ((topBalloon.getXTopPosition() - plane.width / 2)+ 2)) &&
+                (posX >=
+                        ((topBalloon.getXTopPosition() - plane.width / 2) -
+                            3) &&
+                    posX <=
+                        ((topBalloon.getXTopPosition() - plane.width / 2) +
+                            3)) &&
                 !isDown) {
               score++;
               position = isDown;
@@ -228,7 +216,7 @@ class PlaneGame extends Game {
           plane = SpriteComponent.fromSprite(
               size, size, sprite); // width, height, sprite
           //Centrage de l'avion en abscisses
-          plane.x = screenSize.width / 2 - plane.width / 2;
+          plane.x = screenSize.width / 2.5 - plane.width / 2;
           //Définition des bords haut et bas de l'écran
 
           //Bas

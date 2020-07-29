@@ -37,6 +37,7 @@
   "connexion_en_cours": "Connecting, please wait...",
   "demarrer_enregistrement": "Start recording",
   "enregistrer": "Save modifications",
+  "enregistrer_avert": "Don't forget to save changes by clicking Save modifications at the bottom of this page.",
   "explications_mesure": "You have to stay between 50.0 and 100.0 during 10 seconds. Click on Start recording when you're ready.",
   "haut_max": "Maximal height",
   "haut_min": "Minimal height",
