@@ -65,10 +65,13 @@ class _SelectGame extends State<SelectGame> {
 
   bool visible_swim;
   bool visible_plane;
+  bool visible_car;
   Color colorCard_swim;
   Color colorCard_plane;
+  Color colorCard_car;
   List<Scores> data_swim;
   List<Scores> data_plane;
+  List<Scores> data_car;
 
   Color colorMesureButton = Colors.black;
 
@@ -81,7 +84,6 @@ class _SelectGame extends State<SelectGame> {
   bool isCorrect = false;
   int numberOfCard = 4;
   Size screenSize;
-  String game = "";
 
   //Initializing database
   DatabaseHelper db = new DatabaseHelper();
@@ -100,8 +102,10 @@ class _SelectGame extends State<SelectGame> {
   void initState() {
     visible_swim = true;
     visible_plane = true;
+    visible_car = true;
     colorCard_swim = Colors.white;
     colorCard_plane = Colors.white;
+    colorCard_car = Colors.white;
     super.initState();
   }
 
@@ -125,15 +129,13 @@ class _SelectGame extends State<SelectGame> {
       child: new GestureDetector(
         onTap: () async {
           if (visible_swim) {
-            game = "swimmer";
 
             data_swim = await db.getScore(user.userId, ID_SWIMMER_ACTIVITY);
 
             if (data_swim.length > 0) {
-              lauchGame();
+              lauchGame(ID_SWIMMER_ACTIVITY);
             } else {
-              //TODO si 1 valeur dans bdd, ne plus afficher l'aide
-              launcherDialog();
+              launcherDialog(ID_SWIMMER_ACTIVITY);
             }
           }
         },
@@ -262,16 +264,13 @@ class _SelectGame extends State<SelectGame> {
       child: new GestureDetector(
         onTap: () async {
           if(visible_plane) {
-            game = "plane";
 
             data_plane = await db.getScore(user.userId, ID_PLANE_ACTIVITY);
 
-            print(data_plane.length);
-
             if (data_plane.length > 0) {
-              lauchGame();
+              lauchGame(ID_PLANE_ACTIVITY);
             } else {
-              launcherDialog();
+              launcherDialog(ID_PLANE_ACTIVITY);
             }
           }
         },
@@ -395,7 +394,145 @@ class _SelectGame extends State<SelectGame> {
     );
   }
 
-  void launcherDialog() async {
+  Widget tempGame() {
+    var temp = AppLocalizations.of(context);
+    return SizedBox(
+      width: widthCard = screenSize.width / (numberOfCard / 2),
+      height: heightCard = screenSize.width / numberOfCard,
+      child: new GestureDetector(
+        onTap: () async {
+          if(visible_car) {
+
+            data_car = await db.getScore(user.userId, ID_TEMP_ACTIVITY);
+
+            if (data_car.length > 0) {
+              lauchGame(ID_TEMP_ACTIVITY);
+            } else {
+              launcherDialog(ID_TEMP_ACTIVITY);
+            }
+          }
+        },
+        child: new Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          elevation: 8,
+          color: colorCard_car,
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: Stack(
+                children: <Widget>[
+                  AnimatedOpacity(
+                    duration: Duration(milliseconds: 1000),
+                    opacity: !visible_car ? 1.0 : 0.0,
+                    child: !visible_car
+                        ? Column(
+                            children: <Widget>[
+                              Align(
+                                alignment: Alignment.topCenter,
+                                child: temp != null
+                                    ? Text(
+                                        AppLocalizations.of(context)
+                                                .translate('type_activite') +
+                                            " " +
+                                            AppLocalizations.of(context)
+                                                .translate(
+                                                    'type_activite_CSI') +
+                                            "\n\n" +
+                                            AppLocalizations.of(context)
+                                                .translate('info_avion'),
+                                      )
+                                    : Text("Check Language file (en/fr.json)"),
+                              ),
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: RaisedButton(
+                                  child: temp != null
+                                      ? Text(
+                                          AppLocalizations.of(context)
+                                              .translate('retour'),
+                                        )
+                                      : Text(
+                                          "Check Language file (en/fr.json)"),
+                                  onPressed: () {
+                                    if (mounted)
+                                      setState(() {
+                                        visible_car = !visible_car;
+                                        !visible_car
+                                            ? colorCard_car = Colors.white70
+                                            : colorCard_car = Colors.white;
+                                      });
+                                  },
+                                ),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                  AnimatedOpacity(
+                    duration: Duration(milliseconds: 1000),
+                    opacity: visible_car ? 1.0 : 0.0,
+                    child: visible_car
+                        ? Column(
+                            children: <Widget>[
+                              Container(
+                                alignment: Alignment.topCenter,
+                                child: Image.asset(
+                                  'assets/plane.png',
+                                  width: widthCard * 0.6,
+                                  height: heightCard * 0.6,
+                                ),
+                              ),
+                              Container(
+                                alignment: Alignment.bottomCenter,
+                                child: FlatButton.icon(
+                                  label: temp != null
+                                      ? Text(
+                                          AppLocalizations.of(context)
+                                              .translate('avion'),
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 24,
+                                          ),
+                                        )
+                                      : Text(
+                                          "Check Language file (en/fr.json)"),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                  icon: Icon(
+                                    Icons.info_outline,
+                                    color: Colors.black,
+                                  ),
+                                  splashColor: Colors.blue,
+                                  onPressed: () {
+                                    if (mounted)
+                                      setState(
+                                        () {
+                                          visible_car = !visible_car;
+                                          !visible_car
+                                              ? colorCard_car = Colors.white70
+                                              : colorCard_car = Colors.white;
+                                        },
+                                      );
+                                  },
+                                ),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void launcherDialog(int idGame) async {
     //appLanguage = AppLanguage();
     //await appLanguage.fetchLocale();
 
@@ -407,9 +544,9 @@ class _SelectGame extends State<SelectGame> {
             return AlertDialog(
               title: Text(
                 temp != null
-                    ? game == "plane"
+                    ? idGame == ID_PLANE_ACTIVITY
                         ? AppLocalizations.of(this.context).translate('avion')
-                        : game == "swimmer"
+                        : idGame == ID_SWIMMER_ACTIVITY
                             ? AppLocalizations.of(this.context)
                                 .translate('nageur')
                             : "non renseigné dans SelectGame"
@@ -424,7 +561,7 @@ class _SelectGame extends State<SelectGame> {
                         children: <Widget>[
                           AutoSizeText(
                             temp != null
-                                ? game == "plane"
+                                ? idGame == ID_PLANE_ACTIVITY
                                     ? AppLocalizations.of(this.context)
                                             .translate('type_activite') +
                                         " " +
@@ -433,7 +570,7 @@ class _SelectGame extends State<SelectGame> {
                                         "\n\n" +
                                         AppLocalizations.of(this.context)
                                             .translate('info_avion')
-                                    : game == "swimmer"
+                                    : idGame == ID_SWIMMER_ACTIVITY
                                         ? AppLocalizations.of(this.context)
                                                 .translate('type_activite') +
                                             " " +
@@ -481,7 +618,7 @@ class _SelectGame extends State<SelectGame> {
                                 onPressed: () {
                                   //Disparition de lu popup
                                   Navigator.pop(context);
-                                  lauchGame();
+                                  lauchGame(idGame);
                                 },
                                 child: AutoSizeText(
                                   temp != null
@@ -502,8 +639,8 @@ class _SelectGame extends State<SelectGame> {
                 ],
               ),
             );
-          });
-        });
+          },);
+        },);
   }
 
   Widget backCard() {
@@ -556,9 +693,9 @@ class _SelectGame extends State<SelectGame> {
   }
 
 
-  void lauchGame() {
-    switch (game) {
-      case "swimmer":
+  void lauchGame(int idGame) {
+    switch (idGame) {
+      case ID_SWIMMER_ACTIVITY:
         {
           Navigator.push(
             context,
@@ -573,7 +710,7 @@ class _SelectGame extends State<SelectGame> {
           );
         }
         break;
-      case "plane":
+      case ID_PLANE_ACTIVITY:
         {
           Navigator.push(
             context,
@@ -615,7 +752,7 @@ class _SelectGame extends State<SelectGame> {
         appBar: AppBar(
           //title: Text(AppLocalization.of(context).heyWorld),
 
-          title: Text(AppLocalizations.of(context).translate('jeux')),
+          title: Text(AppLocalizations.of(context).translate('activites')),
           backgroundColor: Colors.blue,
           actions: <Widget>[],
         ),
@@ -637,6 +774,7 @@ class _SelectGame extends State<SelectGame> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   //swimmerGame(),
+                  tempGame(),
                   backCard(),
                 ],
               ),

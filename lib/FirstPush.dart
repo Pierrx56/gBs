@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -192,9 +193,9 @@ class _FirstPush extends State<FirstPush> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   //Progress bar maison
-                  //Rotate 9.4 pour retourner les container de 180°
+                  //Rotate -math.pi pour retourner les container de 180°
                   Transform.rotate(
-                    angle: 9.4,
+                    angle: - math.pi,
                     child: Stack(
                       children: <Widget>[
                         //Container de fond
@@ -232,12 +233,13 @@ class _FirstPush extends State<FirstPush> {
                           width: 100,
                         ),
                         //Container d'affichage de la valeur du capteur
+                        //-math.pi = 180°
                         Container(
                           color: Colors.transparent,
                           //new Color.fromRGBO(255, 0, 0, 0.0),
                           child: Center(
                               child: Transform.rotate(
-                                  angle: 9.4,
+                                  angle: - math.pi,
                                   child: Text(
                                     (double.parse(btData)).toString(),
                                     style: textStyle,
@@ -380,7 +382,8 @@ class _FirstPush extends State<FirstPush> {
                                 }
                               : null,
                           textColor: colorMesureButton,
-                          child: Text(recording),
+                          child: Text(recording,
+                            style: textStyle,),
                         ),
                         isCorrect
                             ? Text(
@@ -408,7 +411,8 @@ class _FirstPush extends State<FirstPush> {
                                   );
                                 },
                                 child: Text(AppLocalizations.of(context)
-                                    .translate('retour')),
+                                    .translate('retour'),
+                                  style: textStyle,),
                               )
                             : Text(""),
                       ],

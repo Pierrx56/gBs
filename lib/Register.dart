@@ -152,7 +152,7 @@ class _Register extends State<Register> {
   testConnect() async {
     isConnected = await btManage.getStatus();
     if (!isConnected) {
-      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
+      timerConnexion = new Timer.periodic(Duration(milliseconds: 3000),
           (timerConnexion) async {
         btManage.connect(macAddress, "gBs" + serialNumber.text.toUpperCase());
         print("Status: $isConnected");

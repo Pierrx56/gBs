@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -122,7 +123,7 @@ class _MainTitle extends State<MainTitle> {
     isConnected = await btManage.getStatus();
     if (!isConnected) {
       timerConnexion = new Timer.periodic(
-        Duration(milliseconds: 1500),
+        Duration(milliseconds: 3000),
         (timerConnexion) async {
           btManage.connect(user.userMacAddress, user.userSerialNumber);
           print("Status: $isConnected");
@@ -170,9 +171,12 @@ class _MainTitle extends State<MainTitle> {
         appBar: AppBar(
           title: Row(
             children: <Widget>[
-              Image.file(
-                new File(user.userPic),
-                height: screenSize.height * 0.12,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.file(
+                  new File(user.userPic),
+                  height: screenSize.height * 0.12,
+                ),
               ),
               Padding(
                 padding: EdgeInsets.all(10),
@@ -185,6 +189,35 @@ class _MainTitle extends State<MainTitle> {
           ),
           backgroundColor: Colors.blue,
           actions: <Widget>[
+
+            FlatButton.icon(
+              icon: Icon(
+                Icons.question_answer,
+                color: Colors.white,
+              ),
+              label: Text(
+                "FAQ",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              splashColor: Colors.blue,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoadPage(
+                        user: null,
+                        appLanguage: appLanguage,
+                        messageIn: "",
+                        page: faq),
+                  ),
+                );
+              },
+            ),
             FlatButton.icon(
               icon: Icon(
                 Icons.add,
@@ -192,7 +225,7 @@ class _MainTitle extends State<MainTitle> {
               ),
               label: temp != null
                   ? Text(
-                      "Debug Button",
+                      "Debug",
                       style: TextStyle(
                         color: Colors.white,
                       ),
@@ -234,7 +267,7 @@ class _MainTitle extends State<MainTitle> {
                       userSerialNumber: user.userSerialNumber),
                 );*/
 
-                Navigator.pushReplacement(
+/*                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => LoadPage(
@@ -244,51 +277,51 @@ class _MainTitle extends State<MainTitle> {
                       page: firstPush,
                     ),
                   ),
-                );
+                );*/
 
                 Score newScore = Score(
-                    scoreId: 0,
+                    scoreId: null,
                     userId: user.userId,
-                    activityId: 0,
+                    activityId: 1,
                     scoreValue: 123,
                     scoreDate: "01-06-2020");
                 Score newScore1 = Score(
-                    scoreId: 1,
+                    scoreId: null,
                     userId: user.userId,
-                    activityId: 0,
+                    activityId: 1,
                     scoreValue: 156,
                     scoreDate: "02-06-2020");
                 Score newScore2 = Score(
-                    scoreId: 2,
+                    scoreId: null,
                     userId: user.userId,
-                    activityId: 0,
+                    activityId: 1,
                     scoreValue: 196,
                     scoreDate: "03-06-2020");
                 Score newScore3 = Score(
-                    scoreId: 3,
+                    scoreId: null,
                     userId: user.userId,
-                    activityId: 0,
+                    activityId: 1,
                     scoreValue: 135,
                     scoreDate: "04-06-2020");
                 Score newScore4 = Score(
-                    scoreId: 4,
+                    scoreId: null,
                     userId: user.userId,
-                    activityId: 0,
+                    activityId: 1,
                     scoreValue: 155,
                     scoreDate: "06-06-2020");
                 Score newScore5 = Score(
-                    scoreId: 5,
+                    scoreId: null,
                     userId: user.userId,
-                    activityId: 0,
+                    activityId: 1,
                     scoreValue: 195,
                     scoreDate: "09-06-2020");
 
-                //db.addScore(newScore);
-                //db.addScore(newScore1);
-                //db.addScore(newScore2);
-                //db.addScore(newScore3);
-                //db.addScore(newScore4);
-                //db.addScore(newScore5);
+                db.addScore(newScore);
+                db.addScore(newScore1);
+                db.addScore(newScore2);
+                db.addScore(newScore3);
+                db.addScore(newScore4);
+                db.addScore(newScore5);
                 //setState(() {});
               },
             ),
@@ -369,7 +402,13 @@ class _MainTitle extends State<MainTitle> {
                                             fontWeight: FontWeight.bold),
                                       )
                                     : Text("Check Language file (en/fr.json)"),
-                                Container()
+                                Transform.rotate(
+                                  angle: - math.pi,
+                                  child: Icon(
+                                    Icons.file_download,
+                                    size: heightCard * 0.7,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -512,11 +551,11 @@ class _MainTitle extends State<MainTitle> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => LoadPage(
-                                    user: user,
-                                    appLanguage: appLanguage,
-                                    messageIn: "",
-                                    page: selectStatistic,
-                                  )));
+                                        user: user,
+                                        appLanguage: appLanguage,
+                                        messageIn: "",
+                                        page: selectStatistic,
+                                      )));
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(
@@ -540,8 +579,8 @@ class _MainTitle extends State<MainTitle> {
                                     : Text("Check Language file (en/fr.json)"),
                                 Image.asset(
                                   'assets/chart.png',
-                                  width: widthCard*0.7,
-                                  height: heightCard*0.7,
+                                  width: widthCard * 0.7,
+                                  height: heightCard * 0.7,
                                 ),
                               ],
                             ),
@@ -602,13 +641,6 @@ class _MainTitle extends State<MainTitle> {
     }
     List<Widget> _widgetOptions;
 
-/*    if (user.userInitialPush == "0.0")
-      _widgetOptions = <Widget>[
-        menuPage = menu(),
-        settingsPage,
-        firstPush,
-      ];
-    else*/
     _widgetOptions = <Widget>[
       menuPage = menu(),
       settingsPage,
@@ -620,34 +652,7 @@ class _MainTitle extends State<MainTitle> {
         length: 3,
         child: Scaffold(
           bottomNavigationBar: new BottomNavigationBar(
-            items: /*user.userInitialPush == "0.0"
-                //Si la poussée initiale n'a pas été enregistrée
-                ? <BottomNavigationBarItem>[
-                    BottomNavigationBarItem(
-                      icon: Icon(
-                        Icons.home,
-                      ),
-                      title: Text(
-                          AppLocalizations.of(context).translate('accueil')),
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(
-                        Icons.settings,
-                      ),
-                      title: Text(
-                          AppLocalizations.of(context).translate('reglages')),
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(
-                        Icons.file_download,
-                      ),
-                      title: Text(AppLocalizations.of(context)
-                          .translate('premiere_poussee')),
-                    ),
-                  ]
-                //Sinon on affiche que 2 boutons
-                : */
-                <BottomNavigationBarItem>[
+            items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
                 icon: Icon(
                   Icons.home,

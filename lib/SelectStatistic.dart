@@ -191,7 +191,7 @@ class _SelectStatistic extends State<SelectStatistic> {
     var temp = AppLocalizations.of(context);
     return SizedBox(
       width: widthCard = screenSize.width / (numberOfCard / 2),
-      height: screenSize.width / numberOfCard,
+      height: heightCard = screenSize.width / numberOfCard,
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -219,6 +219,7 @@ class _SelectStatistic extends State<SelectStatistic> {
               Padding(
                 padding: EdgeInsets.all(10),
               ),
+              /*
               Align(
                 alignment: Alignment.bottomCenter,
                 child: RaisedButton(
@@ -242,7 +243,7 @@ class _SelectStatistic extends State<SelectStatistic> {
                     );
                   },
                 ),
-              ),
+              ),*/
             ],
           ),
         ),
@@ -456,7 +457,31 @@ class _SelectStatistic extends State<SelectStatistic> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   swimStat(),
-                  planeStat(),
+
+                  Stack(children: <Widget>[
+                    planeStat(),
+                    Container(
+                      width: screenSize.width/2,
+                      height: screenSize.width/numberOfCard,
+                      child: GestureDetector(
+                        onTap: (){
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoadPage(
+                                appLanguage: appLanguage,
+                                page: detailsCharts,
+                                user: user,
+                                messageIn: "$ID_PLANE_ACTIVITY",
+                                scores: dataPlane,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],),
+
                 ],
               ),
               Row(

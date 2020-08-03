@@ -443,7 +443,7 @@ class _ManageProfile extends State<ManageProfile> {
                           },
                           textColor: colorButton,
                         ),
-                        RaisedButton(
+/*                        RaisedButton(
                           child: Text(AppLocalizations.of(context)
                               .translate('ajust_poussee')),
                           onPressed: () {
@@ -457,6 +457,9 @@ class _ManageProfile extends State<ManageProfile> {
                             }
                           },
                           textColor: colorButton,
+                        ),*/
+                        SizedBox(
+                          height: 20,
                         ),
                         FlatButton(
                           child: Text(AppLocalizations.of(context)
@@ -522,6 +525,17 @@ class _ManageProfile extends State<ManageProfile> {
                                           .translate('info_suppr')),
                                   actions: <Widget>[
                                     // usually buttons at the bottom of the dialog
+                                    Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                    ),
+                                    new FlatButton(
+                                      child: new Text(
+                                          AppLocalizations.of(this.context)
+                                              .translate('annuler')),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
                                     new FlatButton(
                                       child: new Text(
                                           AppLocalizations.of(this.context)
@@ -540,17 +554,6 @@ class _ManageProfile extends State<ManageProfile> {
                                                       user: null,
                                                       messageIn: "0",
                                                     )));
-                                      },
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(12.0),
-                                    ),
-                                    new FlatButton(
-                                      child: new Text(
-                                          AppLocalizations.of(this.context)
-                                              .translate('annuler')),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
                                       },
                                     ),
                                   ],

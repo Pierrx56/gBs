@@ -31,8 +31,9 @@ String TABLE_ACTIVITY = "Activity";
 String DATABASE_NAME = "gBs_database";
 int DATABASE_VERSION = 1;
 
-int ID_SWIMMER_ACTIVITY = 0;
-int ID_PLANE_ACTIVITY = 1;
+const int ID_SWIMMER_ACTIVITY = 0;
+const int ID_PLANE_ACTIVITY = 1;
+const int ID_TEMP_ACTIVITY = 2;
 
 final String CREATE_TABLE_USERS = "CREATE TABLE " +
     TABLE_USER +
