@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
+import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -29,20 +30,23 @@ class Questions {
 class FAQ extends StatefulWidget {
   String inputMessage;
   AppLanguage appLanguage;
+  User user;
 
   FAQ({
+    @required this.user,
     @required this.inputMessage,
     @required this.appLanguage,
   });
 
   @override
-  _FAQ createState() => new _FAQ(inputMessage, appLanguage);
+  _FAQ createState() => new _FAQ(user, inputMessage, appLanguage);
 }
 
 class _FAQ extends State<FAQ> {
   //Déclaration de variables
   String inputMessage;
   AppLanguage appLanguage;
+  User user;
 
   // Initializing a global key, as it would help us in showing a SnackBar later
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -50,7 +54,8 @@ class _FAQ extends State<FAQ> {
   final gnrbWebsite = "https://www.genourob.com/";
 
   //Constructeur _BluetoothManager
-  _FAQ(String _inputMessage, AppLanguage _appLanguage) {
+  _FAQ(User _user, String _inputMessage, AppLanguage _appLanguage) {
+    user = _user;
     inputMessage = _inputMessage;
     appLanguage = _appLanguage;
   }
@@ -165,16 +170,29 @@ class _FAQ extends State<FAQ> {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LoadPage(
-                      user: null,
-                      appLanguage: appLanguage,
-                      messageIn: "",
-                      page: login),
-                ),
-              );
+              if (inputMessage == "fromLogin") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoadPage(
+                        user: null,
+                        appLanguage: appLanguage,
+                        messageIn: "",
+                        page: login),
+                  ),
+                );
+              } else if (inputMessage == "fromMainTitle") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoadPage(
+                        user: user,
+                        appLanguage: appLanguage,
+                        messageIn: "0",
+                        page: mainTitle),
+                  ),
+                );
+              }
             },
           ),
           title: Text("FAQ"),

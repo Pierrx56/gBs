@@ -29,7 +29,6 @@ class MainTitle extends StatefulWidget {
 class _MainTitle extends State<MainTitle> {
   Widget menuPage;
   Widget settingsPage;
-  Widget firstPushPage;
   Widget loginPage;
   bool visible_swim;
   bool visible_plane;
@@ -73,15 +72,6 @@ class _MainTitle extends State<MainTitle> {
       page: manageProfile,
       messageIn: "",
     );
-    if (user.userInitialPush == "0.0") {
-      firstPushPage = LoadPage(
-        appLanguage: appLanguage,
-        user: user,
-        page: firstPush,
-        messageIn: "0",
-      );
-    } else
-      firstPush = null;
   }
 
   @override
@@ -210,9 +200,9 @@ class _MainTitle extends State<MainTitle> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => LoadPage(
-                        user: null,
+                        user: user,
                         appLanguage: appLanguage,
-                        messageIn: "",
+                        messageIn: "fromMainTitle",
                         page: faq),
                   ),
                 );

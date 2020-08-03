@@ -93,7 +93,7 @@ class _LoadPage extends State<LoadPage> {
             ],
             home:
             page == detailsCharts ? DetailsCharts(appLanguage: appLanguage, scores: scores, user: user, messageIn: messageIn,):
-            page == faq ? FAQ(inputMessage: messageIn, appLanguage: appLanguage):
+            page == faq ? FAQ(user: user, inputMessage: messageIn, appLanguage: appLanguage):
             page == firstPush ? FirstPush(user: user, inputMessage: messageIn, appLanguage: appLanguage):
             page == login ? Login(appLanguage: appLanguage):
             page == mainTitle ? MainTitle(userIn: user, messageIn: int.parse(messageIn), appLanguage: appLanguage,):

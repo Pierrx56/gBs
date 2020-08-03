@@ -69,6 +69,34 @@ class LoginWidget extends StatelessWidget {
           backgroundColor: Colors.blue,
           actions: <Widget>[
             FlatButton.icon(
+              icon: Icon(
+                Icons.question_answer,
+                color: Colors.white,
+              ),
+              label: Text(
+                "FAQ",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              splashColor: Colors.blue,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoadPage(
+                        user: null,
+                        appLanguage: appLanguage,
+                        messageIn: "fromLogin",
+                        page: faq),
+                  ),
+                );
+              },
+            ),
+            FlatButton.icon(
               icon: Image(
                 image: new AssetImage("assets/flags/fr.png"),
                 width: 40,

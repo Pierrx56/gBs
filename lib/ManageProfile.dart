@@ -95,7 +95,7 @@ class _ManageProfile extends State<ManageProfile> {
     timer =
         Timer.periodic(Duration(seconds: 1), (Timer t) => hasChangedThread());
 
-    connect();
+    //connect();
     super.initState();
   }
 
@@ -541,10 +541,11 @@ class _ManageProfile extends State<ManageProfile> {
                                           AppLocalizations.of(this.context)
                                               .translate('supprimer')),
                                       onPressed: () {
+                                        Navigator.of(context).pop();
                                         print("ID à SUPPR:" +
                                             user.userId.toString());
                                         db.deleteUser(user.userId);
-                                        dispose();
+                                        //dispose();
                                         Navigator.pushReplacement(
                                             context,
                                             MaterialPageRoute(
