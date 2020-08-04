@@ -204,7 +204,7 @@ class _ManageProfile extends State<ManageProfile> {
     );
   }
 
-  pickImageFromGallery(ImageSource source) async {
+  pickImage(ImageSource source) async {
     final directory = await getApplicationDocumentsDirectory();
     final String path = directory.path;
 
@@ -434,14 +434,41 @@ if (await btManage.enableBluetooth()) {
                             child: Image.file(File(_pathSaved),
                                 height: screenSize.height * 0.3,
                                 width: screenSize.height * 0.3)),
-                        RaisedButton(
-                          child: Text(AppLocalizations.of(context)
-                              .translate('changerImage')),
-                          onPressed: () {
-                            _pathSaved =
-                                pickImageFromGallery(ImageSource.gallery);
-                          },
-                          textColor: colorButton,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            RaisedButton(
+                              child: Row(
+                                children: <Widget>[
+                                  Icon(Icons.image),
+                                  Text(" " +
+                                      AppLocalizations.of(context).translate('select_image')),
+                                ],
+                              ),
+                              onPressed: () {
+                                pickImage(ImageSource.gallery);
+                              },
+                              textColor: colorButton,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(10),
+                            ),
+                            RaisedButton(
+                              child: Row(
+                                children: <Widget>[
+                                  Icon(Icons.camera_alt),
+                                  Text(" " +
+                                      AppLocalizations.of(context)
+                                          .translate('prendre_photo')),
+                                ],
+                              ),
+                              onPressed: () {
+                                pickImage(ImageSource.camera);
+                              },
+                              textColor: colorButton,
+                            ),
+                          ],
                         ),
 /*                        RaisedButton(
                           child: Text(AppLocalizations.of(context)
