@@ -142,9 +142,9 @@ public class MainActivity extends FlutterActivity {
 
                             String[] mac = call.method.split(",");
 
-                            NAME_DEVICE = mac[2];
+                            NAME_DEVICE = mac[1];
 
-                            macAdress = mac[1];
+                            macAdress = mac[2];
 
                             String status = connect(macAdress);
 

@@ -343,7 +343,7 @@ class _Register extends State<Register> {
           isStopped = false;
           nameNode.requestFocus();
         } else if (currentStep == 0) {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => LoadPage(
@@ -520,7 +520,7 @@ class _Register extends State<Register> {
                   ],
                 ),
                 onPressed: () {
-                  _pathSaved = pickImage(ImageSource.gallery);
+                   pickImage(ImageSource.gallery);
                 },
                 textColor: colorButton,
               ),
@@ -537,7 +537,7 @@ class _Register extends State<Register> {
                   ],
                 ),
                 onPressed: () {
-                  _pathSaved = pickImage(ImageSource.camera);
+                  pickImage(ImageSource.camera);
                 },
                 textColor: colorButton,
               ),

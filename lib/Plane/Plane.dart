@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -114,9 +115,8 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
 
   void connect() async {
     //Tant que le bluetooth n'est pas activé, on demande son activation
-    if(await btManage.enableBluetooth()){
+    if (await btManage.enableBluetooth()) {
       connect();
-
     } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
@@ -224,17 +224,15 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     return "$twoDigitMinutes:$twoDigitSeconds";
   }
 
-
-  void redirection(){
+  void redirection() {
     const oneSec = const Duration(seconds: 1);
     _timer = new Timer.periodic(
       oneSec,
-          (Timer timer) => setState(
-            () {
+      (Timer timer) => setState(
+        () {
           if (_start < 1) {
             timer.cancel();
-            gameUI.state.
-            saveAndExit(context, appLanguage, user, score, game);
+            gameUI.state.saveAndExit(context, appLanguage, user, score, game);
           } else {
             _start = _start - 1;
           }
@@ -298,7 +296,9 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                         context, appLanguage, user, game.getScore()),
                   ),*/
                   game != null
-                      ? !game.pauseGame && !game.getGameOver() && game.getConnectionState()
+                      ? !game.pauseGame &&
+                              !game.getGameOver() &&
+                              game.getConnectionState()
                           ? Container(
                               alignment: Alignment.topLeft,
                               padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -331,22 +331,25 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
             ),
             //Display message afficher le score
             game != null
-                ?
-            !game.getGameOver() && game.getConnectionState() ?
-            Container(
-              alignment: Alignment.centerRight,
-              padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-              child: game == null
-                  ? Container()
-                  : gameUI.state.displayScore(score.toString(), game, timeRemaining),
-            ) : Container(): Container(),
+                ? !game.getGameOver() && game.getConnectionState()
+                    ? Container(
+                        alignment: Alignment.centerRight,
+                        padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
+                        child: game == null
+                            ? Container()
+                            : gameUI.state.displayScore(
+                                score.toString(), game, timeRemaining),
+                      )
+                    : Container()
+                : Container(),
             //Display message Game Over
             Container(
               alignment: Alignment.centerRight,
               child: game != null
                   ? game.getGameOver()
                       ? gameUI.state.displayMessage(
-                          AppLocalizations.of(context).translate('game_over'), game)
+                          AppLocalizations.of(context).translate('game_over'),
+                          game)
                       : Container()
                   : Container(),
             ),
@@ -355,11 +358,13 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
               alignment: Alignment.centerRight,
               child: game != null
                   ? !game.getConnectionState()
-                      ? gameUI.state.displayMessage(AppLocalizations.of(context)
-                          .translate('connexion_perdue'), game)
+                      ? gameUI.state.displayMessage(
+                          AppLocalizations.of(context)
+                              .translate('connexion_perdue'),
+                          game)
                       : Container()
                   : Container(),
-            ),/*
+            ), /*
             //Display timer
             Container(
                 alignment: Alignment.centerRight,

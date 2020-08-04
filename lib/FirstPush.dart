@@ -107,22 +107,16 @@ class _FirstPush extends State<FirstPush> {
   @override
   void dispose() {
     // Avoid memory leak and disconnect
-    if (isConnected) {
-/*      isDisconnecting = true;
-      connexion.dispose();
-      connexion = null;*/
-    }
+    timerConnexion?.cancel();
 
     super.dispose();
   }
 
   void connect() async {
     //Tant que le bluetooth n'est pas activé, on demande son activation
-    if(await btManage.enableBluetooth()){
+    if (await btManage.enableBluetooth()) {
       connect();
-
     } else {
-      btManage.getPairedDevices("firstPush");
       btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
       testConnect();
@@ -132,15 +126,18 @@ class _FirstPush extends State<FirstPush> {
   testConnect() async {
     isConnected = await btManage.getStatus();
     if (!isConnected) {
-      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
-          (timerConnexion) async {
-        btManage.connect(user.userMacAddress, user.userSerialNumber);
-        print("isConnected: $isConnected");
-        isConnected = await btManage.getStatus();
-        if (isConnected) {
-          timerConnexion.cancel();
-        }
-      });
+      timerConnexion = new Timer.periodic(
+        Duration(milliseconds: 3000),
+        (timerConnexion) async {
+          btManage.connect(user.userMacAddress, user.userSerialNumber);
+          print("Status: $isConnected");
+
+          isConnected = await btManage.getStatus();
+          if (isConnected) {
+            timerConnexion.cancel();
+          }
+        },
+      );
     }
   }
 
@@ -195,7 +192,7 @@ class _FirstPush extends State<FirstPush> {
                   //Progress bar maison
                   //Rotate -math.pi pour retourner les container de 180°
                   Transform.rotate(
-                    angle: - math.pi,
+                    angle: -math.pi,
                     child: Stack(
                       children: <Widget>[
                         //Container de fond
@@ -239,7 +236,7 @@ class _FirstPush extends State<FirstPush> {
                           //new Color.fromRGBO(255, 0, 0, 0.0),
                           child: Center(
                               child: Transform.rotate(
-                                  angle: - math.pi,
+                                  angle: -math.pi,
                                   child: Text(
                                     (double.parse(btData)).toString(),
                                     style: textStyle,
@@ -382,8 +379,10 @@ class _FirstPush extends State<FirstPush> {
                                 }
                               : null,
                           textColor: colorMesureButton,
-                          child: Text(recording,
-                            style: textStyle,),
+                          child: Text(
+                            recording,
+                            style: textStyle,
+                          ),
                         ),
                         isCorrect
                             ? Text(
@@ -398,7 +397,7 @@ class _FirstPush extends State<FirstPush> {
                         inputMessage == "fromMain"
                             ? RaisedButton(
                                 onPressed: () {
-                                  Navigator.push(
+                                  Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => LoadPage(
@@ -410,9 +409,11 @@ class _FirstPush extends State<FirstPush> {
                                     ),
                                   );
                                 },
-                                child: Text(AppLocalizations.of(context)
-                                    .translate('retour'),
-                                  style: textStyle,),
+                                child: Text(
+                                  AppLocalizations.of(context)
+                                      .translate('retour'),
+                                  style: textStyle,
+                                ),
                               )
                             : Text(""),
                       ],

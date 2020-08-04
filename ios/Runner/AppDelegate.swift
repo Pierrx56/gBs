@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// Debug android studio: search Restart flutter daemon (shift + shift to search)
+
 import UIKit
 import Flutter
 import CoreBluetooth
@@ -22,7 +24,9 @@ let service_UUID = CBUUID(string: "0000dfb0-0000-1000-8000-00805f9b34fb")
 // MARK: - Core Bluetooth characteristic IDs
 let characteristic_UUID = CBUUID(string: "0000dfb1-0000-1000-8000-00805f9b34fb")
 
-var NAME_DEVICE = "gBs_Bluetooth"
+var NAME_DEVICE = ""
+
+var macAddress = ""
 
 var isConnected = false
 
@@ -45,27 +49,41 @@ var isConnected = false
             [weak self] (call: FlutterMethodCall, result: FlutterResult) -> Void in
             let methodArray = (call.method).components(separatedBy: ",")
             
+            if(methodArray.capacity > 1){
+                NAME_DEVICE = methodArray[1]
+
+                if(methodArray.capacity > 2){
+                    macAddress = methodArray[2]
+                    
+                }
+            }
+            
+            
             guard methodArray[0] == "connect" else {
-                guard call.method == "getData" else {
-                    guard call.method == "getPairedDevices" else {
-                        guard call.method == "getStatus" else {
-                        guard call.method == "disconnect" else {
-                            result(FlutterMethodNotImplemented)
-                            return
+                guard call.method == "getBLEState" else {
+                    guard call.method == "getData" else {
+                        guard methodArray[0] == "getPairedDevices" else {
+                            guard call.method == "getStatus" else {
+                            guard call.method == "disconnect" else {
+                                result(FlutterMethodNotImplemented)
+                                return
+                                }
+                                self?.btConnexion.disconnect()
+                                return
                             }
-                            self?.btConnexion.disconnect()
+                            result(self?.btConnexion.getStatus())
                             return
                         }
-                        result(self?.btConnexion.getStatus())
+                        result(self?.btConnexion.getUUID())
                         return
-                    }
-                    result(self?.btConnexion.getUUID())
+                        }
+                    result(self?.btConnexion.getValue())
                     return
-                }
-                result(self?.btConnexion.getValue())
+                    }
+                result(self?.btConnexion.getBLEState())
                 return
-            }
-            self?.btConnexion.connect(macAddress: methodArray[1])
+                }
+            self?.btConnexion.connect(macAddress: macAddress)
         })
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
@@ -101,16 +119,21 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     var myPeripheral: CBPeripheral!
     var value: String = "0"
     var uuid: String = "0"
+    var isOn: Bool = false
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        
         if #available(iOS 10.0, *) {
             if central.state == CBManagerState.poweredOn {
                 print("BLE powered on")
+                isOn = true
                 // Turned on
                 central.scanForPeripherals(withServices: nil, options: nil)
             }
             else {
+
                 print("Something wrong with BLE")
+                isOn = false
                 // Not on, but can have different issues
             }
         } else {
@@ -137,6 +160,7 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+        
         if let pname = peripheral.name {
             if pname == NAME_DEVICE {
                 self.centralManager.stopScan()
@@ -256,6 +280,22 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
             isConnected = true
         }
     }
+    
+    func getBLEState() -> Bool{
+
+        if #available(iOS 10.0, *) {
+            if(CBManagerState.poweredOn.rawValue == 5){
+                isOn = true
+            }
+            else if(CBManagerState.poweredOff.rawValue == 4){
+                isOn = false
+            }
+        } else {
+            // Fallback on earlier versions
+        }
+        return isOn
+    }
+    
     func disconnect(){
         self.centralManager.cancelPeripheralConnection(self.myPeripheral)
         isConnected = false
@@ -270,7 +310,9 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     }
     
     func getStatus() -> Bool{
+        //self.viewDidLoad()
         return isConnected
     }
 
 }
+ 

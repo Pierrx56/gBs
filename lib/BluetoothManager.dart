@@ -3,11 +3,13 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:flutter_blue/flutter_blue.dart' as blue;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
@@ -35,7 +37,7 @@ class BluetoothManager {
   //android: android/app/src/main/java/genourob/gbs_alternative/MainActivity.java
   //iOS: ios/Runner/AppDelegate.swift
   static const MethodChannel sensorChannel =
-      MethodChannel('samples.flutter.io/sensor');
+  MethodChannel('samples.flutter.io/sensor');
 
   //Déclaration de variables
   String _pairedDevices = 'No devices paired';
@@ -57,15 +59,35 @@ class BluetoothManager {
 
   // Request Bluetooth permission from the user
   Future<bool> enableBluetooth() async {
-    // Retrieving the current Bluetooth state
-    _bluetoothState = await FlutterBluetoothSerial.instance.state;
 
-    // If the bluetooth is off, then turn it on first
-    if (_bluetoothState == BluetoothState.STATE_OFF) {
-      await FlutterBluetoothSerial.instance.requestEnable();
-      return true;
+    //On utilise la librairie flutter_bluetooth_serial pour détecter l'état du bluetoothh
+    if(Platform.isAndroid) {
+      // Retrieving the current Bluetooth state
+      _bluetoothState = await FlutterBluetoothSerial.instance.state;
+
+      // If the bluetooth is off, then turn it on first
+      if (_bluetoothState == BluetoothState.STATE_OFF) {
+        await FlutterBluetoothSerial.instance.requestEnable();
+        return true;
+      }
+      return false;
     }
-    return false;
+    //On utilise aucune librairie, aucune compatible à àce jour
+    //On averti juste l'utilisateur que le BT est off et suggère d'aller dans les réglages
+    else if(Platform.isIOS){
+      final bool isOn = await sensorChannel
+          .invokeMethod('getBLEState');
+      if(!isOn){
+        //print("issOFFFFF");
+        return true;
+      }
+      else {
+        //print("isOOONNNNN");
+        return false;
+      }
+
+    }
+
   }
 
   //Fonction pour récupérer l'adresse mac de l'appareil bluetooth
@@ -105,7 +127,7 @@ class BluetoothManager {
     try {
       //Origin = adresse mac
       //TODO modifier la fonction sous mac swift
-      sensorChannel.invokeMethod('connect,$macAddress,$serialNumber');
+      sensorChannel.invokeMethod('connect,$serialNumber,$macAddress');
       result = await sensorChannel.invokeMethod('getStatus');
       connectStatus = 'Connection status: $result.';
       isConnected = true;
@@ -161,15 +183,14 @@ class BluetoothManager {
     double convVoltToLbs = (921 - delta) / 100;
 
     double tempResult = double.parse(((double.parse(result) - delta) / (convVoltToLbs * coefKg))
-                .toStringAsExponential(1))
-            .abs();
+        .toStringAsExponential(1))
+        .abs();
 
     //print("Résultat: $tempResult");
     return tempResult.toString();
   }
 
 /*
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -186,7 +207,6 @@ class BluetoothManager {
         key: _scaffoldKey,
         appBar: AppBar(
           //title: Text(AppLocalization.of(context).heyWorld),
-
           title: Text("Appairer/connecter son apprareil"),
           backgroundColor: Colors.blue,
           actions: <Widget>[
@@ -257,7 +277,6 @@ class BluetoothManager {
                       onPressed: () {},
                     ),
                   ),*/ /*
-
                 ],
               ),
               Text(_connectDevices),
@@ -272,9 +291,9 @@ class BluetoothManager {
   // Method to show a Snackbar,
   // taking message as the text
   Future show(
-    String message, {
-    Duration duration: const Duration(seconds: 3),
-  }) async {
+      String message, {
+        Duration duration: const Duration(seconds: 3),
+      }) async {
     await new Future.delayed(new Duration(milliseconds: 100));
     _scaffoldKey.currentState.showSnackBar(
       new SnackBar(

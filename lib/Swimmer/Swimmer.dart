@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -104,8 +105,8 @@ class _Swimmer extends State<Swimmer> {
 
   void connect() async {
     /*btManage.enableBluetooth();*/
-    if (await btManage.enableBluetooth()) {
-      //print("salut");
+    if (await btManage.enableBluetooth()){
+//print("salut");
       connect();
     } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);

@@ -85,8 +85,10 @@ class _MainTitle extends State<MainTitle> {
     getScores(user.userId, ID_SWIMMER_ACTIVITY);
     //Plane
     getScores(user.userId, ID_PLANE_ACTIVITY);
+
     //Connexion directement dès le login
     connect();
+
     super.initState();
   }
 
@@ -179,7 +181,6 @@ class _MainTitle extends State<MainTitle> {
           ),
           backgroundColor: Colors.blue,
           actions: <Widget>[
-
             FlatButton.icon(
               icon: Icon(
                 Icons.question_answer,
@@ -393,7 +394,7 @@ class _MainTitle extends State<MainTitle> {
                                       )
                                     : Text("Check Language file (en/fr.json)"),
                                 Transform.rotate(
-                                  angle: - math.pi,
+                                  angle: -math.pi,
                                   child: Icon(
                                     Icons.file_download,
                                     size: heightCard * 0.7,

@@ -234,8 +234,8 @@ class _ManageProfile extends State<ManageProfile> {
 
   void connect() async {
     /*btManage.enableBluetooth();*/
-    if (await btManage.enableBluetooth()) {
-      //print("salut");
+if (await btManage.enableBluetooth()) {
+//print("salut");
       connect();
     } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);
