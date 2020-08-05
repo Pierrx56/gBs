@@ -97,9 +97,12 @@ class LoginWidget extends StatelessWidget {
               },
             ),
             FlatButton.icon(
-              icon: Image(
-                image: new AssetImage("assets/flags/fr.png"),
-                width: 40,
+              icon: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image(
+                  image: new AssetImage("assets/flags/fr.png"),
+                  width: 40,
+                ),
               ),
               label: Text(
                 "Français",
@@ -154,7 +157,7 @@ class LoginWidget extends StatelessWidget {
                           User item = snapshot.data[index - 1];
                           return GestureDetector(
                             onTap: () {
-                              Navigator.pushReplacement(
+                              Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => LoadPage(
@@ -174,10 +177,13 @@ class LoginWidget extends StatelessWidget {
                                 padding: EdgeInsets.all(12.0),
                                 child: Row(
                                   children: <Widget>[
-                                    Image.file(
-                                      File(snapshot.data[index - 1].userPic),
-                                      height: screenSize.height * 0.3,
-                                      width: screenSize.width * 0.3,
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: Image.file(
+                                        File(snapshot.data[index - 1].userPic),
+                                        height: screenSize.height * 0.3,
+                                        width: screenSize.width * 0.3,
+                                      ),
                                     ),
                                     //Text(AppLocalizations.of(context).translate('profil_existant') + ": "),
                                     Text(

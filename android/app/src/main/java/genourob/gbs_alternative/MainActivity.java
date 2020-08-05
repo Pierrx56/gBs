@@ -375,6 +375,7 @@ public class MainActivity extends FlutterActivity {
     public String connect(String mac) {
 
         macAdress = mac;
+        bluetoothGatt = null;
 
         //Si null, on recherche l'adresse mac et on se connecte
         if(m_BTdevice == null && !isConnected || !m_BTdevice.getAddress().contains(macAdress)){

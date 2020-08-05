@@ -108,6 +108,7 @@ class _FirstPush extends State<FirstPush> {
   void dispose() {
     // Avoid memory leak and disconnect
     timerConnexion?.cancel();
+    _timer?.cancel();
 
     super.dispose();
   }
@@ -148,6 +149,7 @@ class _FirstPush extends State<FirstPush> {
   @override
   Widget build(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
+    User updatedUser = user;
 
     if (recording == null)
       recording =
@@ -184,6 +186,7 @@ class _FirstPush extends State<FirstPush> {
               Text(
                 AppLocalizations.of(context).translate('explications_mesure'),
                 style: textStyle,
+                textAlign: TextAlign.center,
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -292,7 +295,7 @@ class _FirstPush extends State<FirstPush> {
                                             });
                                             isCorrect = true;
                                             //update poussée
-                                            User updatedUser = User(
+                                            updatedUser = User(
                                               userId: user.userId,
                                               userName: user.userName,
                                               userMode: user.userMode,
@@ -403,7 +406,7 @@ class _FirstPush extends State<FirstPush> {
                                       builder: (context) => LoadPage(
                                         appLanguage: appLanguage,
                                         page: mainTitle,
-                                        user: user,
+                                        user: updatedUser,
                                         messageIn: "0",
                                       ),
                                     ),

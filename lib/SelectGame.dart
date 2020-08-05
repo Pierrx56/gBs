@@ -129,7 +129,6 @@ class _SelectGame extends State<SelectGame> {
       child: new GestureDetector(
         onTap: () async {
           if (visible_swim) {
-
             data_swim = await db.getScore(user.userId, ID_SWIMMER_ACTIVITY);
 
             if (data_swim.length > 0) {
@@ -263,8 +262,7 @@ class _SelectGame extends State<SelectGame> {
       height: heightCard = screenSize.width / numberOfCard,
       child: new GestureDetector(
         onTap: () async {
-          if(visible_plane) {
-
+          if (visible_plane) {
             data_plane = await db.getScore(user.userId, ID_PLANE_ACTIVITY);
 
             if (data_plane.length > 0) {
@@ -401,8 +399,7 @@ class _SelectGame extends State<SelectGame> {
       height: heightCard = screenSize.width / numberOfCard,
       child: new GestureDetector(
         onTap: () async {
-          if(visible_car) {
-
+          if (visible_car) {
             data_car = await db.getScore(user.userId, ID_TEMP_ACTIVITY);
 
             if (data_car.length > 0) {
@@ -537,10 +534,11 @@ class _SelectGame extends State<SelectGame> {
     //await appLanguage.fetchLocale();
 
     showDialog(
-        context: this.context,
-        builder: (BuildContext context) {
-          var temp = AppLocalizations.of(this.context);
-          return StatefulBuilder(builder: (context, setState) {
+      context: this.context,
+      builder: (BuildContext context) {
+        var temp = AppLocalizations.of(this.context);
+        return StatefulBuilder(
+          builder: (context, setState) {
             return AlertDialog(
               title: Text(
                 temp != null
@@ -568,8 +566,20 @@ class _SelectGame extends State<SelectGame> {
                                         AppLocalizations.of(this.context)
                                             .translate('type_activite_CSI') +
                                         "\n\n" +
+                                        //On adapte le texte au mode choisi
+                                        //Si sportif, on remplace XX par 3 (nb de minutes)
+                                        //Sinon par 2
                                         AppLocalizations.of(this.context)
                                             .translate('info_avion')
+                                            .replaceAll(
+                                                "XX",
+                                                user.userMode ==
+                                                        AppLocalizations.of(
+                                                                this.context)
+                                                            .translate(
+                                                                'sportif')
+                                                    ? "3"
+                                                    : "2")
                                     : idGame == ID_SWIMMER_ACTIVITY
                                         ? AppLocalizations.of(this.context)
                                                 .translate('type_activite') +
@@ -601,6 +611,7 @@ class _SelectGame extends State<SelectGame> {
                                 ),
                               ),
                               Spacer(),
+                              /*
                               RaisedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
@@ -613,7 +624,7 @@ class _SelectGame extends State<SelectGame> {
                                   style: textStyle,
                                 ),
                               ),
-                              Spacer(),
+                              Spacer(),*/
                               RaisedButton(
                                 onPressed: () {
                                   //Disparition de lu popup
@@ -639,8 +650,10 @@ class _SelectGame extends State<SelectGame> {
                 ],
               ),
             );
-          },);
-        },);
+          },
+        );
+      },
+    );
   }
 
   Widget backCard() {
@@ -679,9 +692,9 @@ class _SelectGame extends State<SelectGame> {
                 ),
                 temp != null
                     ? Text(
-                  AppLocalizations.of(context).translate('retour'),
-                  style: textStyle,
-                )
+                        AppLocalizations.of(context).translate('retour'),
+                        style: textStyle,
+                      )
                     : Text("Check Language file (en/fr.json)"),
                 Container()
               ],
@@ -691,7 +704,6 @@ class _SelectGame extends State<SelectGame> {
       ),
     );
   }
-
 
   void lauchGame(int idGame) {
     switch (idGame) {

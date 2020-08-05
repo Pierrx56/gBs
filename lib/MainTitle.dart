@@ -9,6 +9,7 @@ import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
+import 'package:gbsalternative/ManageProfile.dart';
 import 'DatabaseHelper.dart';
 
 class MainTitle extends StatefulWidget {
@@ -357,7 +358,7 @@ class _MainTitle extends State<MainTitle> {
                 child: Row(
                   children: <Widget>[
                     SizedBox(
-                      width: widthCard = screenSize.width / numberOfCard,
+                      width: widthCard = (screenSize.width / numberOfCard) - 7,
                       height: heightCard = screenSize.width / numberOfCard,
                       child: GestureDetector(
                         onTap: () {
@@ -408,11 +409,11 @@ class _MainTitle extends State<MainTitle> {
                     ),
                     //Selection jeux
                     SizedBox(
-                      width: widthCard = screenSize.width / numberOfCard,
+                      width: widthCard = (screenSize.width / numberOfCard) - 7,
                       height: heightCard = screenSize.width / numberOfCard,
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.pushReplacement(
+                          Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => LoadPage(
@@ -534,11 +535,11 @@ class _MainTitle extends State<MainTitle> {
                       ),
                     ),
                     SizedBox(
-                      width: widthCard = screenSize.width / numberOfCard,
+                      width: widthCard = (screenSize.width / numberOfCard) - 7,
                       height: heightCard = screenSize.width / numberOfCard,
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.pushReplacement(
+                          Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => LoadPage(
@@ -599,9 +600,7 @@ class _MainTitle extends State<MainTitle> {
         setState(() {
           _selectedIndex = index;
 
-          setState(() {
-            menuPage = menu();
-          });
+          menuPage = menu();
 
           settingsPage = LoadPage(
             appLanguage: appLanguage,
@@ -617,7 +616,6 @@ class _MainTitle extends State<MainTitle> {
             messageIn: "0",
           );
         else*/
-          firstPush = null;
           /*
         bluetoothPage = BluetoothManager(
             user: user,
@@ -630,9 +628,8 @@ class _MainTitle extends State<MainTitle> {
       _selectedIndex = message;
       message = defaultIndex;
     }
-    List<Widget> _widgetOptions;
 
-    _widgetOptions = <Widget>[
+    List<Widget> _widgetOptions = <Widget>[
       menuPage = menu(),
       settingsPage,
     ];
@@ -640,7 +637,7 @@ class _MainTitle extends State<MainTitle> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: DefaultTabController(
-        length: 3,
+        length: _widgetOptions.length,
         child: Scaffold(
           bottomNavigationBar: new BottomNavigationBar(
             items: <BottomNavigationBarItem>[

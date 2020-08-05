@@ -74,7 +74,7 @@ class _ManageProfile extends State<ManageProfile> {
 
   String _userMode;
   bool isSwitched = false;
-  bool hasChangedState = false;
+  bool hasChangedState;
 
   var hauteur_min = new TextEditingController();
   var hauteur_max = new TextEditingController();
@@ -91,6 +91,7 @@ class _ManageProfile extends State<ManageProfile> {
     name.text = '';
     hauteur_min.text = '';
     hauteur_max.text = '';
+    hasChangedState = false;
 
     timer =
         Timer.periodic(Duration(seconds: 1), (Timer t) => hasChangedThread());
@@ -109,99 +110,50 @@ class _ManageProfile extends State<ManageProfile> {
   _ManageProfile(User curUser, AppLanguage _appLanguage) {
     user = curUser;
     appLanguage = _appLanguage;
-
-    if (user.userMode == "Sportif") {
-      isSwitched = true;
-    }
   }
 
-  hasChangedThread() async {
+  Future<bool> hasChangedThread() async {
     if (name.text != '') {
-      setState(() {
-        hasChangedState = true;
-      });
+      if (mounted)
+        setState(() {
+          hasChangedState = true;
+        });
     }
     if (_pathSaved != user.userPic) {
-      setState(() {
-        hasChangedState = true;
-      });
+      if (mounted)
+        setState(() {
+          hasChangedState = true;
+        });
     }
     if (_userMode != user.userMode) {
-      setState(() {
-        hasChangedState = true;
-      });
+      if (mounted)
+        setState(() {
+          hasChangedState = true;
+        });
     }
     if (hauteur_max.text != '') {
-      setState(() {
-        hasChangedState = true;
-      });
+      if (mounted)
+        setState(() {
+          hasChangedState = true;
+        });
     }
     if (hauteur_min.text != '') {
-      setState(() {
-        hasChangedState = true;
-      });
+      if (mounted)
+        setState(() {
+          hasChangedState = true;
+        });
     }
     if (name.text == '' &&
         _pathSaved == user.userPic &&
         _userMode == user.userMode &&
         hauteur_min.text == '' &&
-        hauteur_max.text == '')
-      setState(() {
-        hasChangedState = false;
-      });
-  }
-
-// user defined function
-  void _confirmDelete() {
-    // flutter defined function
-    showDialog(
-      context: this.context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return WillPopScope(
-          onWillPop: () async => false,
-          child: AlertDialog(
-            title:
-                new Text("Êtes-vous sûr de vouloir supprimer votre profil ?"),
-            content: new Text("Cette action est irréversible."),
-            actions: <Widget>[
-              // usually buttons at the bottom of the dialog
-              new FlatButton(
-                child: new Text("Supprimer"),
-                onPressed: () {
-                  print("ID à SUPPR:" + user.userId.toString());
-                  db.deleteUser(user.userId);
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => LoadPage(
-                                appLanguage: appLanguage,
-                                messageIn: "",
-                                page: login,
-                                user: null,
-                              )));
-/*                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Login(
-                              BTDevice: BTDevice,
-                            )));*/
-                },
-              ),
-              Padding(
-                padding: EdgeInsets.all(12.0),
-              ),
-              new FlatButton(
-                child: new Text("Annuler"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
+        hauteur_max.text == '') {
+      if (mounted)
+        setState(() {
+          hasChangedState = false;
+        });
+    }
+    return hasChangedState;
   }
 
   pickImage(ImageSource source) async {
@@ -234,8 +186,7 @@ class _ManageProfile extends State<ManageProfile> {
 
   void connect() async {
     /*btManage.enableBluetooth();*/
-if (await btManage.enableBluetooth()) {
-//print("salut");
+    if (await btManage.enableBluetooth()) {
       connect();
     } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);
@@ -322,16 +273,18 @@ if (await btManage.enableBluetooth()) {
                             Row(
                               children: <Widget>[
                                 Text(AppLocalizations.of(context)
-                                    .translate('normal')),
+                                    .translate('familial')),
                                 Switch(
                                   value: isSwitched,
                                   onChanged: (value) {
                                     setState(() {
                                       isSwitched = value;
                                       if (isSwitched)
-                                        _userMode = "Sportif";
+                                        _userMode = AppLocalizations.of(context)
+                                            .translate('sportif');
                                       else
-                                        _userMode = "Normal";
+                                        _userMode = AppLocalizations.of(context)
+                                            .translate('familial');
                                     });
                                   },
                                   activeTrackColor: Colors.lightGreenAccent,
@@ -343,7 +296,9 @@ if (await btManage.enableBluetooth()) {
                             ),
                           ],
                         ),
-                        Padding(padding: EdgeInsets.fromLTRB(50,0,0,0),),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(50, 0, 0, 0),
+                        ),
                         hasChangedState
                             ? Icon(
                                 Icons.warning,
@@ -353,7 +308,7 @@ if (await btManage.enableBluetooth()) {
                             : Container(),
                         hasChangedState
                             ? Flexible(
-                              child: Container(
+                                child: Container(
                                   height: screenSize.height / 4,
                                   width: screenSize.width / 2,
                                   child: Stack(
@@ -371,7 +326,7 @@ if (await btManage.enableBluetooth()) {
                                     ],
                                   ),
                                 ),
-                            )
+                              )
                             : Container(),
                       ],
                     ),
@@ -443,7 +398,8 @@ if (await btManage.enableBluetooth()) {
                                 children: <Widget>[
                                   Icon(Icons.image),
                                   Text(" " +
-                                      AppLocalizations.of(context).translate('select_image')),
+                                      AppLocalizations.of(context)
+                                          .translate('select_image')),
                                 ],
                               ),
                               onPressed: () {
@@ -736,6 +692,10 @@ if (await btManage.enableBluetooth()) {
       recording =
           AppLocalizations.of(context).translate('demarrer_enregistrement');
 
+    if (user.userMode == AppLocalizations.of(context).translate('sportif')) {
+      isSwitched = true;
+    }
+
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       key: _scaffoldKey,
@@ -743,10 +703,23 @@ if (await btManage.enableBluetooth()) {
         title: Text(AppLocalizations.of(context).translate('modification')),
         backgroundColor: Colors.blue,
       ),
-      body: SingleChildScrollView(
-        child: Stack(
-          children: <Widget>[manageCard(context)],
-        ),
+      body: Stack(
+        children: <Widget>[
+          SingleChildScrollView(
+            child: Stack(
+              children: <Widget>[
+                manageCard(context),
+              ],
+            ),
+          ),
+/*          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: screenSize.height * 0.1,
+              color: Colors.blue,
+            ),
+          ),*/
+        ],
       ),
     );
   }

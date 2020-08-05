@@ -107,7 +107,7 @@ class _Register extends State<Register> {
     btData = "0.0";
     _controller = ScrollController();
     isDisabled = false;
-    _pathSaved = "assets/avatar.png";
+    _pathSaved = "assets/default.png";
     nameNode = FocusNode();
     posBNode = FocusNode();
     posTNode = FocusNode();
@@ -130,6 +130,7 @@ class _Register extends State<Register> {
     posTNode.dispose();
     serialNode.dispose();
     controller?.dispose();
+    timerConnexion?.cancel();
     super.dispose();
   }
 
@@ -139,11 +140,11 @@ class _Register extends State<Register> {
 
   void connect() async {
     //Tant que le bluetooth n'est pas activé, on demande son activation
-    if(await btManage.enableBluetooth()){
+    if (await btManage.enableBluetooth()) {
       connect();
-
     } else {
-      btManage.connect(macAddress, "gBs" + serialNumber.text.toUpperCase());
+      btManage.connect(macAddress,
+          "gBs" + serialNumber.text.toUpperCase().replaceAll(" ", ""));
       isConnected = await btManage.getStatus();
       testConnect();
     }
@@ -154,7 +155,8 @@ class _Register extends State<Register> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 3000),
           (timerConnexion) async {
-        btManage.connect(macAddress, "gBs" + serialNumber.text.toUpperCase());
+        btManage.connect(macAddress,
+            "gBs" + serialNumber.text.toUpperCase().replaceAll(" ", ""));
         print("Status: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {
@@ -162,6 +164,23 @@ class _Register extends State<Register> {
         }
       });
     }
+
+    //Si l'utilisateur débranche le gbs pendant l'inscription
+    timerConnexion = new Timer.periodic(Duration(milliseconds: 1000),
+        (timerConnexion) async {
+      isConnected = await btManage.getStatus();
+
+      if (!isConnected) {
+        setState(() {
+          isFound = false;
+          discovering = AppLocalizations.of(this.context)
+              .translate('connecter_app');
+        });
+        show(AppLocalizations.of(this.context)
+            .translate('connexion_perdue'));
+        timerConnexion.cancel();
+      }
+    });
   }
 
   Future<void> getData() async {
@@ -205,7 +224,8 @@ class _Register extends State<Register> {
       userHeightBottom: hauteur_min.text,
       userInitialPush: "0.0",
       userMacAddress: macAddress,
-      userSerialNumber: "gBs" + serialNumber.text.toUpperCase(),
+      userSerialNumber:
+          "gBs" + serialNumber.text.toUpperCase().replaceAll(" ", ""),
     ));
     print("ID INScr: " + id.toString());
     user = await db.getUser(id);
@@ -240,7 +260,7 @@ class _Register extends State<Register> {
     screenSize = MediaQuery.of(context).size;
 
     if (discovering == null)
-      discovering = AppLocalizations.of(context).translate('scan_app');
+      discovering = AppLocalizations.of(context).translate('connecter_app');
 
     if (statusBT == null)
       statusBT = AppLocalizations.of(context).translate('connecter_app');
@@ -297,7 +317,8 @@ class _Register extends State<Register> {
           } else if (currentStep == 2) {
             posTNode.requestFocus();
           } else if (currentStep == 3) {
-            if (_userMode == "") _userMode = "Normale";
+            if (_userMode == "")
+              _userMode = AppLocalizations.of(context).translate('familial');
           } else if (currentStep == 5) {
             serialNode.requestFocus();
           }
@@ -445,7 +466,7 @@ class _Register extends State<Register> {
       ),
       Step(
         title: Text(
-          AppLocalizations.of(context).translate('type_utilisation'),
+          AppLocalizations.of(context).translate('mode'),
         ),
         isActive: currentStep > 3,
         state: currentStep > 3 ? StepState.complete : StepState.disabled,
@@ -454,7 +475,7 @@ class _Register extends State<Register> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              AppLocalizations.of(context).translate('normal'),
+              AppLocalizations.of(context).translate('familial'),
               style: textStyle,
             ),
             Switch(
@@ -463,9 +484,10 @@ class _Register extends State<Register> {
                 _updateSwitch(value);
                 isSwitched = value;
                 if (isSwitched)
-                  _userMode = "Sportif";
+                  _userMode = AppLocalizations.of(context).translate('sportif');
                 else
-                  _userMode = "Normale";
+                  _userMode =
+                      AppLocalizations.of(context).translate('familial');
               },
               activeTrackColor: Colors.lightGreenAccent,
               activeColor: Colors.green,
@@ -489,7 +511,7 @@ class _Register extends State<Register> {
           Center(
               child: imageFile == null
                   ? Image.asset(
-                      'assets/avatar.png',
+                      'assets/default.png',
                       width: screenSize.width * 0.2,
                     )
                   : Image.file(File(_pathSaved), width: screenSize.width * 0.2)
@@ -508,7 +530,7 @@ class _Register extends State<Register> {
                   ],
                 ),
                 onPressed: () {
-                   pickImage(ImageSource.gallery);
+                  pickImage(ImageSource.gallery);
                 },
                 textColor: colorButton,
               ),
@@ -540,11 +562,13 @@ class _Register extends State<Register> {
         content: Column(
           children: <Widget>[
             TextFormField(
+              enabled: isFound ? false : true,
               style: textStyle,
               focusNode: serialNode,
               controller: serialNumber,
               decoration: InputDecoration(
-                labelText: AppLocalizations.of(context).translate('num_serie'),
+                labelText:
+                    "1. " + AppLocalizations.of(context).translate('num_serie'),
               ),
             ),
             Row(
@@ -552,13 +576,15 @@ class _Register extends State<Register> {
                 Expanded(
                   child: RaisedButton(
                     child: Text(
-                      "1. " + discovering,
+                      "2. " + discovering,
                       style: textStyle,
                     ),
                     onPressed: !isFound && serialNumber.text.length >= 8
                         ? () async {
                             macAddress = await btManage.getPairedDevices(
-                                serialNumber.text.toUpperCase());
+                                serialNumber.text
+                                    .toUpperCase()
+                                    .replaceAll(" ", ""));
 
                             print(
                                 "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
@@ -570,7 +596,9 @@ class _Register extends State<Register> {
                                 (timer) async {
                               if (macAddress == "0") {
                                 macAddress = await btManage.getPairedDevices(
-                                    serialNumber.text.toUpperCase());
+                                    serialNumber.text
+                                        .toUpperCase()
+                                        .replaceAll(" ", ""));
                               }
                               if (macAddress != "-1") {
                                 timer.cancel();
@@ -579,19 +607,47 @@ class _Register extends State<Register> {
                                   discovering = AppLocalizations.of(context)
                                       .translate('app_trouve');
                                   isFound = true;
+                                  connect();
+
+                                  Timer.periodic(const Duration(seconds: 1),
+                                      (timer) {
+                                    if (isConnected) {
+                                      timer.cancel();
+                                      setState(() {
+                                        discovering = AppLocalizations.of(
+                                                context)
+                                            .translate('status_connexion_bon');
+                                      });
+                                    } else {
+                                      setState(() {
+                                        discovering = AppLocalizations.of(
+                                                context)
+                                            .translate('connexion_en_cours');
+                                      });
+                                    }
+                                  });
                                 });
                               } else if (macAddress == "-1") {
-                                macAddress = await btManage.getMacAddress();
-                                setState(() {
-                                  discovering = AppLocalizations.of(context)
-                                      .translate('recherche_app');
+                                if (tempTimer >= 20) {
+                                  setState(() {
+                                    show(AppLocalizations.of(context)
+                                        .translate('app_non_trouve'));
+                                    discovering = AppLocalizations.of(context)
+                                        .translate('connecter_app');
+                                  });
                                   isFound = false;
-                                });
-                              } else if (tempTimer >= 30) {
-                                discovering = AppLocalizations.of(context)
-                                    .translate('app_non_trouve');
-                                isFound = false;
+                                  timer.cancel();
+                                  tempTimer = 0;
+                                } else {
+                                  macAddress = await btManage.getMacAddress();
+                                  setState(() {
+                                    discovering = AppLocalizations.of(context)
+                                        .translate('recherche_app');
+                                    isFound = false;
+                                  });
+                                }
                               }
+                              print(tempTimer);
                               tempTimer++;
                             });
                           }
@@ -601,7 +657,7 @@ class _Register extends State<Register> {
                 Padding(
                   padding: EdgeInsets.all(10),
                 ),
-                Expanded(
+                /*Expanded(
                   child: RaisedButton(
                     child: Text(
                       "2. " + statusBT,
@@ -651,7 +707,7 @@ class _Register extends State<Register> {
                         : null,
                     textColor: colorButton,
                   ),
-                ),
+                ),*/
               ],
             ),
           ],
@@ -667,12 +723,12 @@ class _Register extends State<Register> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: <Widget>[
+                    Image.asset(
+                      _pathSaved,
+                      width: screenSize.width * 0.15,
+                    ),
                     Column(
                       children: <Widget>[
-                        Image.asset(
-                          _pathSaved,
-                          width: screenSize.width * 0.15,
-                        ),
                         Text(
                           AppLocalizations.of(context).translate('prenom') +
                               ": " +
@@ -680,8 +736,7 @@ class _Register extends State<Register> {
                           style: textStyle,
                         ),
                         Text(
-                          AppLocalizations.of(context)
-                                  .translate('type_utilisation') +
+                          AppLocalizations.of(context).translate('mode') +
                               ": " +
                               _userMode,
                           style: textStyle,
@@ -698,7 +753,7 @@ class _Register extends State<Register> {
                               hauteur_max.text,
                           style: textStyle,
                         ),
-                        macAddress != null
+                        /* macAddress != null
                             ? Text(
                                 AppLocalizations.of(context)
                                     .translate('status_connexion_bon'),
@@ -708,7 +763,7 @@ class _Register extends State<Register> {
                                 AppLocalizations.of(context)
                                     .translate('status_connexion_mauvais'),
                                 style: textStyle,
-                              ),
+                              ),*/
                         /*Text(AppLocalizations.of(context)
                                 .translate('premiere_mesure') +
                             ": " +
@@ -717,97 +772,97 @@ class _Register extends State<Register> {
                         //Text("Adresse MAC $macAddress"),
                       ],
                     ),
-                    Padding(
-                      padding: EdgeInsets.all(20),
-                    ),
-                    Column(
-                      children: <Widget>[
-                        FlatButton(
-                          child: Text(AppLocalizations.of(context)
-                              .translate('valider_insc')),
-                          color: Colors.blue,
-                          textColor: Colors.white,
-                          padding: EdgeInsets.only(
-                              left: 38, right: 38, top: 15, bottom: 15),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5)),
-                          onPressed: () async {
-                            //Conditions d'inscriptions
-                            //Prénom
-                            if (name.text == '')
-                              isDisabled = true;
-                            //Hauteur min et max
-                            else if (hauteur_min.text == '' ||
-                                hauteur_max.text == '')
-                              isDisabled = true;
-                            //Hauteur max inférieur à hauteur min ?
-                            else if (hauteur_min.text != '' &&
-                                hauteur_max.text !=
-                                    '') if (int.tryParse(hauteur_max.text) <=
-                                int.tryParse(hauteur_min.text))
-                              isDisabled = true;
-                            //Adresse mac
-                            else if (macAddress == '')
-                              isDisabled = true;
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(20),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  FlatButton(
+                    child: Text(
+                        AppLocalizations.of(context).translate('valider_insc')),
+                    color: Colors.blue,
+                    textColor: Colors.white,
+                    padding: EdgeInsets.only(
+                        left: 38, right: 38, top: 15, bottom: 15),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5)),
+                    onPressed: () async {
+                      //Conditions d'inscriptions
+                      //Prénom
+                      if (name.text == '')
+                        isDisabled = true;
+                      //Hauteur min et max
+                      else if (hauteur_min.text == '' || hauteur_max.text == '')
+                        isDisabled = true;
+                      //Hauteur max inférieur à hauteur min ?
+                      else if (hauteur_min.text != '' &&
+                          hauteur_max.text !=
+                              '') if (int.tryParse(hauteur_max.text) <=
+                          int.tryParse(hauteur_min.text))
+                        isDisabled = true;
+                      //Adresse mac
+                      else if (macAddress == '')
+                        isDisabled = true;
 /*                      //Première poussée
                         else if (result.toString() == null)
                           isDisabled = true;*/
-                            else
-                              isDisabled = false;
+                      else
+                        isDisabled = false;
 
-                            if (_pathSaved == "assets/avatar.png") {
-                              var bytes = await rootBundle.load(_pathSaved);
-                              String dir =
-                                  (await getApplicationDocumentsDirectory()).path;
-                              File tempFile =
-                                  await writeToFile(bytes, '$dir/default.png');
+                      if (_pathSaved == "assets/default.png") {
+                        var bytes = await rootBundle.load(_pathSaved);
+                        String dir =
+                            (await getApplicationDocumentsDirectory()).path;
+                        File tempFile =
+                            await writeToFile(bytes, '$dir/default.png');
 
-                              setState(() {
-                                _pathSaved = tempFile.path;
-                              });
-                            }
+                        setState(() {
+                          _pathSaved = tempFile.path;
+                        });
+                      }
 
-                            if (!isDisabled) {
-                              User user = await addUser();
-                              //getUser();
-                              //connectBT();
+                      if (!isDisabled) {
+                        User user = await addUser();
+                        //getUser();
+                        //connectBT();
 
-                              if (user != null) {
-                                print("salut " + user.userId.toString());
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => LoadPage(
-                                      appLanguage: appLanguage,
-                                      user: user,
-                                      page: firstPush,
-                                      messageIn: "0",
-                                    ),
-                                  ),
-                                );
-                                //dispose();
-                              } else
-                                print("Something went wrong");
-                            } else
-                              show("Veuillez corriger toutes les erreurs");
-                          },
-                        ),
-                        FlatButton(
-                          onPressed: () {
-                            back();
-                            _controller.animateTo(
-                                (((currentStep) * 75)).toDouble(),
-                                duration: Duration(milliseconds: 500),
-                                curve: Curves.linear);
-                          },
-                          child: Text(
-                              AppLocalizations.of(context).translate('retour')),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              )
+                        if (user != null) {
+                          print("salut " + user.userId.toString());
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoadPage(
+                                appLanguage: appLanguage,
+                                user: user,
+                                page: firstPush,
+                                messageIn: "0",
+                              ),
+                            ),
+                          );
+                          //dispose();
+                        } else
+                          print("Something went wrong");
+                      } else
+                        show("Veuillez corriger toutes les erreurs");
+                    },
+                  ),
+                  FlatButton(
+                    onPressed: () {
+                      back();
+                      _controller.animateTo((((currentStep) * 75)).toDouble(),
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.linear);
+                    },
+                    child:
+                        Text(AppLocalizations.of(context).translate('retour')),
+                  ),
+                ],
+              ),
             ],
           )),
     ];
@@ -845,7 +900,7 @@ class _Register extends State<Register> {
               macAddress = "78:DB:2F:BF:3B:03";
               serialNumber.text = "1230997P";
               //result = 6.31;
-              _pathSaved = "assets/avatar.png";
+              _pathSaved = "assets/default.png";
             },
           ),
         ],
