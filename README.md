@@ -8,17 +8,30 @@ L’application reprend les fonctionnalités de l’[Actiback](https://www.genou
 
 ## Apercu de l'application
 
+### Page d'accueil
 ![Login](https://i.imgur.com/CEuWPAK.jpg)
+
+### Page principale
 ![Main Title](https://i.imgur.com/yP1JBR8.jpg)
+
+### Page de réglages 
 ![Settings](https://i.imgur.com/45vB1V5.jpg)
 
+
+### Lancement d'une activitié
+#### Explications de l'activité "Le Nageur"
 ![Explications Swimmer](https://i.imgur.com/8HrI00R.jpg)
+#### Apercu de l'activité "Le Nageur"
 ![Swimmer](https://imgur.com/2TLLVY5.jpg)
+#### Aperçu du menu de l'activité "Le Nageur"
 ![Swimmer Menu](https://imgur.com/JlIPBwh.jpg)
 
+#### Apercu de l'activité "L'Avion"
 ![Plane](https://i.imgur.com/JC8CSM1.jpg)
+#### Aperçu du menu de l'activité "L'Avion"
 ![Plane Menu](https://i.imgur.com/CrxBXZg.jpg)
 
+### Page des statistiques de "L'Avion"
 ![Statistiques](https://i.imgur.com/L1uKa7u.jpg)
 
 
