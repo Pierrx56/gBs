@@ -1,18 +1,15 @@
-# gbsalternative
+# gBs
 
-A new Flutter application.
+gBs est un projet de l'entreprise Genourob. Il s'agit d'une application mobile développée sous Flutter et compatible Android et iOS.
 
-## Getting Started
+## Principe de l'application
 
-This project is a starting point for a Flutter application.
+L’application reprend les fonctionnalités de l’[Actiback](https://www.genourob.com/fr/diagnostic-ligaments_rachis_l-actiback-a-quoi-ca-sert.phtml), à savoir la poussée max, des exercices de contractions maximales volontaires ou de contractions spontanées intermittentes.
 
-A few resources to get you started if this is your first Flutter project:
+## Apercu de l'application
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+![login](https://mega.nz/file/rIFFiSDL#9vIeFmVHDMMNiYzLqTQjwp_pD3_DdNWtyQZpoZPVY64)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
 
-[Site utile pour mettre en ligne les modifications] (https://www.softwarelab.it/2018/10/12/adding-an-existing-project-to-github-using-the-command-line/)
+### Aide au développeur
+[Site utile pour mettre en ligne les modifications](https://www.softwarelab.it/2018/10/12/adding-an-existing-project-to-github-using-the-command-line/)
