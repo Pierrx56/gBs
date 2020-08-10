@@ -43,6 +43,7 @@ class _MainTitle extends State<MainTitle> {
   bool isConnected;
   bool isInformed;
   Timer timerConnexion;
+  bool hasChanged;
 
   DatabaseHelper db = new DatabaseHelper();
   List<Scores> data_swim;
@@ -79,6 +80,7 @@ class _MainTitle extends State<MainTitle> {
   void initState() {
     visible_swim = true;
     visible_plane = true;
+    hasChanged = false;
     colorCard_swim = Colors.white;
     colorCard_plane = Colors.white;
     //Obtention des scores
@@ -599,6 +601,8 @@ class _MainTitle extends State<MainTitle> {
       if (mounted)
         setState(() {
           _selectedIndex = index;
+
+          print(hasChanged);
 
           menuPage = menu();
 

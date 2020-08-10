@@ -35,6 +35,8 @@ const int ID_SWIMMER_ACTIVITY = 0;
 const int ID_PLANE_ACTIVITY = 1;
 const int ID_TEMP_ACTIVITY = 2;
 
+//https://dbdiagram.io/d/5f2c6c6808c7880b65c5621a
+
 final String CREATE_TABLE_USERS = "CREATE TABLE " +
     TABLE_USER +
     "(" +

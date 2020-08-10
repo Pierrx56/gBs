@@ -72,13 +72,12 @@ class _DetailsCharts extends State<DetailsCharts> {
       }
 
       //Ne prend que les 10 derniers score
-      if((listScore.length - i) <= 10) {
+      if ((listScore.length - i) <= 10) {
         tempAverage += listScore.toList()[i];
       }
     }
 
     average = (tempAverage / listScore.length).toStringAsFixed(1);
-
   }
 
   @override
@@ -102,26 +101,53 @@ class _DetailsCharts extends State<DetailsCharts> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text(
-                    "Nombre de parties jouées: ${scores.length}",
-                    style: textStyle,
-                  ),
-                  Text(
-                    "Score maximal atteint: $largestScore",
-                    style: textStyle,
-                  ),
-                  Text(
-                    "C'était le : $dayLargestScore",
-                    style: textStyle,
-                  ),
-                  Text(
-                    "Moyenne des 10 dernières parties : $average",
-                    style: textStyle,
-                  ),
+                  largestScore != 0
+                      ? Text(
+                          AppLocalizations.of(context).translate('nb_jouees') +
+                              ": " +
+                              scores.length.toString(),
+                          style: textStyle,
+                          textAlign: TextAlign.center,
+                        )
+                      : Text(
+                          AppLocalizations.of(context)
+                              .translate('aucune_donnees'),
+                          style: textStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                  largestScore != 0
+                      ? Text(
+                          AppLocalizations.of(context).translate('score_max') +
+                              ": " +
+                              largestScore.toString(),
+                          style: textStyle,
+                          textAlign: TextAlign.center,
+                        )
+                      : Container(),
+                  largestScore != 0
+                      ? Text(
+                          AppLocalizations.of(context)
+                                  .translate('jour_score_max') +
+                              ": " +
+                              dayLargestScore,
+                          style: textStyle,
+                          textAlign: TextAlign.center,
+                        )
+                      : Container(),
+                  largestScore != 0
+                      ? Text(
+                          AppLocalizations.of(context).translate('moyenne') +
+                              ": " +
+                              average,
+                          style: textStyle,
+                          textAlign: TextAlign.center,
+                        )
+                      : Container(),
                   RaisedButton(
                     child: Text(
                       AppLocalizations.of(context).translate('retour'),
                       style: textStyle,
+                      textAlign: TextAlign.center,
                     ),
                     onPressed: () {
                       Navigator.push(
@@ -162,6 +188,7 @@ class _DetailsCharts extends State<DetailsCharts> {
                             AppLocalizations.of(context)
                                 .translate('stat_nageur'),
                             style: textStyle,
+                            textAlign: TextAlign.center,
                           )
                         //Plane
                         : messageIn == "$ID_PLANE_ACTIVITY"
@@ -169,6 +196,7 @@ class _DetailsCharts extends State<DetailsCharts> {
                                 AppLocalizations.of(context)
                                     .translate('stat_avion'),
                                 style: textStyle,
+                                textAlign: TextAlign.center,
                               )
                             : Container(),
                     Container(

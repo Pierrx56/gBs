@@ -13,6 +13,7 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/LoadPage.dart';
+import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Register.dart';
 import 'package:image_picker/image_picker.dart';
 import 'DatabaseHelper.dart';
@@ -87,7 +88,6 @@ class _ManageProfile extends State<ManageProfile> {
   @override
   void initState() {
     btData = "0.0";
-    _userMode = user.userMode;
     name.text = '';
     hauteur_min.text = '';
     hauteur_max.text = '';
@@ -96,7 +96,6 @@ class _ManageProfile extends State<ManageProfile> {
     timer =
         Timer.periodic(Duration(seconds: 1), (Timer t) => hasChangedThread());
 
-    //connect();
     super.initState();
   }
 
@@ -153,6 +152,7 @@ class _ManageProfile extends State<ManageProfile> {
           hasChangedState = false;
         });
     }
+
     return hasChangedState;
   }
 
@@ -184,38 +184,6 @@ class _ManageProfile extends State<ManageProfile> {
     return _pathSaved = newImage.path;
   }
 
-  void connect() async {
-    /*btManage.enableBluetooth();*/
-    if (await btManage.enableBluetooth()) {
-      connect();
-    } else {
-      btManage.connect(user.userMacAddress, user.userSerialNumber);
-      isConnected = await btManage.getStatus();
-      testConnect();
-    }
-  }
-
-  testConnect() async {
-    isConnected = await btManage.getStatus();
-    if (!isConnected) {
-      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
-          (timerConnexion) async {
-        btManage.connect(user.userMacAddress, user.userSerialNumber);
-        print("Status: $isConnected");
-        isConnected = await btManage.getStatus();
-        if (isConnected) {
-          timerConnexion.cancel();
-        }
-      });
-    }
-  }
-
-  // Method to disconnect bluetooth
-  void _disconnect() async {
-    isConnected = false;
-    print('Device disconnected');
-  }
-
   void setData() async {
     btData = await btManage.getData();
   }
@@ -229,7 +197,41 @@ class _ManageProfile extends State<ManageProfile> {
       return 2.0;
   }
 
-  //String savedImage = "";
+  void _updateSwitch(bool value) => setState(() => isSwitched = value);
+
+  void updateUser() {
+    if (name.text == '') name.text = user.userName;
+    if (_pathSaved == '') _pathSaved = user.userPic;
+    if (_userMode == null) _userMode = user.userMode;
+    if (hauteur_max.text == '') hauteur_max.text = user.userHeightTop;
+    if (hauteur_min.text == '') hauteur_min.text = user.userHeightBottom;
+    if (initialPush == null) initialPush = user.userInitialPush;
+
+    String macAddress = user.userMacAddress;
+    String serialNumber = user.userSerialNumber;
+
+    db.updateUser(user = User(
+      userId: user.userId,
+      userName: name.text,
+      userMode: _userMode,
+      userPic: _pathSaved,
+      userHeightTop: hauteur_max.text,
+      userHeightBottom: hauteur_min.text,
+      userInitialPush: initialPush,
+      userMacAddress: macAddress,
+      userSerialNumber: serialNumber,
+    ));
+
+    show(AppLocalizations.of(this.context).translate('modification_prise'));
+
+    //Réinitialisation des champs pour virer le message enregister
+    name.text = '';
+    hauteur_min.text = '';
+    hauteur_max.text = '';
+    hasChangedState = false;
+    _userMode = user.userMode;
+    _pathSaved = user.userPic;
+  }
 
   final _formKey = GlobalKey<FormState>();
 
@@ -277,15 +279,14 @@ class _ManageProfile extends State<ManageProfile> {
                                 Switch(
                                   value: isSwitched,
                                   onChanged: (value) {
-                                    setState(() {
-                                      isSwitched = value;
-                                      if (isSwitched)
-                                        _userMode = AppLocalizations.of(context)
-                                            .translate('sportif');
-                                      else
-                                        _userMode = AppLocalizations.of(context)
-                                            .translate('familial');
-                                    });
+                                    _updateSwitch(value);
+                                    isSwitched = value;
+                                    if (isSwitched)
+                                      _userMode = AppLocalizations.of(context)
+                                          .translate('sportif');
+                                    else
+                                      _userMode = AppLocalizations.of(context)
+                                          .translate('familial');
                                   },
                                   activeTrackColor: Colors.lightGreenAccent,
                                   activeColor: Colors.green,
@@ -454,32 +455,7 @@ class _ManageProfile extends State<ManageProfile> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5)),
                           onPressed: () {
-                            if (name.text == '') name.text = user.userName;
-                            if (_pathSaved == '') _pathSaved = user.userPic;
-                            if (_userMode == null) _userMode = user.userMode;
-                            if (hauteur_max.text == '')
-                              hauteur_max.text = user.userHeightTop;
-                            if (hauteur_min.text == '')
-                              hauteur_min.text = user.userHeightBottom;
-                            if (initialPush == null)
-                              initialPush = user.userInitialPush;
-
-                            String macAddress = user.userMacAddress;
-                            String serialNumber = user.userSerialNumber;
-
-                            db.updateUser(User(
-                              userId: user.userId,
-                              userName: name.text,
-                              userMode: _userMode,
-                              userPic: _pathSaved,
-                              userHeightTop: hauteur_max.text,
-                              userHeightBottom: hauteur_min.text,
-                              userInitialPush: initialPush,
-                              userMacAddress: macAddress,
-                              userSerialNumber: serialNumber,
-                            ));
-
-                            show("done");
+                            updateUser();
                           },
                         ),
                         Padding(
@@ -692,8 +668,13 @@ class _ManageProfile extends State<ManageProfile> {
       recording =
           AppLocalizations.of(context).translate('demarrer_enregistrement');
 
-    if (user.userMode == AppLocalizations.of(context).translate('sportif')) {
-      isSwitched = true;
+    if (_userMode == null) {
+      _userMode = user.userMode;
+      if (user.userMode ==
+          AppLocalizations.of(this.context).translate('sportif')) {
+        isSwitched = true;
+      } else
+        isSwitched = false;
     }
 
     return Scaffold(
@@ -712,13 +693,40 @@ class _ManageProfile extends State<ManageProfile> {
               ],
             ),
           ),
-/*          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: screenSize.height * 0.1,
-              color: Colors.blue,
+          Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: AnimatedContainer(
+                height: hasChangedState ? screenSize.height * 0.1 : 0.0,
+                width: screenSize.width,
+                duration: Duration(seconds: 1),
+                curve: Curves.fastOutSlowIn,
+                color: Colors.blue,
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          height: screenSize.height * 0.09,
+                          child: RaisedButton(
+                            child: Text(AppLocalizations.of(context)
+                                .translate('enregistrer')),
+                            onPressed: () {
+                              updateUser();
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),*/
+          ),
         ],
       ),
     );
