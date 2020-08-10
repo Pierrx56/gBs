@@ -6,8 +6,7 @@ gBs est un projet de l'entreprise Genourob. Il s'agit d'une application mobile d
 
 L’application reprend les fonctionnalités de l’[Actiback](https://www.genourob.com/fr/diagnostic-ligaments_rachis_l-actiback-a-quoi-ca-sert.phtml), à savoir la poussée max, des exercices de contractions maximales volontaires ou de contractions spontanées intermittentes.
 
-[go](http://stackoverflow.com){:target="_blank" rel="noopener"}
-
+Elle utilise également le Bluetooth 4.0 par le biais d'une Bluno Beetle. 
 
 ## Apercu de l'application
 
