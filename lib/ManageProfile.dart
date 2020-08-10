@@ -170,8 +170,6 @@ class _ManageProfile extends State<ManageProfile> {
 
     String nameImage = tmpName + "_" + basename(imageFile.path);
 
-    print("Nom de l'image: " + nameImage);
-
     final File newImage = await imageFile.copy('$path/$nameImage');
 
     setState(() {

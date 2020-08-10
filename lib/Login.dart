@@ -157,7 +157,7 @@ class LoginWidget extends StatelessWidget {
                           User item = snapshot.data[index - 1];
                           return GestureDetector(
                             onTap: () {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => LoadPage(
@@ -198,7 +198,7 @@ class LoginWidget extends StatelessWidget {
                         } else if (index == 0) {
                           return GestureDetector(
                             onTap: () {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => LoadPage(
@@ -261,4 +261,5 @@ class LoginWidget extends StatelessWidget {
           ],
         ));
   }
+
 }

@@ -592,6 +592,18 @@ class _MainTitle extends State<MainTitle> {
     );
   }
 
+  Future<bool> _onBackPressed(){
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => LoadPage(
+              user: user,
+              appLanguage: appLanguage,
+              messageIn: "",
+              page: login,
+            )));
+  }
+
   @override
   Widget build(BuildContext context) {
     //Size screenSize = MediaQuery.of(context).size;
@@ -601,8 +613,6 @@ class _MainTitle extends State<MainTitle> {
       if (mounted)
         setState(() {
           _selectedIndex = index;
-
-          print(hasChanged);
 
           menuPage = menu();
 
@@ -642,28 +652,31 @@ class _MainTitle extends State<MainTitle> {
       debugShowCheckedModeBanner: false,
       home: DefaultTabController(
         length: _widgetOptions.length,
-        child: Scaffold(
-          bottomNavigationBar: new BottomNavigationBar(
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home,
+        child: WillPopScope(
+          onWillPop: _onBackPressed,
+          child: Scaffold(
+            bottomNavigationBar: new BottomNavigationBar(
+              items: <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.home,
+                  ),
+                  title: Text(AppLocalizations.of(context).translate('accueil')),
                 ),
-                title: Text(AppLocalizations.of(context).translate('accueil')),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.settings,
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.settings,
+                  ),
+                  title: Text(AppLocalizations.of(context).translate('reglages')),
                 ),
-                title: Text(AppLocalizations.of(context).translate('reglages')),
-              ),
-            ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: Colors.blue,
-            onTap: _onItemTapped,
-          ),
-          body: Center(
-            child: _widgetOptions.elementAt(_selectedIndex),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: Colors.blue,
+              onTap: _onItemTapped,
+            ),
+            body: Center(
+              child: _widgetOptions.elementAt(_selectedIndex),
+            ),
           ),
         ),
       ),

@@ -40,6 +40,8 @@ class Register extends StatefulWidget {
 class _Register extends State<Register> {
   DatabaseHelper db = new DatabaseHelper();
 
+  User user;
+
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
@@ -70,7 +72,6 @@ class _Register extends State<Register> {
   FocusNode serialNode;
   ScrollController _controller;
   double posScroll = 0.0;
-  bool isDisabled;
   bool isFound;
 
   TextStyle textStyle =
@@ -106,7 +107,6 @@ class _Register extends State<Register> {
   void initState() {
     btData = "0.0";
     _controller = ScrollController();
-    isDisabled = false;
     _pathSaved = "assets/default.png";
     nameNode = FocusNode();
     posBNode = FocusNode();
@@ -173,11 +173,10 @@ class _Register extends State<Register> {
       if (!isConnected) {
         setState(() {
           isFound = false;
-          discovering = AppLocalizations.of(this.context)
-              .translate('connecter_app');
+          discovering =
+              AppLocalizations.of(this.context).translate('connecter_app');
         });
-        show(AppLocalizations.of(this.context)
-            .translate('connexion_perdue'));
+        show(AppLocalizations.of(this.context).translate('connexion_perdue'));
         timerConnexion.cancel();
       }
     });
@@ -213,8 +212,6 @@ class _Register extends State<Register> {
   }
 
   addUser() async {
-    User user;
-
     int id = await db.addUser(User(
       userId: null,
       userName: name.text,
@@ -275,7 +272,6 @@ class _Register extends State<Register> {
           tempHautMax = 0;
         }
         _validate = false;
-
         if (currentStep == 0) {
           if (name.text == "")
             isEmpty = true;
@@ -390,6 +386,10 @@ class _Register extends State<Register> {
                   controller: name,
                   decoration: InputDecoration(
                     labelText: AppLocalizations.of(context).translate('prenom'),
+                    errorText: isEmpty
+                        ? AppLocalizations.of(context)
+                            .translate('erreur_prenom')
+                        : null,
                   ),
                 ),
               ),
@@ -420,7 +420,8 @@ class _Register extends State<Register> {
                     labelText:
                         AppLocalizations.of(context).translate('haut_min'),
                     errorText: isEmpty
-                        ? "Veuillez remplir ce champ\n Doit être supérieur à 0"
+                        ? AppLocalizations.of(context)
+                            .translate('erreur_hauteur')
                         : null,
                   ),
                 ),
@@ -453,8 +454,12 @@ class _Register extends State<Register> {
                     labelText:
                         AppLocalizations.of(context).translate('haut_max'),
                     errorText: isEmpty
-                        ? "Veuillez remplir ce champ\n Doit être supérieur à 0"
-                        : _validate ? "Valeur max < valeur min !" : null,
+                        ? AppLocalizations.of(context)
+                            .translate('erreur_hauteur')
+                        : _validate
+                            ? AppLocalizations.of(context)
+                                .translate('erreur_haut_max')
+                            : null,
                   ),
                 ),
               ),
@@ -793,26 +798,6 @@ class _Register extends State<Register> {
                         borderRadius: BorderRadius.circular(5)),
                     onPressed: () async {
                       //Conditions d'inscriptions
-                      //Prénom
-                      if (name.text == '')
-                        isDisabled = true;
-                      //Hauteur min et max
-                      else if (hauteur_min.text == '' || hauteur_max.text == '')
-                        isDisabled = true;
-                      //Hauteur max inférieur à hauteur min ?
-                      else if (hauteur_min.text != '' &&
-                          hauteur_max.text !=
-                              '') if (int.tryParse(hauteur_max.text) <=
-                          int.tryParse(hauteur_min.text))
-                        isDisabled = true;
-                      //Adresse mac
-                      else if (macAddress == '')
-                        isDisabled = true;
-/*                      //Première poussée
-                        else if (result.toString() == null)
-                          isDisabled = true;*/
-                      else
-                        isDisabled = false;
 
                       if (_pathSaved == "assets/default.png") {
                         var bytes = await rootBundle.load(_pathSaved);
@@ -826,29 +811,26 @@ class _Register extends State<Register> {
                         });
                       }
 
-                      if (!isDisabled) {
-                        User user = await addUser();
-                        //getUser();
-                        //connectBT();
+                      User user = await addUser();
+                      //getUser();
+                      //connectBT();
 
-                        if (user != null) {
-                          print("salut " + user.userId.toString());
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoadPage(
-                                appLanguage: appLanguage,
-                                user: user,
-                                page: firstPush,
-                                messageIn: "0",
-                              ),
+                      if (user != null) {
+                        print("salut " + user.userId.toString());
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LoadPage(
+                              appLanguage: appLanguage,
+                              user: user,
+                              page: firstPush,
+                              messageIn: "0",
                             ),
-                          );
-                          //dispose();
-                        } else
-                          print("Something went wrong");
+                          ),
+                        );
+                        //dispose();
                       } else
-                        show("Veuillez corriger toutes les erreurs");
+                        print("Something went wrong");
                     },
                   ),
                   FlatButton(
@@ -867,82 +849,97 @@ class _Register extends State<Register> {
           )),
     ];
 
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).translate('inscription')),
-        backgroundColor: Colors.blue,
-        key: _formKey,
-        actions: <Widget>[
-          StepProgressIndicator(
-            totalSteps: 6,
-            currentStep: currentStep,
-            fallbackLength: screenSize.width / 2,
-            selectedColor: Colors.lightGreenAccent,
-            unselectedColor: Colors.white38,
-            roundedEdges: Radius.circular(10),
-            padding: 1,
-          ),
-          new FlatButton(
-            child: new Text(
-              "AutoFill",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 28,
-                fontWeight: FontWeight.w600,
-              ),
+    Future<bool> _onBackPressed() {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => LoadPage(
+                    user: null,
+                    appLanguage: appLanguage,
+                    messageIn: "",
+                    page: login,
+                  )));
+    }
+
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context).translate('inscription')),
+          backgroundColor: Colors.blue,
+          key: _formKey,
+          actions: <Widget>[
+            StepProgressIndicator(
+              totalSteps: 6,
+              currentStep: currentStep,
+              fallbackLength: screenSize.width / 2,
+              selectedColor: Colors.lightGreenAccent,
+              unselectedColor: Colors.white38,
+              roundedEdges: Radius.circular(10),
+              padding: 1,
             ),
-            onPressed: () {
-              name.text = "Jean";
-              _userMode = "Sportif";
-              hauteur_min.text = "115";
-              hauteur_max.text = "125";
-              macAddress = "78:DB:2F:BF:3B:03";
-              serialNumber.text = "1230997P";
-              //result = 6.31;
-              _pathSaved = "assets/default.png";
-            },
+            new FlatButton(
+              child: new Text(
+                "AutoFill",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              onPressed: () {
+                name.text = "Jean";
+                _userMode = "Sportif";
+                hauteur_min.text = "115";
+                hauteur_max.text = "125";
+                macAddress = "78:DB:2F:BF:3B:03";
+                serialNumber.text = "1230997P";
+                //result = 6.31;
+                _pathSaved = "assets/default.png";
+              },
+            ),
+          ],
+        ),
+        body: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          controller: _controller,
+          child: Stepper(
+            physics: ClampingScrollPhysics(),
+            type: StepperType.vertical,
+            currentStep: currentStep,
+            onStepContinue: next,
+            onStepTapped: (step) => goTo(step),
+            onStepCancel: back,
+            steps: steps,
+            controlsBuilder: currentStep < steps.length - 1
+                ? (BuildContext context,
+                    {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+                    return Column(
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            currentStep >= 3 ? nextButton : Container(),
+                            currentStep >= 3 ? backButton : Container(),
+                            currentStep == 5 ? Container() : Container(),
+                            currentStep == 5 ? Container() : Container(),
+                          ],
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                              0, 0, 0, screenSize.width * 0.5),
+                        )
+                      ],
+                    );
+                  }
+                : (BuildContext context,
+                    {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+                    return Padding(
+                      padding:
+                          EdgeInsets.fromLTRB(0, 0, 0, screenSize.width * 0.5),
+                    );
+                  },
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        controller: _controller,
-        child: Stepper(
-          physics: ClampingScrollPhysics(),
-          type: StepperType.vertical,
-          currentStep: currentStep,
-          onStepContinue: next,
-          onStepTapped: (step) => goTo(step),
-          onStepCancel: back,
-          steps: steps,
-          controlsBuilder: currentStep < steps.length - 1
-              ? (BuildContext context,
-                  {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
-                  return Column(
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          currentStep >= 3 ? nextButton : Container(),
-                          currentStep >= 3 ? backButton : Container(),
-                          currentStep == 5 ? Container() : Container(),
-                          currentStep == 5 ? Container() : Container(),
-                        ],
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                            0, 0, 0, screenSize.width * 0.5),
-                      )
-                    ],
-                  );
-                }
-              : (BuildContext context,
-                  {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
-                  return Padding(
-                    padding:
-                        EdgeInsets.fromLTRB(0, 0, 0, screenSize.width * 0.5),
-                  );
-                },
         ),
       ),
     );

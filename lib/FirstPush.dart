@@ -75,7 +75,6 @@ class _FirstPush extends State<FirstPush> {
   double coefKg = 0.45359237;
   double result;
   String recording;
-  String statusBT;
   String btData;
   bool isCorrect = false;
   Size screenSize;
@@ -146,6 +145,20 @@ class _FirstPush extends State<FirstPush> {
     btData = await btManage.getData();
   }
 
+
+  Future<bool> _onBackPressed(){
+
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => LoadPage(
+              user: user,
+              appLanguage: appLanguage,
+              messageIn: "",
+              page: login,
+            )));
+  }
+
   @override
   Widget build(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
@@ -154,9 +167,6 @@ class _FirstPush extends State<FirstPush> {
     if (recording == null)
       recording =
           AppLocalizations.of(context).translate('demarrer_enregistrement');
-
-    if (statusBT == null)
-      statusBT = AppLocalizations.of(context).translate('connecter_app');
 
     return MaterialApp(
       supportedLocales: [
@@ -168,270 +178,273 @@ class _FirstPush extends State<FirstPush> {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
-      home: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          //title: Text(AppLocalization.of(context).heyWorld),
+      home: WillPopScope(
+        onWillPop: _onBackPressed,
+        child: Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            //title: Text(AppLocalization.of(context).heyWorld),
 
-          title:
-              Text(AppLocalizations.of(context).translate('premiere_poussee')),
-          backgroundColor: Colors.blue,
-          actions: <Widget>[],
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                AppLocalizations.of(context).translate('explications_mesure'),
-                style: textStyle,
-                textAlign: TextAlign.center,
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  //Progress bar maison
-                  //Rotate -math.pi pour retourner les container de 180°
-                  Transform.rotate(
-                    angle: -math.pi,
-                    child: Stack(
-                      children: <Widget>[
-                        //Container de fond
-                        Container(
-                          decoration: new BoxDecoration(
-                              color: Colors.blue,
-                              //new Color.fromRGBO(255, 0, 0, 0.0),
-                              borderRadius: new BorderRadius.only(
-                                  topLeft: const Radius.circular(20.0),
-                                  topRight: const Radius.circular(20.0),
-                                  bottomLeft: const Radius.circular(20.0),
-                                  bottomRight: const Radius.circular(20.0))),
-                          width: 100,
-                          height: screenSize.height / 2 - 10,
-                        ),
-                        //Container progress bar
-                        //Passe à vert au dessus de 50 et en dessous de 100
-                        //sinon rouge
-                        Container(
-                          decoration: new BoxDecoration(
-                              color: colorProgressBar,
-                              //new Color.fromRGBO(255, 0, 0, 0.0),
-                              borderRadius: new BorderRadius.only(
-                                  topLeft: const Radius.circular(20.0),
-                                  topRight: const Radius.circular(20.0),
-                                  bottomLeft: const Radius.circular(20.0),
-                                  bottomRight: const Radius.circular(20.0))),
-                          //40.0 pour éviter des bugs d'affichage
-                          height: double.parse(btData) < 40.0
-                              ? 40.0
-                              : double.parse(btData) > 100.0
-                                  ? screenSize.height / 2 - 10
-                                  //*1.7 pour remplir la progress bar à 100% lorsque le capteur renvoi 100
-                                  : double.parse(btData) * 1.7,
-                          width: 100,
-                        ),
-                        //Container d'affichage de la valeur du capteur
-                        //-math.pi = 180°
-                        Container(
-                          color: Colors.transparent,
-                          //new Color.fromRGBO(255, 0, 0, 0.0),
-                          child: Center(
-                              child: Transform.rotate(
-                                  angle: -math.pi,
-                                  child: Text(
-                                    (double.parse(btData)).toString(),
-                                    style: textStyle,
-                                  ))),
-                          width: 100,
-                          height: screenSize.height / 2,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(padding: EdgeInsets.all(10.0)),
-                  Container(
-                    width: screenSize.width / 1.5,
-                    child: Column(
-                      children: <Widget>[
-                        RaisedButton(
-                          //child: Text("Démarrer l'enregistrement."),
-                          onPressed: !isCorrect || user.userInitialPush != "0.0"
-                              ? () async {
-                                  colorMesureButton = Colors.black;
-                                  const oneSec =
-                                      const Duration(milliseconds: 100);
-                                  _timer = new Timer.periodic(
-                                    oneSec,
-                                    (Timer timer) => setState(
-                                      () {
-                                        if (_start < 0.1) {
-                                          timer.cancel();
-                                          _start = _reset;
-                                          result = double.parse(
-                                              (average.reduce((a, b) => a + b) /
-                                                      average.length)
-                                                  .toStringAsFixed(2));
-                                          print(result.toStringAsFixed(2));
-                                          i = 100;
-                                          if (result <= 50.0 ||
-                                              result >= 100.0) {
-                                            //Mesure pas bonne, réajuster la toise
-                                            setState(() {
-                                              recording = AppLocalizations.of(
-                                                      context)
-                                                  .translate(
-                                                      'status_mesure_mauvais');
-                                              colorMesureButton = Colors.red;
-                                            });
-                                          } else {
-                                            setState(() {
-                                              colorMesureButton = Colors.green;
-                                              recording =
-                                                  AppLocalizations.of(context)
-                                                      .translate(
-                                                          'status_mesure_bon');
-                                            });
-                                            isCorrect = true;
-                                            //update poussée
-                                            updatedUser = User(
-                                              userId: user.userId,
-                                              userName: user.userName,
-                                              userMode: user.userMode,
-                                              userPic: user.userPic,
-                                              userHeightTop: user.userHeightTop,
-                                              userHeightBottom:
-                                                  user.userHeightBottom,
-                                              userInitialPush: result
-                                                  .toStringAsFixed(2)
-                                                  .toString(),
-                                              userMacAddress:
-                                                  user.userMacAddress,
-                                              userSerialNumber:
-                                                  user.userSerialNumber,
-                                            );
-
-                                            db.updateUser(updatedUser);
-
-                                            const time = const Duration(
-                                                milliseconds: 1000);
-                                            _timer = new Timer.periodic(
-                                              time,
-                                              (Timer timer) {
-                                                if (countdown < 1) {
-                                                  //TODO Display menu ?
-                                                  timer.cancel();
-                                                  Navigator.pushReplacement(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          MainTitle(
-                                                              userIn:
-                                                                  updatedUser,
-                                                              appLanguage:
-                                                                  appLanguage,
-                                                              messageIn: 0),
-                                                    ),
-                                                  );
-                                                } else {
-                                                  setState(() {
-                                                    countdown = countdown - 1;
-                                                  });
-                                                }
-                                              },
-                                            );
-/*
-                                                Future.delayed(
-                                                    const Duration(
-                                                        milliseconds: 5000), () {
-                                                  Navigator.pushReplacement(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) => MainTitle(
-                                                          userIn: updatedUser,
-                                                          appLanguage: appLanguage,
-                                                          messageIn: 0),
-                                                    ),
-                                                  );
-                                                });*/
-                                          }
-                                        } else {
-                                          recording = _start.toStringAsFixed(1);
-                                          _start = _start - 0.1;
-                                          i--;
-                                          getData();
-                                          average[i] = double.parse(btData);
-                                          if (average[i] > 100.0 ||
-                                              average[i] < 50.0) {
-                                            setState(() {
-                                              colorMesureButton = Colors.red;
-                                              colorProgressBar = Colors.red;
-                                            });
-                                          } else {
-                                            setState(() {
-                                              colorMesureButton = Colors.green;
-                                              colorProgressBar = Colors.green;
-                                            });
-                                          }
-                                        }
-                                      },
-                                    ),
-                                  );
-                                  //_showDialog();
-                                }
-                              : null,
-                          textColor: colorMesureButton,
-                          child: Text(
-                            recording,
-                            style: textStyle,
+            title:
+                Text(AppLocalizations.of(context).translate('premiere_poussee')),
+            backgroundColor: Colors.blue,
+            actions: <Widget>[],
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  AppLocalizations.of(context).translate('explications_mesure'),
+                  style: textStyle,
+                  textAlign: TextAlign.center,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    //Progress bar maison
+                    //Rotate -math.pi pour retourner les container de 180°
+                    Transform.rotate(
+                      angle: -math.pi,
+                      child: Stack(
+                        children: <Widget>[
+                          //Container de fond
+                          Container(
+                            decoration: new BoxDecoration(
+                                color: Colors.blue,
+                                //new Color.fromRGBO(255, 0, 0, 0.0),
+                                borderRadius: new BorderRadius.only(
+                                    topLeft: const Radius.circular(20.0),
+                                    topRight: const Radius.circular(20.0),
+                                    bottomLeft: const Radius.circular(20.0),
+                                    bottomRight: const Radius.circular(20.0))),
+                            width: 100,
+                            height: screenSize.height / 2 - 10,
                           ),
-                        ),
-                        isCorrect
-                            ? Text(
-                                AppLocalizations.of(context)
-                                        .translate('redirection') +
-                                    " $countdown " +
-                                    AppLocalizations.of(context)
-                                        .translate('secondes'),
-                                style: textStyle,
-                              )
-                            : Text(""),
-                        inputMessage == "fromMain"
-                            ? RaisedButton(
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => LoadPage(
-                                        appLanguage: appLanguage,
-                                        page: mainTitle,
-                                        user: updatedUser,
-                                        messageIn: "0",
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context)
-                                      .translate('retour'),
-                                  style: textStyle,
-                                ),
-                              )
-                            : Text(""),
-                      ],
+                          //Container progress bar
+                          //Passe à vert au dessus de 50 et en dessous de 100
+                          //sinon rouge
+                          Container(
+                            decoration: new BoxDecoration(
+                                color: colorProgressBar,
+                                //new Color.fromRGBO(255, 0, 0, 0.0),
+                                borderRadius: new BorderRadius.only(
+                                    topLeft: const Radius.circular(20.0),
+                                    topRight: const Radius.circular(20.0),
+                                    bottomLeft: const Radius.circular(20.0),
+                                    bottomRight: const Radius.circular(20.0))),
+                            //40.0 pour éviter des bugs d'affichage
+                            height: double.parse(btData) < 40.0
+                                ? 40.0
+                                : double.parse(btData) > 100.0
+                                    ? screenSize.height / 2 - 10
+                                    //*1.7 pour remplir la progress bar à 100% lorsque le capteur renvoi 100
+                                    : double.parse(btData) * 1.7,
+                            width: 100,
+                          ),
+                          //Container d'affichage de la valeur du capteur
+                          //-math.pi = 180°
+                          Container(
+                            color: Colors.transparent,
+                            //new Color.fromRGBO(255, 0, 0, 0.0),
+                            child: Center(
+                                child: Transform.rotate(
+                                    angle: -math.pi,
+                                    child: Text(
+                                      (double.parse(btData)).toString(),
+                                      style: textStyle,
+                                    ))),
+                            width: 100,
+                            height: screenSize.height / 2,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              /*RoundedProgressBar(
-                          percent: (double.parse(btData)) >= 0
-                              ? (double.parse(btData))
-                              : 0.0,
-                          theme: colorProgressBar,
-                          childCenter: Text((double.parse(btData)).toString())),
-                      */
-            ],
+                    Padding(padding: EdgeInsets.all(10.0)),
+                    Container(
+                      width: screenSize.width / 1.5,
+                      child: Column(
+                        children: <Widget>[
+                          RaisedButton(
+                            //child: Text("Démarrer l'enregistrement."),
+                            onPressed: !isCorrect || user.userInitialPush != "0.0"
+                                ? () async {
+                                    colorMesureButton = Colors.black;
+                                    const oneSec =
+                                        const Duration(milliseconds: 100);
+                                    _timer = new Timer.periodic(
+                                      oneSec,
+                                      (Timer timer) => setState(
+                                        () {
+                                          if (_start < 0.1) {
+                                            timer.cancel();
+                                            _start = _reset;
+                                            result = double.parse(
+                                                (average.reduce((a, b) => a + b) /
+                                                        average.length)
+                                                    .toStringAsFixed(2));
+                                            print(result.toStringAsFixed(2));
+                                            i = 100;
+                                            if (result <= 50.0 ||
+                                                result >= 100.0) {
+                                              //Mesure pas bonne, réajuster la toise
+                                              setState(() {
+                                                recording = AppLocalizations.of(
+                                                        context)
+                                                    .translate(
+                                                        'status_mesure_mauvais');
+                                                colorMesureButton = Colors.red;
+                                              });
+                                            } else {
+                                              setState(() {
+                                                colorMesureButton = Colors.green;
+                                                recording =
+                                                    AppLocalizations.of(context)
+                                                        .translate(
+                                                            'status_mesure_bon');
+                                              });
+                                              isCorrect = true;
+                                              //update poussée
+                                              updatedUser = User(
+                                                userId: user.userId,
+                                                userName: user.userName,
+                                                userMode: user.userMode,
+                                                userPic: user.userPic,
+                                                userHeightTop: user.userHeightTop,
+                                                userHeightBottom:
+                                                    user.userHeightBottom,
+                                                userInitialPush: result
+                                                    .toStringAsFixed(2)
+                                                    .toString(),
+                                                userMacAddress:
+                                                    user.userMacAddress,
+                                                userSerialNumber:
+                                                    user.userSerialNumber,
+                                              );
+
+                                              db.updateUser(updatedUser);
+
+                                              const time = const Duration(
+                                                  milliseconds: 1000);
+                                              _timer = new Timer.periodic(
+                                                time,
+                                                (Timer timer) {
+                                                  if (countdown < 1) {
+                                                    //TODO Display menu ?
+                                                    timer.cancel();
+                                                    Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            MainTitle(
+                                                                userIn:
+                                                                    updatedUser,
+                                                                appLanguage:
+                                                                    appLanguage,
+                                                                messageIn: 0),
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    setState(() {
+                                                      countdown = countdown - 1;
+                                                    });
+                                                  }
+                                                },
+                                              );
+/*
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          milliseconds: 5000), () {
+                                                    Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) => MainTitle(
+                                                            userIn: updatedUser,
+                                                            appLanguage: appLanguage,
+                                                            messageIn: 0),
+                                                      ),
+                                                    );
+                                                  });*/
+                                            }
+                                          } else {
+                                            recording = _start.toStringAsFixed(1);
+                                            _start = _start - 0.1;
+                                            i--;
+                                            getData();
+                                            average[i] = double.parse(btData);
+                                            if (average[i] > 100.0 ||
+                                                average[i] < 50.0) {
+                                              setState(() {
+                                                colorMesureButton = Colors.red;
+                                                colorProgressBar = Colors.red;
+                                              });
+                                            } else {
+                                              setState(() {
+                                                colorMesureButton = Colors.green;
+                                                colorProgressBar = Colors.green;
+                                              });
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    );
+                                    //_showDialog();
+                                  }
+                                : null,
+                            textColor: colorMesureButton,
+                            child: Text(
+                              recording,
+                              style: textStyle,
+                            ),
+                          ),
+                          isCorrect
+                              ? Text(
+                                  AppLocalizations.of(context)
+                                          .translate('redirection') +
+                                      " $countdown " +
+                                      AppLocalizations.of(context)
+                                          .translate('secondes'),
+                                  style: textStyle,
+                                )
+                              : Text(""),
+                          inputMessage == "fromMain"
+                              ? RaisedButton(
+                                  onPressed: () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => LoadPage(
+                                          appLanguage: appLanguage,
+                                          page: mainTitle,
+                                          user: updatedUser,
+                                          messageIn: "0",
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    AppLocalizations.of(context)
+                                        .translate('retour'),
+                                    style: textStyle,
+                                  ),
+                                )
+                              : Text(""),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                /*RoundedProgressBar(
+                            percent: (double.parse(btData)) >= 0
+                                ? (double.parse(btData))
+                                : 0.0,
+                            theme: colorProgressBar,
+                            childCenter: Text((double.parse(btData)).toString())),
+                        */
+              ],
+            ),
           ),
         ),
       ),
