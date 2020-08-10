@@ -8,7 +8,7 @@ L’application reprend les fonctionnalités de l’[Actiback](https://www.genou
 
 ## Apercu de l'application
 
-![login](https://drive.google.com/file/d/1fBLu0m67UZAqtnnJOMYdQ3sS_D67JUFa/view?usp=sharing)
+![login](target="https://drive.google.com/file/d/1fBLu0m67UZAqtnnJOMYdQ3sS_D67JUFa/view?usp=sharing")
 
 
 ### Aide au développeur
