@@ -194,11 +194,12 @@ class SwimGame extends Game {
         if (creationTimer >= 0.04) {
           if (i == tab.length - 1)
             i = 0;
+          else if(pauseGame);
           else
             i++;
 
 
-          if (pauseGame) i--;
+          //if (pauseGame) i--;
 
           swimmerPic = tab[i];
 
@@ -299,7 +300,8 @@ class SwimGame extends Game {
 
   ColorFilter getColorFilter() {
     if (redFilter) {
-      return ColorFilter.mode(Colors.redAccent, BlendMode.hue);
+      return ColorFilter.mode(Colors.transparent, BlendMode.luminosity);
+      //return ColorFilter.mode(Colors.redAccent, BlendMode.hue);
     } else
       return ColorFilter.mode(Colors.transparent, BlendMode.luminosity);
   }

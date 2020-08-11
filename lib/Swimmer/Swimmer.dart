@@ -105,7 +105,7 @@ class _Swimmer extends State<Swimmer> {
 
   void connect() async {
     /*btManage.enableBluetooth();*/
-    if (await btManage.enableBluetooth()){
+    if (await btManage.enableBluetooth()) {
 //print("salut");
       connect();
     } else {
@@ -140,33 +140,26 @@ class _Swimmer extends State<Swimmer> {
     timerThread = new Timer.periodic(Duration(milliseconds: 1000),
         (timerConnexion) async {
       if (game.isTooHigh) {
-
         const oneSec = const Duration(seconds: 1);
-        _timer = new Timer.periodic(
-            oneSec,
-              (Timer timer) {
-              if (_start < 1) {
-                timer.cancel();
-                //Redirection vers le menu
-                Navigator.pushReplacement(
-                  this.context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        LoadPage(
-                          appLanguage: appLanguage,
-                          user: user,
-                          messageIn: "0",
-                          page: mainTitle,
-                        ),
-                  ),
-                );
-              }
-              else {
-                _start = _start - 1;
-              }
+        _timer = new Timer.periodic(oneSec, (Timer timer) {
+          if (_start < 1) {
+            timer.cancel();
+            //Redirection vers le menu
+            Navigator.pushReplacement(
+              this.context,
+              MaterialPageRoute(
+                builder: (context) => LoadPage(
+                  appLanguage: appLanguage,
+                  user: user,
+                  messageIn: "0",
+                  page: mainTitle,
+                ),
+              ),
+            );
+          } else {
+            _start = _start - 1;
           }
-        );
-
+        });
       }
     });
   }
@@ -311,7 +304,8 @@ class _Swimmer extends State<Swimmer> {
                         !game.isTooHigh
                     ? gameUI.state.displayMessage(
                         AppLocalizations.of(context).translate('relacher'),
-                        game)
+                        game,
+                        Colors.redAccent)
                     : Container()
                 : Container(),
           ),
@@ -325,7 +319,9 @@ class _Swimmer extends State<Swimmer> {
                         !game.getPauseStatus() &&
                         !game.isTooHigh
                     ? gameUI.state.displayMessage(
-                        AppLocalizations.of(context).translate('pousser'), game)
+                        AppLocalizations.of(context).translate('pousser'),
+                        game,
+                Colors.redAccent)
                     : Container()
                 : Container(),
           ),
@@ -339,7 +335,8 @@ class _Swimmer extends State<Swimmer> {
                           gameUI.state.displayMessage(
                               AppLocalizations.of(context)
                                   .translate('game_over'),
-                              game),
+                              game,
+                              Colors.blueAccent),
                         ],
                       )
                     : Container()
@@ -355,7 +352,8 @@ class _Swimmer extends State<Swimmer> {
                           gameUI.state.displayMessage(
                               AppLocalizations.of(context)
                                   .translate('reajuster_toise'),
-                              game),
+                              game,
+                              Colors.redAccent),
                         ],
                       )
                     : Container()
@@ -371,7 +369,8 @@ class _Swimmer extends State<Swimmer> {
                           gameUI.state.displayMessage(
                               AppLocalizations.of(context)
                                   .translate('connexion_perdue'),
-                              game),
+                              game,
+                              Colors.redAccent),
                         ],
                       )
                     : Container()

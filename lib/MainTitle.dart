@@ -212,7 +212,7 @@ class _MainTitle extends State<MainTitle> {
                 );
               },
             ),
-            FlatButton.icon(
+            /*FlatButton.icon(
               icon: Icon(
                 Icons.add,
                 color: Colors.white,
@@ -232,7 +232,8 @@ class _MainTitle extends State<MainTitle> {
               onPressed: () {
                 //db.deleteScore(user.userId);
 
-/*
+*/
+            /*
                 db.updateUser(
                   User(
                       userHeightBottom: user.userHeightBottom,
@@ -246,8 +247,7 @@ class _MainTitle extends State<MainTitle> {
                       userSerialNumber: user.userSerialNumber),
                 );
 */
-
-                /*
+            /*
                 db.updateUser(
                   User(
                       userHeightBottom: user.userHeightBottom,
@@ -260,8 +260,7 @@ class _MainTitle extends State<MainTitle> {
                       userMacAddress: "78:DB:2F:BF:1F:72",
                       userSerialNumber: user.userSerialNumber),
                 );*/
-
-/*                Navigator.pushReplacement(
+            /*                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => LoadPage(
@@ -272,6 +271,7 @@ class _MainTitle extends State<MainTitle> {
                     ),
                   ),
                 );*/
+            /*
 
                 Score newScore = Score(
                     scoreId: null,
@@ -318,7 +318,7 @@ class _MainTitle extends State<MainTitle> {
                 db.addScore(newScore5);
                 //setState(() {});
               },
-            ),
+            ),*/
             FlatButton.icon(
               icon: Icon(
                 Icons.power_settings_new,
