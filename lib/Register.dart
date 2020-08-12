@@ -816,7 +816,7 @@ class _Register extends State<Register> {
                       //connectBT();
 
                       if (user != null) {
-                        print("salut " + user.userId.toString());
+                        //print("salut " + user.userId.toString());
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(

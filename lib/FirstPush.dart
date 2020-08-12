@@ -186,7 +186,7 @@ class _FirstPush extends State<FirstPush> {
             //title: Text(AppLocalization.of(context).heyWorld),
 
             title:
-                Text(AppLocalizations.of(context).translate('premiere_poussee')),
+                Text(AppLocalizations.of(context).translate('poussee_max')),
             backgroundColor: Colors.blue,
             actions: <Widget>[],
           ),

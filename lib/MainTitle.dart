@@ -337,6 +337,7 @@ class _MainTitle extends State<MainTitle> {
               ),
               splashColor: Colors.blue,
               onPressed: () {
+                //btManage.disconnect("");
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(

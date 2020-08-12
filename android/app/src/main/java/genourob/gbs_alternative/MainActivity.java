@@ -82,8 +82,8 @@ public class MainActivity extends FlutterActivity {
     UUID characteristicUUID = UUID.fromString("0000dfb1-0000-1000-8000-00805f9b34fb");
 
     BluetoothManager btManager;
-    BluetoothDevice m_BTdevice;
-    BluetoothGatt bluetoothGatt;
+    BluetoothDevice mBluetoothDevice;
+    BluetoothGatt mBluetoothGatt;
     BluetoothLeScanner btScanner;
     BluetoothAdapter btAdapter;
 
@@ -122,11 +122,11 @@ public class MainActivity extends FlutterActivity {
     @Override
     public void onDestroy() {
         //unregisterReceiver(mReceiver);
-/*
-        btManager = null;
-        btAdapter = null;
-        btScanner = null;
-        isConnected = false;*/
+
+        if (mBluetoothGatt != null)
+            mBluetoothGatt.disconnect();
+
+        mBluetoothDevice = null;
         super.onDestroy();
     }
 
@@ -295,14 +295,14 @@ public class MainActivity extends FlutterActivity {
                 if (macAdress != null && macAdress != "-1" && macAdress != ""){
                     System.out.println(result.getDevice().getAddress());
                     if(result.getDevice().getAddress().contains(macAdress)){
-                        m_BTdevice = result.getDevice();
+                        mBluetoothDevice = result.getDevice();
                         stopScanning();
                         connect(result.getDevice().getAddress());
                     }
                 }
                 if (result.getDevice().getName().contains(NAME_DEVICE)) {
                     setMacAddress(result.getDevice().getAddress());
-                    m_BTdevice = result.getDevice();
+                    mBluetoothDevice = result.getDevice();
                     stopScanning();
                 }
             }
@@ -330,29 +330,29 @@ public class MainActivity extends FlutterActivity {
             return "Bonjour from discoverd";
     }
 
-    public boolean setCharacteristicNotification(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic characteristic, boolean enable) {
+    public boolean setCharacteristicNotification(BluetoothGatt mBluetoothGatt, BluetoothGattCharacteristic characteristic, boolean enable) {
         Log.d("TAG", "setCharacteristicNotification");
-        bluetoothGatt.setCharacteristicNotification(characteristic, enable);
+        mBluetoothGatt.setCharacteristicNotification(characteristic, enable);
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(characteristicUUID);
         descriptor.setValue(enable ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : new byte[]{0x00, 0x00});
-        return bluetoothGatt.writeDescriptor(descriptor); //descriptor write operation successfully started?
+        return mBluetoothGatt.writeDescriptor(descriptor); //descriptor write operation successfully started?
 
     }
 
     public void readCustomCharacteristic() {
-        if (m_BTdevice == null || bluetoothGatt == null) {
+        if (mBluetoothDevice == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
         /*check if the service is available on the device*/
-        BluetoothGattService mCustomService = bluetoothGatt.getService(serviceUUID);
+        BluetoothGattService mCustomService = mBluetoothGatt.getService(serviceUUID);
         if (mCustomService == null) {
             Log.w(TAG, "Custom BLE Service not found");
             return;
         }
         /*get the read characteristic from the service*/
         BluetoothGattCharacteristic mReadCharacteristic = mCustomService.getCharacteristic(characteristicUUID);
-        if (!bluetoothGatt.readCharacteristic(mReadCharacteristic)) {
+        if (!mBluetoothGatt.readCharacteristic(mReadCharacteristic)) {
             Log.w(TAG, "Failed to read characteristic");
         }
     }
@@ -375,19 +375,19 @@ public class MainActivity extends FlutterActivity {
     public String connect(String mac) {
 
         macAdress = mac;
-        bluetoothGatt = null;
+        mBluetoothGatt = null;
 
         //Si null, on recherche l'adresse mac et on se connecte
-        if(m_BTdevice == null && !isConnected || !m_BTdevice.getAddress().contains(macAdress)){
+        if(mBluetoothDevice == null && !isConnected || !mBluetoothDevice.getAddress().contains(macAdress)){
             System.out.println("start scanning");
             startScanning();
-            //m_BTdevice = mac;
+            //mBluetoothDevice = mac;
         }
         else {
             stopScanning();
-            bluetoothGatt = m_BTdevice.connectGatt(this, false, btleGattCallback);
+            mBluetoothGatt = mBluetoothDevice.connectGatt(this, false, btleGattCallback);
 
-            if(bluetoothGatt != null)
+            if(mBluetoothGatt != null)
                 isConnected = true;
         }
         if(isConnected)
@@ -441,7 +441,7 @@ public class MainActivity extends FlutterActivity {
                     });
 
                     // discover services and characteristics for this device
-                    bluetoothGatt.discoverServices();
+                    mBluetoothGatt.discoverServices();
 
                     break;
                 default:
@@ -462,7 +462,7 @@ public class MainActivity extends FlutterActivity {
                     //peripheralTextView.append("device services have been discovered\n");
                 }
             });
-            displayGattServices(bluetoothGatt.getServices());
+            displayGattServices(mBluetoothGatt.getServices());
         }
 
         @Override
@@ -475,12 +475,12 @@ public class MainActivity extends FlutterActivity {
             }
         }
 
-        public boolean setCharacteristicNotification(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic characteristic, boolean enable) {
+        public boolean setCharacteristicNotification(BluetoothGatt mBluetoothGatt, BluetoothGattCharacteristic characteristic, boolean enable) {
             //Log.d("DEBUG", "setCharacteristicNotification");
-            bluetoothGatt.setCharacteristicNotification(characteristic, enable);
+            mBluetoothGatt.setCharacteristicNotification(characteristic, enable);
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(characteristicUUID);
             descriptor.setValue(enable ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : new byte[]{0x00, 0x00});
-            return bluetoothGatt.writeDescriptor(descriptor); //descriptor write operation successfully started?
+            return mBluetoothGatt.writeDescriptor(descriptor); //descriptor write operation successfully started?
 
         }
 
@@ -514,11 +514,11 @@ public class MainActivity extends FlutterActivity {
 
                     //System.out.println("Characteristic discovered for service: " + charUuid);
 
-                    bluetoothGatt.setCharacteristicNotification(gattCharacteristic, true);
+                    mBluetoothGatt.setCharacteristicNotification(gattCharacteristic, true);
                     BluetoothGattDescriptor descriptor = gattCharacteristic.getDescriptor(gattCharacteristic.getUuid());
                     try{
                         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                        bluetoothGatt.writeDescriptor(descriptor);
+                        mBluetoothGatt.writeDescriptor(descriptor);
                         //System.out.println("NOTIFICATIONS ENABLED");
                     }catch (Exception e){
                         //System.out.println(e);
@@ -537,11 +537,12 @@ public class MainActivity extends FlutterActivity {
 
     public void disconnectDeviceSelected() {
         //peripheralTextView.append("Disconnecting from device\n");
-        if(bluetoothGatt != null) {
+        if(mBluetoothGatt != null) {
             isConnected = false;
-            bluetoothGatt.disconnect();
-            bluetoothGatt.close();
-            m_BTdevice = null;
+            stopScanning();
+            mBluetoothGatt.disconnect();
+            //mBluetoothGatt.close();
+            mBluetoothDevice = null;
 
         }
     }
@@ -551,9 +552,9 @@ public class MainActivity extends FlutterActivity {
 
         System.out.println(characteristic.getUuid());
 
-        bluetoothGatt.setCharacteristicNotification(characteristic, true);
+        mBluetoothGatt.setCharacteristicNotification(characteristic, true);
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(characteristicUUID);
         descriptor.setValue(true ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : new byte[]{0x00, 0x00});
-        bluetoothGatt.writeDescriptor(descriptor); //descriptor write operation successfully started?
+        mBluetoothGatt.writeDescriptor(descriptor); //descriptor write operation successfully started?
     }
 }

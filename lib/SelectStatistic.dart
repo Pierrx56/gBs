@@ -124,7 +124,7 @@ class _SelectStatistic extends State<SelectStatistic> {
     if (mounted) setState(() {});
   }
 
-  Widget swimStat() {
+/*  Widget swimStat() {
     var temp = AppLocalizations.of(context);
     return SizedBox(
       width: widthCard = screenSize.width / (numberOfCard / 2),
@@ -180,6 +180,70 @@ class _SelectStatistic extends State<SelectStatistic> {
                   },
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }*/
+
+  Widget swimStat() {
+    var temp = AppLocalizations.of(context);
+    return SizedBox(
+      width: widthCard = screenSize.width / (numberOfCard / 2),
+      height: heightCard = screenSize.width / numberOfCard,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 8,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              temp != null
+                  ? Text(
+                AppLocalizations.of(context).translate('stat_nageur'),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    )
+                  : Text("Check Language file (en/fr.json)"),
+              dataSwim == null
+                  ? Container()
+                  : Container(
+                      child: DrawCharts(data: dataSwim),
+                      height: heightCard,
+                    ),
+              Padding(
+                padding: EdgeInsets.all(10),
+              ),
+              /*
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: RaisedButton(
+                  child: temp != null
+                      ? Text(
+                          AppLocalizations.of(context).translate('details'),
+                        )
+                      : Text("Check Language file (en/fr.json)"),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LoadPage(
+                          appLanguage: appLanguage,
+                          page: detailsCharts,
+                          user: user,
+                          messageIn: "$ID_PLANE_ACTIVITY",
+                          scores: dataPlane,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),*/
             ],
           ),
         ),
@@ -332,7 +396,31 @@ class _SelectStatistic extends State<SelectStatistic> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  swimStat(),
+
+
+                  Stack(children: <Widget>[
+                    swimStat(),
+                    Container(
+                      width: screenSize.width/2,
+                      height: screenSize.width/numberOfCard,
+                      child: GestureDetector(
+                        onTap: (){
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoadPage(
+                                appLanguage: appLanguage,
+                                page: detailsCharts,
+                                user: user,
+                                messageIn: "$ID_SWIMMER_ACTIVITY",
+                                scores: dataSwim,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],),
 
                   Stack(children: <Widget>[
                     planeStat(),

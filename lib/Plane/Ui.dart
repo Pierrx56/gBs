@@ -285,9 +285,10 @@ class UIState extends State<UI> {
         height: game.screenSize.height * 0.2,
         width: game.pauseGame ? game.screenSize.width / 3 :game.screenSize.width / 4 ,
         child: RaisedButton(
-          onPressed: () async {
+          onPressed: game.getConnectionState()
+              ? () async {
             game.pauseGame = !game.pauseGame;
-          },
+          } : null,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,

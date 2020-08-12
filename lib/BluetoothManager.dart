@@ -36,7 +36,7 @@ class BluetoothManager {
   //android: android/app/src/main/java/genourob/gbs_alternative/MainActivity.java
   //iOS: ios/Runner/AppDelegate.swift
   static const MethodChannel sensorChannel =
-  MethodChannel('samples.flutter.io/sensor');
+      MethodChannel('samples.flutter.io/sensor');
 
   //Déclaration de variables
   String _pairedDevices = 'No devices paired';
@@ -58,9 +58,8 @@ class BluetoothManager {
 
   // Request Bluetooth permission from the user
   Future<bool> enableBluetooth() async {
-
     //On utilise la librairie flutter_bluetooth_serial pour détecter l'état du bluetoothh
-    if(Platform.isAndroid) {
+    if (Platform.isAndroid) {
       // Retrieving the current Bluetooth state
       _bluetoothState = await FlutterBluetoothSerial.instance.state;
 
@@ -73,20 +72,16 @@ class BluetoothManager {
     }
     //On utilise aucune librairie, aucune compatible à àce jour
     //On averti juste l'utilisateur que le BT est off et suggère d'aller dans les réglages
-    else if(Platform.isIOS){
-      final bool isOn = await sensorChannel
-          .invokeMethod('getBLEState');
-      if(!isOn){
+    else if (Platform.isIOS) {
+      final bool isOn = await sensorChannel.invokeMethod('getBLEState');
+      if (!isOn) {
         //print("issOFFFFF");
         return true;
-      }
-      else {
+      } else {
         //print("isOOONNNNN");
         return false;
       }
-
     }
-
   }
 
   //Fonction pour récupérer l'adresse mac de l'appareil bluetooth
@@ -181,8 +176,9 @@ class BluetoothManager {
 
     double convVoltToLbs = (921 - delta) / 100;
 
-    double tempResult = double.parse(((double.parse(result) - delta) / (convVoltToLbs * coefKg))
-        .toStringAsExponential(1))
+    double tempResult = double.parse(
+            ((double.parse(result) - delta) / (convVoltToLbs * coefKg))
+                .toStringAsExponential(1))
         .abs();
 
     //print("Résultat: $tempResult");
@@ -290,9 +286,9 @@ class BluetoothManager {
   // Method to show a Snackbar,
   // taking message as the text
   Future show(
-      String message, {
-        Duration duration: const Duration(seconds: 3),
-      }) async {
+    String message, {
+    Duration duration: const Duration(seconds: 3),
+  }) async {
     await new Future.delayed(new Duration(milliseconds: 100));
     _scaffoldKey.currentState.showSnackBar(
       new SnackBar(

@@ -128,14 +128,12 @@ class _SelectGame extends State<SelectGame> {
       height: heightCard = screenSize.width / numberOfCard,
       child: new GestureDetector(
         onTap: () async {
-          if (visible_swim) {
-            data_swim = await db.getScore(user.userId, ID_SWIMMER_ACTIVITY);
+          data_swim = await db.getScore(user.userId, ID_SWIMMER_ACTIVITY);
 
-            if (data_swim.length > 0) {
-              lauchGame(ID_SWIMMER_ACTIVITY);
-            } else {
-              launcherDialog(ID_SWIMMER_ACTIVITY);
-            }
+          if (data_swim.length > 0) {
+            lauchGame(ID_SWIMMER_ACTIVITY);
+          } else {
+            launcherDialog(ID_SWIMMER_ACTIVITY);
           }
         },
         child: new Card(
@@ -149,7 +147,7 @@ class _SelectGame extends State<SelectGame> {
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: Stack(
                 children: <Widget>[
-                  AnimatedOpacity(
+/*                  AnimatedOpacity(
                     duration: Duration(milliseconds: 1000),
                     opacity: !visible_swim ? 1.0 : 0.0,
                     child: !visible_swim
@@ -195,57 +193,51 @@ class _SelectGame extends State<SelectGame> {
                             ],
                           )
                         : Container(),
-                  ),
+                  ),*/
                   AnimatedOpacity(
                       duration: Duration(milliseconds: 1000),
-                      opacity: visible_swim ? 1.0 : 0.0,
-                      child: visible_swim
-                          ? Column(
-                              children: <Widget>[
-                                Container(
-                                  alignment: Alignment.topCenter,
-                                  child: Image.asset(
-                                    'assets/swim.png',
-                                    width: widthCard * 0.6,
-                                    height: heightCard * 0.6,
-                                  ),
-                                ),
-                                Container(
-                                  alignment: Alignment.bottomCenter,
-                                  child: FlatButton.icon(
-                                    label: temp != null
-                                        ? Text(
-                                            AppLocalizations.of(context)
-                                                .translate('nageur'),
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 24,
-                                            ),
-                                          )
-                                        : Text(
-                                            "Check Language file (en/fr.json)"),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(50),
-                                    ),
-                                    icon: Icon(
-                                      Icons.info_outline,
-                                      color: Colors.black,
-                                    ),
-                                    splashColor: Colors.blue,
-                                    onPressed: () {
-                                      if (mounted)
-                                        setState(() {
-                                          visible_swim = !visible_swim;
-                                          !visible_swim
-                                              ? colorCard_swim = Colors.white70
-                                              : colorCard_swim = Colors.white;
-                                        });
-                                    },
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Container()),
+                      opacity: visible_swim ? 1.0 : 1.0,
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            alignment: Alignment.topCenter,
+                            child: Image.asset(
+                              'assets/swim.png',
+                              width: widthCard * 0.6,
+                              height: heightCard * 0.6,
+                            ),
+                          ),
+                          Container(
+                            alignment: Alignment.bottomCenter,
+                            child: FlatButton.icon(
+                              label: temp != null
+                                  ? Text(
+                                      AppLocalizations.of(context)
+                                          .translate('nageur'),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 24,
+                                      ),
+                                    )
+                                  : Text("Check Language file (en/fr.json)"),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              icon: Icon(
+                                Icons.info_outline,
+                                color: Colors.black,
+                              ),
+                              splashColor: Colors.blue,
+                              onPressed: () {
+                                if (mounted)
+                                  setState(() {
+                                    launcherDialog(ID_SWIMMER_ACTIVITY);
+                                  });
+                              },
+                            ),
+                          ),
+                        ],
+                      )),
                 ],
               ),
             ),
@@ -262,14 +254,12 @@ class _SelectGame extends State<SelectGame> {
       height: heightCard = screenSize.width / numberOfCard,
       child: new GestureDetector(
         onTap: () async {
-          if (visible_plane) {
-            data_plane = await db.getScore(user.userId, ID_PLANE_ACTIVITY);
+          data_plane = await db.getScore(user.userId, ID_PLANE_ACTIVITY);
 
-            if (data_plane.length > 0) {
-              lauchGame(ID_PLANE_ACTIVITY);
-            } else {
-              launcherDialog(ID_PLANE_ACTIVITY);
-            }
+          if (data_plane.length > 0) {
+            lauchGame(ID_PLANE_ACTIVITY);
+          } else {
+            launcherDialog(ID_PLANE_ACTIVITY);
           }
         },
         child: new Card(
@@ -283,6 +273,7 @@ class _SelectGame extends State<SelectGame> {
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: Stack(
                 children: <Widget>[
+                  /*
                   AnimatedOpacity(
                     duration: Duration(milliseconds: 1000),
                     opacity: !visible_plane ? 1.0 : 0.0,
@@ -318,6 +309,7 @@ class _SelectGame extends State<SelectGame> {
                                   onPressed: () {
                                     if (mounted)
                                       setState(() {
+
                                         visible_plane = !visible_plane;
                                         !visible_plane
                                             ? colorCard_plane = Colors.white70
@@ -329,59 +321,57 @@ class _SelectGame extends State<SelectGame> {
                             ],
                           )
                         : Container(),
-                  ),
+                  ),*/
                   AnimatedOpacity(
                     duration: Duration(milliseconds: 1000),
-                    opacity: visible_plane ? 1.0 : 0.0,
-                    child: visible_plane
-                        ? Column(
-                            children: <Widget>[
-                              Container(
-                                alignment: Alignment.topCenter,
-                                child: Image.asset(
-                                  'assets/plane.png',
-                                  width: widthCard * 0.6,
-                                  height: heightCard * 0.6,
-                                ),
-                              ),
-                              Container(
-                                alignment: Alignment.bottomCenter,
-                                child: FlatButton.icon(
-                                  label: temp != null
-                                      ? Text(
-                                          AppLocalizations.of(context)
-                                              .translate('avion'),
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 24,
-                                          ),
-                                        )
-                                      : Text(
-                                          "Check Language file (en/fr.json)"),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(50),
-                                  ),
-                                  icon: Icon(
-                                    Icons.info_outline,
-                                    color: Colors.black,
-                                  ),
-                                  splashColor: Colors.blue,
-                                  onPressed: () {
-                                    if (mounted)
-                                      setState(
-                                        () {
-                                          visible_plane = !visible_plane;
+                    opacity: !visible_plane ? 1.0 : 1.0,
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          alignment: Alignment.topCenter,
+                          child: Image.asset(
+                            'assets/plane.png',
+                            width: widthCard * 0.6,
+                            height: heightCard * 0.6,
+                          ),
+                        ),
+                        Container(
+                          alignment: Alignment.bottomCenter,
+                          child: FlatButton.icon(
+                            label: temp != null
+                                ? Text(
+                                    AppLocalizations.of(context)
+                                        .translate('avion'),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 24,
+                                    ),
+                                  )
+                                : Text("Check Language file (en/fr.json)"),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            icon: Icon(
+                              Icons.info_outline,
+                              color: Colors.black,
+                            ),
+                            splashColor: Colors.blue,
+                            onPressed: () {
+                              if (mounted)
+                                setState(
+                                  () {
+                                    launcherDialog(ID_PLANE_ACTIVITY);
+                                    /*visible_plane = !visible_plane;
                                           !visible_plane
                                               ? colorCard_plane = Colors.white70
-                                              : colorCard_plane = Colors.white;
-                                        },
-                                      );
+                                              : colorCard_plane = Colors.white;*/
                                   },
-                                ),
-                              ),
-                            ],
-                          )
-                        : Container(),
+                                );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
