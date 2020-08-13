@@ -349,7 +349,8 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                   ? game.getGameOver()
                       ? gameUI.state.displayMessage(
                           AppLocalizations.of(context).translate('game_over'),
-                          game)
+                          game,
+                  Colors.redAccent)
                       : Container()
                   : Container(),
             ),
@@ -361,7 +362,8 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                       ? gameUI.state.displayMessage(
                           AppLocalizations.of(context)
                               .translate('connexion_perdue'),
-                          game)
+                          game,
+                  Colors.redAccent)
                       : Container()
                   : Container(),
             ), /*

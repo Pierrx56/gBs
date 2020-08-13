@@ -138,13 +138,13 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget displayMessage(String message, PlaneGame game) {
+  Widget displayMessage(String message, PlaneGame game, Color color) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
         alignment: Alignment.topCenter,
         decoration: new BoxDecoration(
-            color: Colors.blue.withAlpha(150),
+            color: color.withAlpha(150),//Colors.blue.withAlpha(150),
             //new Color.fromRGBO(255, 0, 0, 0.0),
             borderRadius: new BorderRadius.only(
                 topLeft: const Radius.circular(20.0),

@@ -76,19 +76,21 @@ class UIState extends State<UI> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            AutoSizeText(
-              "$message",
-              maxLines: 3,
-              style: TextStyle(
-                fontSize: 70,
-                color: Colors.black,
-                shadows: <Shadow>[
-                  Shadow(
-                    color: Color(0x88000000),
-                    blurRadius: 10,
-                    offset: Offset(2, 2),
-                  ),
-                ],
+            FittedBox(
+              fit: BoxFit.fitWidth,
+              child: Text(
+                "$message",
+                style: TextStyle(
+                  fontSize: 70,
+                  color: Colors.black,
+                  shadows: <Shadow>[
+                    Shadow(
+                      color: Color(0x88000000),
+                      blurRadius: 10,
+                      offset: Offset(2, 2),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

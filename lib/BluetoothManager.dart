@@ -87,14 +87,19 @@ class BluetoothManager {
   //Fonction pour récupérer l'adresse mac de l'appareil bluetooth
   Future<String> getPairedDevices(String serialNumber) async {
     String pairedDevices;
-    try {
-      final String paired = await sensorChannel
-          .invokeMethod('getPairedDevices,${"gBs" + serialNumber}');
-      pairedDevices = 'Devices paired: $paired.';
-      print(pairedDevices);
-      macAddress = paired;
-    } on PlatformException {
-      pairedDevices = 'Failed to get paired devices.';
+
+    if (await enableBluetooth()) {
+      return "";
+    } else {
+      try {
+        final String paired = await sensorChannel
+            .invokeMethod('getPairedDevices,${"gBs" + serialNumber}');
+        pairedDevices = 'Devices paired: $paired.';
+        print(pairedDevices);
+        macAddress = paired;
+      } on PlatformException {
+        pairedDevices = 'Failed to get paired devices.';
+      }
     }
 
     return macAddress;
