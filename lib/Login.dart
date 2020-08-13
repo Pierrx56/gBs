@@ -3,6 +3,8 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:provider/provider.dart';
@@ -60,7 +62,7 @@ class LoginWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     var appLanguage = Provider.of<AppLanguage>(context);
-
+    double tempWidth, tempHeight = 0.0;
     return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -177,15 +179,23 @@ class LoginWidget extends StatelessWidget {
                                 padding: EdgeInsets.all(12.0),
                                 child: Row(
                                   children: <Widget>[
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: Image.file(
-                                        File(snapshot.data[index - 1].userPic),
-                                        height: screenSize.height * 0.3,
-                                        width: screenSize.width * 0.3,
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: <Widget>[
+                                      Container(
+                                        height: tempHeight = screenSize.height * 0.3,
+                                        width: tempWidth = screenSize.width * 0.3,
                                       ),
-                                    ),
-                                    //Text(AppLocalizations.of(context).translate('profil_existant') + ": "),
+                                      //Text(AppLocalizations.of(context).translate('profil_existant') + ": "),
+                                      ClipRRect(
+                                        borderRadius:
+                                        BorderRadius.circular(8.0),
+                                        child: Image.file(
+                                          File(
+                                              snapshot.data[index - 1].userPic),
+                                        ),
+                                      ),
+                                    ],),
                                     Text(
                                       item.userName,
                                       style: textStyle,
@@ -261,5 +271,4 @@ class LoginWidget extends StatelessWidget {
           ],
         ));
   }
-
 }
