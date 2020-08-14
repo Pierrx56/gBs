@@ -85,7 +85,7 @@ class BluetoothManager {
   }
 
   //Fonction pour récupérer l'adresse mac de l'appareil bluetooth
-  Future<String> getPairedDevices(String serialNumber) async {
+  Future<String> getDevice(String serialNumber) async {
     String pairedDevices;
 
     if (await enableBluetooth()) {

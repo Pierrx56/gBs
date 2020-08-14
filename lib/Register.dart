@@ -586,7 +586,7 @@ class _Register extends State<Register> {
                     ),
                     onPressed: !isFound && serialNumber.text.length >= 8
                         ? () async {
-                            macAddress = await btManage.getPairedDevices(
+                            macAddress = await btManage.getDevice(
                                 serialNumber.text
                                     .toUpperCase()
                                     .replaceAll(" ", ""));
@@ -600,7 +600,7 @@ class _Register extends State<Register> {
                             Timer.periodic(const Duration(seconds: 1),
                                 (timer) async {
                               if (macAddress == "0") {
-                                macAddress = await btManage.getPairedDevices(
+                                macAddress = await btManage.getDevice(
                                     serialNumber.text
                                         .toUpperCase()
                                         .replaceAll(" ", ""));
