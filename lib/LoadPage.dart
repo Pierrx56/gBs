@@ -17,6 +17,7 @@ import 'package:gbsalternative/Register.dart';
 import 'package:gbsalternative/SelectGame.dart';
 import 'package:gbsalternative/SelectStatistic.dart';
 import 'package:gbsalternative/Swimmer/Swimmer.dart';
+import 'package:gbsalternative/TempGame/Temp.dart';
 import 'package:provider/provider.dart';
 
 //Déclaration du nom des pages
@@ -27,6 +28,7 @@ String login = "Login";
 String mainTitle = "MainTitle";
 String manageProfile = "ManageProfile";
 String plane = "Plane";
+String temp = "Temp";
 String register = "Register";
 String selectGame = "SelectGame";
 String selectStatistic = "SelectStatistic";
@@ -102,7 +104,8 @@ class _LoadPage extends State<LoadPage> {
             page == register ? Register(appLanguage: appLanguage):
             page == selectGame ? SelectGame(appLanguage: appLanguage, user: user, inputMessage: messageIn):
             page == selectStatistic ? SelectStatistic(appLanguage: appLanguage, user: user, inputMessage: messageIn):
-            page == swimmer ? Swimmer(user: user, appLanguage: appLanguage): Container()
+            page == swimmer ? Swimmer(user: user, appLanguage: appLanguage):
+            page == temp ? Temp(user: user, appLanguage: appLanguage): Container()
         );
       }),
     );

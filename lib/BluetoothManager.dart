@@ -75,7 +75,7 @@ class BluetoothManager {
     else if (Platform.isIOS) {
       final bool isOn = await sensorChannel.invokeMethod('getBLEState');
       if (!isOn) {
-        //print("issOFFFFF");
+        //print("isOFFFFF");
         return true;
       } else {
         //print("isOOONNNNN");
@@ -189,105 +189,6 @@ class BluetoothManager {
     //print("Résultat: $tempResult");
     return tempResult.toString();
   }
-
-/*
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      supportedLocales: [
-        Locale('en', 'US'),
-        Locale('fr', 'FR'),
-      ],
-      localizationsDelegates: [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      home: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          //title: Text(AppLocalization.of(context).heyWorld),
-          title: Text("Appairer/connecter son apprareil"),
-          backgroundColor: Colors.blue,
-          actions: <Widget>[
-            FlatButton.icon(
-              icon: Icon(
-                Icons.refresh,
-                color: Colors.white,
-              ),
-              label: Text(
-                "Refresh",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              splashColor: Colors.blue,
-              onPressed: () async {
-                // So, that when new devices are paired
-                // while the app is running, user can refresh
-                // the paired devices list.
-                getPairedDevices("");
-              },
-            ),
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(_pairedDevices),
-                  RaisedButton(
-                    onPressed: () {
-                      getPairedDevices("BluetoothManager");
-                    },
-                    child: Text("Get Devices"),
-                  ),
-                  RaisedButton(
-                    onPressed: () {
-                      connect("BluetoothManager");
-                    },
-                    child: Text("Connect Device"),
-                  ),
-                  */
-/*
-                  RaisedButton(
-                    onPressed: () {
-                      isRunning = true;
-                      startDataReceiver();
-                    },
-                    child: Text("Get Data"),
-                  ),
-                  RaisedButton(
-                    onPressed: () {
-                      isRunning = false;
-                      disconnect();
-                    },
-                    child: Text("Disconnect"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: RaisedButton(
-                      child: const Text('Refresh'),
-                      onPressed: () {},
-                    ),
-                  ),*/ /*
-                ],
-              ),
-              Text(_connectDevices),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-*/
-
   // Method to show a Snackbar,
   // taking message as the text
   Future show(

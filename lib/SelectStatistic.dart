@@ -387,76 +387,79 @@ class _SelectStatistic extends State<SelectStatistic> {
           backgroundColor: Colors.blue,
           actions: <Widget>[],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
+        body: Container(
+          height: screenSize.height,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
 
 
-                  Stack(children: <Widget>[
-                    swimStat(),
-                    Container(
-                      width: screenSize.width/2,
-                      height: screenSize.width/numberOfCard,
-                      child: GestureDetector(
-                        onTap: (){
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoadPage(
-                                appLanguage: appLanguage,
-                                page: detailsCharts,
-                                user: user,
-                                messageIn: "$ID_SWIMMER_ACTIVITY",
-                                scores: dataSwim,
+                    Stack(children: <Widget>[
+                      swimStat(),
+                      Container(
+                        width: screenSize.width/2,
+                        height: screenSize.width/numberOfCard,
+                        child: GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoadPage(
+                                  appLanguage: appLanguage,
+                                  page: detailsCharts,
+                                  user: user,
+                                  messageIn: "$ID_SWIMMER_ACTIVITY",
+                                  scores: dataSwim,
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],),
+                    ],),
 
-                  Stack(children: <Widget>[
-                    planeStat(),
-                    Container(
-                      width: screenSize.width/2,
-                      height: screenSize.width/numberOfCard,
-                      child: GestureDetector(
-                        onTap: (){
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoadPage(
-                                appLanguage: appLanguage,
-                                page: detailsCharts,
-                                user: user,
-                                messageIn: "$ID_PLANE_ACTIVITY",
-                                scores: dataPlane,
+                    Stack(children: <Widget>[
+                      planeStat(),
+                      Container(
+                        width: screenSize.width/2,
+                        height: screenSize.width/numberOfCard,
+                        child: GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoadPage(
+                                  appLanguage: appLanguage,
+                                  page: detailsCharts,
+                                  user: user,
+                                  messageIn: "$ID_PLANE_ACTIVITY",
+                                  scores: dataPlane,
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],),
+                    ],),
 
-                ],
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  //swimmerGame(),
-                  backCard(),
-                ],
-              ),
-            ],
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    //swimmerGame(),
+                    backCard(),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
