@@ -504,7 +504,7 @@ class _MainTitle extends State<MainTitle> {
                                         child: Container(
                                           alignment: Alignment.center,
                                           child: Image.asset(
-                                            'assets/swim.png',
+                                            'assets/temp.png',
                                             width: widthCard / 4,
                                             height: heightCard / 4,
                                           ),

@@ -3,13 +3,13 @@ import 'dart:ui';
 import 'package:flame/sprite.dart';
 import 'package:gbsalternative/Plane/PlaneGame.dart';
 
-double j = 0;
-double backgroundSpeed = 0.1;
-
 class Background {
   final PlaneGame game;
   Sprite bgSprite;
   Rect bgRect;
+
+  double j = 0;
+  double backgroundSpeed = 0.1;
 
   Background(this.game) {
     bgSprite = Sprite('plane/background.png');

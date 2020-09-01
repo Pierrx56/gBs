@@ -11,14 +11,16 @@ import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/TempGame/Background.dart';
 import 'package:gbsalternative/TempGame/Ui.dart';
-import 'package:gbsalternative/TempGame/WaterLines.dart';
+import 'package:gbsalternative/TempGame/Floor.dart';
+import 'package:flame/animation.dart'
+    as animation; // imports the Animation class under animation.Animation
+import 'package:flame/position.dart' as position; // imports the Position class
 
 class TempGame extends Game {
   Size screenSize;
   bool inTouch = false;
   Background background;
-  BottomLine bottomLine;
-  TopLine topLine;
+  BottomFloor bottomFloor;
   SpriteComponent swimmer;
   double tileSize;
   bool redFilter;
@@ -27,54 +29,64 @@ class TempGame extends Game {
   bool isConnected;
   int counterHigh;
   bool isTooHigh;
+  bool isInit;
+
+  //Red Player
+  bool isWaiting;
+  bool isRunning;
+  bool isJumping;
 
   int score = 0;
   bool pauseGame = false;
+  bool isMoving = false;
   bool posMax;
   String swimmerPic;
   double creationTimer = 0.0;
   double scoreTimer = 0.0;
-  double tempPos = 0;
+  double tempPosY = 0;
+  double tempPosX = 0;
   double pos = 0;
   int i = 0;
   double difficulte = 0.50;
 
-  double size = 230.0;
-  List<String> tab = [
-    'swimmer/swim0.png',
-    'swimmer/swim1.png',
-    'swimmer/swim2.png',
-    'swimmer/swim3.png',
-    'swimmer/swim4.png',
-    'swimmer/swim5.png',
-    'swimmer/swim6.png',
-    'swimmer/swim7.png',
-    'swimmer/swim8.png',
-    'swimmer/swim9.png',
-    'swimmer/swim10.png',
-    'swimmer/swim11.png',
-    'swimmer/swim12.png',
-    'swimmer/swim13.png',
-    'swimmer/swim14.png',
-    'swimmer/swim15.png',
-    'swimmer/swim16.png',
-    'swimmer/swim17.png',
-    'swimmer/swim18.png',
-    'swimmer/swim19.png',
-    'swimmer/swim20.png',
-    'swimmer/swim21.png',
-    'swimmer/swim22.png',
-    'swimmer/swim23.png'
+  double size = 100.0;
+  static List<String> run = [
+    'temp/run1.png',
+    'temp/run2.png',
+    'temp/run3.png',
+    'temp/run4.png',
+    'temp/run5.png',
+    'temp/run6.png',
+    'temp/run7.png',
+    'temp/run8.png',
+    'temp/run9.png',
+    'temp/run10.png',
+    'temp/run11.png',
+    'temp/run12.png',
+    'temp/run13.png',
+    'temp/run14.png',
+    'temp/run15.png',
+    'temp/run16.png',
+    'temp/run17.png',
+    'temp/run18.png'
   ];
+
+  static List<String> jump = ['temp/jump1.png', 'temp/jump2.png'];
+
+  static List<String> waiting = [
+    'temp/run1.png',];
+
+  List<List<String>> tab = [jump, run, waiting];
 
   double Function() getData;
   User user;
-  int j = 0;
+  int j = 1;
   double posBottomLine;
   double posTopLine;
   bool isTopPosition;
   UI gameUI;
   AppLanguage appLanguage;
+  animation.Animation a;
 
   TempGame(this.getData, User _user, AppLanguage _appLanguage) {
     user = _user;
@@ -85,8 +97,7 @@ class TempGame extends Game {
   void initialize() async {
     resize(await Flame.util.initialDimensions());
     background = Background(this);
-    bottomLine = BottomLine(this);
-    topLine = TopLine(this);
+    bottomFloor = BottomFloor(this);
     gameUI = UI();
 
     isTooHigh = false;
@@ -97,8 +108,13 @@ class TempGame extends Game {
     isConnected = true;
     start = false;
     redFilter = false;
-    posBottomLine = bottomLine.getDownPosition();
-    posTopLine = bottomLine.getDownPosition();
+    isInit = false;
+    posBottomLine = bottomFloor.getDownPosition();
+    posTopLine = bottomFloor.getDownPosition();
+
+    isWaiting = false;
+    isRunning = true;
+    isJumping = false;
   }
 
   void render(Canvas canvas) {
@@ -123,28 +139,28 @@ class TempGame extends Game {
 
     if (canvas != null) {
       //Background
-      if (background != null) background.render(canvas);
+      if (background != null) background.render(canvas, pauseGame);
 
       canvas.save();
 
       if (!gameOver) {
         if (isConnected) {
           //Ligne basse
-          if (bottomLine != null) bottomLine.render(canvas, pauseGame);
+          if (bottomFloor != null)
+            bottomFloor.render(canvas, pauseGame, isMoving);
 
-          //Ligne haute
-          if (topLine != null) topLine.render(canvas);
-
-          //Nageur
+          //Bonhomme rouge
           if (swimmer != null) {
             swimmer.render(canvas);
 
             pos = swimmer.y + swimmer.height / 2;
             //print("Position joueur: " + tempPos.toString());
+
           }
 
           //Conditions de défaite
-          if (pos < bottomLine.getDownPosition()) {
+          //N'a pas poussé assez et est tombé dans le vide
+          if (pos < bottomFloor.getDownPosition()) {
             //print("Attention au bord bas !");
             //setColorFilter(true);
             isTopPosition = true;
@@ -152,23 +168,15 @@ class TempGame extends Game {
             if (!start) {
               counterHigh++;
               //Si le joueur pousse trop fort 5 fois dans le jeu, on demande à ce qu'il réajuste la toise
-              if(counterHigh > 5) {
+              if (counterHigh > 5) {
                 isTooHigh = true;
                 pauseGame = true;
-              }
-              else {
+              } else {
                 isTooHigh = false;
                 pauseGame = false;
               }
 
               startTimer(start = true, 10.0);
-            }
-          } else if (pos > topLine.getUpPosition()) {
-            //print("Attention au bord haut !");
-            //setColorFilter(true);
-            isTopPosition = false;
-            if (!start) {
-              startTimer(start = true, 5.0);
             }
           } else {
             setColorFilter(false);
@@ -191,17 +199,26 @@ class TempGame extends Game {
 
       if (isConnected) {
         //Timer
-        if (creationTimer >= 0.04) {
-          if (i == tab.length - 1)
+        if (creationTimer >= 0.02) {
+          if (i == tab[j].length - 1)
             i = 0;
-          else if(pauseGame);
+          else if (pauseGame)
+            ;
           else
             i++;
 
-
           //if (pauseGame) i--;
 
-          swimmerPic = tab[i];
+          if (isJumping) {
+            swimmerPic = jump[i];
+            j = 0;
+          } else if (isRunning) {
+            swimmerPic = run[i];
+            j = 1;
+          } else if (isWaiting) {
+            swimmerPic = waiting[i];
+            j = 2;
+          }
 
           creationTimer = 0.0;
 
@@ -209,31 +226,44 @@ class TempGame extends Game {
 
           swimmer = SpriteComponent.fromSprite(
               size, size, sprite); // width, height, sprite
+          swimmer.x = tempPosX;
 
-          //Centrage du nageur en abscisses
-          swimmer.x = screenSize.width / 2 - swimmer.width / 2;
+          if (!isInit) {
+            //Centrage du nageur en abscisses
+            swimmer.x = -10;
 
+            tempPosX = swimmer.x;
+            //Centrage du nageur en ordonnées
+            swimmer.y = screenSize.height - (size) - grassSize;
+
+            isInit = true;
+          }
+
+          if (!pauseGame) {
+            if (tempPosX < (screenSize.width - size) / 2) {
+              tempPosX += 3;
+              swimmer.x = tempPosX;
+            }
+            //Si le joueur atteint la moitié de l'écran, la "caméra" suit le joueur au centre de l'écran
+            else
+              isMoving = true;
+          }
           //Définition des bords haut et bas de l'écran
 
           //Bas
-          if (tempPos >= screenSize.height - (size / 2)) {
-            swimmer.y = tempPos;
+          //Premier étage d'herbe
+          if (tempPosY >= screenSize.height - (size) - grassSize) {
+            swimmer.y = tempPosY;
           }
-          //Haut
-          else if (tempPos <= -(size / 2) &&
-              getData() > double.parse(user.userInitialPush)) {
-            tempPos = -(size / 2);
-            swimmer.y = tempPos;
-            posMax = true;
-          }
+
           //Sinon on fait descendre le nageur
           else if (!posMax) {
-            swimmer.y += tempPos;
-            tempPos = swimmer.y + difficulte * 4.0;
-            if (pauseGame) tempPos = swimmer.y;
+            swimmer.y += tempPosY;
+            tempPosY = swimmer.y + difficulte * 4.0;
+            if (pauseGame) tempPosY = swimmer.y;
           } else {
             if (swimmer.y == 0.0) {
-              swimmer.y = tempPos;
+              swimmer.y = tempPosY;
             }
             posMax = false;
           }
@@ -255,7 +285,7 @@ class TempGame extends Game {
               swimmer != null) {
             //print(swimmer.y);
             swimmer.y -= difficulte;
-            tempPos = swimmer.y;
+            tempPosY = swimmer.y;
             inTouch = false;
           }
 
@@ -272,6 +302,30 @@ class TempGame extends Game {
       }
     }
     //super.update(t);
+  }
+
+  void setPlayerState(int state) {
+    if (state == 0) {
+      isJumping = true;
+      isRunning = false;
+      isWaiting = false;
+      j = 0;
+      i = 0;
+    }
+    if (state == 1) {
+      isJumping = false;
+      isRunning = true;
+      isWaiting = false;
+      j = 1;
+      i = 0;
+    }
+    if (state == 2) {
+      isJumping = false;
+      isRunning = false;
+      isWaiting = true;
+      j = 2;
+      i = 0;
+    }
   }
 
   void resize(Size size) {
@@ -324,10 +378,9 @@ class TempGame extends Game {
     return isTopPosition;
   }
 
-  bool getPauseStatus(){
+  bool getPauseStatus() {
     return pauseGame;
   }
-
 
   void startTimer(bool isStarted, double _start) async {
     Timer _timer;
@@ -351,7 +404,7 @@ class TempGame extends Game {
               setColorFilter(true);
               timer.cancel();
               gameOver = true;
-            } else if(!pauseGame){
+            } else if (!pauseGame) {
               setColorFilter(!redFilter);
               _start = _start - 0.5;
               print(_start);

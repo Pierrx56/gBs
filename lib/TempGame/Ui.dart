@@ -14,7 +14,7 @@ import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/TempGame/TempGame.dart';
 import 'package:intl/intl.dart';
 
-int ACTIVITY_NUMBER = 0;
+int ACTIVITY_NUMBER = 2;
 
 class UI extends StatefulWidget {
   final UIState state = UIState();
@@ -221,7 +221,7 @@ class UIState extends State<UI> {
                     builder: (context) => LoadPage(
                           messageIn: "",
                           appLanguage: appLanguage,
-                          page: swimmer,
+                          page: temp,
                           user: user,
                         )));
           },

@@ -34,8 +34,7 @@ class Temp extends StatefulWidget {
   final User user;
   final AppLanguage appLanguage;
 
-  Temp({Key key, @required this.user, @required this.appLanguage})
-      : super(key: key);
+  Temp({@required this.user, @required this.appLanguage});
 
   @override
   _Temp createState() => new _Temp(user, appLanguage);
@@ -253,6 +252,8 @@ class _Temp extends State<Temp> {
                         : gameUI.state.closeButton(
                         context, appLanguage, user, game.getScore()),
                   ),*/
+
+
                 game != null
                     ? !game.pauseGame &&
                             !game.getGameOver() &&
@@ -285,13 +286,13 @@ class _Temp extends State<Temp> {
             ),
           ),
           //Display message pour afficher score
-          Container(
+          /*Container(
             alignment: Alignment.bottomLeft,
             padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
             child: game == null
                 ? Container()
                 : gameUI.state.displayScore(context, appLanguage, score),
-          ),
+          ),*/
           //Display message pour relancher
           Container(
             alignment: Alignment.bottomCenter,
