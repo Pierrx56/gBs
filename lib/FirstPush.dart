@@ -100,6 +100,8 @@ class _FirstPush extends State<FirstPush> {
   void initState() {
     super.initState();
     btData = "0.0";
+
+    print(inputMessage);
     connect();
   }
 
@@ -145,18 +147,16 @@ class _FirstPush extends State<FirstPush> {
     btData = await btManage.getData();
   }
 
-
-  Future<bool> _onBackPressed(){
-
+  Future<bool> _onBackPressed() {
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) => LoadPage(
-              user: user,
-              appLanguage: appLanguage,
-              messageIn: "",
-              page: login,
-            )));
+                  user: user,
+                  appLanguage: appLanguage,
+                  messageIn: "0",
+                  page: login,
+                )));
   }
 
   @override
@@ -185,8 +185,7 @@ class _FirstPush extends State<FirstPush> {
           appBar: AppBar(
             //title: Text(AppLocalization.of(context).heyWorld),
 
-            title:
-                Text(AppLocalizations.of(context).translate('poussee_max')),
+            title: Text(AppLocalizations.of(context).translate('poussee_max')),
             backgroundColor: Colors.blue,
             actions: <Widget>[],
           ),
@@ -269,7 +268,8 @@ class _FirstPush extends State<FirstPush> {
                         children: <Widget>[
                           RaisedButton(
                             //child: Text("Démarrer l'enregistrement."),
-                            onPressed: !isCorrect || user.userInitialPush != "0.0"
+                            onPressed: !isCorrect ||
+                                    user.userInitialPush != "0.0"
                                 ? () async {
                                     colorMesureButton = Colors.black;
                                     const oneSec =
@@ -282,7 +282,8 @@ class _FirstPush extends State<FirstPush> {
                                             timer.cancel();
                                             _start = _reset;
                                             result = double.parse(
-                                                (average.reduce((a, b) => a + b) /
+                                                (average.reduce(
+                                                            (a, b) => a + b) /
                                                         average.length)
                                                     .toStringAsFixed(2));
                                             print(result.toStringAsFixed(2));
@@ -299,11 +300,12 @@ class _FirstPush extends State<FirstPush> {
                                               });
                                             } else {
                                               setState(() {
-                                                colorMesureButton = Colors.green;
-                                                recording =
-                                                    AppLocalizations.of(context)
-                                                        .translate(
-                                                            'status_mesure_bon');
+                                                colorMesureButton =
+                                                    Colors.green;
+                                                recording = AppLocalizations.of(
+                                                        context)
+                                                    .translate(
+                                                        'status_mesure_bon');
                                               });
                                               isCorrect = true;
                                               //update poussée
@@ -312,7 +314,8 @@ class _FirstPush extends State<FirstPush> {
                                                 userName: user.userName,
                                                 userMode: user.userMode,
                                                 userPic: user.userPic,
-                                                userHeightTop: user.userHeightTop,
+                                                userHeightTop:
+                                                    user.userHeightTop,
                                                 userHeightBottom:
                                                     user.userHeightBottom,
                                                 userInitialPush: result
@@ -332,8 +335,11 @@ class _FirstPush extends State<FirstPush> {
                                                 time,
                                                 (Timer timer) {
                                                   if (countdown < 1) {
-                                                    //TODO Display menu ?
+
                                                     timer.cancel();
+                                                    if(inputMessage != "fromRegister")
+                                                      inputMessage = "0";
+
                                                     Navigator.pushReplacement(
                                                       context,
                                                       MaterialPageRoute(
@@ -343,7 +349,8 @@ class _FirstPush extends State<FirstPush> {
                                                                     updatedUser,
                                                                 appLanguage:
                                                                     appLanguage,
-                                                                messageIn: 0),
+                                                                messageIn: inputMessage),
+                                                        //inputMessage == "fromRegister" ? "fromRegister" :
                                                       ),
                                                     );
                                                   } else {
@@ -369,7 +376,8 @@ class _FirstPush extends State<FirstPush> {
                                                   });*/
                                             }
                                           } else {
-                                            recording = _start.toStringAsFixed(1);
+                                            recording =
+                                                _start.toStringAsFixed(1);
                                             _start = _start - 0.1;
                                             i--;
                                             getData();
@@ -382,7 +390,8 @@ class _FirstPush extends State<FirstPush> {
                                               });
                                             } else {
                                               setState(() {
-                                                colorMesureButton = Colors.green;
+                                                colorMesureButton =
+                                                    Colors.green;
                                                 colorProgressBar = Colors.green;
                                               });
                                             }

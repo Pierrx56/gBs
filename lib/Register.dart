@@ -172,11 +172,11 @@ class _Register extends State<Register> {
 
       if (!isConnected) {
         setState(() {
-          isFound = false;
-          discovering =
-              AppLocalizations.of(this.context).translate('connecter_app');
+          //isFound = false;
+          //discovering = AppLocalizations.of(this.context).translate('connecter_app');
         });
-        show(AppLocalizations.of(this.context).translate('connexion_perdue'));
+        //show(AppLocalizations.of(this.context).translate('connexion_perdue'));
+        connect();
         timerConnexion.cancel();
       }
     });
@@ -508,57 +508,60 @@ class _Register extends State<Register> {
         title: Text(AppLocalizations.of(context).translate('select_image')),
         isActive: currentStep > 4,
         state: currentStep > 4 ? StepState.complete : StepState.disabled,
-        content:
-            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <
-                Widget>[
-          //showImage(),
-          //Image(image: AssetImage(_path)),
-          Center(
-              child: imageFile == null
-                  ? Image.asset(
-                      'assets/default.png',
-                      width: screenSize.width * 0.2,
-                    )
-                  : Image.file(File(_pathSaved), width: screenSize.width * 0.2)
-              //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
-              ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              RaisedButton(
-                child: Row(
-                  children: <Widget>[
-                    Icon(Icons.image),
-                    Text(" " +
-                        AppLocalizations.of(context).translate('select_image')),
-                  ],
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            //showImage(),
+            //Image(image: AssetImage(_path)),
+            Center(
+                child: imageFile == null
+                    ? Image.asset(
+                        'assets/default.png',
+                        width: screenSize.width * 0.2,
+                      )
+                    : Image.file(File(_pathSaved),
+                        width: screenSize.width * 0.2)
+                //Image.file(imageFile, width: screenHeight * 0.6, height: screenHeight*0.6,),
                 ),
-                onPressed: () {
-                  pickImage(ImageSource.gallery);
-                },
-                textColor: colorButton,
-              ),
-              Padding(
-                padding: EdgeInsets.all(10),
-              ),
-              RaisedButton(
-                child: Row(
-                  children: <Widget>[
-                    Icon(Icons.camera_alt),
-                    Text(" " +
-                        AppLocalizations.of(context)
-                            .translate('prendre_photo')),
-                  ],
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                RaisedButton(
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.image),
+                      Text(" " +
+                          AppLocalizations.of(context)
+                              .translate('select_image')),
+                    ],
+                  ),
+                  onPressed: () {
+                    pickImage(ImageSource.gallery);
+                  },
+                  textColor: colorButton,
                 ),
-                onPressed: () {
-                  pickImage(ImageSource.camera);
-                },
-                textColor: colorButton,
-              ),
-            ],
-          ),
-        ]),
+                Padding(
+                  padding: EdgeInsets.all(10),
+                ),
+                RaisedButton(
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.camera_alt),
+                      Text(" " +
+                          AppLocalizations.of(context)
+                              .translate('prendre_photo')),
+                    ],
+                  ),
+                  onPressed: () {
+                    pickImage(ImageSource.camera);
+                  },
+                  textColor: colorButton,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
       Step(
         title: Text(AppLocalizations.of(context).translate('connecter_app')),
@@ -586,13 +589,14 @@ class _Register extends State<Register> {
                     ),
                     onPressed: !isFound && serialNumber.text.length >= 8
                         ? () async {
-                            macAddress = await btManage.getDevice(
-                                serialNumber.text
-                                    .toUpperCase()
-                                    .replaceAll(" ", ""));
-
-                            print(
-                                "MAC ADREEEEEEEEEEEEEEEEEEEEEEEEEEEEESS: $macAddress");
+                            //On met isFound à true pour désactiver l'appuie du bouton
+                            setState(() {
+                              isFound = true;
+                            });
+                            macAddress = await btManage.getDevice(serialNumber
+                                .text
+                                .toUpperCase()
+                                .replaceAll(" ", ""));
 
                             int tempTimer = 0;
                             //Check tant que l'adresse mac est égale à -1 toute les secondes
@@ -648,7 +652,7 @@ class _Register extends State<Register> {
                                   setState(() {
                                     discovering = AppLocalizations.of(context)
                                         .translate('recherche_app');
-                                    isFound = false;
+                                    //isFound = false;
                                   });
                                 }
                               }
@@ -662,57 +666,6 @@ class _Register extends State<Register> {
                 Padding(
                   padding: EdgeInsets.all(10),
                 ),
-                /*Expanded(
-                  child: RaisedButton(
-                    child: Text(
-                      "2. " + statusBT,
-                      style: textStyle,
-                    ),
-                    onPressed: isFound
-                        ? statusBT !=
-                                AppLocalizations.of(context)
-                                    .translate('status_connexion_bon')
-                            ? () async {
-                                //final macAddress = btManage.createState().macAdress;
-
-                                //final macAddress = await Navigator.push(
-                                //    context,
-                                //    MaterialPageRoute(
-                                //        builder: (context) =>
-                                //            /*BluetoothSync(
-                                //              curUser: null,
-                                //              inputMessage: "inscription",
-                                //              appLanguage: appLanguage,
-                                //            )*/
-                                //            BluetoothManager(
-                                //                user: null,
-                                //                inputMessage: "inscription",
-                                //                appLanguage: appLanguage)));
-
-                                //updateMacAddress(macAddress);
-                                connect();
-
-                                Timer.periodic(const Duration(seconds: 1),
-                                    (timer) {
-                                  if (isConnected) {
-                                    timer.cancel();
-                                    setState(() {
-                                      statusBT = AppLocalizations.of(context)
-                                          .translate('status_connexion_bon');
-                                    });
-                                  } else {
-                                    setState(() {
-                                      statusBT = AppLocalizations.of(context)
-                                          .translate('connexion_en_cours');
-                                    });
-                                  }
-                                });
-                              }
-                            : null
-                        : null,
-                    textColor: colorButton,
-                  ),
-                ),*/
               ],
             ),
           ],
@@ -758,23 +711,6 @@ class _Register extends State<Register> {
                               hauteur_max.text,
                           style: textStyle,
                         ),
-                        /* macAddress != null
-                            ? Text(
-                                AppLocalizations.of(context)
-                                    .translate('status_connexion_bon'),
-                                style: textStyle,
-                              )
-                            : Text(
-                                AppLocalizations.of(context)
-                                    .translate('status_connexion_mauvais'),
-                                style: textStyle,
-                              ),*/
-                        /*Text(AppLocalizations.of(context)
-                                .translate('premiere_mesure') +
-                            ": " +
-                            result.toString()),*/
-
-                        //Text("Adresse MAC $macAddress"),
                       ],
                     ),
                   ],
@@ -824,7 +760,7 @@ class _Register extends State<Register> {
                               appLanguage: appLanguage,
                               user: user,
                               page: firstPush,
-                              messageIn: "0",
+                              messageIn: "fromRegister",
                             ),
                           ),
                         );
@@ -856,7 +792,7 @@ class _Register extends State<Register> {
               builder: (context) => LoadPage(
                     user: null,
                     appLanguage: appLanguage,
-                    messageIn: "",
+                    messageIn: "0",
                     page: login,
                   )));
     }

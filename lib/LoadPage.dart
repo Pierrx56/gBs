@@ -98,7 +98,7 @@ class _LoadPage extends State<LoadPage> {
             page == faq ? FAQ(user: user, inputMessage: messageIn, appLanguage: appLanguage):
             page == firstPush ? FirstPush(user: user, inputMessage: messageIn, appLanguage: appLanguage):
             page == login ? Login(appLanguage: appLanguage):
-            page == mainTitle ? MainTitle(userIn: user, messageIn: int.parse(messageIn), appLanguage: appLanguage,):
+            page == mainTitle ? MainTitle(userIn: user, messageIn: messageIn, appLanguage: appLanguage,):
             page == manageProfile ? ManageProfile(curUser: user, appLanguage: appLanguage):
             page == plane ? Plane(user: user, appLanguage: appLanguage):
             page == register ? Register(appLanguage: appLanguage):

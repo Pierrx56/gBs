@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
@@ -135,11 +136,12 @@ class _DetailsCharts extends State<DetailsCharts> {
                         )
                       : Container(),
                   largestScore != 0
-                      ? Text(
+                      ? AutoSizeText(
                           AppLocalizations.of(context).translate('moyenne') +
                               ": " +
                               average,
                           style: textStyle,
+                          maxLines: 1,
                           textAlign: TextAlign.center,
                         )
                       : Container(),

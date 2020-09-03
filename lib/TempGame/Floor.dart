@@ -7,6 +7,7 @@ class Floor {}
 
 double balloonPosition = 0.1;
 int j = 0;
+int k = 0;
 int balloonSpeed = 2;
 
 double grassSize;
@@ -26,6 +27,7 @@ class BottomFloor {
   Rect rectGrass8;
   Rect rectGrass9;
   Rect rectGrassRight;
+  bool hasChanged;
 
   BottomFloor(this.game) {
     grass = Sprite('temp/grass.png');
@@ -35,6 +37,7 @@ class BottomFloor {
     grassSize = game.screenSize.width * 0.1;
 
     j = 0;
+    hasChanged = false;
 
     rectGrass0 = Rect.fromLTWH(
         game.screenSize.width * 0.0,
@@ -92,7 +95,6 @@ class BottomFloor {
         game.screenSize.height - game.screenSize.width * 0.1,
         game.screenSize.width * 0.1,
         game.screenSize.width * 0.1);
-
   }
 
   void render(Canvas c, bool pause, bool isMoving) {
@@ -100,24 +102,120 @@ class BottomFloor {
       c.translate(-game.screenSize.width / 2,
           -game.screenSize.height * (1 - balloonPosition));*/
 
-
     if (isMoving) {
       j -= balloonSpeed;
-      if(pause)
-        j += balloonSpeed;
+      if (pause) j += balloonSpeed;
 
-      if(j == 5.5*(-grassSize)) {
+      if (j == 5.5 * (-grassSize)) {
         j += balloonSpeed;
         isMoving = false;
-        game.setPlayerState(2);
+        if (!hasChanged) {
+          game.setPlayerState(2);
+          hasChanged = true;
+        }
       }
 
       c.translate(j.toDouble(),
           -game.screenSize.width * 0.1 + game.screenSize.width * 0.1);
-      if(j < -game.screenSize.width )
-        j =  -game.screenSize.width.toInt();
-
+      if (j < -game.screenSize.width) {
+        j = -game.screenSize.width.toInt();
+      }
     }
+    grass.renderRect(c, rectGrass0);
+    grass.renderRect(c, rectGrass1);
+    grass.renderRect(c, rectGrass2);
+    grass.renderRect(c, rectGrass3);
+    grass.renderRect(c, rectGrass4);
+    grass.renderRect(c, rectGrass5);
+    grass.renderRect(c, rectGrass6);
+    grass.renderRect(c, rectGrass7);
+    grass.renderRect(c, rectGrass8);
+    grass.renderRect(c, rectGrass9);
+    grassRight.renderRect(c, rectGrassRight);
+
+    // restore original state
+    //c.restore();
+  }
+
+  double getDownPosition() {
+    return game.screenSize.height * (balloonPosition);
+  }
+
+  void update(double t) {}
+}
+
+class FirstFloor {
+  final TempGame game;
+  Sprite grass;
+  Sprite grassRight;
+  Rect rectGrass0;
+  Rect rectGrass1;
+  Rect rectGrass2;
+  Rect rectGrass3;
+  Rect rectGrass4;
+  Rect rectGrass5;
+  Rect rectGrass6;
+  Rect rectGrass7;
+  Rect rectGrass8;
+  Rect rectGrass9;
+  Rect rectGrassRight;
+  bool hasChanged;
+
+  FirstFloor(this.game) {
+    grass = Sprite('temp/grass.png');
+    grassRight = Sprite('temp/grass_right.png');
+    //width: 500
+    //height: 300
+    grassSize = game.screenSize.width * 0.1;
+
+    k = 0;
+    hasChanged = false;
+
+    List<double> grassOffset = [
+      game.screenSize.width * 1.3,
+      game.screenSize.width * 1.4,
+      game.screenSize.width * 1.5,
+      game.screenSize.width * 1.6,
+      game.screenSize.width * 1.7,
+      game.screenSize.width * 1.8,
+      game.screenSize.width * 1.9,
+      game.screenSize.width * 2.1,
+      game.screenSize.width * 2.2,
+      game.screenSize.width * 2.3,
+      game.screenSize.width * 2.4,
+    ];
+
+    rectGrass0 = Rect.fromLTWH(grassOffset[0], game.screenSize.width * 0.3,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrass1 = Rect.fromLTWH(grassOffset[1], game.screenSize.width * 0.3,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrass2 = Rect.fromLTWH(grassOffset[2], game.screenSize.width * 0.3,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrass3 = Rect.fromLTWH(grassOffset[3], game.screenSize.width * 0.3,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrass4 = Rect.fromLTWH(grassOffset[4], game.screenSize.width * 0.3,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrass5 = Rect.fromLTWH(grassOffset[5], game.screenSize.width * 0.3,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrass6 = Rect.fromLTWH(grassOffset[6], game.screenSize.width * 0.3,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrass7 = Rect.fromLTWH(grassOffset[7], game.screenSize.width * 0.3,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrass8 = Rect.fromLTWH(grassOffset[8], game.screenSize.width * 0.3,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrass9 = Rect.fromLTWH(grassOffset[9], game.screenSize.width * 0.3,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+
+    rectGrassRight = Rect.fromLTWH(grassOffset[10], game.screenSize.width * 0.3,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+  }
+
+  void render(Canvas c, bool pause, bool isMoving) {
+    if (isMoving) {
+      c.translate(j.toDouble() - j.toDouble(),
+          -game.screenSize.width * 0.1 + game.screenSize.width * 0.1);
+    }
+
     grass.renderRect(c, rectGrass0);
     grass.renderRect(c, rectGrass1);
     grass.renderRect(c, rectGrass2);
@@ -135,46 +233,6 @@ class BottomFloor {
 
   double getDownPosition() {
     return game.screenSize.height * (balloonPosition);
-  }
-
-  void update(double t) {}
-}
-
-class TopLine {
-  final TempGame game;
-  Sprite topLine;
-  Rect rectTop;
-
-  TopLine(this.game) {
-    topLine = Sprite('swimmer/up_line.png');
-    //width: 500
-    //height: 300
-    rectTop = Rect.fromLTWH(
-        0, 0, game.screenSize.width, game.screenSize.height * 0.05);
-  }
-
-  void render(Canvas c) {
-    c.translate(game.screenSize.width / 2, game.screenSize.height);
-    c.translate(-game.screenSize.width / 2,
-        -game.screenSize.height * (1 - balloonPosition));
-
-    if (j >= game.screenSize.width) j = 0;
-
-    c.translate(game.screenSize.width - j.toDouble(), 0);
-    j += balloonSpeed;
-
-    topLine.renderRect(c, rectTop);
-
-    c.translate(-game.screenSize.width, 0);
-
-    topLine.renderRect(c, rectTop);
-
-    // restore original state
-    c.restore();
-  }
-
-  double getUpPosition() {
-    return game.screenSize.height * (1 - balloonPosition);
   }
 
   void update(double t) {}

@@ -65,6 +65,7 @@ class _SelectStatistic extends State<SelectStatistic> {
   double widthCard, heightCard;
   List<Scores> dataSwim;
   List<Scores> dataPlane;
+  List<Scores> dataTemp;
 
   Color colorMesureButton = Colors.black;
 
@@ -75,7 +76,7 @@ class _SelectStatistic extends State<SelectStatistic> {
   int countdown = 5;
   static double _reset = 10.0;
   bool isCorrect = false;
-  int numberOfCard = 4;
+  int numberOfCard = 6;
   Size screenSize;
   String game = "";
 
@@ -117,6 +118,13 @@ class _SelectStatistic extends State<SelectStatistic> {
     else if (activityId == ID_PLANE_ACTIVITY) {
       dataPlane = await db.getScore(userId, activityId);
       if (dataPlane == null) {
+        getScores(userId, activityId);
+      }
+    }
+    //Temp
+    else if (activityId == ID_TEMP_ACTIVITY) {
+      dataTemp = await db.getScore(userId, activityId);
+      if (dataTemp == null) {
         getScores(userId, activityId);
       }
     }
@@ -191,7 +199,7 @@ class _SelectStatistic extends State<SelectStatistic> {
     var temp = AppLocalizations.of(context);
     return SizedBox(
       width: widthCard = screenSize.width / (numberOfCard / 2),
-      height: heightCard = screenSize.width / numberOfCard,
+      height: heightCard = screenSize.height / (numberOfCard / 2.5),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -204,8 +212,9 @@ class _SelectStatistic extends State<SelectStatistic> {
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               temp != null
-                  ? Text(
-                AppLocalizations.of(context).translate('stat_nageur'),
+                  ? AutoSizeText(
+                      AppLocalizations.of(context).translate('stat_nageur'),
+                      maxLines: 1,
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     )
@@ -219,31 +228,6 @@ class _SelectStatistic extends State<SelectStatistic> {
               Padding(
                 padding: EdgeInsets.all(10),
               ),
-              /*
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: RaisedButton(
-                  child: temp != null
-                      ? Text(
-                          AppLocalizations.of(context).translate('details'),
-                        )
-                      : Text("Check Language file (en/fr.json)"),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LoadPage(
-                          appLanguage: appLanguage,
-                          page: detailsCharts,
-                          user: user,
-                          messageIn: "$ID_PLANE_ACTIVITY",
-                          scores: dataPlane,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),*/
             ],
           ),
         ),
@@ -255,7 +239,7 @@ class _SelectStatistic extends State<SelectStatistic> {
     var temp = AppLocalizations.of(context);
     return SizedBox(
       width: widthCard = screenSize.width / (numberOfCard / 2),
-      height: heightCard = screenSize.width / numberOfCard,
+      height: heightCard = screenSize.height / (numberOfCard / 2.5),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -268,8 +252,9 @@ class _SelectStatistic extends State<SelectStatistic> {
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               temp != null
-                  ? Text(
+                  ? AutoSizeText(
                       AppLocalizations.of(context).translate('stat_avion'),
+                      maxLines: 1,
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     )
@@ -283,31 +268,47 @@ class _SelectStatistic extends State<SelectStatistic> {
               Padding(
                 padding: EdgeInsets.all(10),
               ),
-              /*
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: RaisedButton(
-                  child: temp != null
-                      ? Text(
-                          AppLocalizations.of(context).translate('details'),
-                        )
-                      : Text("Check Language file (en/fr.json)"),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LoadPage(
-                          appLanguage: appLanguage,
-                          page: detailsCharts,
-                          user: user,
-                          messageIn: "$ID_PLANE_ACTIVITY",
-                          scores: dataPlane,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),*/
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget tempStat() {
+    var temp = AppLocalizations.of(context);
+    return SizedBox(
+      width: widthCard = screenSize.width / (numberOfCard / 2),
+      height: heightCard = screenSize.height / (numberOfCard / 2.5),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 8,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              temp != null
+                  ? AutoSizeText(
+                      AppLocalizations.of(context).translate('statistiques') +
+                          AppLocalizations.of(context).translate('temp'),
+                      maxLines: 1,
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    )
+                  : Text("Check Language file (en/fr.json)"),
+              dataTemp == null
+                  ? Container()
+                  : Container(
+                      child: DrawCharts(data: dataTemp),
+                      height: heightCard,
+                    ),
+              Padding(
+                padding: EdgeInsets.all(10),
+              ),
             ],
           ),
         ),
@@ -319,7 +320,7 @@ class _SelectStatistic extends State<SelectStatistic> {
     var temp = AppLocalizations.of(context);
     return SizedBox(
       width: widthCard = screenSize.width / (numberOfCard / 2),
-      height: heightCard = (screenSize.width / numberOfCard) / 2,
+      height: heightCard = (screenSize.width / numberOfCard),
       child: GestureDetector(
         onTap: () {
           Navigator.pushReplacement(
@@ -398,56 +399,81 @@ class _SelectStatistic extends State<SelectStatistic> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-
-
-                    Stack(children: <Widget>[
-                      swimStat(),
-                      Container(
-                        width: screenSize.width/2,
-                        height: screenSize.width/numberOfCard,
-                        child: GestureDetector(
-                          onTap: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoadPage(
-                                  appLanguage: appLanguage,
-                                  page: detailsCharts,
-                                  user: user,
-                                  messageIn: "$ID_SWIMMER_ACTIVITY",
-                                  scores: dataSwim,
+                    Stack(
+                      children: <Widget>[
+                        swimStat(),
+                        Container(
+                          width: screenSize.width / numberOfCard,
+                          height: screenSize.width / numberOfCard,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LoadPage(
+                                    appLanguage: appLanguage,
+                                    page: detailsCharts,
+                                    user: user,
+                                    messageIn: "$ID_SWIMMER_ACTIVITY",
+                                    scores: dataSwim,
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    ],),
-
-                    Stack(children: <Widget>[
-                      planeStat(),
-                      Container(
-                        width: screenSize.width/2,
-                        height: screenSize.width/numberOfCard,
-                        child: GestureDetector(
-                          onTap: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoadPage(
-                                  appLanguage: appLanguage,
-                                  page: detailsCharts,
-                                  user: user,
-                                  messageIn: "$ID_PLANE_ACTIVITY",
-                                  scores: dataPlane,
+                      ],
+                    ),
+                    Stack(
+                      children: <Widget>[
+                        planeStat(),
+                        Container(
+                          width: screenSize.width / numberOfCard,
+                          height: screenSize.width / numberOfCard,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LoadPage(
+                                    appLanguage: appLanguage,
+                                    page: detailsCharts,
+                                    user: user,
+                                    messageIn: "$ID_PLANE_ACTIVITY",
+                                    scores: dataPlane,
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    ],),
-
+                      ],
+                    ),
+                    Stack(
+                      children: <Widget>[
+                        tempStat(),
+                        Container(
+                          width: screenSize.width / numberOfCard,
+                          height: screenSize.width / numberOfCard,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LoadPage(
+                                    appLanguage: appLanguage,
+                                    page: detailsCharts,
+                                    user: user,
+                                    messageIn: "$ID_TEMP_ACTIVITY",
+                                    scores: dataTemp,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 Row(

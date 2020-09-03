@@ -219,7 +219,7 @@ class UIState extends State<UI> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => LoadPage(
-                          messageIn: "",
+                          messageIn: "0",
                           appLanguage: appLanguage,
                           page: temp,
                           user: user,

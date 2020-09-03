@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
@@ -15,7 +16,7 @@ import 'DatabaseHelper.dart';
 class MainTitle extends StatefulWidget {
   final AppLanguage appLanguage;
   final User userIn;
-  final int messageIn;
+  final String messageIn;
 
   MainTitle({
     @required this.appLanguage,
@@ -39,7 +40,7 @@ class _MainTitle extends State<MainTitle> {
 
   AppLanguage appLanguage;
   User user;
-  int message;
+  String message;
   bool isConnected;
   bool isInformed;
   Timer timerConnexion;
@@ -63,7 +64,7 @@ class _MainTitle extends State<MainTitle> {
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
-  _MainTitle(AppLanguage _appLanguage, User userIn, int messageIn) {
+  _MainTitle(AppLanguage _appLanguage, User userIn, String messageIn) {
     appLanguage = _appLanguage;
     user = userIn;
     message = messageIn;
@@ -72,7 +73,7 @@ class _MainTitle extends State<MainTitle> {
       appLanguage: appLanguage,
       user: user,
       page: manageProfile,
-      messageIn: "",
+      messageIn: "0",
     );
   }
 
@@ -110,6 +111,9 @@ class _MainTitle extends State<MainTitle> {
     } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
+      if(isConnected) {
+        return;
+      }
       testConnect();
     }
   }
@@ -121,10 +125,10 @@ class _MainTitle extends State<MainTitle> {
         Duration(milliseconds: 3000),
         (timerConnexion) async {
           btManage.connect(user.userMacAddress, user.userSerialNumber);
-          print("Status: $isConnected");
 
           isConnected = await btManage.getStatus();
           if (isConnected) {
+            print("Status: $isConnected");
             timerConnexion.cancel();
           }
         },
@@ -337,7 +341,7 @@ class _MainTitle extends State<MainTitle> {
               ),
               splashColor: Colors.blue,
               onPressed: () {
-                //btManage.disconnect("");
+                btManage.disconnect("");
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -381,6 +385,9 @@ class _MainTitle extends State<MainTitle> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
+                          color: message == "fromRegister"
+                              ? Colors.grey[200]
+                              : Colors.white,
                           elevation: 8,
                           child: SingleChildScrollView(
                             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -389,12 +396,16 @@ class _MainTitle extends State<MainTitle> {
                               mainAxisSize: MainAxisSize.max,
                               children: <Widget>[
                                 temp != null
-                                    ? Text(
+                                    ? AutoSizeText(
                                         AppLocalizations.of(context)
                                             .translate('poussee_max'),
                                         style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold),
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: message == "fromRegister"
+                                              ? Colors.grey
+                                              : Colors.black,
+                                        ),
                                       )
                                     : Text("Check Language file (en/fr.json)"),
                                 Transform.rotate(
@@ -402,6 +413,9 @@ class _MainTitle extends State<MainTitle> {
                                   child: Icon(
                                     Icons.file_download,
                                     size: heightCard * 0.7,
+                                    color: message == "fromRegister"
+                                        ? Colors.grey
+                                        : Colors.black,
                                   ),
                                 ),
                               ],
@@ -422,7 +436,7 @@ class _MainTitle extends State<MainTitle> {
                                   builder: (context) => LoadPage(
                                         user: user,
                                         appLanguage: appLanguage,
-                                        messageIn: "",
+                                        messageIn: "0",
                                         page: selectGame,
                                       )));
                         },
@@ -548,7 +562,7 @@ class _MainTitle extends State<MainTitle> {
                                   builder: (context) => LoadPage(
                                         user: user,
                                         appLanguage: appLanguage,
-                                        messageIn: "",
+                                        messageIn: "0",
                                         page: selectStatistic,
                                       )));
                         },
@@ -593,16 +607,16 @@ class _MainTitle extends State<MainTitle> {
     );
   }
 
-  Future<bool> _onBackPressed(){
+  Future<bool> _onBackPressed() {
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) => LoadPage(
-              user: user,
-              appLanguage: appLanguage,
-              messageIn: "",
-              page: login,
-            )));
+                  user: null,
+                  appLanguage: appLanguage,
+                  messageIn: "0",
+                  page: login,
+                )));
   }
 
   @override
@@ -621,7 +635,7 @@ class _MainTitle extends State<MainTitle> {
             appLanguage: appLanguage,
             user: user,
             page: manageProfile,
-            messageIn: "",
+            messageIn: "0",
           );
           /*if (user.userInitialPush == "0.0")
           firstPush = LoadPage(
@@ -639,9 +653,13 @@ class _MainTitle extends State<MainTitle> {
         });
     }
 
-    if (message != defaultIndex) {
-      _selectedIndex = message;
-      message = defaultIndex;
+    int temp = int.tryParse(message);
+
+    if (temp != null) {
+      if (temp != defaultIndex) {
+        _selectedIndex = temp;
+        //message = defaultIndex.toString();
+      }
     }
 
     List<Widget> _widgetOptions = <Widget>[
@@ -662,13 +680,15 @@ class _MainTitle extends State<MainTitle> {
                   icon: Icon(
                     Icons.home,
                   ),
-                  title: Text(AppLocalizations.of(context).translate('accueil')),
+                  title:
+                      Text(AppLocalizations.of(context).translate('accueil')),
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(
                     Icons.settings,
                   ),
-                  title: Text(AppLocalizations.of(context).translate('reglages')),
+                  title:
+                      Text(AppLocalizations.of(context).translate('reglages')),
                 ),
               ],
               currentIndex: _selectedIndex,

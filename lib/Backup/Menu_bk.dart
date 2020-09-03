@@ -70,7 +70,7 @@ class _Menu extends State<Menu> {
         MaterialPageRoute(
             builder: (context) => MainTitle(
                   userIn: user,
-                  messageIn: 1,
+                  messageIn: "1",
                   appLanguage: appLanguage,
                 )));
 

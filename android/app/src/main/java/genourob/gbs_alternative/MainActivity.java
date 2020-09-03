@@ -19,6 +19,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.util.Log;
+
 import java.util.*;
 
 import java.io.IOException;
@@ -54,7 +55,6 @@ import io.flutter.plugin.common.MethodCall;
 public class MainActivity extends FlutterActivity {
 
     private static final String SENSOR_CHANNEL = "samples.flutter.io/sensor";
-    private static final String CHARGING_CHANNEL = "samples.flutter.io/charging";
 
     public final static String ACTION_GATT_CONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
@@ -77,6 +77,7 @@ public class MainActivity extends FlutterActivity {
     public String value = "1.0";
 
     boolean isConnected = false;
+    boolean isScanning = false;
 
     UUID serviceUUID = UUID.fromString("0000dfb0-0000-1000-8000-00805f9b34fb");
     UUID characteristicUUID = UUID.fromString("0000dfb1-0000-1000-8000-00805f9b34fb");
@@ -88,20 +89,20 @@ public class MainActivity extends FlutterActivity {
     BluetoothAdapter btAdapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        btManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+        btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         btAdapter = btManager.getAdapter();
         btScanner = btAdapter.getBluetoothLeScanner();
 
         if (btAdapter != null && !btAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent,REQUEST_ENABLE_BT);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         }
 
         // Make sure we have access coarse location enabled, if not, prompt the user to enable it
-        if (VERSION.SDK_INT >= VERSION_CODES.M) {
+/*        if (VERSION.SDK_INT >= VERSION_CODES.M) {
             if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("This app needs location access");
@@ -115,7 +116,7 @@ public class MainActivity extends FlutterActivity {
                 });
                 builder.show();
             }
-        }
+        }*/
     }
 
 
@@ -156,21 +157,35 @@ public class MainActivity extends FlutterActivity {
                                 //result.error("UNAVAILABLE", "Can not connect", null);
                             }
                         }
-                        if (call.method.equals("getStatus")) {
-                            boolean status = getStatus();
+                        if (call.method.equals("disco")) {
+                            disconnectDeviceSelected();
 
-                            if (status) {
-                                result.success(status);
-                            } else {
-                                result.success(status);
-                                //result.error("UNAVAILABLE", "Can not connect", null);
-                            }
+                            result.success("Disconnected");
                         }
                         if (call.method.equals("getBatteryLevel")) {
                             int batteryLevel = getBatteryLevel();
 
                             if (batteryLevel != -1) {
                                 result.success(batteryLevel);
+                            } else {
+                                result.error("UNAVAILABLE", "Battery level not available.", null);
+                            }
+                        }
+                        if (call.method.equals("getData")) {
+                            String data = getValue(); //getData();
+
+                            if (data != "") {
+                                result.success(data);
+                            } else {
+                                result.success("ça ne marche pas");
+                                //result.error("UNAVAILABLE", "No data available.", null);
+                            }
+                        }
+                        if (call.method.equals("getMacAddress")) {
+                            String mac = getMacAddress();
+
+                            if (mac != "") {
+                                result.success(mac);
                             } else {
                                 result.error("UNAVAILABLE", "Battery level not available.", null);
                             }
@@ -193,29 +208,25 @@ public class MainActivity extends FlutterActivity {
                                 result.error("UNAVAILABLE", "Battery level not available.", null);
                             }
                         }
-                        if (call.method.equals("getMacAddress")) {
-                            String mac = getMacAddress();
+                        if (call.method.equals("getStatus")) {
+                            boolean status = getStatus();
 
-                            if (mac != "") {
-                                result.success(mac);
+                            if (status) {
+                                result.success(status);
                             } else {
-                                result.error("UNAVAILABLE", "Battery level not available.", null);
+                                result.success(status);
+                                //result.error("UNAVAILABLE", "Can not connect", null);
                             }
                         }
-                        if (call.method.equals("getData")) {
-                            String data = getValue(); //getData();
+                        if (call.method.equals("locationPermission")) {
+                            boolean status = locationPermision();
 
-                            if (data != "") {
-                                result.success(data);
+                            if (status) {
+                                result.success(status);
                             } else {
-                                result.success("ça ne marche pas");
-                                //result.error("UNAVAILABLE", "No data available.", null);
+                                result.success(status);
+                                //result.error("UNAVAILABLE", "Can not connect", null);
                             }
-                        }
-                        if (call.method.equals("disco")) {
-                            disconnectDeviceSelected();
-
-                            result.success("Disconnected");
                         }
                         /* else {
                             result.error("Unavailable", "No method", null);
@@ -237,11 +248,11 @@ public class MainActivity extends FlutterActivity {
         }
     }
 
-    private String getMacAddress(){
+    private String getMacAddress() {
         return macAdress;
     }
 
-    private void setMacAddress(String _macAddress){
+    private void setMacAddress(String _macAddress) {
         macAdress = _macAddress;
     }
 
@@ -252,7 +263,7 @@ public class MainActivity extends FlutterActivity {
 
         macAdress = getMacAddress();
 
-        if(macAdress == "")
+        if (macAdress == "")
             macAdress = "-1";
 
         //Set<BluetoothDevice> pairedDevices = m_BluetoothAdapter.getBondedDevices();
@@ -268,10 +279,14 @@ public class MainActivity extends FlutterActivity {
             public void run() {
                 if (btScanner == null)
                     btScanner = btAdapter.getBluetoothLeScanner();
+                isScanning = true;
                 btScanner.startScan(leScanCallback);
+                if(isConnected)
+                    stopScanning();
             }
         });
     }
+
     public void stopScanning() {
         System.out.println("stopping scanning");
         AsyncTask.execute(new Runnable() {
@@ -280,6 +295,7 @@ public class MainActivity extends FlutterActivity {
                 if (btScanner == null)
                     btScanner = btAdapter.getBluetoothLeScanner();
                 btScanner.stopScan(leScanCallback);
+                isScanning = false;
             }
         });
     }
@@ -290,11 +306,11 @@ public class MainActivity extends FlutterActivity {
         public void onScanResult(int callbackType, ScanResult result) {
             //peripheralTextView.append("Device Name: " + result.getDevice().getName() + " rssi: " + result.getRssi() + "\n");
 
-            if(result.getDevice().getName() != null) {
+            if (result.getDevice().getName() != null) {
                 System.out.println(result.getDevice().getName());
-                if (macAdress != null && macAdress != "-1" && macAdress != ""){
+                if (macAdress != null && macAdress != "-1" && macAdress != "") {
                     System.out.println(result.getDevice().getAddress());
-                    if(result.getDevice().getAddress().contains(macAdress)){
+                    if (result.getDevice().getAddress().contains(macAdress)) {
                         mBluetoothDevice = result.getDevice();
                         stopScanning();
                         connect(result.getDevice().getAddress());
@@ -357,19 +373,50 @@ public class MainActivity extends FlutterActivity {
         }
     }
 
-    public void setValue(String _value){
+    public void setValue(String _value) {
         value = _value;
     }
 
-    public String getValue(){
-        if(value == null)
+    public String getValue() {
+        if (value == null)
             value = "1.0";
 
         return value;
     }
 
-    public boolean getStatus(){
+    public boolean getStatus() {
         return isConnected;
+    }
+
+    public boolean locationPermision() {
+
+        // Make sure we have access coarse location enabled, if not, prompt the user to enable it
+        if (VERSION.SDK_INT >= VERSION_CODES.M) {
+            if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+/*
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("This app needs location access");
+                builder.setMessage("Please grant location access so this app can detect peripherals.");
+                builder.setPositiveButton(android.R.string.ok, null);
+                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
+                    }
+                });
+*/
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
+
+                if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                    return false;
+                else
+                    return true;
+//                builder.show();
+            } else
+                return true;
+        }
+        return false;
+
     }
 
     public String connect(String mac) {
@@ -378,19 +425,27 @@ public class MainActivity extends FlutterActivity {
         mBluetoothGatt = null;
 
         //Si null, on recherche l'adresse mac et on se connecte
-        if(mBluetoothDevice == null && !isConnected || !mBluetoothDevice.getAddress().contains(macAdress)){
-            System.out.println("start scanning");
-            startScanning();
+        System.out.println(isConnected);
+
+        if (mBluetoothDevice == null && !isConnected || !mBluetoothDevice.getAddress().contains(macAdress)) {
+            if(!isScanning) {
+                System.out.println("start scanning");
+                startScanning();
+            }
             //mBluetoothDevice = mac;
-        }
-        else {
-            stopScanning();
+        } else {
+            if(isScanning)
+                stopScanning();
+
             mBluetoothGatt = mBluetoothDevice.connectGatt(this, false, btleGattCallback);
 
-            if(mBluetoothGatt != null)
+            if (mBluetoothGatt.connect()) {
                 isConnected = true;
+            }
+            else
+                connect(mac);
         }
-        if(isConnected)
+        if (isConnected)
             return "Connected";
         else {
             //connect();
@@ -425,6 +480,8 @@ public class MainActivity extends FlutterActivity {
                         public void run() {
                             System.out.println("device disconnected\n");
                             isConnected = false;
+                            mBluetoothDevice = null;
+                            //disconnectDeviceSelected();
                             //connectToDevice.setVisibility(View.VISIBLE);
                             //disconnectDevice.setVisibility(View.INVISIBLE);
                         }
@@ -516,11 +573,11 @@ public class MainActivity extends FlutterActivity {
 
                     mBluetoothGatt.setCharacteristicNotification(gattCharacteristic, true);
                     BluetoothGattDescriptor descriptor = gattCharacteristic.getDescriptor(gattCharacteristic.getUuid());
-                    try{
+                    try {
                         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                         mBluetoothGatt.writeDescriptor(descriptor);
                         //System.out.println("NOTIFICATIONS ENABLED");
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         //System.out.println(e);
                     }
 
@@ -537,14 +594,19 @@ public class MainActivity extends FlutterActivity {
 
     public void disconnectDeviceSelected() {
         //peripheralTextView.append("Disconnecting from device\n");
-        if(mBluetoothGatt != null) {
-            isConnected = false;
-            stopScanning();
-            mBluetoothGatt.disconnect();
-            //mBluetoothGatt.close();
-            mBluetoothDevice = null;
+        isConnected = false;
+        /*
+        stopScanning();*/
 
+        if (btAdapter == null || mBluetoothGatt == null) {
+            return;
         }
+
+        mBluetoothGatt.disconnect();
+        mBluetoothGatt.close();
+
+
+
     }
 
     private void broadcastUpdate(final String action,

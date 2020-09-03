@@ -56,6 +56,19 @@ class BluetoothManager {
   // Initializing a global key, as it would help us in showing a SnackBar later
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  Future<bool> locationPermission() async {
+    bool paired = false;
+    if (Platform.isAndroid) {
+      try {
+        paired =
+            await sensorChannel.invokeMethod('locationPermission');
+
+      } on PlatformException {}
+      return paired;
+    }
+    return true;
+  }
+
   // Request Bluetooth permission from the user
   Future<bool> enableBluetooth() async {
     //On utilise la librairie flutter_bluetooth_serial pour détecter l'état du bluetoothh
@@ -63,6 +76,10 @@ class BluetoothManager {
       // Retrieving the current Bluetooth state
       _bluetoothState = await FlutterBluetoothSerial.instance.state;
 
+      //If location permission is not accepted, spam to accept
+      if(!await locationPermission()){
+        enableBluetooth();
+      }
       // If the bluetooth is off, then turn it on first
       if (_bluetoothState == BluetoothState.STATE_OFF) {
         await FlutterBluetoothSerial.instance.requestEnable();
@@ -189,6 +206,7 @@ class BluetoothManager {
     //print("Résultat: $tempResult");
     return tempResult.toString();
   }
+
   // Method to show a Snackbar,
   // taking message as the text
   Future show(

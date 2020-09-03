@@ -177,7 +177,7 @@ class _FAQ extends State<FAQ> {
                     builder: (context) => LoadPage(
                         user: null,
                         appLanguage: appLanguage,
-                        messageIn: "",
+                        messageIn: "0",
                         page: login),
                   ),
                 );

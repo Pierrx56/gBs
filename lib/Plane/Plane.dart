@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -120,6 +121,10 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
+      if(isConnected) {
+        launchGame();
+        return;
+      }
       testConnect();
     }
   }
@@ -130,18 +135,19 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
       timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
           (timerConnexion) async {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
-        print("Status: $isConnected");
         isConnected = await btManage.getStatus();
         if (isConnected) {
+          print("isConnected: $isConnected");
           timerConnexion.cancel();
-          initPlane();
+          launchGame();
           //refreshScore();
         }
       });
     }
-    if (isConnected) {
-      initPlane();
-    }
+  }
+
+  void launchGame(){
+    initPlane();
   }
 
   // Method to disconnect bluetooth
@@ -243,6 +249,8 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+
     return Material(
       child: ColorFiltered(
         colorFilter: game != null
@@ -252,34 +260,69 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
           children: <Widget>[
             game == null
                 ? Center(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        CircularProgressIndicator(),
-                        user.userInitialPush == "0.0"
-                            ? Text(AppLocalizations.of(context)
-                                .translate('premiere_poussee_sw'))
-                            : Text(AppLocalizations.of(context)
-                                .translate('verif_alim')),
-                        RaisedButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LoadPage(
-                                        appLanguage: appLanguage,
-                                        user: user,
-                                        messageIn: "0",
-                                        page: mainTitle,
-                                      )),
-                            );
-                          },
-                          child: Text(
-                              AppLocalizations.of(context).translate('retour')),
-                        )
-                      ],
-                    ),
+                    child: Container(
+                        width: screenSize.width,
+                        height: screenSize.height,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: ExactAssetImage(
+                                "assets/images/plane/background.png"),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+                          child: Stack(
+                            children: <Widget>[
+                              Center(
+                                child: Container(
+                                  width: screenSize.width / 2,
+                                  height: screenSize.height / 2,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Color.fromRGBO(255, 255, 255, 0.7),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      CircularProgressIndicator(),
+                                      user.userInitialPush == "0.0"
+                                          ? AutoSizeText(AppLocalizations.of(
+                                                  context)
+                                              .translate('premiere_poussee_sw'))
+                                          : AutoSizeText(
+                                              AppLocalizations.of(context)
+                                                  .translate('verif_alim'),
+                                              minFontSize: 15,
+                                              maxLines: 3,
+                                              style: TextStyle(fontSize: 25),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                      RaisedButton(
+                                        onPressed: () {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => LoadPage(
+                                                      appLanguage: appLanguage,
+                                                      user: user,
+                                                      messageIn: "0",
+                                                      page: mainTitle,
+                                                    )),
+                                          );
+                                        },
+                                        child: Text(AppLocalizations.of(context)
+                                            .translate('retour')),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
                   )
                 : game.widget,
 
@@ -350,7 +393,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                       ? gameUI.state.displayMessage(
                           AppLocalizations.of(context).translate('game_over'),
                           game,
-                  Colors.redAccent)
+                          Colors.redAccent)
                       : Container()
                   : Container(),
             ),
@@ -363,7 +406,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                           AppLocalizations.of(context)
                               .translate('connexion_perdue'),
                           game,
-                  Colors.redAccent)
+                          Colors.redAccent)
                       : Container()
                   : Container(),
             ), /*

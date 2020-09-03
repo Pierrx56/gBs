@@ -443,7 +443,7 @@ class _Register extends State<Register> {
                                   MaterialPageRoute(
                                       builder: (context) => MainTitle(
                                             userIn: user,
-                                            messageIn: 0,
+                                            messageIn: "0",
                                           )));
                               // Navigator.pushReplacement(
                               //     context,

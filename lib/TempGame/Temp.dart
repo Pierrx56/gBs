@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +85,7 @@ class _Temp extends State<Temp> {
     super.dispose();
   }
 
-  initSwimmer() async {
+  initTemp() async {
     WidgetsFlutterBinding.ensureInitialized();
 
     game = new TempGame(getData, user, appLanguage);
@@ -109,8 +110,16 @@ class _Temp extends State<Temp> {
     } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
+      if(isConnected) {
+        launchGame();
+        return;
+      }
       testConnect();
     }
+  }
+
+  void launchGame(){
+    initTemp();
   }
 
   testConnect() async {
@@ -123,15 +132,15 @@ class _Temp extends State<Temp> {
 
         if (isConnected) {
           timerConnexion.cancel();
-          initSwimmer();
+          launchGame();
           //refreshScore();
         }
       });
     }
-    if (isConnected) {
+/*    if (isConnected) {
       initSwimmer();
       //refreshScore();
-    }
+    }*/
   }
 
   mainThread() async {
@@ -200,6 +209,8 @@ class _Temp extends State<Temp> {
     //UI gameUI = UI();
     //gameUI.state.game = game;
 
+    Size screenSize = MediaQuery.of(context).size;
+
     return Material(
         child: ColorFiltered(
       colorFilter: game != null
@@ -209,34 +220,68 @@ class _Temp extends State<Temp> {
         children: <Widget>[
           game == null || user.userInitialPush == "0.0"
               ? Center(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      CircularProgressIndicator(),
-                      user.userInitialPush == "0.0"
-                          ? Text(AppLocalizations.of(context)
-                              .translate('premiere_poussee_sw'))
-                          : Text(AppLocalizations.of(context)
-                              .translate('verif_alim')),
-                      RaisedButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoadPage(
-                                      appLanguage: appLanguage,
-                                      user: user,
-                                      messageIn: "0",
-                                      page: mainTitle,
-                                    )),
-                          );
-                        },
-                        child: Text(
-                            AppLocalizations.of(context).translate('retour')),
-                      )
-                    ],
-                  ),
+                  child: Container(
+                      width: screenSize.width,
+                      height: screenSize.height,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: ExactAssetImage(
+                              "assets/images/temp/background.png"),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+                        child: Stack(
+                          children: <Widget>[
+                            Center(
+                              child: Container(
+                                width: screenSize.width / 2,
+                                height: screenSize.height / 2,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Color.fromRGBO(255, 255, 255, 0.7),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    CircularProgressIndicator(),
+                                    user.userInitialPush == "0.0"
+                                        ? AutoSizeText(AppLocalizations.of(
+                                                context)
+                                            .translate('premiere_poussee_sw'))
+                                        : AutoSizeText(
+                                            AppLocalizations.of(context)
+                                                .translate('verif_alim'),
+                                            minFontSize: 15,
+                                            maxLines: 3,
+                                            style: TextStyle(fontSize: 25),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                    RaisedButton(
+                                      onPressed: () {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => LoadPage(
+                                                    appLanguage: appLanguage,
+                                                    user: user,
+                                                    messageIn: "0",
+                                                    page: mainTitle,
+                                                  )),
+                                        );
+                                      },
+                                      child: Text(AppLocalizations.of(context)
+                                          .translate('retour')),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
                 )
               : game.widget,
 
@@ -252,7 +297,6 @@ class _Temp extends State<Temp> {
                         : gameUI.state.closeButton(
                         context, appLanguage, user, game.getScore()),
                   ),*/
-
 
                 game != null
                     ? !game.pauseGame &&
@@ -321,7 +365,7 @@ class _Temp extends State<Temp> {
                     ? gameUI.state.displayMessage(
                         AppLocalizations.of(context).translate('pousser'),
                         game,
-                Colors.redAccent)
+                        Colors.redAccent)
                     : Container()
                 : Container(),
           ),

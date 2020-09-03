@@ -5,7 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:provider/provider.dart';
 import 'package:gbsalternative/AppLanguage.dart';
@@ -26,6 +28,7 @@ class Login extends StatefulWidget {
 
 class _Login extends State<Login> {
   DatabaseHelper db = new DatabaseHelper();
+  BluetoothManager bluetoothManager = new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
   File imageFile;
   AppLanguage appLanguage;
 
@@ -36,6 +39,7 @@ class _Login extends State<Login> {
 
   @override
   void initState() {
+    init();
     super.initState();
   }
 
@@ -43,6 +47,15 @@ class _Login extends State<Login> {
   void dispose() {
     super.dispose();
   }
+
+  void init() async{
+
+    //Demander l'autorisation à la localisation pour le bluetooth
+    if(!await bluetoothManager.locationPermission()){
+      //init();
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +75,7 @@ class LoginWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     var appLanguage = Provider.of<AppLanguage>(context);
+
     double tempWidth, tempHeight = 0.0;
     return Scaffold(
         appBar: AppBar(
@@ -70,6 +84,31 @@ class LoginWidget extends StatelessWidget {
           ),
           backgroundColor: Colors.blue,
           actions: <Widget>[
+
+
+            FlatButton.icon(
+              icon: Icon(
+                Icons.exit_to_app,
+                color: Colors.white,
+              ),
+              label: Text(
+                "Quitter",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              splashColor: Colors.blue,
+              onPressed: () {
+                if(Platform.isAndroid)
+                  SystemNavigator.pop();
+                else if(Platform.isIOS)
+                  exit(0);
+              },
+            ),
+
             FlatButton.icon(
               icon: Icon(
                 Icons.question_answer,
@@ -214,7 +253,7 @@ class LoginWidget extends StatelessWidget {
                                       builder: (context) => LoadPage(
                                             appLanguage: appLanguage,
                                             page: register,
-                                            messageIn: "",
+                                            messageIn: "0",
                                             user: null,
                                           )));
                             },

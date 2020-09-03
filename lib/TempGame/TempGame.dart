@@ -21,6 +21,7 @@ class TempGame extends Game {
   bool inTouch = false;
   Background background;
   BottomFloor bottomFloor;
+  FirstFloor firstFloor;
   SpriteComponent swimmer;
   double tileSize;
   bool redFilter;
@@ -50,6 +51,8 @@ class TempGame extends Game {
   double difficulte = 0.50;
 
   double size = 100.0;
+  static List<String> jump = ['temp/jump1.png', 'temp/jump2.png'];
+
   static List<String> run = [
     'temp/run1.png',
     'temp/run2.png',
@@ -71,18 +74,27 @@ class TempGame extends Game {
     'temp/run18.png'
   ];
 
-  static List<String> jump = ['temp/jump1.png', 'temp/jump2.png'];
-
   static List<String> waiting = [
-    'temp/run1.png',];
+    'temp/tile000.png',
+    'temp/tile001.png',
+    'temp/tile002.png',
+    'temp/tile003.png',
+    'temp/tile004.png',
+    'temp/tile005.png',
+    'temp/tile006.png',
+    'temp/tile007.png',
+    'temp/tile008.png',
+    'temp/tile009.png',
+    'temp/tile010.png'
+  ];
 
   List<List<String>> tab = [jump, run, waiting];
 
   double Function() getData;
   User user;
   int j = 1;
-  double posBottomLine;
-  double posTopLine;
+  double posBottomFloor;
+  double posFirstFloor;
   bool isTopPosition;
   UI gameUI;
   AppLanguage appLanguage;
@@ -98,6 +110,7 @@ class TempGame extends Game {
     resize(await Flame.util.initialDimensions());
     background = Background(this);
     bottomFloor = BottomFloor(this);
+    firstFloor = FirstFloor(this);
     gameUI = UI();
 
     isTooHigh = false;
@@ -109,8 +122,8 @@ class TempGame extends Game {
     start = false;
     redFilter = false;
     isInit = false;
-    posBottomLine = bottomFloor.getDownPosition();
-    posTopLine = bottomFloor.getDownPosition();
+    posBottomFloor = bottomFloor.getDownPosition();
+    posFirstFloor = firstFloor.getDownPosition();
 
     isWaiting = false;
     isRunning = true;
@@ -145,9 +158,13 @@ class TempGame extends Game {
 
       if (!gameOver) {
         if (isConnected) {
-          //Ligne basse
+          //Base
           if (bottomFloor != null)
             bottomFloor.render(canvas, pauseGame, isMoving);
+
+          //Premier étage
+          if (firstFloor != null)
+            firstFloor.render(canvas, pauseGame, isMoving);
 
           //Bonhomme rouge
           if (swimmer != null) {
@@ -200,12 +217,16 @@ class TempGame extends Game {
       if (isConnected) {
         //Timer
         if (creationTimer >= 0.02) {
-          if (i == tab[j].length - 1)
+
+          if (i == tab[j].length - 1) {
             i = 0;
+          }
           else if (pauseGame)
             ;
-          else
+          else {
             i++;
+          }
+
 
           //if (pauseGame) i--;
 
@@ -245,8 +266,9 @@ class TempGame extends Game {
               swimmer.x = tempPosX;
             }
             //Si le joueur atteint la moitié de l'écran, la "caméra" suit le joueur au centre de l'écran
-            else
+            else {
               isMoving = true;
+            }
           }
           //Définition des bords haut et bas de l'écran
 
@@ -353,6 +375,8 @@ class TempGame extends Game {
   }
 
   ColorFilter getColorFilter() {
+    if(redFilter == null)
+      redFilter = true;
     if (redFilter) {
       return ColorFilter.mode(Colors.transparent, BlendMode.luminosity);
       //return ColorFilter.mode(Colors.redAccent, BlendMode.hue);
