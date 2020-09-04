@@ -456,7 +456,7 @@ class _SelectGame extends State<SelectGame> {
                                 .translate('nageur')
                             : idGame == ID_TEMP_ACTIVITY
                                 ? AppLocalizations.of(this.context)
-                                    .translate('nageur')
+                                    .translate('temp')
                                 : "non renseigné dans SelectGame"
                     : "Check Language file (en/fr.json)",
                 style: textStyle,
@@ -474,7 +474,7 @@ class _SelectGame extends State<SelectGame> {
                                             .translate('type_activite') +
                                         " " +
                                         AppLocalizations.of(this.context)
-                                            .translate('type_activite_CSI') +
+                                            .translate('type_activite_EI') +
                                         "\n\n" +
                                         //On adapte le texte au mode choisi
                                         //Si sportif, on remplace XX par 3 (nb de minutes)
@@ -491,7 +491,7 @@ class _SelectGame extends State<SelectGame> {
                                                 .translate('type_activite') +
                                             " " +
                                             AppLocalizations.of(this.context).translate(
-                                                'type_activite_CMV') +
+                                                'type_activite_EE') +
                                             "\n\n" +
                                             AppLocalizations.of(this.context)
                                                 .translate('info_nageur')
@@ -503,7 +503,7 @@ class _SelectGame extends State<SelectGame> {
                                                         'type_activite_CMV') +
                                                 "\n\n" +
                                                 AppLocalizations.of(this.context)
-                                                    .translate('info_nageur')
+                                                    .translate('info_temp')
                                             : "non renseigné dans SelectGame"
                                 : "Check Language file (en/fr.json)",
                             style: textStyle,

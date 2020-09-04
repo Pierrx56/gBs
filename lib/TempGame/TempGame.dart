@@ -19,10 +19,11 @@ import 'package:flame/position.dart' as position; // imports the Position class
 class TempGame extends Game {
   Size screenSize;
   bool inTouch = false;
+  bool hasJumped;
   Background background;
   BottomFloor bottomFloor;
   FirstFloor firstFloor;
-  SpriteComponent swimmer;
+  SpriteComponent temp;
   double tileSize;
   bool redFilter;
   bool start;
@@ -41,7 +42,7 @@ class TempGame extends Game {
   bool pauseGame = false;
   bool isMoving = false;
   bool posMax;
-  String swimmerPic;
+  String tempPic;
   double creationTimer = 0.0;
   double scoreTimer = 0.0;
   double tempPosY = 0;
@@ -51,7 +52,10 @@ class TempGame extends Game {
   double difficulte = 0.50;
 
   double size = 100.0;
-  static List<String> jump = ['temp/jump1.png', 'temp/jump2.png'];
+  static List<String> jump = [
+    'temp/jump1.png',
+    /*  'temp/jump2.png',*/
+  ];
 
   static List<String> run = [
     'temp/run1.png',
@@ -76,7 +80,7 @@ class TempGame extends Game {
 
   static List<String> waiting = [
     'temp/tile000.png',
-    'temp/tile001.png',
+/*    'temp/tile001.png',
     'temp/tile002.png',
     'temp/tile003.png',
     'temp/tile004.png',
@@ -85,12 +89,13 @@ class TempGame extends Game {
     'temp/tile007.png',
     'temp/tile008.png',
     'temp/tile009.png',
-    'temp/tile010.png'
+    'temp/tile010.png'*/
   ];
 
   List<List<String>> tab = [jump, run, waiting];
 
   double Function() getData;
+  double Function() getPush;
   User user;
   int j = 1;
   double posBottomFloor;
@@ -100,7 +105,7 @@ class TempGame extends Game {
   AppLanguage appLanguage;
   animation.Animation a;
 
-  TempGame(this.getData, User _user, AppLanguage _appLanguage) {
+  TempGame(this.getData, this.getPush, User _user, AppLanguage _appLanguage) {
     user = _user;
     appLanguage = _appLanguage;
     initialize();
@@ -122,6 +127,7 @@ class TempGame extends Game {
     start = false;
     redFilter = false;
     isInit = false;
+    hasJumped = false;
     posBottomFloor = bottomFloor.getDownPosition();
     posFirstFloor = firstFloor.getDownPosition();
 
@@ -167,10 +173,10 @@ class TempGame extends Game {
             firstFloor.render(canvas, pauseGame, isMoving);
 
           //Bonhomme rouge
-          if (swimmer != null) {
-            swimmer.render(canvas);
+          if (temp != null) {
+            temp.render(canvas);
 
-            pos = swimmer.y + swimmer.height / 2;
+            pos = temp.y + temp.height / 2;
             //print("Position joueur: " + tempPos.toString());
 
           }
@@ -217,45 +223,44 @@ class TempGame extends Game {
       if (isConnected) {
         //Timer
         if (creationTimer >= 0.02) {
-
           if (i == tab[j].length - 1) {
             i = 0;
-          }
-          else if (pauseGame)
+          } else if (pauseGame)
             ;
           else {
             i++;
           }
 
-
           //if (pauseGame) i--;
 
           if (isJumping) {
-            swimmerPic = jump[i];
+            tempPic = jump[i];
             j = 0;
           } else if (isRunning) {
-            swimmerPic = run[i];
+            tempPic = run[i];
             j = 1;
           } else if (isWaiting) {
-            swimmerPic = waiting[i];
+            tempPic = waiting[i];
             j = 2;
           }
 
           creationTimer = 0.0;
 
-          Sprite sprite = Sprite(swimmerPic);
+          Sprite sprite = Sprite(tempPic);
 
-          swimmer = SpriteComponent.fromSprite(
+          temp = SpriteComponent.fromSprite(
               size, size, sprite); // width, height, sprite
-          swimmer.x = tempPosX;
+          temp.x = tempPosX;
+          temp.y = tempPosY;
 
           if (!isInit) {
-            //Centrage du nageur en abscisses
-            swimmer.x = -10;
+            //Centrage du bonhomme en abscisses
+            temp.x = -10;
 
-            tempPosX = swimmer.x;
-            //Centrage du nageur en ordonnées
-            swimmer.y = screenSize.height - (size) - grassSize;
+            tempPosX = temp.x;
+
+            //Centrage du bonhomme en ordonnées
+            tempPosY = screenSize.height - (size) - grassSize;
 
             isInit = true;
           }
@@ -263,7 +268,7 @@ class TempGame extends Game {
           if (!pauseGame) {
             if (tempPosX < (screenSize.width - size) / 2) {
               tempPosX += 3;
-              swimmer.x = tempPosX;
+              temp.x = tempPosX;
             }
             //Si le joueur atteint la moitié de l'écran, la "caméra" suit le joueur au centre de l'écran
             else {
@@ -275,20 +280,20 @@ class TempGame extends Game {
           //Bas
           //Premier étage d'herbe
           if (tempPosY >= screenSize.height - (size) - grassSize) {
-            swimmer.y = tempPosY;
+            temp.y = tempPosY;
           }
-
-          //Sinon on fait descendre le nageur
+/*
+          //Sinon on fait descendre le bonhomme
           else if (!posMax) {
-            swimmer.y += tempPosY;
-            tempPosY = swimmer.y + difficulte * 4.0;
-            if (pauseGame) tempPosY = swimmer.y;
+            temp.y += tempPosY;
+            tempPosY = temp.y + difficulte * 4.0;
+            if (pauseGame) tempPosY = temp.y;
           } else {
-            if (swimmer.y == 0.0) {
-              swimmer.y = tempPosY;
+            if (temp.y == 0.0) {
+              temp.y = tempPosY;
             }
             posMax = false;
-          }
+          }*/
           //component = new Component(dimensions);
           //add(component);
         }
@@ -301,32 +306,49 @@ class TempGame extends Game {
           }
 
           //getData = données reçues par le Bluetooth
-          //Montée du nageur
+          //Montée du bonhomme
           if (getData() > double.parse(user.userInitialPush) &&
               !posMax &&
-              swimmer != null) {
-            //print(swimmer.y);
-            swimmer.y -= difficulte;
-            tempPosY = swimmer.y;
+              temp != null) {
+            //print(temp.y);
+            /*temp.y -= difficulte;
+            tempPosY = temp.y;*/
             inTouch = false;
           }
 
-          //print("tempPos: $tempPos \nSwimmer.y: ${swimmer.y}\n");
 
-          //Pression sur l'écran avec le doigt
-/*          if (inTouch) {
-            print(swimmer.y);
-            swimmer.y -= 20.0;
-            tempPos = swimmer.y;
-            inTouch = false;
-          }*/
+          //Si il a poussé pendant 6 secondes et qu'il n'a pas déjà sauté
+          if(isWaiting) {
+            if (getPush() >= 1 && !hasJumped) {
+              setPlayerState(0);
+              doAJump();
+              hasJumped = true;
+            }
+          }
         }
       }
     }
     //super.update(t);
   }
 
+  void doAJump() {
+    //tempPosY = firstFloorY - size;
+    if (tempPosY > firstFloorY - size) {
+      new Timer(
+        const Duration(milliseconds: 2),
+        () {
+          tempPosY -= 3;
+          doAJump();
+        },
+      );
+    }
+
+    //tempPosY = (screenSize.height - screenSize.width * 0.3) - size;
+    temp.y = tempPosY;
+  }
+
   void setPlayerState(int state) {
+    //Jump
     if (state == 0) {
       isJumping = true;
       isRunning = false;
@@ -334,6 +356,7 @@ class TempGame extends Game {
       j = 0;
       i = 0;
     }
+    //Run
     if (state == 1) {
       isJumping = false;
       isRunning = true;
@@ -341,6 +364,7 @@ class TempGame extends Game {
       j = 1;
       i = 0;
     }
+    //Wait
     if (state == 2) {
       isJumping = false;
       isRunning = false;
@@ -375,8 +399,7 @@ class TempGame extends Game {
   }
 
   ColorFilter getColorFilter() {
-    if(redFilter == null)
-      redFilter = true;
+    if (redFilter == null) redFilter = true;
     if (redFilter) {
       return ColorFilter.mode(Colors.transparent, BlendMode.luminosity);
       //return ColorFilter.mode(Colors.redAccent, BlendMode.hue);

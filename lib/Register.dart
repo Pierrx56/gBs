@@ -590,75 +590,93 @@ class _Register extends State<Register> {
                     onPressed: !isFound && serialNumber.text.length >= 8
                         ? () async {
                             //On met isFound à true pour désactiver l'appuie du bouton
-                            setState(() {
-                              isFound = true;
-                            });
-                            macAddress = await btManage.getDevice(serialNumber
-                                .text
-                                .toUpperCase()
-                                .replaceAll(" ", ""));
+                            setState(
+                              () {
+                                isFound = true;
+                              },
+                            );
+                            macAddress = await btManage.getDevice(
+                              serialNumber.text
+                                  .toUpperCase()
+                                  .replaceAll(" ", ""),
+                            );
 
                             int tempTimer = 0;
                             //Check tant que l'adresse mac est égale à -1 toute les secondes
                             //Si pas trouve au bout de 30 secondes, affiche message d'erreur
-                            Timer.periodic(const Duration(seconds: 1),
-                                (timer) async {
-                              if (macAddress == "0") {
-                                macAddress = await btManage.getDevice(
+                            Timer.periodic(
+                              const Duration(seconds: 1),
+                              (timer) async {
+                                if (macAddress == "0") {
+                                  macAddress = await btManage.getDevice(
                                     serialNumber.text
                                         .toUpperCase()
-                                        .replaceAll(" ", ""));
-                              }
-                              if (macAddress != "-1") {
-                                timer.cancel();
-                                //Appareil trouvé
-                                setState(() {
-                                  discovering = AppLocalizations.of(context)
-                                      .translate('app_trouve');
-                                  isFound = true;
-                                  connect();
-
-                                  Timer.periodic(const Duration(seconds: 1),
-                                      (timer) {
-                                    if (isConnected) {
-                                      timer.cancel();
-                                      setState(() {
-                                        discovering = AppLocalizations.of(
-                                                context)
-                                            .translate('status_connexion_bon');
-                                      });
-                                    } else {
-                                      setState(() {
-                                        discovering = AppLocalizations.of(
-                                                context)
-                                            .translate('connexion_en_cours');
-                                      });
-                                    }
-                                  });
-                                });
-                              } else if (macAddress == "-1") {
-                                if (tempTimer >= 20) {
-                                  setState(() {
-                                    show(AppLocalizations.of(context)
-                                        .translate('app_non_trouve'));
-                                    discovering = AppLocalizations.of(context)
-                                        .translate('connecter_app');
-                                  });
-                                  isFound = false;
-                                  timer.cancel();
-                                  tempTimer = 0;
-                                } else {
-                                  macAddress = await btManage.getMacAddress();
-                                  setState(() {
-                                    discovering = AppLocalizations.of(context)
-                                        .translate('recherche_app');
-                                    //isFound = false;
-                                  });
+                                        .replaceAll(" ", ""),
+                                  );
                                 }
-                              }
-                              print(tempTimer);
-                              tempTimer++;
-                            });
+                                if (macAddress != "-1") {
+                                  timer.cancel();
+                                  //Appareil trouvé
+                                  setState(
+                                    () {
+                                      discovering = AppLocalizations.of(context)
+                                          .translate('app_trouve');
+                                      isFound = true;
+                                      connect();
+
+                                      Timer.periodic(
+                                        const Duration(seconds: 1),
+                                        (timer) {
+                                          if (isConnected) {
+                                            timer.cancel();
+                                            setState(
+                                              () {
+                                                discovering = AppLocalizations
+                                                        .of(context)
+                                                    .translate(
+                                                        'status_connexion_bon');
+                                              },
+                                            );
+                                          } else {
+                                            setState(
+                                              () {
+                                                discovering = AppLocalizations
+                                                        .of(context)
+                                                    .translate(
+                                                        'connexion_en_cours');
+                                              },
+                                            );
+                                          }
+                                        },
+                                      );
+                                    },
+                                  );
+                                } else if (macAddress == "-1") {
+                                  if (tempTimer >= 20) {
+                                    setState(() {
+                                      show(AppLocalizations.of(context)
+                                          .translate('app_non_trouve'));
+                                      discovering = AppLocalizations.of(context)
+                                          .translate('connecter_app');
+                                    });
+                                    isFound = false;
+                                    timer.cancel();
+                                    tempTimer = 0;
+                                  } else {
+                                    macAddress = await btManage.getMacAddress();
+                                    setState(
+                                      () {
+                                        discovering =
+                                            AppLocalizations.of(context)
+                                                .translate('recherche_app');
+                                        //isFound = false;
+                                      },
+                                    );
+                                  }
+                                }
+                                tempTimer++;
+                              },
+                            );
                           }
                         : null,
                   ),

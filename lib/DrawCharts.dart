@@ -65,6 +65,9 @@ class DrawCharts extends StatelessWidget {
       )
     ];
 
+    if(data == null)
+      return Container();
+
     return Container(
       child: charts.BarChart(
         series,

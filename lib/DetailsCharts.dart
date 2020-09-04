@@ -48,6 +48,7 @@ class _DetailsCharts extends State<DetailsCharts> {
   @override
   void initState() {
     scoresSorted = scores;
+
     dataProcess();
     super.initState();
   }
@@ -56,6 +57,9 @@ class _DetailsCharts extends State<DetailsCharts> {
     largestScore = 0;
     dayLargestScore = "";
     double tempAverage = 0.0;
+
+    if(scores == null)
+      return;
 
     var listScore = scoresSorted.asMap().entries.map((entry) {
       final int score = entry.value.score;
@@ -197,6 +201,15 @@ class _DetailsCharts extends State<DetailsCharts> {
                             ? Text(
                                 AppLocalizations.of(context)
                                     .translate('stat_avion'),
+                                style: textStyle,
+                                textAlign: TextAlign.center,
+                              )
+                            :
+                        //Temp
+                        messageIn == "$ID_TEMP_ACTIVITY"
+                            ? Text(
+                                AppLocalizations.of(context)
+                                    .translate('stat_temp'),
                                 style: textStyle,
                                 textAlign: TextAlign.center,
                               )

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -28,7 +29,8 @@ class Login extends StatefulWidget {
 
 class _Login extends State<Login> {
   DatabaseHelper db = new DatabaseHelper();
-  BluetoothManager bluetoothManager = new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
+  BluetoothManager bluetoothManager =
+      new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
   File imageFile;
   AppLanguage appLanguage;
 
@@ -48,14 +50,12 @@ class _Login extends State<Login> {
     super.dispose();
   }
 
-  void init() async{
-
+  void init() async {
     //Demander l'autorisation à la localisation pour le bluetooth
-    if(!await bluetoothManager.locationPermission()){
+    if (!await bluetoothManager.locationPermission()) {
       //init();
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +76,52 @@ class LoginWidget extends StatelessWidget {
     Size screenSize = MediaQuery.of(context).size;
     var appLanguage = Provider.of<AppLanguage>(context);
 
-    double tempWidth, tempHeight = 0.0;
+    var languages = [
+      FlatButton.icon(
+        icon: ClipRRect(
+          borderRadius: BorderRadius.circular(8.0),
+          child: Image(
+            image: new AssetImage("assets/flags/fr.png"),
+            width: 40,
+          ),
+        ),
+        label: Text(
+          "Français",
+          style: TextStyle(
+            color: Colors.black,
+          ),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        splashColor: Colors.blue,
+        onPressed: () {
+          print("Français");
+          appLanguage.changeLanguage(Locale("fr"));
+        },
+      ),
+      FlatButton.icon(
+        icon: Image(
+          image: new AssetImage("assets/flags/en.png"),
+          width: 40,
+        ),
+        label: Text(
+          "English",
+          style: TextStyle(
+            color: Colors.black,
+          ),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        splashColor: Colors.blue,
+        onPressed: () {
+          print("English");
+          appLanguage.changeLanguage(Locale("en"));
+        },
+      ),
+    ];
+
     return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -84,41 +129,41 @@ class LoginWidget extends StatelessWidget {
           ),
           backgroundColor: Colors.blue,
           actions: <Widget>[
-
-
             FlatButton.icon(
               icon: Icon(
                 Icons.exit_to_app,
                 color: Colors.white,
               ),
-              label: Text(
-                "Quitter",
+              label: AutoSizeText(
+                AppLocalizations.of(context).translate('quitter_appli'),
                 style: TextStyle(
                   color: Colors.white,
+                  fontSize: 15,
                 ),
+                minFontSize: 10,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
               splashColor: Colors.blue,
               onPressed: () {
-                if(Platform.isAndroid)
+                if (Platform.isAndroid)
                   SystemNavigator.pop();
-                else if(Platform.isIOS)
-                  exit(0);
+                else if (Platform.isIOS) exit(0);
               },
             ),
-
             FlatButton.icon(
               icon: Icon(
                 Icons.question_answer,
                 color: Colors.white,
               ),
-              label: Text(
+              label: AutoSizeText(
                 "FAQ",
                 style: TextStyle(
+                  fontSize: 15,
                   color: Colors.white,
                 ),
+                minFontSize: 10,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -137,49 +182,35 @@ class LoginWidget extends StatelessWidget {
                 );
               },
             ),
-            FlatButton.icon(
-              icon: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image(
-                  image: new AssetImage("assets/flags/fr.png"),
-                  width: 40,
-                ),
+            Container(
+              width: screenSize.width / 4,
+              child: Stack(
+                alignment: Alignment.centerLeft,
+                children: <Widget>[
+                  Container(
+                    width: screenSize.width / 5,
+                    child: AutoSizeText(
+                      AppLocalizations.of(context).translate('choix_langue'),
+                      style: TextStyle(fontSize: 25),
+                      minFontSize: 15,
+                      maxLines: 1,
+                    ),
+                  ),
+                  DropdownButton<FlatButton>(
+                    /*value: languages[0],*/
+                    items: languages.map((FlatButton value) {
+                      return DropdownMenuItem<FlatButton>(
+                        value: value,
+                        child: value,
+                      );
+                    }).toList(),
+                    onChanged: (FlatButton button) {
+                      setState() {}
+                    },
+                  ),
+                ],
               ),
-              label: Text(
-                "Français",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              splashColor: Colors.blue,
-              onPressed: () {
-                print("Français");
-                appLanguage.changeLanguage(Locale("fr"));
-              },
-            ),
-            FlatButton.icon(
-              icon: Image(
-                image: new AssetImage("assets/flags/en.png"),
-                width: 40,
-              ),
-              label: Text(
-                "English",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              splashColor: Colors.blue,
-              onPressed: () {
-                print("English");
-                appLanguage.changeLanguage(Locale("en"));
-              },
-            ),
+            )
           ],
         ),
         body: Column(
@@ -221,20 +252,21 @@ class LoginWidget extends StatelessWidget {
                                     Stack(
                                       alignment: Alignment.center,
                                       children: <Widget>[
-                                      Container(
-                                        height: tempHeight = screenSize.height * 0.3,
-                                        width: tempWidth = screenSize.width * 0.3,
-                                      ),
-                                      //Text(AppLocalizations.of(context).translate('profil_existant') + ": "),
-                                      ClipRRect(
-                                        borderRadius:
-                                        BorderRadius.circular(8.0),
-                                        child: Image.file(
-                                          File(
-                                              snapshot.data[index - 1].userPic),
+                                        Container(
+                                          height: screenSize.height * 0.3,
+                                          width: screenSize.width * 0.3,
                                         ),
-                                      ),
-                                    ],),
+                                        //Text(AppLocalizations.of(context).translate('profil_existant') + ": "),
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          child: Image.file(
+                                            File(snapshot
+                                                .data[index - 1].userPic),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                     Text(
                                       item.userName,
                                       style: textStyle,

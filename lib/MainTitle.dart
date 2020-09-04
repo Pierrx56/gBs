@@ -89,6 +89,8 @@ class _MainTitle extends State<MainTitle> {
     getScores(user.userId, ID_SWIMMER_ACTIVITY);
     //Plane
     getScores(user.userId, ID_PLANE_ACTIVITY);
+    //Temp
+    getScores(user.userId, ID_TEMP_ACTIVITY);
 
     //Connexion directement dès le login
     connect();
