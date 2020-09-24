@@ -139,11 +139,11 @@ class BottomFloor {
 
       }
       else if(j <= 18.5 * (-grassSize) && !pause) {
+        isMoving = false;
         j += screenSpeed;
         game.setPlayerState(2);
         hasChanged = true;
       }
-
 
 
       //-1190
@@ -281,8 +281,15 @@ class FirstFloor {
 
   void render(Canvas c, bool pause, bool isMoving) {
     if (isMoving) {
-      c.translate(j.toDouble() - j.toDouble(),
+      //j.toDouble() - j.toDouble()
+      c.translate(0,
           -game.screenSize.width * 0.1 + game.screenSize.width * 0.1);
+
+
+      //if(j < -(game.screenSize.width)*1.5)
+        //j=0;
+        //print("oui");
+
     }
 
     grassLeft.renderRect(c, rectGrassLeft);

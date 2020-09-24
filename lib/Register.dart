@@ -277,7 +277,7 @@ class _Register extends State<Register> {
             isEmpty = true;
           else
             isEmpty = false;
-        } else if (currentStep == 1) {
+        } /*else if (currentStep == 1) {
           if (hauteur_min.text == "")
             isEmpty = true;
           else
@@ -291,7 +291,8 @@ class _Register extends State<Register> {
             _validate = true;
           else
             _validate = false;
-        } else if (currentStep == 5) {
+        } */
+        else if (currentStep == 3) {
           //Bouton connexion
           if (!isConnected) {
             show(AppLocalizations.of(context).translate('connect_av'));
@@ -399,6 +400,7 @@ class _Register extends State<Register> {
           ),
         ),
       ),
+      /*
       Step(
         title: Text(AppLocalizations.of(context).translate('haut_min')),
         isActive: currentStep > 1,
@@ -468,7 +470,7 @@ class _Register extends State<Register> {
             ],
           ),
         ),
-      ),
+      ),*/
       Step(
         title: Text(
           AppLocalizations.of(context).translate('mode'),
@@ -716,7 +718,7 @@ class _Register extends State<Register> {
                               ": " +
                               _userMode,
                           style: textStyle,
-                        ),
+                        ),/*
                         Text(
                           AppLocalizations.of(context).translate('haut_min') +
                               ": " +
@@ -728,7 +730,7 @@ class _Register extends State<Register> {
                               ": " +
                               hauteur_max.text,
                           style: textStyle,
-                        ),
+                        ),*/
                       ],
                     ),
                   ],
@@ -825,7 +827,7 @@ class _Register extends State<Register> {
           key: _formKey,
           actions: <Widget>[
             StepProgressIndicator(
-              totalSteps: 6,
+              totalSteps: steps.length-1,
               currentStep: currentStep,
               fallbackLength: screenSize.width / 2,
               selectedColor: Colors.lightGreenAccent,
@@ -873,8 +875,8 @@ class _Register extends State<Register> {
                       children: <Widget>[
                         Row(
                           children: <Widget>[
-                            currentStep >= 3 ? nextButton : Container(),
-                            currentStep >= 3 ? backButton : Container(),
+                            currentStep >= 1 ? nextButton : Container(),
+                            currentStep >= 1 ? backButton : Container(),
                             currentStep == 5 ? Container() : Container(),
                             currentStep == 5 ? Container() : Container(),
                           ],

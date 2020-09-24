@@ -372,7 +372,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                 ],
               ),
             ),
-            //Display message afficher le score
+            //Display message afficher le score et les secondes
             game != null
                 ? !game.getGameOver() && game.getConnectionState()
                     ? Container(

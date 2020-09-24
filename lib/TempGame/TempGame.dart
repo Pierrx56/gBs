@@ -319,7 +319,7 @@ class TempGame extends Game {
 
           //Si il a poussé pendant 6 secondes et qu'il n'a pas déjà sauté
           if(isWaiting) {
-            if (getPush() >= 1 && !hasJumped) {
+            if (getPush() >= 1) {
               setPlayerState(0);
               doAJump();
               hasJumped = true;

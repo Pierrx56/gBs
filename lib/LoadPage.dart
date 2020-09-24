@@ -8,7 +8,7 @@ import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DetailsCharts.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/FAQ.dart';
-import 'package:gbsalternative/FirstPush.dart';
+import 'package:gbsalternative/MaxPush.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/ManageProfile.dart';
@@ -23,7 +23,7 @@ import 'package:provider/provider.dart';
 //Déclaration du nom des pages
 String detailsCharts = "DetailsCharts";
 String faq = "FAQ";
-String firstPush = "FirstPush";
+String firstPush = "MaxPush";
 String login = "Login";
 String mainTitle = "MainTitle";
 String manageProfile = "ManageProfile";
@@ -96,7 +96,7 @@ class _LoadPage extends State<LoadPage> {
             home:
             page == detailsCharts ? DetailsCharts(appLanguage: appLanguage, scores: scores, user: user, messageIn: messageIn,):
             page == faq ? FAQ(user: user, inputMessage: messageIn, appLanguage: appLanguage):
-            page == firstPush ? FirstPush(user: user, inputMessage: messageIn, appLanguage: appLanguage):
+            page == firstPush ? MaxPush(user: user, inputMessage: messageIn, appLanguage: appLanguage):
             page == login ? Login(appLanguage: appLanguage):
             page == mainTitle ? MainTitle(userIn: user, messageIn: messageIn, appLanguage: appLanguage,):
             page == manageProfile ? ManageProfile(curUser: user, appLanguage: appLanguage):

@@ -39,20 +39,130 @@ class UIState extends State<UI> {
     setState(() {});
   }
 
-  Widget displayScore(
-      BuildContext context, AppLanguage appLanguage, int score) {
-    return Text(
-      "Score: $score m",
-      style: TextStyle(
-        fontSize: 50,
-        color: Colors.black,
-        shadows: <Shadow>[
-          Shadow(
-            color: Color(0x88000000),
-            blurRadius: 10,
-            offset: Offset(2, 2),
+  void saveAndExit(BuildContext context, AppLanguage appLanguage, User user,
+      int score, SwimGame game) async {
+    DatabaseHelper db = new DatabaseHelper();
+    //Date au format FR
+    String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
+
+    Score newScore = Score(
+        scoreId: null,
+        userId: user.userId,
+        activityId: ACTIVITY_NUMBER,
+        scoreValue: score,
+        scoreDate: date);
+
+    //db.deleteScore(user.userId);
+
+    List<Scores> everyScores = await db.getScore(user.userId, ACTIVITY_NUMBER);
+
+    if (everyScores.length == 0 && score != 0)
+      db.addScore(newScore);
+    else if (score != 0) {
+      //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
+      for (int i = 0; i < everyScores.length; i++) {
+        //On remplace la valeur dans la bdd
+        //print(everyScores[i].scoreId);
+        if (everyScores[i].date == date && score > everyScores[i].score)
+          db.updateScore(Score(
+              scoreId: everyScores[i].scoreId,
+              userId: user.userId,
+              activityId: ACTIVITY_NUMBER,
+              scoreValue: score,
+              scoreDate: date));
+      }
+      //Sinon on enregistre si la dernière date enregistrée est différente du jour
+      if (everyScores[everyScores.length - 1].date != date)
+        db.addScore(newScore);
+    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+          builder: (context) => LoadPage(
+                appLanguage: appLanguage,
+                user: user,
+                messageIn: "0",
+                page: mainTitle,
+              )
+          /*MainTitle(
+                        appLanguage: appLanguage,
+                        userIn: user,
+                        messageIn: 0,
+                      )*/
+          /*      MainTitle(
+                  userIn: user,
+                  appLanguage: appLanguage,
+                     )*/
           ),
-        ],
+    );
+  }
+
+  Widget endScreen(BuildContext context, AppLanguage appLanguage,
+      SwimGame game, User user) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        alignment: Alignment.topCenter,
+        decoration: new BoxDecoration(
+            color: Colors.blue.withAlpha(150),
+            //new Color.fromRGBO(255, 0, 0, 0.0),
+            borderRadius: new BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+                bottomLeft: const Radius.circular(20.0),
+                bottomRight: const Radius.circular(20.0))),
+        width: game.screenSize.width / 3,
+        height: game.screenSize.height / 3,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              "Fin du jeu, retour au menu !",
+              textAlign: TextAlign.center,
+              style: textStyle,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget displayScore(BuildContext context, AppLanguage appLanguage,
+      String score, String timeRemaining, SwimGame game) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        alignment: Alignment.center,
+        decoration: new BoxDecoration(
+            color: Colors.blue.withAlpha(150),
+            //new Color.fromRGBO(255, 0, 0, 0.0),
+            borderRadius: new BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+                bottomLeft: const Radius.circular(20.0),
+                bottomRight: const Radius.circular(20.0))),
+        width: game.screenSize.width * 0.25,
+        height: game.screenSize.height * 0.35,
+        child: FittedBox(
+          fit: BoxFit.fitWidth,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              AutoSizeText(
+                "$timeRemaining",
+                minFontSize: 35,
+                style: textStyle
+              ),
+              AutoSizeText(
+                "Score: $score m",
+                  minFontSize: 35,
+                style: textStyle
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -63,7 +173,7 @@ class UIState extends State<UI> {
       child: Container(
         alignment: Alignment.topCenter,
         decoration: new BoxDecoration(
-            color: color.withAlpha(150),//Colors.blue.withAlpha(150),
+            color: color.withAlpha(150), //Colors.blue.withAlpha(150),
             //new Color.fromRGBO(255, 0, 0, 0.0),
             borderRadius: new BorderRadius.only(
                 topLeft: const Radius.circular(20.0),
@@ -174,7 +284,9 @@ class UIState extends State<UI> {
       padding: const EdgeInsets.all(10.0),
       child: Container(
         height: game.screenSize.height * 0.2,
-        width: game.pauseGame ? game.screenSize.width / 3 :game.screenSize.width / 4 ,
+        width: game.pauseGame
+            ? game.screenSize.width / 3
+            : game.screenSize.width / 4,
         child: RaisedButton(
           onPressed: !game.getGameOver()
               ? game.getConnectionState()

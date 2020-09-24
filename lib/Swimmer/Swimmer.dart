@@ -50,12 +50,15 @@ class _Swimmer extends State<Swimmer> {
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
   String recording;
+  String timeRemaining;
+  int seconds;
   Timer timer;
   Timer _timer;
   int _start = 5;
   Timer timerThread;
   Timer timerConnexion;
   UI gameUI;
+  bool gameOver;
   int score;
 
   _Swimmer(User _user, AppLanguage _appLanguage) {
@@ -69,6 +72,14 @@ class _Swimmer extends State<Swimmer> {
     if (user.userInitialPush != "0.0") {
       gameUI = UI();
       score = 0;
+      if (user.userMode == "Sportif") {
+        timeRemaining = "3:00";
+        seconds = 180;
+      } else {
+        timeRemaining = "2:00";
+        seconds = 120;
+      }
+      gameOver = false;
       isConnected = false;
       connect();
     }
@@ -92,6 +103,7 @@ class _Swimmer extends State<Swimmer> {
     game = new SwimGame(getData, user, appLanguage);
     refreshScore();
     mainThread();
+    startTimer(true);
     //gameUI.state.game = game;
     Util flameUtil = Util();
     flameUtil.fullScreen();
@@ -112,7 +124,7 @@ class _Swimmer extends State<Swimmer> {
     } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
-      if(isConnected) {
+      if (isConnected) {
         launchGame();
         return;
       }
@@ -137,7 +149,7 @@ class _Swimmer extends State<Swimmer> {
     }
   }
 
-  void launchGame(){
+  void launchGame() {
     initSwimmer();
   }
 
@@ -200,6 +212,63 @@ class _Swimmer extends State<Swimmer> {
         }
       }
     });
+  }
+
+  void startTimer(bool boolean) async {
+    Timer _timer;
+    int _start = seconds;
+    const int delay = 1;
+
+    if (!boolean && isConnected) {
+      _start = seconds;
+    } else {
+      const time = const Duration(seconds: delay);
+      _timer = new Timer.periodic(
+        time,
+        (Timer timer) {
+          //FIN DU JEU
+          if (_start < delay) {
+            //TODO Display menu ?
+            game.pauseGame = true;
+            gameOver = true;
+            timer.cancel();
+            redirection();
+          } else if (!game.getConnectionState())
+            timer.cancel();
+          else if (game.pauseGame || game.getGameOver()) {
+            timeRemaining = convertDuration(Duration(seconds: _start));
+          } else {
+            _start -= delay;
+            timeRemaining = convertDuration(Duration(seconds: _start));
+          }
+        },
+      );
+    }
+  }
+
+  String convertDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    /*${twoDigits(duration.inHours)}:*/
+    return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  void redirection() {
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+      oneSec,
+      (Timer timer) => setState(
+        () {
+          if (_start < 1) {
+            timer.cancel();
+            gameUI.state.saveAndExit(context, appLanguage, user, score, game);
+          } else {
+            _start = _start - 1;
+          }
+        },
+      ),
+    );
   }
 
   @override
@@ -304,12 +373,15 @@ class _Swimmer extends State<Swimmer> {
                                 : gameUI.state.pauseButton(
                                     context, appLanguage, game, user),
                           )
-                        : !game.isTooHigh
+                        : !gameOver
                             ? Container(
                                 alignment: Alignment.topRight,
                                 child: gameUI.state
                                     .menu(context, appLanguage, game, user))
-                            : Container()
+                            : Container(
+                                alignment: Alignment.topCenter,
+                                child: gameUI.state.endScreen(
+                                    context, appLanguage, game, user))
                     : Container(),
 
                 /*              Container(
@@ -323,13 +395,14 @@ class _Swimmer extends State<Swimmer> {
               ],
             ),
           ),
-          //Display message pour afficher score
+          //Display message pour afficher score et les secondes
           Container(
             alignment: Alignment.bottomLeft,
             padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
             child: game == null
                 ? Container()
-                : gameUI.state.displayScore(context, appLanguage, score),
+                : gameUI.state.displayScore(context, appLanguage,
+                    score.toString(), timeRemaining, game),
           ),
           //Display message pour relancher
           Container(
