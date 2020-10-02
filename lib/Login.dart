@@ -129,7 +129,7 @@ class LoginWidget extends StatelessWidget {
           ),
           backgroundColor: Colors.blue,
           actions: <Widget>[
-            FlatButton.icon(
+            /*FlatButton.icon(
               icon: Icon(
                 Icons.exit_to_app,
                 color: Colors.white,
@@ -151,7 +151,7 @@ class LoginWidget extends StatelessWidget {
                   SystemNavigator.pop();
                 else if (Platform.isIOS) exit(0);
               },
-            ),
+            ),*/
             FlatButton.icon(
               icon: Icon(
                 Icons.question_answer,
@@ -182,7 +182,8 @@ class LoginWidget extends StatelessWidget {
                 );
               },
             ),
-            Container(
+            //Choix de la langue
+            /*Container(
               width: screenSize.width / 4,
               child: Stack(
                 alignment: Alignment.centerLeft,
@@ -197,7 +198,7 @@ class LoginWidget extends StatelessWidget {
                     ),
                   ),
                   DropdownButton<FlatButton>(
-                    /*value: languages[0],*/
+                    *//*value: languages[0],*//*
                     items: languages.map((FlatButton value) {
                       return DropdownMenuItem<FlatButton>(
                         value: value,
@@ -210,7 +211,7 @@ class LoginWidget extends StatelessWidget {
                   ),
                 ],
               ),
-            )
+            )*/
           ],
         ),
         body: Column(

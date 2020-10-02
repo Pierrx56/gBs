@@ -341,7 +341,7 @@ class _ManageProfile extends State<ManageProfile> {
                                   user.userName,
                           hasFloatingPlaceholder: true),
                     ),
-                    SizedBox(
+/*                    SizedBox(
                       height: 20,
                     ),
                     TextFormField(
@@ -375,7 +375,7 @@ class _ManageProfile extends State<ManageProfile> {
                         validator: (value) {
                           if (value.isEmpty) return 'Veuillez remplir ce champ';
                           return null;
-                        }),
+                        }),*/
                     SizedBox(
                       height: 20,
                     ),

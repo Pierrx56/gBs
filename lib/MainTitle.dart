@@ -113,7 +113,7 @@ class _MainTitle extends State<MainTitle> {
     } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
-      if(isConnected) {
+      if (isConnected) {
         return;
       }
       testConnect();
@@ -190,6 +190,32 @@ class _MainTitle extends State<MainTitle> {
           ),
           backgroundColor: Colors.blue,
           actions: <Widget>[
+            FlatButton.icon(
+              icon: Icon(
+                Icons.settings,
+                color: Colors.white,
+              ),
+              label: Text("",
+                //AppLocalizations.of(context).translate('reglages'),
+                style: TextStyle(color: Colors.white),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              splashColor: Colors.blue,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoadPage(
+                        user: user,
+                        appLanguage: appLanguage,
+                        messageIn: "fromMainTitle",
+                        page: manageProfile),
+                  ),
+                );
+              },
+            ),
             FlatButton.icon(
               icon: Icon(
                 Icons.question_answer,
@@ -331,12 +357,12 @@ class _MainTitle extends State<MainTitle> {
                 color: Colors.white,
               ),
               label: temp != null
-                  ? Text(
-                      AppLocalizations.of(context).translate('deconnexion'),
+                  ? Text(''
+                      /*AppLocalizations.of(context).translate('deconnexion'),
                       style: TextStyle(
                         color: Colors.white,
-                      ),
-                    )
+                      ),*/
+                      )
                   : Text("Check Language file (en/fr.json)"),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -669,6 +695,12 @@ class _MainTitle extends State<MainTitle> {
       settingsPage,
     ];
 
+
+    return MaterialApp(
+      home: menu(),
+    );
+
+/*
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: DefaultTabController(
@@ -703,7 +735,7 @@ class _MainTitle extends State<MainTitle> {
           ),
         ),
       ),
-    );
+    );*/
   }
 
   // Method to show a Snackbar,

@@ -253,7 +253,7 @@ class _MaxPush extends State<MaxPush> {
                       children: <Widget>[
                         //Progress bar maison
                         //Rotate -math.pi pour retourner les container de 180°
-                        Container(
+                        !isCorrect ? Container(
                           width: screenSize.width * 0.2,
                           alignment: Alignment.center,
                           child: Transform.rotate(
@@ -316,9 +316,9 @@ class _MaxPush extends State<MaxPush> {
                               ],
                             ),
                           ),
-                        ),
+                        ) : Container(),
                         Container(
-                          width: screenSize.width * 0.7,
+                          width: screenSize.width*0.9,
                           alignment: Alignment.center,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -331,11 +331,14 @@ class _MaxPush extends State<MaxPush> {
                                   isCorrect
                                       ? Column(
                                           children: <Widget>[
-                                            AutoSizeText(
-                                              "Bottom",
-                                              style: textStyle,
-                                            ),
+                                            Text(" "),
                                             bottomPicker,
+                                            AutoSizeText(
+                                              AppLocalizations.of(context)
+                                                  .translate('haut_min'),
+                                              style: textStyle,
+                                              textAlign: TextAlign.center,
+                                            ),
                                           ],
                                         )
                                       : Container(),
@@ -343,10 +346,14 @@ class _MaxPush extends State<MaxPush> {
                                       ? Column(
                                           children: <Widget>[
                                             AutoSizeText(
-                                              "Top",
+                                              AppLocalizations.of(context)
+                                                  .translate('haut_max'),
                                               style: textStyle,
+                                              textAlign: TextAlign.center,
                                             ),
                                             topPicker,
+                                            Text(" "),
+                                            Text(" "),
                                           ],
                                         )
                                       : Container(),
@@ -355,7 +362,7 @@ class _MaxPush extends State<MaxPush> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: <Widget>[
-                                      user.userHeightBottom != "0"
+                                      user.userHeightBottom != ""
                                           ? AutoSizeText(
                                               "Hmin: ${user.userHeightBottom} | "
                                                   "HMAX: ${user.userHeightTop}",
@@ -366,8 +373,8 @@ class _MaxPush extends State<MaxPush> {
                                         width: screenSize.width * 0.3,
                                         child: RaisedButton(
                                           //child: Text("Démarrer l'enregistrement."),
-                                          onPressed: !isCorrect &&
-                                                  user.userInitialPush != "0.0"
+                                          onPressed: !isCorrect ||
+                                                  user.userInitialPush == "0.0"
                                               ? () async {
                                                   colorMesureButton =
                                                       Colors.black;
@@ -521,7 +528,7 @@ class _MaxPush extends State<MaxPush> {
                                           ),
                                         ),
                                       ),
-                                      inputMessage == "fromMain"
+                                      inputMessage == "fromMain" || (inputMessage == "fromRegister" && isCorrect)
                                           ? RaisedButton(
                                               onPressed: () {
                                                 if (bottom == 0)
