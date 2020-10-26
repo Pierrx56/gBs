@@ -448,7 +448,7 @@ class _ManageProfile extends State<ManageProfile> {
                       ),
                       RaisedButton(
                         onPressed: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => LoadPage(

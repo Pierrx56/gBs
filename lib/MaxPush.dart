@@ -310,7 +310,7 @@ class _MaxPush extends State<MaxPush> {
                                             (double.parse(btData)).toString(),
                                             style: textStyle,
                                           ))),
-                                  width: 100,
+                                  width: screenSize.width * 0.15,
                                   height: screenSize.height / 2,
                                 ),
                               ],

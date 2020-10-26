@@ -461,107 +461,115 @@ class _SelectGame extends State<SelectGame> {
                     : "Check Language file (en/fr.json)",
                 style: textStyle,
               ),
-              content: Row(
-                children: <Widget>[
-                  SingleChildScrollView(
-                    child: Container(
-                      child: Column(
-                        children: <Widget>[
-                          AutoSizeText(
-                            temp != null
-                                ? idGame == ID_PLANE_ACTIVITY
-                                    ? AppLocalizations.of(this.context)
-                                            .translate('type_activite') +
-                                        " " +
-                                        AppLocalizations.of(this.context)
-                                            .translate('type_activite_EI') +
-                                        "\n\n" +
-                                        //On adapte le texte au mode choisi
-                                        //Si sportif, on remplace XX par 3 (nb de minutes)
-                                        //Sinon par 2
-                                        AppLocalizations.of(this.context)
-                                            .translate('info_avion')
-                                            .replaceAll(
-                                                "XX",
-                                                user.userMode == AppLocalizations.of(this.context).translate('sportif')
-                                                    ? "3"
-                                                    : "2")
-                                    : idGame == ID_SWIMMER_ACTIVITY
+              content: Builder(
+                builder: (context) {
+                  return Container(
+                    width: screenSize.width * 0.8,
+                    height: screenSize.height * 0.9,
+                    child: Row(
+                    children: <Widget>[
+                      SingleChildScrollView(
+                        child: Container(
+                          width: screenSize.width * 0.7,
+                          height: screenSize.height * 0.8,
+                          child: Column(
+                            children: <Widget>[
+                              AutoSizeText(
+                                temp != null
+                                    ? idGame == ID_PLANE_ACTIVITY
                                         ? AppLocalizations.of(this.context)
                                                 .translate('type_activite') +
                                             " " +
-                                            AppLocalizations.of(this.context).translate(
-                                                'type_activite_EE') +
-                                            "\n\n" +
                                             AppLocalizations.of(this.context)
-                                                .translate('info_nageur')
-                                        : idGame == ID_TEMP_ACTIVITY
-                                            ? AppLocalizations.of(this.context).translate('type_activite') +
+                                                .translate('type_activite_EI') +
+                                            "\n\n" +
+                                            //On adapte le texte au mode choisi
+                                            //Si sportif, on remplace XX par 3 (nb de minutes)
+                                            //Sinon par 2
+                                            AppLocalizations.of(this.context)
+                                                .translate('info_avion')
+                                                .replaceAll(
+                                                    "XX",
+                                                    user.userMode == AppLocalizations.of(this.context).translate('sportif')
+                                                        ? "3"
+                                                        : "2")
+                                        : idGame == ID_SWIMMER_ACTIVITY
+                                            ? AppLocalizations.of(this.context)
+                                                    .translate('type_activite') +
                                                 " " +
-                                                AppLocalizations.of(this.context)
-                                                    .translate(
-                                                        'type_activite_CMV') +
+                                                AppLocalizations.of(this.context).translate(
+                                                    'type_activite_EE') +
                                                 "\n\n" +
                                                 AppLocalizations.of(this.context)
-                                                    .translate('info_temp')
-                                            : "non renseigné dans SelectGame"
-                                : "Check Language file (en/fr.json)",
-                            style: textStyle,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              RaisedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: AutoSizeText(
-                                  temp != null
-                                      ? AppLocalizations.of(this.context)
-                                          .translate('retour')
-                                      : "Check Language file (en/fr.json)",
-                                  style: textStyle,
-                                ),
+                                                    .translate('info_nageur')
+                                            : idGame == ID_TEMP_ACTIVITY
+                                                ? AppLocalizations.of(this.context).translate('type_activite') +
+                                                    " " +
+                                                    AppLocalizations.of(this.context)
+                                                        .translate(
+                                                            'type_activite_CMV') +
+                                                    "\n\n" +
+                                                    AppLocalizations.of(this.context)
+                                                        .translate('info_temp')
+                                                : "non renseigné dans SelectGame"
+                                    : "Check Language file (en/fr.json)",
+                                style: textStyle,
                               ),
-                              Spacer(),
-                              /*
-                              RaisedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: AutoSizeText(
-                                  temp != null
-                                      ? AppLocalizations.of(this.context)
-                                          .translate('statistiques')
-                                      : "Check Language file (en/fr.json)",
-                                  style: textStyle,
-                                ),
-                              ),
-                              Spacer(),*/
-                              RaisedButton(
-                                onPressed: () {
-                                  //Disparition de lu popup
-                                  Navigator.pop(context);
-                                  lauchGame(idGame);
-                                },
-                                child: AutoSizeText(
-                                  temp != null
-                                      ? AppLocalizations.of(this.context)
-                                          .translate('lancer_jeu')
-                                      : "Check Language file (en/fr.json)",
-                                  style: textStyle,
-                                ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  RaisedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: AutoSizeText(
+                                      temp != null
+                                          ? AppLocalizations.of(this.context)
+                                              .translate('retour')
+                                          : "Check Language file (en/fr.json)",
+                                      style: textStyle,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  /*
+                                  RaisedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: AutoSizeText(
+                                      temp != null
+                                          ? AppLocalizations.of(this.context)
+                                              .translate('statistiques')
+                                          : "Check Language file (en/fr.json)",
+                                      style: textStyle,
+                                    ),
+                                  ),
+                                  Spacer(),*/
+                                  RaisedButton(
+                                    onPressed: () {
+                                      //Disparition de lu popup
+                                      Navigator.pop(context);
+                                      lauchGame(idGame);
+                                    },
+                                    child: AutoSizeText(
+                                      temp != null
+                                          ? AppLocalizations.of(this.context)
+                                              .translate('lancer_jeu')
+                                          : "Check Language file (en/fr.json)",
+                                      style: textStyle,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
-                      width: screenSize.width * 0.8,
-                      height: screenSize.height * 0.9,
-                    ),
-                  ),
-                ],
+                    ],
+                ),
+                  );
+                }
               ),
             );
           },

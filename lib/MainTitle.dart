@@ -232,7 +232,7 @@ class _MainTitle extends State<MainTitle> {
               ),
               splashColor: Colors.blue,
               onPressed: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => LoadPage(

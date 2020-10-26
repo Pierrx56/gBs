@@ -10,7 +10,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //Détection de la langue du portable
   AppLanguage appLanguage = AppLanguage();
-  await appLanguage.fetchLocale();
+  Locale langue = await appLanguage.fetchLocale();
+
+  //Changement de la langue
+  //Anglais si autre que fr ou en
+  appLanguage.changeLanguage(langue);
 
   //Lancement de la page Login
   runApp(new MaterialApp(
