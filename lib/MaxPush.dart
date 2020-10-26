@@ -318,7 +318,7 @@ class _MaxPush extends State<MaxPush> {
                           ),
                         ) : Container(),
                         Container(
-                          width: screenSize.width*0.9,
+                          width: isCorrect ? screenSize.width*0.9 : screenSize.width*0.7,
                           alignment: Alignment.center,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -373,8 +373,7 @@ class _MaxPush extends State<MaxPush> {
                                         width: screenSize.width * 0.3,
                                         child: RaisedButton(
                                           //child: Text("Démarrer l'enregistrement."),
-                                          onPressed: !isCorrect ||
-                                                  user.userInitialPush == "0.0"
+                                          onPressed: !isCorrect 
                                               ? () async {
                                                   colorMesureButton =
                                                       Colors.black;

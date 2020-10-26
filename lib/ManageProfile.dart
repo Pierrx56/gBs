@@ -13,9 +13,11 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/LoadPage.dart';
+import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Register.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'DatabaseHelper.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -244,286 +246,291 @@ class _ManageProfile extends State<ManageProfile> {
         children: <Widget>[
           Container(
             padding: EdgeInsets.all(10),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              elevation: 8,
-              child: Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Column(
-                          children: <Widget>[
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                AppLocalizations.of(context)
-                                    .translate('modifier'),
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w600,
+            child: Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Column(
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Text(AppLocalizations.of(context)
+                                  .translate('familial'), style: textStyle,),
+                              Switch(
+                                value: isSwitched,
+                                onChanged: (value) {
+                                  _updateSwitch(value);
+                                  isSwitched = value;
+                                  if (isSwitched)
+                                    _userMode = AppLocalizations.of(context)
+                                        .translate('sportif');
+                                  else
+                                    _userMode = AppLocalizations.of(context)
+                                        .translate('familial');
+                                },
+                                activeTrackColor: Colors.lightGreenAccent,
+                                activeColor: Colors.green,
+                              ),
+                              Text(AppLocalizations.of(context)
+                                  .translate('sportif'), style: textStyle,),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(50, 0, 0, 0),
+                      ),
+                      hasChangedState
+                          ? Icon(
+                              Icons.warning,
+                              color: Colors.red,
+                              size: screenSize.height / 4,
+                            )
+                          : Container(),
+                      hasChangedState
+                          ? Flexible(
+                              child: Container(
+                                height: screenSize.height / 4,
+                                width: screenSize.width / 2,
+                                child: Stack(
+                                  children: <Widget>[
+                                    AutoSizeText(
+                                      AppLocalizations.of(context)
+                                          .translate('enregistrer_avert'),
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      maxLines: 5,
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Text(AppLocalizations.of(context)
-                                    .translate('familial')),
-                                Switch(
-                                  value: isSwitched,
-                                  onChanged: (value) {
-                                    _updateSwitch(value);
-                                    isSwitched = value;
-                                    if (isSwitched)
-                                      _userMode = AppLocalizations.of(context)
-                                          .translate('sportif');
-                                    else
-                                      _userMode = AppLocalizations.of(context)
-                                          .translate('familial');
-                                  },
-                                  activeTrackColor: Colors.lightGreenAccent,
-                                  activeColor: Colors.green,
-                                ),
-                                Text(AppLocalizations.of(context)
-                                    .translate('sportif')),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(50, 0, 0, 0),
-                        ),
-                        hasChangedState
-                            ? Icon(
-                                Icons.warning,
-                                color: Colors.red,
-                                size: screenSize.height / 4,
-                              )
-                            : Container(),
-                        hasChangedState
-                            ? Flexible(
-                                child: Container(
-                                  height: screenSize.height / 4,
-                                  width: screenSize.width / 2,
-                                  child: Stack(
-                                    children: <Widget>[
-                                      AutoSizeText(
-                                        AppLocalizations.of(context)
-                                            .translate('enregistrer_avert'),
-                                        style: TextStyle(
-                                          color: Colors.red,
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        maxLines: 5,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              )
-                            : Container(),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    TextFormField(
-                      controller: name,
-                      decoration: InputDecoration(
-                          labelText:
-                              AppLocalizations.of(context).translate('prenom') +
-                                  ": " +
-                                  user.userName,
-                          hasFloatingPlaceholder: true),
-                    ),
+                            )
+                          : Container(),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  TextFormField(
+                    controller: name,
+                    decoration: InputDecoration(
+                        labelText:
+                            AppLocalizations.of(context).translate('prenom') +
+                                ": " +
+                                user.userName,
+                        hasFloatingPlaceholder: true),
+                  ),
 /*                    SizedBox(
-                      height: 20,
-                    ),
-                    TextFormField(
-                      controller: hauteur_min,
+                    height: 20,
+                  ),
+                  TextFormField(
+                    controller: hauteur_min,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      WhitelistingTextInputFormatter.digitsOnly
+                    ],
+                    decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)
+                                .translate('haut_min') +
+                            ": " +
+                            user.userHeightBottom,
+                        hasFloatingPlaceholder: true),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                      controller: hauteur_max,
                       keyboardType: TextInputType.number,
                       inputFormatters: <TextInputFormatter>[
                         WhitelistingTextInputFormatter.digitsOnly
                       ],
                       decoration: InputDecoration(
                           labelText: AppLocalizations.of(context)
-                                  .translate('haut_min') +
+                                  .translate('haut_max') +
                               ": " +
-                              user.userHeightBottom,
+                              user.userHeightTop,
                           hasFloatingPlaceholder: true),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    TextFormField(
-                        controller: hauteur_max,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          WhitelistingTextInputFormatter.digitsOnly
+                      validator: (value) {
+                        if (value.isEmpty) return 'Veuillez remplir ce champ';
+                        return null;
+                      }),*/
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      //showImage(),
+                      //Image(image: AssetImage(_path)),
+                      Center(
+                          child: Image.file(File(_pathSaved),
+                              height: screenSize.height * 0.3,
+                              width: screenSize.height * 0.3)),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          RaisedButton(
+                            child: Row(
+                              children: <Widget>[
+                                Icon(Icons.image),
+                                Text(" " +
+                                    AppLocalizations.of(context)
+                                        .translate('select_image')),
+                              ],
+                            ),
+                            onPressed: () {
+                              pickImage(ImageSource.gallery);
+                            },
+                            textColor: colorButton,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(10),
+                          ),
+                          RaisedButton(
+                            child: Row(
+                              children: <Widget>[
+                                Icon(Icons.camera_alt),
+                                Text(" " +
+                                    AppLocalizations.of(context)
+                                        .translate('prendre_photo')),
+                              ],
+                            ),
+                            onPressed: () {
+                              pickImage(ImageSource.camera);
+                            },
+                            textColor: colorButton,
+                          ),
                         ],
-                        decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)
-                                    .translate('haut_max') +
-                                ": " +
-                                user.userHeightTop,
-                            hasFloatingPlaceholder: true),
-                        validator: (value) {
-                          if (value.isEmpty) return 'Veuillez remplir ce champ';
-                          return null;
-                        }),*/
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        //showImage(),
-                        //Image(image: AssetImage(_path)),
-                        Center(
-                            child: Image.file(File(_pathSaved),
-                                height: screenSize.height * 0.3,
-                                width: screenSize.height * 0.3)),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            RaisedButton(
-                              child: Row(
-                                children: <Widget>[
-                                  Icon(Icons.image),
-                                  Text(" " +
-                                      AppLocalizations.of(context)
-                                          .translate('select_image')),
-                                ],
-                              ),
-                              onPressed: () {
-                                pickImage(ImageSource.gallery);
-                              },
-                              textColor: colorButton,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(10),
-                            ),
-                            RaisedButton(
-                              child: Row(
-                                children: <Widget>[
-                                  Icon(Icons.camera_alt),
-                                  Text(" " +
-                                      AppLocalizations.of(context)
-                                          .translate('prendre_photo')),
-                                ],
-                              ),
-                              onPressed: () {
-                                pickImage(ImageSource.camera);
-                              },
-                              textColor: colorButton,
-                            ),
-                          ],
-                        ),
+                      ),
 /*                        RaisedButton(
-                          child: Text(AppLocalizations.of(context)
-                              .translate('ajust_poussee')),
-                          onPressed: () {
-                            if (isConnected) {
-                              setState(() {
-                                pousseeDialog();
-                              });
-                            } else {
-                              show(
-                                  "Connexion au gBs en cours, réessayez dans quelques instants");
-                            }
-                          },
-                          textColor: colorButton,
-                        ),*/
-                        SizedBox(
-                          height: 20,
-                        ),
-                        FlatButton(
-                          child: Text(AppLocalizations.of(context)
-                              .translate('enregistrer')),
-                          color: Colors.blue,
-                          textColor: Colors.white,
-                          padding: EdgeInsets.only(
-                              left: 38, right: 38, top: 15, bottom: 15),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5)),
-                          onPressed: () {
-                            updateUser();
-                          },
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 15, bottom: 15),
-                        ),
-                        FlatButton(
-                          child: Text(AppLocalizations.of(context)
-                              .translate('supprimer')),
-                          color: Colors.red,
-                          textColor: Colors.white,
-                          padding: EdgeInsets.only(
-                              left: 38, right: 38, top: 15, bottom: 15),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5)),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                // return object of type Dialog
-                                return AlertDialog(
-                                  title: new Text(
-                                      AppLocalizations.of(this.context)
-                                          .translate('confirm_suppr')),
-                                  content: new Text(
-                                      AppLocalizations.of(this.context)
-                                          .translate('info_suppr')),
-                                  actions: <Widget>[
-                                    // usually buttons at the bottom of the dialog
-                                    Padding(
-                                      padding: EdgeInsets.all(12.0),
-                                    ),
-                                    new FlatButton(
-                                      child: new Text(
-                                          AppLocalizations.of(this.context)
-                                              .translate('annuler')),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                    new FlatButton(
-                                      child: new Text(
-                                          AppLocalizations.of(this.context)
-                                              .translate('supprimer')),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                        print("ID à SUPPR:" +
-                                            user.userId.toString());
-                                        db.deleteUser(user.userId);
-                                        //dispose();
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => LoadPage(
-                                                      appLanguage: appLanguage,
-                                                      page: login,
-                                                      user: null,
-                                                      messageIn: "0",
-                                                    )));
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        )
-                      ],
-                    )
-                  ],
-                ),
+                        child: Text(AppLocalizations.of(context)
+                            .translate('ajust_poussee')),
+                        onPressed: () {
+                          if (isConnected) {
+                            setState(() {
+                              pousseeDialog();
+                            });
+                          } else {
+                            show(
+                                "Connexion au gBs en cours, réessayez dans quelques instants");
+                          }
+                        },
+                        textColor: colorButton,
+                      ),*/
+                      SizedBox(
+                        height: 20,
+                      ),
+                      FlatButton(
+                        child: Text(AppLocalizations.of(context)
+                            .translate('enregistrer')),
+                        color: Colors.blue,
+                        textColor: Colors.white,
+                        padding: EdgeInsets.only(
+                            left: 38, right: 38, top: 15, bottom: 15),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5)),
+                        onPressed: () {
+                          updateUser();
+                        },
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 15, bottom: 15),
+                      ),
+                      RaisedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoadPage(
+                                  user: user,
+                                  appLanguage: appLanguage,
+                                  messageIn: "",
+                                  page: mainTitle),
+                            ),
+                          );
+                        },
+                        child: Text(temp != null
+                            ? AppLocalizations.of(this.context)
+                            .translate('retour')
+                            : "Retourlol"),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 15, bottom: 15),
+                      ),
+                      FlatButton(
+                        child: Text(AppLocalizations.of(context)
+                            .translate('supprimer')),
+                        color: Colors.red,
+                        textColor: Colors.white,
+                        padding: EdgeInsets.only(
+                            left: 38, right: 38, top: 15, bottom: 15),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5)),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              // return object of type Dialog
+                              return AlertDialog(
+                                title: new Text(
+                                    AppLocalizations.of(this.context)
+                                        .translate('confirm_suppr')),
+                                content: new Text(
+                                    AppLocalizations.of(this.context)
+                                        .translate('info_suppr')),
+                                actions: <Widget>[
+                                  // usually buttons at the bottom of the dialog
+                                  Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                  ),
+                                  new FlatButton(
+                                    child: new Text(
+                                        AppLocalizations.of(this.context)
+                                            .translate('annuler')),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  new FlatButton(
+                                    child: new Text(
+                                        AppLocalizations.of(this.context)
+                                            .translate('supprimer')),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      print("ID à SUPPR:" +
+                                          user.userId.toString());
+                                      db.deleteUser(user.userId);
+                                      //dispose();
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => LoadPage(
+                                                    appLanguage: appLanguage,
+                                                    page: login,
+                                                    user: null,
+                                                    messageIn: "0",
+                                                  )));
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      )
+                    ],
+                  )
+                ],
               ),
             ),
           ),

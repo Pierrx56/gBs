@@ -192,32 +192,6 @@ class _MainTitle extends State<MainTitle> {
           actions: <Widget>[
             FlatButton.icon(
               icon: Icon(
-                Icons.settings,
-                color: Colors.white,
-              ),
-              label: Text("",
-                //AppLocalizations.of(context).translate('reglages'),
-                style: TextStyle(color: Colors.white),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              splashColor: Colors.blue,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoadPage(
-                        user: user,
-                        appLanguage: appLanguage,
-                        messageIn: "fromMainTitle",
-                        page: manageProfile),
-                  ),
-                );
-              },
-            ),
-            FlatButton.icon(
-              icon: Icon(
                 Icons.question_answer,
                 color: Colors.white,
               ),
@@ -240,6 +214,32 @@ class _MainTitle extends State<MainTitle> {
                         appLanguage: appLanguage,
                         messageIn: "fromMainTitle",
                         page: faq),
+                  ),
+                );
+              },
+            ),
+            FlatButton.icon(
+              icon: Icon(
+                Icons.settings,
+                color: Colors.white,
+              ),
+              label: Text("",
+                //AppLocalizations.of(context).translate('reglages'),
+                style: TextStyle(color: Colors.white),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              splashColor: Colors.blue,
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoadPage(
+                        user: user,
+                        appLanguage: appLanguage,
+                        messageIn: "fromMainTitle",
+                        page: manageProfile),
                   ),
                 );
               },
