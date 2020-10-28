@@ -82,13 +82,12 @@ final String CREATE_TABLE_ACTIVITY = "CREATE TABLE " +
     " INTEGER PRIMARY KEY," +
     KEY_ACTIVITY_TYPE +
     " TEXT"
-    /*+
+        /*+
     KEY_ACTIVITY_NAME +
     " TEXT, " +
     KEY_ACTIVITY_DESCRIPTION +
     " TEXT" +*/
         ");";
-
 
 /*Classe qui gère la base de données
 * */
@@ -111,35 +110,43 @@ class DatabaseHelper {
       _database = await initializeDatabase();
 
       //Nageur
-      addActivity(new Activity(activityId: 0, activityType: "CMV",));
+      addActivity(new Activity(
+        activityId: 0,
+        activityType: "CMV",
+      ));
       //Deuxième activité
-      addActivity(new Activity(activityId: 1, activityType: "CSI",));
+      addActivity(new Activity(
+        activityId: 1,
+        activityType: "CSI",
+      ));
       //Troisième activité
-      addActivity(new Activity(activityId: 2, activityType: "CSI",));
+      addActivity(new Activity(
+        activityId: 2,
+        activityType: "CSI",
+      ));
     }
     return _database;
   }
 
   Future<Database> initializeDatabase() async {
     var todoDatabase = openDatabase(
-
         join(await getDatabasesPath(), DATABASE_NAME),
         version: 1,
         //Lors du premier lancement de l'appli
         onCreate: (db, version) {
-          db.execute(CREATE_TABLE_USERS);
-          db.execute(CREATE_TABLE_SCORE);
-          db.execute(CREATE_TABLE_ACTIVITY);
-        },
+      db.execute(CREATE_TABLE_USERS);
+      db.execute(CREATE_TABLE_SCORE);
+      db.execute(CREATE_TABLE_ACTIVITY);
+    },
         //Si la structure de la table change lors d'une MàJ, cette fonction est appelée
         //TODO à tester
         onUpgrade: (Database db, int oldVersion, int newVersion) async {
-          db.execute(CREATE_TABLE_USERS);
-          db.execute(CREATE_TABLE_SCORE);
-          db.execute(CREATE_TABLE_ACTIVITY);
-        }
-    );
-
+      if (oldVersion < newVersion) {
+        db.execute(CREATE_TABLE_USERS);
+        db.execute(CREATE_TABLE_SCORE);
+        db.execute(CREATE_TABLE_ACTIVITY);
+      }
+    });
 
     return todoDatabase;
   }
@@ -211,7 +218,6 @@ class DatabaseHelper {
       // Pass the User's id as a whereArg to prevent SQL injection.
       whereArgs: [id],
     ); // Remove the User from the Database.
-
   }
 
   // A method that retrieves all the users from the users table.
@@ -264,7 +270,6 @@ class DatabaseHelper {
     return id;
   }
 
-
   // A method that retrieves all the scores from the scores table.
   Future<List<Scores>> getScore(int id, int activityId) async {
     // Get a reference to the database.
@@ -283,12 +288,10 @@ class DatabaseHelper {
         activityId: maps[i][KEY_ACTIVITY_ID],
         scoreDate: maps[i][KEY_SCORE_DATE],
         scoreValue: maps[i][KEY_SCORE_VALUE],
-
       );
     });
 
-    int j,
-        k = 0;
+    int j, k = 0;
 
     List<Scores> data = [];
 
@@ -333,7 +336,6 @@ class DatabaseHelper {
 
   //END SCORE
 
-
   //ACTIVITY
   //Define a function that inserts activity into the database
   Future<int> addActivity(Activity activity) async {
@@ -365,7 +367,6 @@ class DatabaseHelper {
 
 //END ACTIVITY
 }
-
 
 /*Classe User*/
 class User {
@@ -414,11 +415,12 @@ class Score {
   final String scoreDate;
   final int scoreValue;
 
-  Score({this.scoreId,
-    this.userId,
-    this.activityId,
-    this.scoreDate,
-    this.scoreValue});
+  Score(
+      {this.scoreId,
+      this.userId,
+      this.activityId,
+      this.scoreDate,
+      this.scoreValue});
 
   Map<String, dynamic> toMap() {
     return {
@@ -443,7 +445,8 @@ class Activity {
   final String activityName;
   final String activityDescription;*/
 
-  Activity({this.activityId,
+  Activity({
+    this.activityId,
     this.activityType,
     /*
       this.activityName,

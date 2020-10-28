@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
@@ -62,6 +63,7 @@ class _SelectGame extends State<SelectGame> {
   String inputMessage;
   AppLanguage appLanguage;
   double widthCard, heightCard;
+  ScrollController _controller;
 
   bool visible_swim;
   bool visible_plane;
@@ -72,6 +74,7 @@ class _SelectGame extends State<SelectGame> {
   List<Scores> data_swim;
   List<Scores> data_plane;
   List<Scores> data_temp;
+  int level;
 
   Color colorMesureButton = Colors.black;
 
@@ -84,6 +87,8 @@ class _SelectGame extends State<SelectGame> {
   bool isCorrect = false;
   int numberOfCard = 3;
   Size screenSize;
+  double firstPosition;
+  bool hasMoved;
 
   //Initializing database
   DatabaseHelper db = new DatabaseHelper();
@@ -106,6 +111,10 @@ class _SelectGame extends State<SelectGame> {
     colorCard_swim = Colors.white;
     colorCard_plane = Colors.white;
     colorCard_temp = Colors.white;
+    _controller = ScrollController();
+    firstPosition = 0.0;
+    hasMoved = false;
+    level = 1;
     super.initState();
   }
 
@@ -213,6 +222,23 @@ class _SelectGame extends State<SelectGame> {
     );
   }
 
+  Widget numberOfStars(int idGame) {
+    //TODO Si le nombre d'étoile de telle activité
+    //Alors calculer et charger ce qu'il faut (Tableau ?)
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Icon(Icons.star),
+        Icon(Icons.star),
+        Icon(Icons.star),
+        Icon(Icons.star_half),
+        Icon(Icons.star_border),
+      ],
+    );
+  }
+
   Widget planeGame() {
     var temp = AppLocalizations.of(context);
     return SizedBox(
@@ -242,14 +268,21 @@ class _SelectGame extends State<SelectGame> {
                   AnimatedOpacity(
                     duration: Duration(milliseconds: 1000),
                     opacity: !visible_plane ? 1.0 : 1.0,
-                    child: Column(
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
                       children: <Widget>[
                         Container(
-                          alignment: Alignment.topCenter,
-                          width: widthCard * 0.5,
-                          height: heightCard * 0.5,
-                          child: Image.asset(
-                            'assets/plane.png',
+                          width: widthCard,
+                          height: heightCard - 20,
+                          child: Column(
+                            children: <Widget>[
+                              Image.asset(
+                                'assets/plane.png',
+                                width: widthCard * 0.7,
+                                height: heightCard * 0.5,
+                              ),
+                              numberOfStars(ID_PLANE_ACTIVITY),
+                            ],
                           ),
                         ),
                         Padding(
@@ -447,26 +480,13 @@ class _SelectGame extends State<SelectGame> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text(
-                temp != null
-                    ? idGame == ID_PLANE_ACTIVITY
-                        ? AppLocalizations.of(this.context).translate('avion')
-                        : idGame == ID_SWIMMER_ACTIVITY
-                            ? AppLocalizations.of(this.context)
-                                .translate('nageur')
-                            : idGame == ID_TEMP_ACTIVITY
-                                ? AppLocalizations.of(this.context)
-                                    .translate('temp')
-                                : "non renseigné dans SelectGame"
-                    : "Check Language file (en/fr.json)",
-                style: textStyle,
-              ),
-              content: Builder(
-                builder: (context) {
-                  return Container(
-                    width: screenSize.width * 0.8,
-                    height: screenSize.height * 0.9,
-                    child: Row(
+              content: Builder(builder: (context) {
+                return Container(
+                  width: screenSize.width * 0.8,
+                  height: screenSize.height * 0.9,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       SingleChildScrollView(
                         child: Container(
@@ -474,6 +494,22 @@ class _SelectGame extends State<SelectGame> {
                           height: screenSize.height * 0.8,
                           child: Column(
                             children: <Widget>[
+                              AutoSizeText(
+                                temp != null
+                                    ? idGame == ID_PLANE_ACTIVITY
+                                        ? AppLocalizations.of(this.context)
+                                            .translate('avion')
+                                        : idGame == ID_SWIMMER_ACTIVITY
+                                            ? AppLocalizations.of(this.context)
+                                                .translate('nageur')
+                                            : idGame == ID_TEMP_ACTIVITY
+                                                ? AppLocalizations.of(
+                                                        this.context)
+                                                    .translate('temp')
+                                                : "non renseigné dans SelectGame"
+                                    : "Check Language file (en/fr.json)",
+                                style: textStyle,
+                              ),
                               AutoSizeText(
                                 temp != null
                                     ? idGame == ID_PLANE_ACTIVITY
@@ -494,11 +530,11 @@ class _SelectGame extends State<SelectGame> {
                                                         ? "3"
                                                         : "2")
                                         : idGame == ID_SWIMMER_ACTIVITY
-                                            ? AppLocalizations.of(this.context)
-                                                    .translate('type_activite') +
+                                            ? AppLocalizations.of(this.context).translate('type_activite') +
                                                 " " +
-                                                AppLocalizations.of(this.context).translate(
-                                                    'type_activite_EE') +
+                                                AppLocalizations.of(this.context)
+                                                    .translate(
+                                                        'type_activite_EE') +
                                                 "\n\n" +
                                                 AppLocalizations.of(this.context)
                                                     .translate('info_nageur')
@@ -567,10 +603,9 @@ class _SelectGame extends State<SelectGame> {
                         ),
                       ),
                     ],
-                ),
-                  );
-                }
-              ),
+                  ),
+                );
+              }),
             );
           },
         );
@@ -581,7 +616,7 @@ class _SelectGame extends State<SelectGame> {
   Widget backCard() {
     var temp = AppLocalizations.of(context);
     return SizedBox(
-      width: widthCard = screenSize.width / (numberOfCard / 2),
+      width: widthCard = screenSize.width / (numberOfCard / 1.2),
       height: heightCard = (screenSize.width / (numberOfCard) / 2),
       child: GestureDetector(
         onTap: () {
@@ -682,6 +717,37 @@ class _SelectGame extends State<SelectGame> {
     }
   }
 
+  _moveLeft() {
+    _controller.animateTo(_controller.offset - screenSize.width,
+        curve: Curves.linear, duration: Duration(milliseconds: 500));
+  }
+
+  _moveRight() {
+    _controller.animateTo(_controller.offset + screenSize.width,
+        curve: Curves.linear, duration: Duration(milliseconds: 500));
+  }
+
+  _onUpdateScroll(ScrollMetrics metrics) {
+    //right to left
+    if (firstPosition < _controller.offset - screenSize.width) {
+      if (_controller.offset - screenSize.width < 0.0 && !hasMoved) {
+        _moveRight();
+        level++;
+        hasMoved = true;
+      }
+    }
+    //left to right
+    else if (firstPosition > _controller.offset - screenSize.width) {
+      if (_controller.offset - screenSize.width > -screenSize.width &&
+          !hasMoved) {
+        _moveLeft();
+        level--;
+        hasMoved = true;
+      }
+    }
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     var temp = AppLocalizations.of(context);
@@ -701,38 +767,130 @@ class _SelectGame extends State<SelectGame> {
         appBar: AppBar(
           //title: Text(AppLocalization.of(context).heyWorld),
 
-          title: Text(AppLocalizations.of(context).translate('activites')),
+          //title: Text(AppLocalizations.of(context).translate('activites')),
           backgroundColor: Colors.blue,
+
+          flexibleSpace: Container(
+            height: screenSize.height,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(10),
+                ),
+                Container(
+                    width: (screenSize.width) / 4,
+                    child: Text(
+                      AppLocalizations.of(context).translate('activites'),
+                      style: appBarStyle,
+                      textAlign: TextAlign.left,
+                    )),
+                Spacer(),
+                Text(
+                  "Hmin: " +
+                      user.userHeightBottom +
+                      " | Hmax:  " +
+                      user.userHeightTop,
+                  textAlign: TextAlign.center,
+                  style: appBarStyle,
+                ),
+                Spacer(),
+                Container(
+                  width: (screenSize.width) / 4,
+                  child: Text(
+                    "Level 1." + level.toString(),
+                    style: appBarStyle,
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10),
+                ),
+              ],
+            ),
+          ),
           actions: <Widget>[],
         ),
         body: Container(
           height: screenSize.height,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                //Première ligne
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    swimmerGame(),
-                    planeGame(),
-                    tempGame(),
-                  ],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              //Première ligne
+              NotificationListener<ScrollNotification>(
+                onNotification: (scrollNotification) {
+                  if (scrollNotification is ScrollStartNotification) {
+                    firstPosition = 0.0;
+                  } else if (scrollNotification is ScrollUpdateNotification) {
+                    if (firstPosition == 0.0)
+                      firstPosition = _controller.offset - screenSize.width;
+
+                    _onUpdateScroll(scrollNotification.metrics);
+                  } else if (scrollNotification is ScrollEndNotification) {
+                    firstPosition = 0.0;
+                    hasMoved = false;
+                  }
+                  return;
+                },
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  controller: _controller,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      swimmerGame(),
+                      planeGame(),
+                      tempGame(),
+                      swimmerGame(),
+                      planeGame(),
+                      tempGame(),
+                    ],
+                  ),
                 ),
-                //Deuxième ligne
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    //swimmerGame(),
-                    backCard(),
-                  ],
-                ),
-              ],
-            ),
+              ),
+              //Deuxième ligne
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  //swimmerGame(),
+                  GestureDetector(
+                    onTap: () {
+                      if (level > 1) _moveLeft();
+                      print("gauche");
+                    },
+                    child: Container(
+                      width: screenSize.width / numberOfCard / 1.2,
+                      height: screenSize.height / numberOfCard,
+                      child: Icon(
+                        Icons.keyboard_arrow_left,
+                        size: 100,
+                        color: level == 1 ? Colors.grey : Colors.black,
+                      ),
+                    ),
+                  ),
+                  backCard(),
+                  GestureDetector(
+                    onTap: () {
+                      if (level < 2) _moveRight();
+                      print("droite");
+                    },
+                    child: Container(
+                      width: screenSize.width / numberOfCard / 1.2,
+                      height: screenSize.height / numberOfCard,
+                      child: Icon(
+                        Icons.keyboard_arrow_right,
+                        size: 100,
+                        color: level == 2 ? Colors.grey : Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

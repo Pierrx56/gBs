@@ -79,6 +79,7 @@ class _MaxPush extends State<MaxPush> {
   String recording;
   String btData;
   bool isCorrect = false;
+  bool isPush = false;
   Size screenSize;
 
   String backButtonText;
@@ -253,72 +254,83 @@ class _MaxPush extends State<MaxPush> {
                       children: <Widget>[
                         //Progress bar maison
                         //Rotate -math.pi pour retourner les container de 180°
-                        !isCorrect ? Container(
-                          width: screenSize.width * 0.2,
-                          alignment: Alignment.center,
-                          child: Transform.rotate(
-                            angle: -math.pi,
-                            child: Stack(
-                              children: <Widget>[
-                                //Container de fond
-                                Container(
-                                  decoration: new BoxDecoration(
-                                      color: Colors.blue,
-                                      //new Color.fromRGBO(255, 0, 0, 0.0),
-                                      borderRadius: new BorderRadius.only(
-                                          topLeft: const Radius.circular(20.0),
-                                          topRight: const Radius.circular(20.0),
-                                          bottomLeft:
-                                              const Radius.circular(20.0),
-                                          bottomRight:
-                                              const Radius.circular(20.0))),
-                                  width: screenSize.width * 0.15,
-                                  height: screenSize.height / 2 - 10,
+                        !isCorrect
+                            ? Container(
+                                width: screenSize.width * 0.2,
+                                alignment: Alignment.center,
+                                child: Transform.rotate(
+                                  angle: -math.pi,
+                                  child: Stack(
+                                    children: <Widget>[
+                                      //Container de fond
+                                      Container(
+                                        decoration: new BoxDecoration(
+                                            color: Colors.blue,
+                                            //new Color.fromRGBO(255, 0, 0, 0.0),
+                                            borderRadius: new BorderRadius.only(
+                                                topLeft:
+                                                    const Radius.circular(20.0),
+                                                topRight:
+                                                    const Radius.circular(20.0),
+                                                bottomLeft:
+                                                    const Radius.circular(20.0),
+                                                bottomRight:
+                                                    const Radius.circular(
+                                                        20.0))),
+                                        width: screenSize.width * 0.15,
+                                        height: screenSize.height / 2 - 10,
+                                      ),
+                                      //Container progress bar
+                                      //Passe à vert au dessus de 50 et en dessous de 100
+                                      //sinon rouge
+                                      Container(
+                                        decoration: new BoxDecoration(
+                                            color: colorProgressBar,
+                                            //new Color.fromRGBO(255, 0, 0, 0.0),
+                                            borderRadius: new BorderRadius.only(
+                                                topLeft:
+                                                    const Radius.circular(20.0),
+                                                topRight:
+                                                    const Radius.circular(20.0),
+                                                bottomLeft:
+                                                    const Radius.circular(20.0),
+                                                bottomRight:
+                                                    const Radius.circular(
+                                                        20.0))),
+                                        //40.0 pour éviter des bugs d'affichage
+                                        height: double.parse(btData) < 40.0
+                                            ? 40.0
+                                            : double.parse(btData) > 100.0
+                                                ? screenSize.height / 2 - 10
+                                                //*1.7 pour remplir la progress bar à 100% lorsque le capteur renvoi 100
+                                                : double.parse(btData) * 1.7,
+                                        width: screenSize.width * 0.15,
+                                      ),
+                                      //Container d'affichage de la valeur du capteur
+                                      //-math.pi = 180°
+                                      Container(
+                                        color: Colors.transparent,
+                                        //new Color.fromRGBO(255, 0, 0, 0.0),
+                                        child: Center(
+                                            child: Transform.rotate(
+                                                angle: -math.pi,
+                                                child: AutoSizeText(
+                                                  (double.parse(btData))
+                                                      .toString(),
+                                                  style: textStyle,
+                                                ))),
+                                        width: screenSize.width * 0.15,
+                                        height: screenSize.height / 2,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                //Container progress bar
-                                //Passe à vert au dessus de 50 et en dessous de 100
-                                //sinon rouge
-                                Container(
-                                  decoration: new BoxDecoration(
-                                      color: colorProgressBar,
-                                      //new Color.fromRGBO(255, 0, 0, 0.0),
-                                      borderRadius: new BorderRadius.only(
-                                          topLeft: const Radius.circular(20.0),
-                                          topRight: const Radius.circular(20.0),
-                                          bottomLeft:
-                                              const Radius.circular(20.0),
-                                          bottomRight:
-                                              const Radius.circular(20.0))),
-                                  //40.0 pour éviter des bugs d'affichage
-                                  height: double.parse(btData) < 40.0
-                                      ? 40.0
-                                      : double.parse(btData) > 100.0
-                                          ? screenSize.height / 2 - 10
-                                          //*1.7 pour remplir la progress bar à 100% lorsque le capteur renvoi 100
-                                          : double.parse(btData) * 1.7,
-                                  width: screenSize.width * 0.15,
-                                ),
-                                //Container d'affichage de la valeur du capteur
-                                //-math.pi = 180°
-                                Container(
-                                  color: Colors.transparent,
-                                  //new Color.fromRGBO(255, 0, 0, 0.0),
-                                  child: Center(
-                                      child: Transform.rotate(
-                                          angle: -math.pi,
-                                          child: AutoSizeText(
-                                            (double.parse(btData)).toString(),
-                                            style: textStyle,
-                                          ))),
-                                  width: screenSize.width * 0.15,
-                                  height: screenSize.height / 2,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ) : Container(),
+                              )
+                            : Container(),
                         Container(
-                          width: isCorrect ? screenSize.width*0.9 : screenSize.width*0.7,
+                          width: isCorrect
+                              ? screenSize.width * 0.9
+                              : screenSize.width * 0.7,
                           alignment: Alignment.center,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -365,7 +377,7 @@ class _MaxPush extends State<MaxPush> {
                                       user.userHeightBottom != ""
                                           ? AutoSizeText(
                                               "Hmin: ${user.userHeightBottom} | "
-                                                  "HMAX: ${user.userHeightTop}",
+                                              "HMAX: ${user.userHeightTop}",
                                               style: textStyle,
                                             )
                                           : Container(),
@@ -373,87 +385,93 @@ class _MaxPush extends State<MaxPush> {
                                         width: screenSize.width * 0.3,
                                         child: RaisedButton(
                                           //child: Text("Démarrer l'enregistrement."),
-                                          onPressed: !isCorrect 
+                                          onPressed: !isCorrect || _start < 0.1
                                               ? () async {
-                                                  colorMesureButton =
-                                                      Colors.black;
-                                                  const oneSec = const Duration(
-                                                      milliseconds: 100);
-                                                  _timer = new Timer.periodic(
-                                                    oneSec,
-                                                    (Timer timer) => setState(
-                                                      () {
-                                                        if (_start < 0.1) {
-                                                          timer.cancel();
-                                                          _start = _reset;
-                                                          result = double.parse(
-                                                              (average.reduce((a,
-                                                                              b) =>
-                                                                          a +
-                                                                          b) /
-                                                                      average
-                                                                          .length)
-                                                                  .toStringAsFixed(
-                                                                      2));
-                                                          print(result
-                                                              .toStringAsFixed(
-                                                                  2));
-                                                          i = 100;
-                                                          if (result <= 50.0 ||
-                                                              result >= 100.0) {
-                                                            //Mesure pas bonne, réajuster la toise
-                                                            setState(() {
-                                                              recording = AppLocalizations
-                                                                      .of(
-                                                                          context)
-                                                                  .translate(
-                                                                      'status_mesure_mauvais');
-                                                              colorMesureButton =
-                                                                  Colors.red;
-                                                            });
-                                                          } else {
-                                                            setState(() {
-                                                              colorMesureButton =
-                                                                  Colors.green;
-                                                              recording = AppLocalizations
-                                                                      .of(
-                                                                          context)
-                                                                  .translate(
-                                                                      'status_mesure_bon');
-                                                            });
-                                                            isCorrect = true;
-                                                            //update poussée
-                                                            updatedUser = User(
-                                                              userId:
-                                                                  user.userId,
-                                                              userName:
-                                                                  user.userName,
-                                                              userMode:
-                                                                  user.userMode,
-                                                              userPic:
-                                                                  user.userPic,
-                                                              userHeightTop: user
-                                                                  .userHeightTop,
-                                                              userHeightBottom:
-                                                                  user.userHeightBottom,
-                                                              userInitialPush: result
-                                                                  .toStringAsFixed(
-                                                                      2)
-                                                                  .toString(),
-                                                              userMacAddress: user
-                                                                  .userMacAddress,
-                                                              userSerialNumber:
-                                                                  user.userSerialNumber,
-                                                            );
+                                                  if (!isPush) {
+                                                    isPush = true;
+                                                    colorMesureButton =
+                                                        Colors.black;
+                                                    const oneSec =
+                                                        const Duration(
+                                                            milliseconds: 100);
+                                                    _timer = new Timer.periodic(
+                                                      oneSec,
+                                                      (Timer timer) => setState(
+                                                        () {
+                                                          if (_start < 0.1) {
+                                                            timer.cancel();
+                                                            _start = _reset;
+                                                            result = double.parse(
+                                                                (average.reduce((a,
+                                                                                b) =>
+                                                                            a +
+                                                                            b) /
+                                                                        average
+                                                                            .length)
+                                                                    .toStringAsFixed(
+                                                                        2));
+                                                            print(result
+                                                                .toStringAsFixed(
+                                                                    2));
+                                                            i = 100;
+                                                            if (result <=
+                                                                    50.0 ||
+                                                                result >=
+                                                                    100.0) {
+                                                              //Mesure pas bonne, réajuster la toise
+                                                              setState(() {
+                                                                recording = AppLocalizations.of(
+                                                                        context)
+                                                                    .translate(
+                                                                        'status_mesure_mauvais');
+                                                                colorMesureButton =
+                                                                    Colors.red;
+                                                                isPush = false;
+                                                              });
+                                                            } else {
+                                                              setState(() {
+                                                                colorMesureButton =
+                                                                    Colors
+                                                                        .green;
+                                                                recording = AppLocalizations.of(
+                                                                        context)
+                                                                    .translate(
+                                                                        'status_mesure_bon');
+                                                              });
+                                                              isCorrect = true;
+                                                              //update poussée
+                                                              updatedUser =
+                                                                  User(
+                                                                userId:
+                                                                    user.userId,
+                                                                userName: user
+                                                                    .userName,
+                                                                userMode: user
+                                                                    .userMode,
+                                                                userPic: user
+                                                                    .userPic,
+                                                                userHeightTop: user
+                                                                    .userHeightTop,
+                                                                userHeightBottom:
+                                                                    user.userHeightBottom,
+                                                                userInitialPush: result
+                                                                    .toStringAsFixed(
+                                                                        2)
+                                                                    .toString(),
+                                                                userMacAddress:
+                                                                    user.userMacAddress,
+                                                                userSerialNumber:
+                                                                    user.userSerialNumber,
+                                                              );
 
-                                                            db.updateUser(
-                                                                updatedUser);
+                                                              db.updateUser(
+                                                                  updatedUser);
 
-                                                            const time =
-                                                                const Duration(
-                                                                    milliseconds:
-                                                                        1000);
-                                                            /*_timer = new Timer.periodic(
+                                                              const time =
+                                                                  const Duration(
+                                                                      milliseconds:
+                                                                          1000);
+                                                              /*_timer = new Timer.periodic(
                                                       time,
                                                       (Timer timer) {
                                                         if (countdown < 1) {
@@ -483,40 +501,44 @@ class _MaxPush extends State<MaxPush> {
                                                         }
                                                       },
                                                     );*/
-                                                          }
-                                                        } else {
-                                                          recording = _start
-                                                              .toStringAsFixed(
-                                                                  1);
-                                                          _start = _start - 0.1;
-                                                          i--;
-                                                          getData();
-                                                          average[i] =
-                                                              double.parse(
-                                                                  btData);
-                                                          if (average[i] >
-                                                                  100.0 ||
-                                                              average[i] <
-                                                                  50.0) {
-                                                            setState(() {
-                                                              colorMesureButton =
-                                                                  Colors.red;
-                                                              colorProgressBar =
-                                                                  Colors.red;
-                                                            });
+                                                            }
                                                           } else {
-                                                            setState(() {
-                                                              colorMesureButton =
-                                                                  Colors.green;
-                                                              colorProgressBar =
-                                                                  Colors.green;
-                                                            });
+                                                            recording = _start
+                                                                .toStringAsFixed(
+                                                                    1);
+                                                            _start =
+                                                                _start - 0.1;
+                                                            i--;
+                                                            getData();
+                                                            average[i] =
+                                                                double.parse(
+                                                                    btData);
+                                                            if (average[i] >
+                                                                    100.0 ||
+                                                                average[i] <
+                                                                    50.0) {
+                                                              setState(() {
+                                                                colorMesureButton =
+                                                                    Colors.red;
+                                                                colorProgressBar =
+                                                                    Colors.red;
+                                                              });
+                                                            } else {
+                                                              setState(() {
+                                                                colorMesureButton =
+                                                                    Colors
+                                                                        .green;
+                                                                colorProgressBar =
+                                                                    Colors
+                                                                        .green;
+                                                              });
+                                                            }
                                                           }
-                                                        }
-                                                      },
-                                                    ),
-                                                  );
-                                                  //_showDialog();
+                                                        },
+                                                      ),
+                                                    );
+                                                    //_showDialog();
+                                                  }
                                                 }
                                               : null,
                                           textColor: colorMesureButton,
@@ -527,7 +549,9 @@ class _MaxPush extends State<MaxPush> {
                                           ),
                                         ),
                                       ),
-                                      inputMessage == "fromMain" || (inputMessage == "fromRegister" && isCorrect)
+                                      inputMessage == "fromMain" ||
+                                              (inputMessage == "fromRegister" &&
+                                                  isCorrect)
                                           ? RaisedButton(
                                               onPressed: () {
                                                 if (bottom == 0)
@@ -538,7 +562,9 @@ class _MaxPush extends State<MaxPush> {
                                                   top = int.parse(
                                                       user.userHeightTop);
 
-                                                if (result == null)
+                                                if (result == null ||
+                                                    (result <= 50.0 ||
+                                                        result >= 100.0))
                                                   result = double.parse(
                                                       user.userInitialPush);
 

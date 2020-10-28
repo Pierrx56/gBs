@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -166,17 +167,19 @@ class _Register extends State<Register> {
     }
 
     //Si l'utilisateur débranche le gbs pendant l'inscription
-    timerConnexion = new Timer.periodic(Duration(milliseconds: 1000),
-        (timerConnexion) async {
+    timerConnexion =
+        new Timer.periodic(Duration(milliseconds: 500), (timerConnexion) async {
       isConnected = await btManage.getStatus();
 
       if (!isConnected) {
         setState(() {
-          //isFound = false;
-          //discovering = AppLocalizations.of(this.context).translate('connecter_app');
+          isFound = false;
+          discovering =
+              AppLocalizations.of(this.context).translate('connecter_app');
         });
-        //show(AppLocalizations.of(this.context).translate('connexion_perdue'));
-        connect();
+        show(AppLocalizations.of(this.context).translate('connexion_perdue'));
+        btManage.disconnect("origin");
+        //connect();
         timerConnexion.cancel();
       }
     });
@@ -277,7 +280,8 @@ class _Register extends State<Register> {
             isEmpty = true;
           else
             isEmpty = false;
-        } /*else if (currentStep == 1) {
+        }
+        /*else if (currentStep == 1) {
           if (hauteur_min.text == "")
             isEmpty = true;
           else
@@ -373,6 +377,7 @@ class _Register extends State<Register> {
     );
 
     steps = [
+      //Pseudo
       Step(
         title: Text(AppLocalizations.of(context).translate('prenom')),
         isActive: currentStep > 0,
@@ -471,41 +476,59 @@ class _Register extends State<Register> {
           ),
         ),
       ),*/
+      //Mode
       Step(
         title: Text(
           AppLocalizations.of(context).translate('mode'),
         ),
         isActive: currentStep > 3,
         state: currentStep > 3 ? StepState.complete : StepState.disabled,
-        content: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
+        content: Column(
           children: <Widget>[
-            Text(
-              AppLocalizations.of(context).translate('familial'),
-              style: textStyle,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  AppLocalizations.of(context).translate('familial'),
+                  style: textStyle,
+                ),
+                Switch(
+                  value: isSwitched,
+                  onChanged: (value) {
+                    _updateSwitch(value);
+                    isSwitched = value;
+                    if (isSwitched)
+                      _userMode =
+                          AppLocalizations.of(context).translate('sportif');
+                    else
+                      _userMode =
+                          AppLocalizations.of(context).translate('familial');
+                  },
+                  activeTrackColor: Colors.lightGreenAccent,
+                  activeColor: Colors.green,
+                ),
+                Text(
+                  AppLocalizations.of(context).translate('sportif'),
+                  style: textStyle,
+                ),
+              ],
             ),
-            Switch(
-              value: isSwitched,
-              onChanged: (value) {
-                _updateSwitch(value);
-                isSwitched = value;
-                if (isSwitched)
-                  _userMode = AppLocalizations.of(context).translate('sportif');
-                else
-                  _userMode =
-                      AppLocalizations.of(context).translate('familial');
-              },
-              activeTrackColor: Colors.lightGreenAccent,
-              activeColor: Colors.green,
-            ),
-            Text(
-              AppLocalizations.of(context).translate('sportif'),
-              style: textStyle,
-            ),
+            _userMode == AppLocalizations.of(context).translate('sportif')
+                ? AutoSizeText(
+                AppLocalizations.of(context).translate('mode_sportif'),
+                    maxLines: 2,
+                    minFontSize: 20,
+                  )
+                : AutoSizeText(
+              AppLocalizations.of(context).translate('mode_familiale'),
+                    maxLines: 2,
+                    minFontSize: 20,
+                  )
           ],
         ),
       ),
+      //Image
       Step(
         title: Text(AppLocalizations.of(context).translate('select_image')),
         isActive: currentStep > 4,
@@ -565,6 +588,7 @@ class _Register extends State<Register> {
           ],
         ),
       ),
+      //Connexion appareil
       Step(
         title: Text(AppLocalizations.of(context).translate('connecter_app')),
         isActive: currentStep > 5,
@@ -691,6 +715,7 @@ class _Register extends State<Register> {
           ],
         ),
       ),
+      //Recap
       Step(
           title: Text(AppLocalizations.of(context).translate('recap')),
           isActive: currentStep > 6,
@@ -718,7 +743,7 @@ class _Register extends State<Register> {
                               ": " +
                               _userMode,
                           style: textStyle,
-                        ),/*
+                        ), /*
                         Text(
                           AppLocalizations.of(context).translate('haut_min') +
                               ": " +
@@ -827,7 +852,7 @@ class _Register extends State<Register> {
           key: _formKey,
           actions: <Widget>[
             StepProgressIndicator(
-              totalSteps: steps.length-1,
+              totalSteps: steps.length - 1,
               currentStep: currentStep,
               fallbackLength: screenSize.width / 2,
               selectedColor: Colors.lightGreenAccent,
@@ -900,6 +925,8 @@ class _Register extends State<Register> {
       ),
     );
   }
+
+  //TODO clique sur next pendant la connexion = pète tout
 
   // Method to show a Snackbar,
   // taking message as the text

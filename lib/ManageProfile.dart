@@ -95,8 +95,8 @@ class _ManageProfile extends State<ManageProfile> {
     hauteur_max.text = '';
     hasChangedState = false;
 
-    timer =
-        Timer.periodic(Duration(seconds: 1), (Timer t) => hasChangedThread());
+    timer = Timer.periodic(
+        Duration(milliseconds: 500), (Timer t) => hasChangedThread());
 
     super.initState();
   }
@@ -231,6 +231,20 @@ class _ManageProfile extends State<ManageProfile> {
     hasChangedState = false;
     _userMode = user.userMode;
     _pathSaved = user.userPic;
+
+    //Redirection vers l'écran d'accueil
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      Navigator.pushReplacement(
+        this.context,
+        MaterialPageRoute(
+          builder: (context) => LoadPage(
+              user: user,
+              appLanguage: appLanguage,
+              messageIn: "",
+              page: mainTitle),
+        ),
+      );
+    });
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -259,8 +273,11 @@ class _ManageProfile extends State<ManageProfile> {
                         children: <Widget>[
                           Row(
                             children: <Widget>[
-                              Text(AppLocalizations.of(context)
-                                  .translate('familial'), style: textStyle,),
+                              Text(
+                                AppLocalizations.of(context)
+                                    .translate('familial'),
+                                style: textStyle,
+                              ),
                               Switch(
                                 value: isSwitched,
                                 onChanged: (value) {
@@ -276,8 +293,11 @@ class _ManageProfile extends State<ManageProfile> {
                                 activeTrackColor: Colors.lightGreenAccent,
                                 activeColor: Colors.green,
                               ),
-                              Text(AppLocalizations.of(context)
-                                  .translate('sportif'), style: textStyle,),
+                              Text(
+                                AppLocalizations.of(context)
+                                    .translate('sportif'),
+                                style: textStyle,
+                              ),
                             ],
                           ),
                         ],
@@ -285,7 +305,7 @@ class _ManageProfile extends State<ManageProfile> {
                       Padding(
                         padding: EdgeInsets.fromLTRB(50, 0, 0, 0),
                       ),
-                      hasChangedState
+                      /*hasChangedState
                           ? Icon(
                               Icons.warning,
                               color: Colors.red,
@@ -313,7 +333,7 @@ class _ManageProfile extends State<ManageProfile> {
                                 ),
                               ),
                             )
-                          : Container(),
+                          : Container(),*/
                     ],
                   ),
                   SizedBox(
@@ -448,20 +468,23 @@ class _ManageProfile extends State<ManageProfile> {
                       ),
                       RaisedButton(
                         onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoadPage(
-                                  user: user,
-                                  appLanguage: appLanguage,
-                                  messageIn: "",
-                                  page: mainTitle),
-                            ),
-                          );
+                          if (hasChangedState)
+                            pousseeDialog();
+                          else
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoadPage(
+                                    user: user,
+                                    appLanguage: appLanguage,
+                                    messageIn: "",
+                                    page: mainTitle),
+                              ),
+                            );
                         },
                         child: Text(temp != null
                             ? AppLocalizations.of(this.context)
-                            .translate('retour')
+                                .translate('retour')
                             : "Retourlol"),
                       ),
                       Padding(
@@ -550,8 +573,74 @@ class _ManageProfile extends State<ManageProfile> {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
               title: Text(temp != null
+                  ? AppLocalizations.of(this.context).translate('avertissement')
+                  : "Check en/fr.json file"),
+              content: SingleChildScrollView(
+                child: Container(
+                  child: Column(
+                    children: <Widget>[
+                      Text(temp != null
+                          ? AppLocalizations.of(this.context)
+                              .translate('enregistrer_avert')
+                          : "Check en/fr.json file"),
+                      Row(
+                        children: <Widget>[
+                          RaisedButton(
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LoadPage(
+                                      user: user,
+                                      appLanguage: appLanguage,
+                                      messageIn: "",
+                                      page: mainTitle),
+                                ),
+                              );
+                            },
+                            child: Text(temp != null
+                                ? AppLocalizations.of(this.context)
+                                    .translate('annuler')
+                                : "Check en/fr.json file"),
+                          ),
+                          Spacer(),
+                          RaisedButton(
+                            //child: Text("Démarrer l'enregistrement."),
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              updateUser();
+                            },
+                            textColor: colorMesureButton,
+                            child: Text(temp != null
+                                ? AppLocalizations.of(this.context)
+                                    .translate('enregistrer')
+                                : "Check en/fr.json file"),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  width: 300.0,
+                ),
+              ),
+            );
+          });
+        });
+  }
+
+  void pousseeDialog2() async {
+    //appLanguage = AppLanguage();
+    //await appLanguage.fetchLocale();
+
+    showDialog(
+        context: this.context,
+        builder: (BuildContext context) {
+          var temp = AppLocalizations.of(this.context);
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              title: Text(temp != null
                   ? AppLocalizations.of(this.context).translate('mesure')
-                  : "Mesures"),
+                  : "Check en/fr.json file"),
               content: Row(
                 children: <Widget>[
                   SingleChildScrollView(
@@ -561,7 +650,7 @@ class _ManageProfile extends State<ManageProfile> {
                           Text(temp != null
                               ? AppLocalizations.of(this.context)
                                   .translate('explications_mesure')
-                              : "Explications: mesures"),
+                              : "Check en/fr.json file"),
                           RoundedProgressBar(
                             percent: (double.parse(btData)) >= 0
                                 ? (double.parse(btData))
@@ -609,7 +698,7 @@ class _ManageProfile extends State<ManageProfile> {
                                                               this.context)
                                                           .translate(
                                                               'status_mesure_mauvais')
-                                                      : "Mesure ratée";
+                                                      : "Check en/fr.json file";
                                                   colorMesureButton =
                                                       Colors.red;
                                                 });
@@ -625,7 +714,7 @@ class _ManageProfile extends State<ManageProfile> {
                                                                 this.context)
                                                             .translate(
                                                                 'status_mesure_bon')
-                                                        : "Mesure bonne";
+                                                        : "Check en/fr.json file";
                                                   },
                                                 );
                                             } else {
@@ -651,7 +740,7 @@ class _ManageProfile extends State<ManageProfile> {
                             child: Text(temp != null
                                 ? AppLocalizations.of(this.context)
                                     .translate('retour')
-                                : "Retourlol"),
+                                : "Check en/fr.json file"),
                           )
                         ],
                       ),
@@ -698,7 +787,7 @@ class _ManageProfile extends State<ManageProfile> {
               ],
             ),
           ),
-          Padding(
+          /*Padding(
             padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Align(
@@ -731,7 +820,7 @@ class _ManageProfile extends State<ManageProfile> {
                 ),
               ),
             ),
-          ),
+          ),*/
         ],
       ),
     );
