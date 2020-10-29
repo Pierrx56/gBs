@@ -198,7 +198,7 @@ class UIState extends State<UI> {
   }
 
   void saveAndExit(BuildContext context, AppLanguage appLanguage, User user,
-      int score, PlaneGame game) async {
+      int score, PlaneGame game, double starValue, int starLevel) async {
     DatabaseHelper db = new DatabaseHelper();
     //Date au format FR
     String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
@@ -213,25 +213,35 @@ class UIState extends State<UI> {
     //db.deleteScore(user.userId);
 
     List<Scores> everyScores = await db.getScore(user.userId, ACTIVITY_NUMBER);
+    Star tempStar = await db.getStar(user.userId, ACTIVITY_NUMBER, starLevel);
 
-    if (everyScores.length == 0 && score != 0)
+    if (everyScores.length == 0 && score != 0) {
       db.addScore(newScore);
+      db.addStar(Star(starId: null, activityId: ACTIVITY_NUMBER, userId: user.userId, starValue: starValue, starLevel: starLevel));
+    }
     else if (score != 0) {
       //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
       for (int i = 0; i < everyScores.length; i++) {
         //On remplace la valeur dans la bdd
         //print(everyScores[i].scoreId);
-        if (everyScores[i].date == date && score > everyScores[i].score)
+        if (everyScores[i].date == date && score > everyScores[i].score) {
           db.updateScore(Score(
               scoreId: everyScores[i].scoreId,
               userId: user.userId,
               activityId: ACTIVITY_NUMBER,
               scoreValue: score,
               scoreDate: date));
+
+          starValue += tempStar.starValue;
+          db.updateStar(Star(starId: tempStar.starId, activityId: ACTIVITY_NUMBER, userId: user.userId, starValue: starValue, starLevel: starLevel));
+        }
       }
       //Sinon on enregistre si la dernière date enregistrée est différente du jour
-      if (everyScores[everyScores.length - 1].date != date)
+      if (everyScores[everyScores.length - 1].date != date) {
         db.addScore(newScore);
+        starValue += tempStar.starValue;
+        db.updateStar(Star(starId: tempStar.starId, activityId: ACTIVITY_NUMBER, userId: user.userId, starValue: starValue, starLevel: starLevel));
+      }
     }
     Navigator.pushReplacement(
       context,
@@ -256,7 +266,7 @@ class UIState extends State<UI> {
   }
 
   Widget closeButton(BuildContext context, AppLanguage appLanguage, User user,
-      int score, PlaneGame game) {
+      int score, PlaneGame game, double starValue, int starLevel) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -266,10 +276,10 @@ class UIState extends State<UI> {
           onPressed: () async {
             //Get date etc
             //db.getScore(user.userId);
-            saveAndExit(context, appLanguage, user, score, game);
+            saveAndExit(context, appLanguage, user, score, game, starValue, starLevel);
           },
           child: Text(
-            "Quitter le jeu",
+            AppLocalizations.of(context).translate('quitter'),
             style: textStyle,
           ),
         ),
@@ -312,8 +322,8 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget restartButton(BuildContext context, AppLanguage appLanguage, User user,
-      PlaneGame game) {
+  Widget restartButton(BuildContext context, AppLanguage appLanguage,
+      PlaneGame game, User user) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -365,8 +375,8 @@ class UIState extends State<UI> {
               style: textStyle,
             ),
             pauseButton(context, appLanguage, game, user),
-            restartButton(context, appLanguage, user, game),
-            closeButton(context, appLanguage, user, game.getScore(), game),
+            restartButton(context, appLanguage, game, user),
+            closeButton(context, appLanguage, user, game.getScore(), game, game.getStarValue(), game.getStarLevel()),
           ],
         ),
       ),

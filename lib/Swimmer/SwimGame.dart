@@ -29,6 +29,8 @@ class SwimGame extends Game {
   bool isTooHigh;
 
   int score = 0;
+  int starLevel = 0;
+  double starValue = 0.0;
   bool pauseGame = false;
   bool posMax;
   String swimmerPic;
@@ -292,6 +294,22 @@ class SwimGame extends Game {
 
   int getScore() {
     return score;
+  }
+
+  double getStarValue(){
+    return starValue;
+  }
+
+  void setStarValue(double _starValue){
+    starValue = _starValue;
+  }
+
+  int getStarLevel(){
+    return starLevel;
+  }
+
+  void setStarLevel(int _starLevel){
+    starLevel = _starLevel;
   }
 
   void setColorFilter(bool boolean) {

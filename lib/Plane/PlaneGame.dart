@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/Plane/Background.dart';
+import 'package:gbsalternative/Plane/Plane.dart';
 import 'package:gbsalternative/Plane/Ui.dart';
 import 'package:gbsalternative/Plane/Balloons.dart';
 
@@ -27,6 +28,8 @@ class PlaneGame extends Game {
   bool isConnected;
 
   int score = 0;
+  int starLevel = 0;
+  double starValue = 0.0;
   bool pauseGame = false;
   bool reset = false;
   String planePic;
@@ -290,6 +293,22 @@ class PlaneGame extends Game {
 
   int getScore() {
     return score;
+  }
+
+  double getStarValue(){
+    return starValue;
+  }
+
+  void setStarValue(double _starValue){
+    starValue = _starValue;
+  }
+
+  int getStarLevel(){
+    return starLevel;
+  }
+
+  void setStarLevel(int _starLevel){
+    starLevel = _starLevel;
   }
 
   void setColorFilter(bool boolean) {

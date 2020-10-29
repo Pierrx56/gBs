@@ -34,12 +34,13 @@ class _Message {
 class Swimmer extends StatefulWidget {
   final User user;
   final AppLanguage appLanguage;
+  final String level;
 
-  Swimmer({Key key, @required this.user, @required this.appLanguage})
+  Swimmer({Key key, @required this.user, @required this.appLanguage, @required this.level})
       : super(key: key);
 
   @override
-  _Swimmer createState() => new _Swimmer(user, appLanguage);
+  _Swimmer createState() => new _Swimmer(user, appLanguage, level);
 }
 
 class _Swimmer extends State<Swimmer> {
@@ -60,18 +61,21 @@ class _Swimmer extends State<Swimmer> {
   UI gameUI;
   bool gameOver;
   int score;
+  double starValue;
+  int level;
 
-  _Swimmer(User _user, AppLanguage _appLanguage) {
+  _Swimmer(User _user, AppLanguage _appLanguage, String _level) {
     user = _user;
     appLanguage = _appLanguage;
+    level = int.parse(_level);
   }
 
   @override
   void initState() {
     //myGame = GameWrapper(game);
     if (user.userInitialPush != "0.0") {
-      gameUI = UI();
       score = 0;
+      starValue = 0.0;
       if (user.userMode == "Sportif") {
         timeRemaining = "3:00";
         seconds = 180;
@@ -101,6 +105,8 @@ class _Swimmer extends State<Swimmer> {
     WidgetsFlutterBinding.ensureInitialized();
 
     game = new SwimGame(getData, user, appLanguage);
+    gameUI = new UI();
+    game.setStarLevel(level);
     refreshScore();
     mainThread();
     startTimer(true);
@@ -256,13 +262,31 @@ class _Swimmer extends State<Swimmer> {
 
   void redirection() {
     const oneSec = const Duration(seconds: 1);
+    if (mounted)
     _timer = new Timer.periodic(
       oneSec,
       (Timer timer) => setState(
         () {
           if (_start < 1) {
+
+            //S'il fait plus de 180m alors demi-étoile
+            if (user.userMode ==
+                AppLocalizations.of(context).translate('familial') &&
+                score > 180) {
+              game.setStarValue(starValue = 0.5);
+              print(starValue);
+              print(level);
+            }
+            //TODO Mode sportif pour le nageur
+            else if (user.userMode ==
+                AppLocalizations.of(context).translate('sportif') &&
+                score > 240)
+              game.setStarValue(starValue = 0.5);
+            else
+              game.setStarValue(starValue = 0.0);
+
             timer.cancel();
-            gameUI.state.saveAndExit(context, appLanguage, user, score, game);
+            gameUI.state.saveAndExit(context, appLanguage, user, score, game, starValue, level);
           } else {
             _start = _start - 1;
           }

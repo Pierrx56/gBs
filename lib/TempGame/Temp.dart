@@ -36,11 +36,12 @@ class _Message {
 class Temp extends StatefulWidget {
   final User user;
   final AppLanguage appLanguage;
+  final String level;
 
-  Temp({@required this.user, @required this.appLanguage});
+  Temp({@required this.user, @required this.appLanguage, @required this.level});
 
   @override
-  _Temp createState() => new _Temp(user, appLanguage);
+  _Temp createState() => new _Temp(user, appLanguage, level);
 }
 
 class _Temp extends State<Temp> {
@@ -61,10 +62,12 @@ class _Temp extends State<Temp> {
   double push;
   UI gameUI;
   int score;
+  int level;
 
-  _Temp(User _user, AppLanguage _appLanguage) {
+  _Temp(User _user, AppLanguage _appLanguage, String _level) {
     user = _user;
     appLanguage = _appLanguage;
+    level = int.parse(_level);
   }
 
   @override

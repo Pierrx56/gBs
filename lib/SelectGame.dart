@@ -75,6 +75,11 @@ class _SelectGame extends State<SelectGame> {
   List<Scores> data_plane;
   List<Scores> data_temp;
   int level;
+  Star dataStar;
+  Star dataSwimmer;
+  Star dataPlane;
+  Star dataTemp;
+  bool isEmpty;
 
   Color colorMesureButton = Colors.black;
 
@@ -108,6 +113,7 @@ class _SelectGame extends State<SelectGame> {
     visible_swim = true;
     visible_plane = true;
     visible_temp = true;
+    isEmpty = true;
     colorCard_swim = Colors.white;
     colorCard_plane = Colors.white;
     colorCard_temp = Colors.white;
@@ -128,6 +134,51 @@ class _SelectGame extends State<SelectGame> {
     }
 
     super.dispose();
+  }
+
+  Future<Star> getStar(int idGame, int level) async {
+    if (idGame == ID_SWIMMER_ACTIVITY)
+      return dataSwimmer = await db.getStar(user.userId, idGame, level);
+    else if (idGame == ID_PLANE_ACTIVITY)
+      return dataPlane = await db.getStar(user.userId, idGame, level);
+    else if (idGame == ID_TEMP_ACTIVITY)
+      return dataTemp = await db.getStar(user.userId, idGame, level);
+  }
+
+  Widget numberOfStars(int idGame, int level) {
+    return FutureBuilder(
+        future: getStar(idGame, level),
+        builder: (context, AsyncSnapshot<Star> snapshot) {
+          List<Widget> starArray = List<Widget>();
+          if (!snapshot.hasData) {
+            for (int i = 0; i < 5; i++)
+              starArray.add(Icon(Icons.star_border));
+            return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: starArray);
+          }
+          else {
+            getStar(idGame, level);
+            double stars = snapshot.data.starValue;
+
+            for (int i = 0; i < 5; i++) {
+              if (stars - 1.0 >= 0.0) {
+                starArray.add(Icon(Icons.star));
+                stars -= 1.0;
+              } else if (stars - 0.5 >= 0.0) {
+                starArray.add(Icon(Icons.star_half));
+                stars -= 0.5;
+              } else if (stars - 0.5 < 0.0) {
+                starArray.add(Icon(Icons.star_border));
+              }
+            }
+            return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: starArray);
+          }
+        });
   }
 
   Widget swimmerGame() {
@@ -159,14 +210,21 @@ class _SelectGame extends State<SelectGame> {
                   AnimatedOpacity(
                     duration: Duration(milliseconds: 1000),
                     opacity: visible_swim ? 1.0 : 1.0,
-                    child: Column(
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
                       children: <Widget>[
                         Container(
-                          alignment: Alignment.topCenter,
-                          width: widthCard * 0.5,
-                          height: heightCard * 0.5,
-                          child: Image.asset(
-                            'assets/swim.png',
+                          width: widthCard,
+                          height: heightCard - 20,
+                          child: Column(
+                            children: <Widget>[
+                              Image.asset(
+                                'assets/swim.png',
+                                width: widthCard * 0.5,
+                                height: heightCard * 0.5,
+                              ),
+                              numberOfStars(ID_SWIMMER_ACTIVITY, 100 + level * 10 + ID_SWIMMER_ACTIVITY),
+                            ],
                           ),
                         ),
                         Padding(
@@ -222,23 +280,6 @@ class _SelectGame extends State<SelectGame> {
     );
   }
 
-  Widget numberOfStars(int idGame) {
-    //TODO Si le nombre d'étoile de telle activité
-    //Alors calculer et charger ce qu'il faut (Tableau ?)
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Icon(Icons.star),
-        Icon(Icons.star),
-        Icon(Icons.star),
-        Icon(Icons.star_half),
-        Icon(Icons.star_border),
-      ],
-    );
-  }
-
   Widget planeGame() {
     var temp = AppLocalizations.of(context);
     return SizedBox(
@@ -281,7 +322,7 @@ class _SelectGame extends State<SelectGame> {
                                 width: widthCard * 0.7,
                                 height: heightCard * 0.5,
                               ),
-                              numberOfStars(ID_PLANE_ACTIVITY),
+                              numberOfStars(ID_PLANE_ACTIVITY, 100 + level * 10 + ID_PLANE_ACTIVITY),
                             ],
                           ),
                         ),
@@ -370,14 +411,21 @@ class _SelectGame extends State<SelectGame> {
                     duration: Duration(milliseconds: 1000),
                     opacity: visible_temp ? 1.0 : 0.0,
                     child: visible_temp
-                        ? Column(
+                        ? Stack(
+                            alignment: Alignment.bottomCenter,
                             children: <Widget>[
                               Container(
-                                alignment: Alignment.topCenter,
-                                width: widthCard * 0.5,
-                                height: heightCard * 0.5,
-                                child: Image.asset(
-                                  'assets/temp.png',
+                                width: widthCard,
+                                height: heightCard - 20,
+                                child: Column(
+                                  children: <Widget>[
+                                    Image.asset(
+                                      'assets/temp.png',
+                                      width: widthCard * 0.7,
+                                      height: heightCard * 0.5,
+                                    ),
+                                    numberOfStars(ID_TEMP_ACTIVITY, 100 + level * 10 + ID_TEMP_ACTIVITY),
+                                  ],
                                 ),
                               ),
                               Padding(
@@ -673,7 +721,7 @@ class _SelectGame extends State<SelectGame> {
                 appLanguage: appLanguage,
                 page: swimmer,
                 user: user,
-                messageIn: "0",
+                messageIn: "${100 + level*10 + ID_SWIMMER_ACTIVITY}",
               ),
             ),
           );
@@ -688,7 +736,7 @@ class _SelectGame extends State<SelectGame> {
                 appLanguage: appLanguage,
                 page: plane,
                 user: user,
-                messageIn: "0",
+                messageIn: "${100 + level*10 + ID_PLANE_ACTIVITY}",
               ),
             ),
           );
@@ -703,7 +751,7 @@ class _SelectGame extends State<SelectGame> {
                 appLanguage: appLanguage,
                 page: temp,
                 user: user,
-                messageIn: "0",
+                messageIn: "${100 + level*10 + ID_PLANE_ACTIVITY}",
               ),
             ),
           );
@@ -717,6 +765,7 @@ class _SelectGame extends State<SelectGame> {
     }
   }
 
+  //Système de navigation en 3 par 3
   _moveLeft() {
     _controller.animateTo(_controller.offset - screenSize.width,
         curve: Curves.linear, duration: Duration(milliseconds: 500));
@@ -747,6 +796,7 @@ class _SelectGame extends State<SelectGame> {
     }
     setState(() {});
   }
+  //FIN Système de navigation en 3 par 3
 
   @override
   Widget build(BuildContext context) {
@@ -786,6 +836,23 @@ class _SelectGame extends State<SelectGame> {
                       style: appBarStyle,
                       textAlign: TextAlign.left,
                     )),
+                Container(
+                  width: 30,
+                  child: RaisedButton(
+                    onPressed: () async {
+                      //db.addStar(Star(starId: null, activityId: ID_SWIMMER_ACTIVITY, scoreId: 1, userId: user.userId, starLevel: 1, starValue: 1.5));
+
+                      //db.deleteScore(user.userId);
+                      //db.deleteStar(user.userId);
+
+                      Star dataStar =
+                          await db.getStar(user.userId, ID_PLANE_ACTIVITY, 100 + level * 10 + ID_PLANE_ACTIVITY);
+
+                      print(dataStar.starValue);
+                    },
+                    child: Text("Add Stars"),
+                  ),
+                ),
                 Spacer(),
                 Text(
                   "Hmin: " +
@@ -834,20 +901,23 @@ class _SelectGame extends State<SelectGame> {
                   }
                   return;
                 },
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  controller: _controller,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      swimmerGame(),
-                      planeGame(),
-                      tempGame(),
-                      swimmerGame(),
-                      planeGame(),
-                      tempGame(),
-                    ],
+                child: AbsorbPointer(
+                  absorbing: hasMoved,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: _controller,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        swimmerGame(),
+                        planeGame(),
+                        tempGame(),
+                        swimmerGame(),
+                        planeGame(),
+                        tempGame(),
+                      ],
+                    ),
                   ),
                 ),
               ),

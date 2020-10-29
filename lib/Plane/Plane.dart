@@ -33,12 +33,17 @@ class _Message {
 class Plane extends StatefulWidget {
   final User user;
   final AppLanguage appLanguage;
+  final String level;
 
-  Plane({Key key, @required this.user, @required this.appLanguage})
+  Plane(
+      {Key key,
+      @required this.user,
+      @required this.appLanguage,
+      @required this.level})
       : super(key: key);
 
   @override
-  _Plane createState() => new _Plane(user, appLanguage);
+  _Plane createState() => new _Plane(user, appLanguage, level);
 }
 
 class _Plane extends State<Plane> with TickerProviderStateMixin {
@@ -58,10 +63,13 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
   Timer timerConnexion;
   UI gameUI;
   int score;
+  double starValue;
+  int level;
 
-  _Plane(User _user, AppLanguage _appLanguage) {
+  _Plane(User _user, AppLanguage _appLanguage, String _level) {
     user = _user;
     appLanguage = _appLanguage;
+    level = int.parse(_level);
   }
 
   @override
@@ -69,12 +77,15 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     game = null;
     if (user.userInitialPush != "0.0") {
       score = 0;
+      starValue = 0.0;
+
+      //TODO Ajust values
       if (user.userMode == "Sportif") {
         timeRemaining = "3:00";
         seconds = 180;
       } else {
         timeRemaining = "2:00";
-        seconds = 120;
+        seconds = 20;
       }
 
       start = false;
@@ -98,6 +109,8 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     WidgetsFlutterBinding.ensureInitialized();
 
     game = new PlaneGame(getData, user, appLanguage);
+
+    game.setStarLevel(level);
     //Start timer of 2 minutes
     startTimer(true);
     gameUI = new UI();
@@ -121,7 +134,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     } else {
       btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
-      if(isConnected) {
+      if (isConnected) {
         launchGame();
         return;
       }
@@ -146,7 +159,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     }
   }
 
-  void launchGame(){
+  void launchGame() {
     initPlane();
   }
 
@@ -204,7 +217,6 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
         (Timer timer) {
           //FIN DU JEU
           if (_start < delay) {
-            //TODO Display menu ?
             game.pauseGame = true;
             gameOver = true;
             timer.cancel();
@@ -234,16 +246,29 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     const oneSec = const Duration(seconds: 1);
     _timer = new Timer.periodic(
       oneSec,
-      (Timer timer) => setState(
+      (Timer timer) => mounted ? setState(
         () {
           if (_start < 1) {
+            //TODO Update value
+            if (user.userMode ==
+                    AppLocalizations.of(context).translate('familial') &&
+                score > 1) {
+              game.setStarValue(starValue = 0.5);
+            } else if (user.userMode ==
+                    AppLocalizations.of(context).translate('sportif') &&
+                score > 50)
+              game.setStarValue(starValue = 0.5);
+            else
+              game.setStarValue(starValue = 0.0);
+
             timer.cancel();
-            gameUI.state.saveAndExit(context, appLanguage, user, score, game);
+            gameUI.state.saveAndExit(
+                context, appLanguage, user, score, game, starValue, level);
           } else {
             _start = _start - 1;
           }
         },
-      ),
+      ) : start = start,
     );
   }
 

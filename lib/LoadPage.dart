@@ -100,12 +100,12 @@ class _LoadPage extends State<LoadPage> {
             page == login ? Login(appLanguage: appLanguage):
             page == mainTitle ? MainTitle(userIn: user, messageIn: messageIn, appLanguage: appLanguage,):
             page == manageProfile ? ManageProfile(curUser: user, appLanguage: appLanguage):
-            page == plane ? Plane(user: user, appLanguage: appLanguage):
+            page == plane ? Plane(user: user, appLanguage: appLanguage, level: messageIn):
             page == register ? Register(appLanguage: appLanguage):
             page == selectGame ? SelectGame(appLanguage: appLanguage, user: user, inputMessage: messageIn):
             page == selectStatistic ? SelectStatistic(appLanguage: appLanguage, user: user, inputMessage: messageIn):
-            page == swimmer ? Swimmer(user: user, appLanguage: appLanguage):
-            page == temp ? Temp(user: user, appLanguage: appLanguage): Container()
+            page == swimmer ? Swimmer(user: user, appLanguage: appLanguage, level: messageIn):
+            page == temp ? Temp(user: user, appLanguage: appLanguage, level: messageIn): Container()
         );
       }),
     );
