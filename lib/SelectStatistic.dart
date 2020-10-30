@@ -323,7 +323,7 @@ class _SelectStatistic extends State<SelectStatistic> {
       height: heightCard = (screenSize.width / numberOfCard),
       child: GestureDetector(
         onTap: () {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => LoadPage(

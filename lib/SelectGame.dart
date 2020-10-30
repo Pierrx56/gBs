@@ -181,7 +181,7 @@ class _SelectGame extends State<SelectGame> {
         });
   }
 
-  Widget swimmerGame() {
+  Widget swimmerGame(int _level) {
     var temp = AppLocalizations.of(context);
     return SizedBox(
       width: widthCard = screenSize.width / (numberOfCard / 1),
@@ -223,7 +223,7 @@ class _SelectGame extends State<SelectGame> {
                                 width: widthCard * 0.5,
                                 height: heightCard * 0.5,
                               ),
-                              numberOfStars(ID_SWIMMER_ACTIVITY, 100 + level * 10 + ID_SWIMMER_ACTIVITY),
+                              numberOfStars(ID_SWIMMER_ACTIVITY, 100 + _level * 10 + ID_SWIMMER_ACTIVITY),
                             ],
                           ),
                         ),
@@ -280,7 +280,7 @@ class _SelectGame extends State<SelectGame> {
     );
   }
 
-  Widget planeGame() {
+  Widget planeGame(int _level) {
     var temp = AppLocalizations.of(context);
     return SizedBox(
       width: widthCard = screenSize.width / (numberOfCard / 1),
@@ -322,7 +322,7 @@ class _SelectGame extends State<SelectGame> {
                                 width: widthCard * 0.7,
                                 height: heightCard * 0.5,
                               ),
-                              numberOfStars(ID_PLANE_ACTIVITY, 100 + level * 10 + ID_PLANE_ACTIVITY),
+                              numberOfStars(ID_PLANE_ACTIVITY, 100 + _level * 10 + ID_PLANE_ACTIVITY),
                             ],
                           ),
                         ),
@@ -379,7 +379,7 @@ class _SelectGame extends State<SelectGame> {
     );
   }
 
-  Widget tempGame() {
+  Widget tempGame(int _level) {
     var temp = AppLocalizations.of(context);
     return SizedBox(
       width: widthCard = screenSize.width / (numberOfCard / 1),
@@ -424,7 +424,7 @@ class _SelectGame extends State<SelectGame> {
                                       width: widthCard * 0.7,
                                       height: heightCard * 0.5,
                                     ),
-                                    numberOfStars(ID_TEMP_ACTIVITY, 100 + level * 10 + ID_TEMP_ACTIVITY),
+                                    numberOfStars(ID_TEMP_ACTIVITY, 100 + _level * 10 + ID_TEMP_ACTIVITY),
                                   ],
                                 ),
                               ),
@@ -668,7 +668,7 @@ class _SelectGame extends State<SelectGame> {
       height: heightCard = (screenSize.width / (numberOfCard) / 2),
       child: GestureDetector(
         onTap: () {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => LoadPage(
@@ -836,23 +836,23 @@ class _SelectGame extends State<SelectGame> {
                       style: appBarStyle,
                       textAlign: TextAlign.left,
                     )),
-                Container(
+                /*Container(
                   width: 30,
                   child: RaisedButton(
                     onPressed: () async {
-                      //db.addStar(Star(starId: null, activityId: ID_SWIMMER_ACTIVITY, scoreId: 1, userId: user.userId, starLevel: 1, starValue: 1.5));
+                      //db.addStar(Star(starId: null, activityId: ID_SWIMMER_ACTIVITY, userId: user.userId, starLevel: 100 + level * 10 + ID_SWIMMER_ACTIVITY, starValue: 3.5));
 
                       //db.deleteScore(user.userId);
                       //db.deleteStar(user.userId);
 
-                      Star dataStar =
-                          await db.getStar(user.userId, ID_PLANE_ACTIVITY, 100 + level * 10 + ID_PLANE_ACTIVITY);
+                      //Star dataStar = await db.getStar(user.userId, ID_PLANE_ACTIVITY, 100 + level * 10 + ID_PLANE_ACTIVITY);
+                      Star dataStar = await db.getStar(user.userId, ID_SWIMMER_ACTIVITY, 100 + level * 10 + ID_SWIMMER_ACTIVITY);
 
                       print(dataStar.starValue);
                     },
                     child: Text("Add Stars"),
                   ),
-                ),
+                ),*/
                 Spacer(),
                 Text(
                   "Hmin: " +
@@ -910,12 +910,14 @@ class _SelectGame extends State<SelectGame> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        swimmerGame(),
-                        planeGame(),
-                        tempGame(),
-                        swimmerGame(),
-                        planeGame(),
-                        tempGame(),
+                        //Level 1.1
+                        swimmerGame(1),
+                        planeGame(1),
+                        tempGame(1),
+                        //Level 1.2
+                        swimmerGame(2),
+                        planeGame(2),
+                        tempGame(2),
                       ],
                     ),
                   ),

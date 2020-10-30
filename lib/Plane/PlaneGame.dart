@@ -295,19 +295,19 @@ class PlaneGame extends Game {
     return score;
   }
 
-  double getStarValue(){
+  double getStarValue() {
     return starValue;
   }
 
-  void setStarValue(double _starValue){
+  void setStarValue(double _starValue) {
     starValue = _starValue;
   }
 
-  int getStarLevel(){
+  int getStarLevel() {
     return starLevel;
   }
 
-  void setStarLevel(int _starLevel){
+  void setStarLevel(int _starLevel) {
     starLevel = _starLevel;
   }
 

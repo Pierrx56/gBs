@@ -147,7 +147,7 @@ class UIState extends State<UI> {
               if (everyScores[everyScores.length - 1].date != date)
                 db.addScore(newScore);
             }
-            Navigator.pushReplacement(
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => LoadPage(

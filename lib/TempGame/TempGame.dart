@@ -43,15 +43,15 @@ class TempGame extends Game {
   bool isMoving = false;
   bool posMax;
   String tempPic;
-  double creationTimer = 0.0;
-  double scoreTimer = 0.0;
-  double tempPosY = 0;
-  double tempPosX = 0;
-  double pos = 0;
-  int i = 0;
+  double creationTimer;
+  double scoreTimer;
+  double tempPosY;
+  double tempPosX;
+  double pos;
+  int i;
   double difficulte = 0.50;
 
-  double size = 100.0;
+  double size;
   static List<String> jump = [
     'temp/jump1.png',
     /*  'temp/jump2.png',*/
@@ -118,6 +118,13 @@ class TempGame extends Game {
     firstFloor = FirstFloor(this);
     gameUI = UI();
 
+    size = 100.0;
+    pos = 0;
+    i = 0;
+    tempPosY = 0.0;
+    tempPosX = 0.0;
+    scoreTimer = 0.0;
+    creationTimer = 0.0;
     isTooHigh = false;
     counterHigh = 0;
     isTopPosition = false;

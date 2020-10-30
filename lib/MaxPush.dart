@@ -588,7 +588,7 @@ class _MaxPush extends State<MaxPush> {
 
                                                 db.updateUser(updatedUser);
 
-                                                Navigator.pushReplacement(
+                                                Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) =>

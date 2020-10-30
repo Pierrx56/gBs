@@ -78,36 +78,42 @@ class _LoadPage extends State<LoadPage> {
   @override
   Widget build(BuildContext context) {
 
-    return ChangeNotifierProvider.value(
-      value: appLanguage,
-      child: Consumer<AppLanguage>(builder: (context, model, child) {
-        return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            locale: model.appLocal != null ? model.appLocal : "",
-            supportedLocales: [
-              Locale('en', 'US'),
-              Locale('fr', 'FR'),
-            ],
-            localizationsDelegates: [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-            ],
-            home:
-            page == detailsCharts ? DetailsCharts(appLanguage: appLanguage, scores: scores, user: user, messageIn: messageIn,):
-            page == faq ? FAQ(user: user, inputMessage: messageIn, appLanguage: appLanguage):
-            page == firstPush ? MaxPush(user: user, inputMessage: messageIn, appLanguage: appLanguage):
-            page == login ? Login(appLanguage: appLanguage):
-            page == mainTitle ? MainTitle(userIn: user, messageIn: messageIn, appLanguage: appLanguage,):
-            page == manageProfile ? ManageProfile(curUser: user, appLanguage: appLanguage):
-            page == plane ? Plane(user: user, appLanguage: appLanguage, level: messageIn):
-            page == register ? Register(appLanguage: appLanguage):
-            page == selectGame ? SelectGame(appLanguage: appLanguage, user: user, inputMessage: messageIn):
-            page == selectStatistic ? SelectStatistic(appLanguage: appLanguage, user: user, inputMessage: messageIn):
-            page == swimmer ? Swimmer(user: user, appLanguage: appLanguage, level: messageIn):
-            page == temp ? Temp(user: user, appLanguage: appLanguage, level: messageIn): Container()
-        );
-      }),
+    return WillPopScope(
+      //Disable physical back button to avoid page navigation bugs
+      onWillPop: () {
+        return Future.value(false);
+      },
+      child: ChangeNotifierProvider.value(
+        value: appLanguage,
+        child: Consumer<AppLanguage>(builder: (context, model, child) {
+          return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              locale: model.appLocal != null ? model.appLocal : "",
+              supportedLocales: [
+                Locale('en', 'US'),
+                Locale('fr', 'FR'),
+              ],
+              localizationsDelegates: [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+              ],
+              home:
+              page == detailsCharts ? DetailsCharts(appLanguage: appLanguage, scores: scores, user: user, messageIn: messageIn,):
+              page == faq ? FAQ(user: user, inputMessage: messageIn, appLanguage: appLanguage):
+              page == firstPush ? MaxPush(user: user, inputMessage: messageIn, appLanguage: appLanguage):
+              page == login ? Login(appLanguage: appLanguage):
+              page == mainTitle ? MainTitle(userIn: user, messageIn: messageIn, appLanguage: appLanguage,):
+              page == manageProfile ? ManageProfile(curUser: user, appLanguage: appLanguage):
+              page == plane ? Plane(user: user, appLanguage: appLanguage, level: messageIn):
+              page == register ? Register(appLanguage: appLanguage):
+              page == selectGame ? SelectGame(appLanguage: appLanguage, user: user, inputMessage: messageIn):
+              page == selectStatistic ? SelectStatistic(appLanguage: appLanguage, user: user, inputMessage: messageIn):
+              page == swimmer ? Swimmer(user: user, appLanguage: appLanguage, level: messageIn):
+              page == temp ? Temp(user: user, appLanguage: appLanguage, level: messageIn): Container()
+          );
+        }),
+      ),
     );
   }
 }

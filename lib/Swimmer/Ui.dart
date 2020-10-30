@@ -99,7 +99,7 @@ class UIState extends State<UI> {
             starLevel: starLevel));
       }
     }
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => LoadPage(

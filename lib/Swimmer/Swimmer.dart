@@ -168,7 +168,7 @@ class _Swimmer extends State<Swimmer> {
           if (_start < 1) {
             timer.cancel();
             //Redirection vers le menu
-            Navigator.pushReplacement(
+            Navigator.push(
               this.context,
               MaterialPageRoute(
                 builder: (context) => LoadPage(
@@ -349,7 +349,7 @@ class _Swimmer extends State<Swimmer> {
                                           ),
                                     RaisedButton(
                                       onPressed: () {
-                                        Navigator.pushReplacement(
+                                        Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) => LoadPage(

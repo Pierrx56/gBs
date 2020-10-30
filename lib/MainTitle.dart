@@ -58,11 +58,11 @@ class _MainTitle extends State<MainTitle> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const Color orangeColor = Colors.orange; //Colors.amber[800];
 
   BluetoothManager btManage =
-      new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
+  new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
   _MainTitle(AppLanguage _appLanguage, User userIn, String messageIn) {
     appLanguage = _appLanguage;
@@ -125,7 +125,7 @@ class _MainTitle extends State<MainTitle> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(
         Duration(milliseconds: 3000),
-        (timerConnexion) async {
+            (timerConnexion) async {
           btManage.connect(user.userMacAddress, user.userSerialNumber);
 
           isConnected = await btManage.getStatus();
@@ -160,14 +160,15 @@ class _MainTitle extends State<MainTitle> {
   }
 
   Widget menu() {
-    Size screenSize = MediaQuery.of(this.context).size;
+    Size screenSize = MediaQuery
+        .of(this.context)
+        .size;
     int numberOfCard = 3;
     //print("id: " + user.userId.toString());
 
     var temp = AppLocalizations.of(context);
 
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
           title: Row(
@@ -184,7 +185,7 @@ class _MainTitle extends State<MainTitle> {
               ),
               temp != null
                   ? Text(AppLocalizations.of(context).translate('bonjour') +
-                      user.userName)
+                  user.userName)
                   : Text("Check Language file (en/fr.json)"),
             ],
           ),
@@ -209,11 +210,12 @@ class _MainTitle extends State<MainTitle> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => LoadPage(
-                        user: user,
-                        appLanguage: appLanguage,
-                        messageIn: "fromMainTitle",
-                        page: faq),
+                    builder: (context) =>
+                        LoadPage(
+                            user: user,
+                            appLanguage: appLanguage,
+                            messageIn: "fromMainTitle",
+                            page: faq),
                   ),
                 );
               },
@@ -223,7 +225,8 @@ class _MainTitle extends State<MainTitle> {
                 Icons.settings,
                 color: Colors.white,
               ),
-              label: Text("",
+              label: Text(
+                "",
                 //AppLocalizations.of(context).translate('reglages'),
                 style: TextStyle(color: Colors.white),
               ),
@@ -235,11 +238,12 @@ class _MainTitle extends State<MainTitle> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => LoadPage(
-                        user: user,
-                        appLanguage: appLanguage,
-                        messageIn: "fromMainTitle",
-                        page: manageProfile),
+                    builder: (context) =>
+                        LoadPage(
+                            user: user,
+                            appLanguage: appLanguage,
+                            messageIn: "fromMainTitle",
+                            page: manageProfile),
                   ),
                 );
               },
@@ -358,11 +362,11 @@ class _MainTitle extends State<MainTitle> {
               ),
               label: temp != null
                   ? Text(''
-                      /*AppLocalizations.of(context).translate('deconnexion'),
+                /*AppLocalizations.of(context).translate('deconnexion'),
                       style: TextStyle(
                         color: Colors.white,
                       ),*/
-                      )
+              )
                   : Text("Check Language file (en/fr.json)"),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -373,7 +377,8 @@ class _MainTitle extends State<MainTitle> {
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => LoadPage(
+                        builder: (context) =>
+                            LoadPage(
                               user: null,
                               appLanguage: appLanguage,
                               messageIn: "deconnexion",
@@ -393,19 +398,21 @@ class _MainTitle extends State<MainTitle> {
                 child: Row(
                   children: <Widget>[
                     SizedBox(
-                      width: widthCard = (screenSize.width / numberOfCard) - 7,
+                      width: widthCard =
+                          (screenSize.width / numberOfCard) - 7,
                       height: heightCard = screenSize.width / numberOfCard,
                       child: GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => LoadPage(
-                                appLanguage: appLanguage,
-                                page: firstPush,
-                                user: user,
-                                messageIn: "fromMain",
-                              ),
+                              builder: (context) =>
+                                  LoadPage(
+                                    appLanguage: appLanguage,
+                                    page: firstPush,
+                                    user: user,
+                                    messageIn: "fromMain",
+                                  ),
                             ),
                           );
                         },
@@ -418,24 +425,26 @@ class _MainTitle extends State<MainTitle> {
                               : Colors.white,
                           elevation: 8,
                           child: SingleChildScrollView(
-                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            padding:
+                            const EdgeInsets.fromLTRB(10, 10, 10, 10),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisSize: MainAxisSize.max,
                               children: <Widget>[
                                 temp != null
                                     ? AutoSizeText(
-                                        AppLocalizations.of(context)
-                                            .translate('poussee_max'),
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: message == "fromRegister"
-                                              ? Colors.grey
-                                              : Colors.black,
-                                        ),
-                                      )
-                                    : Text("Check Language file (en/fr.json)"),
+                                  AppLocalizations.of(context)
+                                      .translate('poussee_max'),
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: message == "fromRegister"
+                                        ? Colors.grey
+                                        : Colors.black,
+                                  ),
+                                )
+                                    : Text(
+                                    "Check Language file (en/fr.json)"),
                                 Transform.rotate(
                                   angle: -math.pi,
                                   child: Icon(
@@ -454,14 +463,16 @@ class _MainTitle extends State<MainTitle> {
                     ),
                     //Selection jeux
                     SizedBox(
-                      width: widthCard = (screenSize.width / numberOfCard) - 7,
+                      width: widthCard =
+                          (screenSize.width / numberOfCard) - 7,
                       height: heightCard = screenSize.width / numberOfCard,
                       child: GestureDetector(
                         onTap: () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => LoadPage(
+                                  builder: (context) =>
+                                      LoadPage(
                                         user: user,
                                         appLanguage: appLanguage,
                                         messageIn: "0",
@@ -482,20 +493,23 @@ class _MainTitle extends State<MainTitle> {
                               children: <Widget>[
                                 temp != null
                                     ? Text(
-                                        AppLocalizations.of(context)
-                                            .translate('activites'),
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    : Text("Check Language file (en/fr.json)"),
+                                  AppLocalizations.of(context)
+                                      .translate('activites'),
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                )
+                                    : Text(
+                                    "Check Language file (en/fr.json)"),
                                 Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Card(
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
+                                        borderRadius:
+                                        BorderRadius.circular(10),
                                       ),
                                       elevation: 8,
                                       child: Container(
@@ -513,7 +527,8 @@ class _MainTitle extends State<MainTitle> {
                                     ),
                                     Card(
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
+                                        borderRadius:
+                                        BorderRadius.circular(10),
                                       ),
                                       elevation: 8,
                                       child: Container(
@@ -532,12 +547,14 @@ class _MainTitle extends State<MainTitle> {
                                   ],
                                 ),
                                 Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Card(
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
+                                        borderRadius:
+                                        BorderRadius.circular(10),
                                       ),
                                       elevation: 8,
                                       child: Container(
@@ -555,7 +572,8 @@ class _MainTitle extends State<MainTitle> {
                                     ),
                                     Card(
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
+                                        borderRadius:
+                                        BorderRadius.circular(10),
                                       ),
                                       elevation: 8,
                                       child: Container(
@@ -580,14 +598,16 @@ class _MainTitle extends State<MainTitle> {
                       ),
                     ),
                     SizedBox(
-                      width: widthCard = (screenSize.width / numberOfCard) - 7,
+                      width: widthCard =
+                          (screenSize.width / numberOfCard) - 7,
                       height: heightCard = screenSize.width / numberOfCard,
                       child: GestureDetector(
                         onTap: () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => LoadPage(
+                                  builder: (context) =>
+                                      LoadPage(
                                         user: user,
                                         appLanguage: appLanguage,
                                         messageIn: "0",
@@ -600,20 +620,22 @@ class _MainTitle extends State<MainTitle> {
                           ),
                           elevation: 8,
                           child: SingleChildScrollView(
-                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            padding:
+                            const EdgeInsets.fromLTRB(10, 10, 10, 10),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisSize: MainAxisSize.max,
                               children: <Widget>[
                                 temp != null
                                     ? Text(
-                                        AppLocalizations.of(context)
-                                            .translate('statistiques'),
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    : Text("Check Language file (en/fr.json)"),
+                                  AppLocalizations.of(context)
+                                      .translate('statistiques'),
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                )
+                                    : Text(
+                                    "Check Language file (en/fr.json)"),
                                 Image.asset(
                                   'assets/chart.png',
                                   width: widthCard * 0.7,
@@ -631,7 +653,6 @@ class _MainTitle extends State<MainTitle> {
             ],
           ),
         ),
-      ),
     );
   }
 
@@ -639,7 +660,8 @@ class _MainTitle extends State<MainTitle> {
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => LoadPage(
+            builder: (context) =>
+                LoadPage(
                   user: null,
                   appLanguage: appLanguage,
                   messageIn: "0",
@@ -695,53 +717,12 @@ class _MainTitle extends State<MainTitle> {
       settingsPage,
     ];
 
-
-    return MaterialApp(
-      home: menu(),
-    );
-
-/*
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: DefaultTabController(
-        length: _widgetOptions.length,
-        child: WillPopScope(
-          onWillPop: _onBackPressed,
-          child: Scaffold(
-            bottomNavigationBar: new BottomNavigationBar(
-              items: <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.home,
-                  ),
-                  title:
-                      Text(AppLocalizations.of(context).translate('accueil')),
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.settings,
-                  ),
-                  title:
-                      Text(AppLocalizations.of(context).translate('reglages')),
-                ),
-              ],
-              currentIndex: _selectedIndex,
-              selectedItemColor: Colors.blue,
-              onTap: _onItemTapped,
-            ),
-            body: Center(
-              child: _widgetOptions.elementAt(_selectedIndex),
-            ),
-          ),
-        ),
-      ),
-    );*/
+    return  menu();
   }
 
   // Method to show a Snackbar,
   // taking message as the text
-  Future show(
-    String message, {
+  Future show(String message, {
     Duration duration: const Duration(seconds: 3),
   }) async {
     await new Future.delayed(new Duration(milliseconds: 100));

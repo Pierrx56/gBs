@@ -234,7 +234,7 @@ class _ManageProfile extends State<ManageProfile> {
 
     //Redirection vers l'écran d'accueil
     Future.delayed(const Duration(milliseconds: 2000), () {
-      Navigator.pushReplacement(
+      Navigator.push(
         this.context,
         MaterialPageRoute(
           builder: (context) => LoadPage(
@@ -471,7 +471,7 @@ class _ManageProfile extends State<ManageProfile> {
                           if (hasChangedState)
                             pousseeDialog();
                           else
-                            Navigator.pushReplacement(
+                            Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => LoadPage(
@@ -587,7 +587,7 @@ class _ManageProfile extends State<ManageProfile> {
                         children: <Widget>[
                           RaisedButton(
                             onPressed: () {
-                              Navigator.pushReplacement(
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => LoadPage(
@@ -775,8 +775,24 @@ class _ManageProfile extends State<ManageProfile> {
       resizeToAvoidBottomPadding: false,
       key: _scaffoldKey,
       appBar: AppBar(
+        automaticallyImplyLeading: true,
         title: Text(AppLocalizations.of(context).translate('modification')),
         backgroundColor: Colors.blue,
+        leading: new IconButton(
+          icon: new Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () =>
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoadPage(
+                    appLanguage: appLanguage,
+                    page: mainTitle,
+                    user: user,
+                    messageIn: "",
+                  ),
+                ),
+              ),
+        ),
       ),
       body: Stack(
         children: <Widget>[

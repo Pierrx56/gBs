@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/LoadPage.dart';
+import 'package:gbsalternative/MainTitle.dart';
 import 'package:provider/provider.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'DatabaseHelper.dart';
@@ -234,12 +235,24 @@ class LoginWidget extends StatelessWidget {
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
+                                      builder: (context) =>
+                                          //MainTitle(appLanguage: appLanguage,messageIn: "",userIn: snapshot.data[index -1],),
+                                          LoadPage(
+                                        user: snapshot.data[index - 1],
+                                        appLanguage: appLanguage,
+                                        page: mainTitle,
+                                        messageIn: "0",
+                                      )));
+                              /*
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
                                       builder: (context) => LoadPage(
                                             user: snapshot.data[index - 1],
                                             appLanguage: appLanguage,
                                             page: mainTitle,
                                             messageIn: "0",
-                                          )));
+                                          )));*/
                             },
                             child: new Container(
                               height: screenSize.height * 0.3,

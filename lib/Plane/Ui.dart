@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui';
+import 'package:confetti/confetti.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -144,7 +146,7 @@ class UIState extends State<UI> {
       child: Container(
         alignment: Alignment.topCenter,
         decoration: new BoxDecoration(
-            color: color.withAlpha(150),//Colors.blue.withAlpha(150),
+            color: color.withAlpha(150), //Colors.blue.withAlpha(150),
             //new Color.fromRGBO(255, 0, 0, 0.0),
             borderRadius: new BorderRadius.only(
                 topLeft: const Radius.circular(20.0),
@@ -180,23 +182,6 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget creditsButton() {
-    return Ink(
-      decoration: ShapeDecoration(
-        shape: CircleBorder(),
-      ),
-      child: IconButton(
-        color: Colors.white,
-        icon: Icon(
-          Icons.nature_people,
-        ),
-        onPressed: () {
-          update();
-        },
-      ),
-    );
-  }
-
   void saveAndExit(BuildContext context, AppLanguage appLanguage, User user,
       int score, PlaneGame game, double starValue, int starLevel) async {
     DatabaseHelper db = new DatabaseHelper();
@@ -217,9 +202,13 @@ class UIState extends State<UI> {
 
     if (everyScores.length == 0 && score != 0) {
       db.addScore(newScore);
-      db.addStar(Star(starId: null, activityId: ACTIVITY_NUMBER, userId: user.userId, starValue: starValue, starLevel: starLevel));
-    }
-    else if (score != 0) {
+      db.addStar(Star(
+          starId: null,
+          activityId: ACTIVITY_NUMBER,
+          userId: user.userId,
+          starValue: starValue,
+          starLevel: starLevel));
+    } else if (score != 0) {
       //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
       for (int i = 0; i < everyScores.length; i++) {
         //On remplace la valeur dans la bdd
@@ -233,17 +222,27 @@ class UIState extends State<UI> {
               scoreDate: date));
 
           starValue += tempStar.starValue;
-          db.updateStar(Star(starId: tempStar.starId, activityId: ACTIVITY_NUMBER, userId: user.userId, starValue: starValue, starLevel: starLevel));
+          db.updateStar(Star(
+              starId: tempStar.starId,
+              activityId: ACTIVITY_NUMBER,
+              userId: user.userId,
+              starValue: starValue,
+              starLevel: starLevel));
         }
       }
       //Sinon on enregistre si la dernière date enregistrée est différente du jour
       if (everyScores[everyScores.length - 1].date != date) {
         db.addScore(newScore);
         starValue += tempStar.starValue;
-        db.updateStar(Star(starId: tempStar.starId, activityId: ACTIVITY_NUMBER, userId: user.userId, starValue: starValue, starLevel: starLevel));
+        db.updateStar(Star(
+            starId: tempStar.starId,
+            activityId: ACTIVITY_NUMBER,
+            userId: user.userId,
+            starValue: starValue,
+            starLevel: starLevel));
       }
     }
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => LoadPage(
@@ -276,7 +275,8 @@ class UIState extends State<UI> {
           onPressed: () async {
             //Get date etc
             //db.getScore(user.userId);
-            saveAndExit(context, appLanguage, user, score, game, starValue, starLevel);
+            saveAndExit(
+                context, appLanguage, user, score, game, starValue, starLevel);
           },
           child: Text(
             AppLocalizations.of(context).translate('quitter'),
@@ -293,12 +293,15 @@ class UIState extends State<UI> {
       padding: const EdgeInsets.all(10.0),
       child: Container(
         height: game.screenSize.height * 0.2,
-        width: game.pauseGame ? game.screenSize.width / 3 :game.screenSize.width / 4 ,
+        width: game.pauseGame
+            ? game.screenSize.width / 3
+            : game.screenSize.width / 4,
         child: RaisedButton(
           onPressed: game.getConnectionState()
               ? () async {
-            game.pauseGame = !game.pauseGame;
-          } : null,
+                  game.pauseGame = !game.pauseGame;
+                }
+              : null,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -376,7 +379,8 @@ class UIState extends State<UI> {
             ),
             pauseButton(context, appLanguage, game, user),
             restartButton(context, appLanguage, game, user),
-            closeButton(context, appLanguage, user, game.getScore(), game, game.getStarValue(), game.getStarLevel()),
+            closeButton(context, appLanguage, user, game.getScore(), game,
+                game.getStarValue(), game.getStarLevel()),
           ],
         ),
       ),
@@ -384,10 +388,14 @@ class UIState extends State<UI> {
   }
 
   Widget endScreen(BuildContext context, AppLanguage appLanguage,
-      PlaneGame game, User user) {
+      PlaneGame game, User user, ConfettiController _controllerTopCenter) {
+    if(game.getStarValue() == 0.5)
+      _controllerTopCenter.play();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
+        width: game.screenSize.width / 3,
+        height: game.screenSize.height / 3,
         alignment: Alignment.topCenter,
         decoration: new BoxDecoration(
             color: Colors.blue.withAlpha(150),
@@ -397,14 +405,15 @@ class UIState extends State<UI> {
                 topRight: const Radius.circular(20.0),
                 bottomLeft: const Radius.circular(20.0),
                 bottomRight: const Radius.circular(20.0))),
-        width: game.screenSize.width / 3,
-        height: game.screenSize.height / 3,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              "Fin du jeu, retour au menu !",
+              game.getStarValue() == 0.5 ?
+              "Félicitation, vous gagnez 0.5 étoile !\n"
+              "Retour au menu !" :
+              "Vous n'avez pas gagné d'étoile, ça sera pour la prochaine fois, surpassez-vous !",
               textAlign: TextAlign.center,
               style: textStyle,
             ),

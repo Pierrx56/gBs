@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +67,8 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
   double starValue;
   int level;
 
+  ConfettiController _controllerTopCenter;
+
   _Plane(User _user, AppLanguage _appLanguage, String _level) {
     user = _user;
     appLanguage = _appLanguage;
@@ -79,13 +82,16 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
       score = 0;
       starValue = 0.0;
 
+      _controllerTopCenter =
+          ConfettiController(duration: const Duration(seconds: 10));
+
       //TODO Ajust values
       if (user.userMode == "Sportif") {
         timeRemaining = "3:00";
         seconds = 180;
       } else {
         timeRemaining = "2:00";
-        seconds = 20;
+        seconds = 120;
       }
 
       start = false;
@@ -102,6 +108,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     timerConnexion?.cancel();
     timer?.cancel();
     _timer?.cancel();
+    _controllerTopCenter?.dispose();
     super.dispose();
   }
 
@@ -252,7 +259,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
             //TODO Update value
             if (user.userMode ==
                     AppLocalizations.of(context).translate('familial') &&
-                score > 1) {
+                score > 15) {
               game.setStarValue(starValue = 0.5);
             } else if (user.userMode ==
                     AppLocalizations.of(context).translate('sportif') &&
@@ -327,7 +334,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                             ),
                                       RaisedButton(
                                         onPressed: () {
-                                          Navigator.pushReplacement(
+                                          Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) => LoadPage(
@@ -382,8 +389,33 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                       .menu(context, appLanguage, game, user))
                               : Container(
                                   alignment: Alignment.topCenter,
-                                  child: gameUI.state.endScreen(
-                                      context, appLanguage, game, user))
+                                  height: screenSize.height,
+                                  child: Stack(
+                                    children: <Widget>[
+                                      Align(
+                                        alignment: Alignment.center,
+                                        child: gameUI.state.endScreen(
+                                            context, appLanguage, game, user, _controllerTopCenter),
+                                      ),
+                                      //TOP CENTER - shoot down
+                                      Align(
+                                        alignment: Alignment.topCenter,
+                                        child: ConfettiWidget(
+                                          confettiController: _controllerTopCenter,
+                                          blastDirection: math.pi / 2,
+                                          maxBlastForce: 5,
+                                          // set a lower max blast force
+                                          minBlastForce: 2,
+                                          // set a lower min blast force
+                                          emissionFrequency: 0.05,
+                                          numberOfParticles: 50,
+                                          // a lot of particles at once
+                                          gravity: 1,
+                                        ),
+                                      ),
+                                    ],
+
+                                  ))
                       : Container(),
 
                   /*              Container(
