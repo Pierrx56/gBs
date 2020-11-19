@@ -162,6 +162,7 @@ class BluetoothManager {
       //TODO Implement swift
       final String result = await sensorChannel.invokeMethod('disco');
       connectStatus = 'Connection status: $result.';
+      print(connectStatus);
       isConnected = false;
     } on PlatformException {
       connectStatus = 'Connection status: Disconnected';

@@ -144,7 +144,6 @@ class _Temp extends State<Temp> {
         if (isConnected) {
           timerConnexion.cancel();
           launchGame();
-          //refreshScore();
         }
       });
     }
@@ -163,7 +162,7 @@ class _Temp extends State<Temp> {
           if (_start < 1) {
             timer.cancel();
             //Redirection vers le menu
-            Navigator.push(
+            Navigator.pushReplacement(
               this.context,
               MaterialPageRoute(
                 builder: (context) => LoadPage(
@@ -351,13 +350,13 @@ class _Temp extends State<Temp> {
             ),
           ),
           //Display message pour afficher score
-          /*Container(
-            alignment: Alignment.bottomLeft,
+          Container(
+            alignment: Alignment.bottomRight,
             padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-            child: game == null
+            child: game == null || game.pauseGame
                 ? Container()
                 : gameUI.state.displayScore(context, appLanguage, score),
-          ),*/
+          ),
           //Consigne et jauge à remplir
           game != null
               ? game.isWaiting

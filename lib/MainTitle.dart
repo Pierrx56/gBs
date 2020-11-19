@@ -116,7 +116,7 @@ class _MainTitle extends State<MainTitle> {
       if (isConnected) {
         return;
       }
-      testConnect();
+      //testConnect();
     }
   }
 

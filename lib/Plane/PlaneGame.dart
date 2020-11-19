@@ -264,8 +264,8 @@ class PlaneGame extends Game {
           }
 
           if (inTouch) {
-            print(plane.y);
-            plane.y -= 20.0;
+            //print(plane.y);
+            //plane.y -= 20.0;
             tempPos = plane.y;
             inTouch = false;
           }

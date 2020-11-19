@@ -42,7 +42,7 @@ class UIState extends State<UI> {
   Widget displayScore(
       BuildContext context, AppLanguage appLanguage, int score) {
     return Text(
-      "Score: $score m",
+      "Score: $score",
       style: TextStyle(
         fontSize: 50,
         color: Colors.black,
@@ -147,7 +147,7 @@ class UIState extends State<UI> {
               if (everyScores[everyScores.length - 1].date != date)
                 db.addScore(newScore);
             }
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => LoadPage(

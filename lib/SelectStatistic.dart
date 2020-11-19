@@ -10,6 +10,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
@@ -97,6 +98,7 @@ class _SelectStatistic extends State<SelectStatistic> {
   void initState() {
     getScores(user.userId, ID_SWIMMER_ACTIVITY);
     getScores(user.userId, ID_PLANE_ACTIVITY);
+    getScores(user.userId, ID_TEMP_ACTIVITY);
     super.initState();
   }
 
@@ -400,11 +402,12 @@ class _SelectStatistic extends State<SelectStatistic> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Stack(
+                      alignment: Alignment.center,
                       children: <Widget>[
                         swimStat(),
                         Container(
-                          width: screenSize.width / numberOfCard,
-                          height: screenSize.width / numberOfCard,
+                          width: widthCard*0.9,
+                          height: heightCard*0.9,
                           child: GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -425,11 +428,12 @@ class _SelectStatistic extends State<SelectStatistic> {
                       ],
                     ),
                     Stack(
+                      alignment: Alignment.center,
                       children: <Widget>[
                         planeStat(),
                         Container(
-                          width: screenSize.width / numberOfCard,
-                          height: screenSize.width / numberOfCard,
+                          width: widthCard*0.9,
+                          height: heightCard*0.9,
                           child: GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -450,11 +454,12 @@ class _SelectStatistic extends State<SelectStatistic> {
                       ],
                     ),
                     Stack(
+                      alignment: Alignment.center,
                       children: <Widget>[
                         tempStat(),
                         Container(
-                          width: screenSize.width / numberOfCard,
-                          height: screenSize.width / numberOfCard,
+                          width: widthCard*0.9,
+                          height: heightCard*0.9,
                           child: GestureDetector(
                             onTap: () {
                               Navigator.push(

@@ -481,6 +481,7 @@ public class MainActivity extends FlutterActivity {
                             System.out.println("device disconnected\n");
                             isConnected = false;
                             mBluetoothDevice = null;
+                            //btAdapter = null;
                             //disconnectDeviceSelected();
                             //connectToDevice.setVisibility(View.VISIBLE);
                             //disconnectDevice.setVisibility(View.INVISIBLE);

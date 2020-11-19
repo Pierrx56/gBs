@@ -274,8 +274,8 @@ class _Swimmer extends State<Swimmer> {
                 AppLocalizations.of(context).translate('familial') &&
                 score > 180) {
               game.setStarValue(starValue = 0.5);
-              print(starValue);
-              print(level);
+              print("Star: $starValue");
+              print("Lavel: $level");
             }
             //TODO Mode sportif pour le nageur
             else if (user.userMode ==

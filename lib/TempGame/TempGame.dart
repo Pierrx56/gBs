@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flame/components/component.dart';
 import 'package:flame/flame.dart';
@@ -39,10 +40,14 @@ class TempGame extends Game {
   bool isJumping;
 
   int score = 0;
+  int increment;
   bool pauseGame = false;
   bool isMoving = false;
   bool posMax;
+  bool gravity;
   String tempPic;
+  int randomNumber;
+  bool goodNumber;
   double creationTimer;
   double scoreTimer;
   double tempPosY;
@@ -80,7 +85,7 @@ class TempGame extends Game {
 
   static List<String> waiting = [
     'temp/tile000.png',
-/*    'temp/tile001.png',
+    'temp/tile001.png',
     'temp/tile002.png',
     'temp/tile003.png',
     'temp/tile004.png',
@@ -89,7 +94,7 @@ class TempGame extends Game {
     'temp/tile007.png',
     'temp/tile008.png',
     'temp/tile009.png',
-    'temp/tile010.png'*/
+    'temp/tile010.png'
   ];
 
   List<List<String>> tab = [jump, run, waiting];
@@ -114,10 +119,12 @@ class TempGame extends Game {
   void initialize() async {
     resize(await Flame.util.initialDimensions());
     background = Background(this);
-    bottomFloor = BottomFloor(this);
-    firstFloor = FirstFloor(this);
+    bottomFloor = new BottomFloor(this);
+    firstFloor = new FirstFloor(this);
     gameUI = UI();
 
+    randomNumber = 0;
+    increment = 0;
     size = 100.0;
     pos = 0;
     i = 0;
@@ -128,6 +135,7 @@ class TempGame extends Game {
     isTooHigh = false;
     counterHigh = 0;
     isTopPosition = false;
+    goodNumber = false;
     posMax = false;
     gameOver = false;
     isConnected = true;
@@ -135,6 +143,7 @@ class TempGame extends Game {
     redFilter = false;
     isInit = false;
     hasJumped = false;
+    gravity = false;
     posBottomFloor = bottomFloor.getDownPosition();
     posFirstFloor = firstFloor.getDownPosition();
 
@@ -246,8 +255,28 @@ class TempGame extends Game {
           } else if (isRunning) {
             tempPic = run[i];
             j = 1;
-          } else if (isWaiting) {
-            tempPic = waiting[i];
+          }
+          //Gestion de l'animation d'attente
+          //Génère un nombre aléatoire pour faire cligner les yeux
+          //2% de chance de cligner des yeux
+          else if (isWaiting) {
+            var rng = new Random();
+            if(!goodNumber)
+              randomNumber = rng.nextInt(100);
+            if ((randomNumber >= 0 && randomNumber < 98))
+              tempPic = waiting[0];
+              //waitAnimation(randomNumber);
+            else {
+              goodNumber = true;
+              if (increment < waiting.length) {
+                tempPic = waiting[increment];
+                increment++;
+              }
+              else {
+                increment = 0;
+                goodNumber = false;
+              }
+            }
             j = 2;
           }
 
@@ -307,10 +336,10 @@ class TempGame extends Game {
 
         //On incrémente le score tous les x secondes
         if (!pauseGame) {
-          if (scoreTimer >= 0.5) {
+          /*if (scoreTimer >= 0.5) {
             score++;
             scoreTimer = 0.0;
-          }
+          }*/
 
           //getData = données reçues par le Bluetooth
           //Montée du bonhomme
@@ -323,13 +352,13 @@ class TempGame extends Game {
             inTouch = false;
           }
 
-
           //Si il a poussé pendant 6 secondes et qu'il n'a pas déjà sauté
-          if(isWaiting) {
+          if (isWaiting) {
             if (getPush() >= 1) {
               setPlayerState(0);
-              doAJump();
               hasJumped = true;
+              score++;
+              doAJump();
             }
           }
         }
@@ -340,7 +369,7 @@ class TempGame extends Game {
 
   void doAJump() {
     //tempPosY = firstFloorY - size;
-    if (tempPosY > firstFloorY - size) {
+    if (tempPosY > firstFloorY - size - grassSize && !gravity) {
       new Timer(
         const Duration(milliseconds: 2),
         () {
@@ -348,10 +377,55 @@ class TempGame extends Game {
           doAJump();
         },
       );
+    } else if (tempPosY > firstFloorY - size - grassSize - 5 && !gravity) {
+      gravity = true;
+      tempPosY -= 3;
+      doAJump();
+    } else {
+      if (tempPosY < firstFloorY - size) {
+        new Timer(
+          const Duration(milliseconds: 5),
+          () {
+            if(!pauseGame)
+              tempPosY += 2;
+            doAJump();
+          },
+        );
+      } else {
+        Future.delayed(const Duration(seconds: 2), () {
+          hasJumped = false;
+          isTheFirstPlatform = true;
+          setPlayerDown();
+          gravity = false;
+        });
+      }
     }
-
     //tempPosY = (screenSize.height - screenSize.width * 0.3) - size;
     temp.y = tempPosY;
+  }
+
+  void setPlayerDown() {
+    new Timer(
+      const Duration(milliseconds: 5),
+      () {
+        //Descente du bonhomme
+        if (tempPosY < screenSize.height - (size) - grassSize) {
+          if(!pauseGame)
+            tempPosY += 1;
+          firstFloor.updateRect();
+          bottomFloor.updateRect();
+          setPlayerDown();
+        }
+        //Descente du sol en fonction du bonhomme
+
+        if(pauseGame);
+        else if (grassYOffset1 < screenSize.height - grassSize && blockOne) {
+          grassYOffset1 = tempPosY + size;
+        } else if (grassYOffset < screenSize.height - grassSize && !blockOne) {
+          grassYOffset = tempPosY + size;
+        }
+      },
+    );
   }
 
   void setPlayerState(int state) {
@@ -394,6 +468,10 @@ class TempGame extends Game {
         d.globalPosition.dy >= screenCenterY - screenSize.height &&
         d.globalPosition.dy <= screenCenterY + screenSize.height) {
       inTouch = true;
+      setPlayerState(0);
+      score++;
+      doAJump();
+      hasJumped = true;
     }
   }
 
