@@ -125,16 +125,17 @@ class _Swimmer extends State<Swimmer> {
   void connect() async {
     /*btManage.enableBluetooth();*/
     if (await btManage.enableBluetooth()) {
-//print("salut");
       connect();
     } else {
-      btManage.connect(user.userMacAddress, user.userSerialNumber);
+
       isConnected = await btManage.getStatus();
-      if (isConnected) {
+      if(!isConnected)
+        btManage.connect(user.userMacAddress, user.userSerialNumber);
+      else {
         launchGame();
         return;
       }
-      testConnect();
+      //testConnect();
     }
   }
 

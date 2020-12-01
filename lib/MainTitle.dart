@@ -111,10 +111,9 @@ class _MainTitle extends State<MainTitle> {
     if (await btManage.enableBluetooth()) {
       connect();
     } else {
-      btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
-      if (isConnected) {
-        return;
+      if (!isConnected) {
+        btManage.connect(user.userMacAddress, user.userSerialNumber);
       }
       //testConnect();
     }

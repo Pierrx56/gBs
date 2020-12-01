@@ -39,20 +39,44 @@ class UIState extends State<UI> {
     setState(() {});
   }
 
-  Widget displayScore(
-      BuildContext context, AppLanguage appLanguage, int score) {
-    return Text(
-      "Score: $score",
-      style: TextStyle(
-        fontSize: 50,
-        color: Colors.black,
-        shadows: <Shadow>[
-          Shadow(
-            color: Color(0x88000000),
-            blurRadius: 10,
-            offset: Offset(2, 2),
+  Widget displayScore(String message, TempGame game) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        alignment: Alignment.topCenter,
+        decoration: new BoxDecoration(
+            color: Colors.blue.withAlpha(150),
+            //new Color.fromRGBO(255, 0, 0, 0.0),
+            borderRadius: new BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+                bottomLeft: const Radius.circular(20.0),
+                bottomRight: const Radius.circular(20.0))),
+        width: game.screenSize.width * 0.20,
+        height: game.screenSize.height * 0.20,
+        child: FittedBox(
+          fit: BoxFit.fitWidth,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                "$message",
+                style: TextStyle(
+                  fontSize: 50,
+                  color: Colors.black,
+                  shadows: <Shadow>[
+                    Shadow(
+                      color: Color(0x88000000),
+                      blurRadius: 10,
+                      offset: Offset(2, 2),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -22,6 +22,7 @@ import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Login.dart';
+import 'package:sensors/sensors.dart';
 
 /*
 * Classe pour gérer la première poussée de l'utilisateur
@@ -62,6 +63,7 @@ class _MaxPush extends State<MaxPush> {
   User user;
   String inputMessage;
   AppLanguage appLanguage;
+  double x, y, z;
 
   Color colorMesureButton = Colors.black;
 
@@ -106,17 +108,6 @@ class _MaxPush extends State<MaxPush> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    btData = "0.0";
-    bottom = 0;
-    top = 1;
-
-    print(inputMessage);
-    connect();
-  }
-
-  @override
   void dispose() {
     // Avoid memory leak and disconnect
     timerConnexion?.cancel();
@@ -130,10 +121,31 @@ class _MaxPush extends State<MaxPush> {
     if (await btManage.enableBluetooth()) {
       connect();
     } else {
-      btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
-      testConnect();
+      if (!isConnected) {
+        btManage.connect(user.userMacAddress, user.userSerialNumber);
+        //testConnect();
+      }
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    btData = "0.0";
+    bottom = 0;
+    top = 1;
+
+    if (gyroscopeEvents.isEmpty != null) {
+      gyroscopeEvents.listen((GyroscopeEvent event) {
+        setState(() {
+          x = event.x;
+          y = event.y;
+          z = event.z;
+        });
+      }); //get the sensor data and set then to the data types
+    }
+    connect();
   }
 
   testConnect() async {
@@ -246,6 +258,65 @@ class _MaxPush extends State<MaxPush> {
                     style: textStyle,
                     textAlign: TextAlign.center,
                   ),
+                  Table(
+                    border: TableBorder.all(
+                        width: 2.0,
+                        color: Colors.blueAccent,
+                        style: BorderStyle.solid),
+                    children: [
+                      TableRow(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "X Asis : ",
+                              style: TextStyle(fontSize: 20.0),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("${x?.toStringAsFixed(2)}",
+                                //trim the asis value to 2 digit after decimal point
+                                style: TextStyle(fontSize: 20.0)),
+                          )
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "Y Asis : ",
+                              style: TextStyle(fontSize: 20.0),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("${y?.toStringAsFixed(2)}",
+                                //trim the asis value to 2 digit after decimal point
+                                style: TextStyle(fontSize: 20.0)),
+                          )
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "Z Asis : ",
+                              style: TextStyle(fontSize: 20.0),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("${z?.toStringAsFixed(2)}",
+                                //trim the asis value to 2 digit after decimal point
+                                style: TextStyle(fontSize: 20.0)),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
                   Padding(
                     padding: EdgeInsets.all(10.0),
                     child: Row(
@@ -285,18 +356,19 @@ class _MaxPush extends State<MaxPush> {
                                       //sinon rouge
                                       Container(
                                         decoration: new BoxDecoration(
-                                            color: colorProgressBar,
-                                            //new Color.fromRGBO(255, 0, 0, 0.0),
-                                            borderRadius: new BorderRadius.only(
-                                                topLeft:
-                                                    const Radius.circular(20.0),
-                                                topRight:
-                                                    const Radius.circular(20.0),
-                                                bottomLeft:
-                                                    const Radius.circular(20.0),
-                                                bottomRight:
-                                                    const Radius.circular(
-                                                        20.0))),
+                                          color: colorProgressBar,
+                                          //new Color.fromRGBO(255, 0, 0, 0.0),
+                                          borderRadius: new BorderRadius.only(
+                                            topLeft:
+                                                const Radius.circular(20.0),
+                                            topRight:
+                                                const Radius.circular(20.0),
+                                            bottomLeft:
+                                                const Radius.circular(20.0),
+                                            bottomRight:
+                                                const Radius.circular(20.0),
+                                          ),
+                                        ),
                                         //40.0 pour éviter des bugs d'affichage
                                         height: double.parse(btData) < 40.0
                                             ? 40.0

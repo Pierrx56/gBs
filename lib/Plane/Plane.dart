@@ -139,13 +139,14 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     if (await btManage.enableBluetooth()) {
       connect();
     } else {
-      btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
+      if(!isConnected)
+        btManage.connect(user.userMacAddress, user.userSerialNumber);
       if (isConnected) {
         launchGame();
         return;
       }
-      testConnect();
+      //testConnect();
     }
   }
 

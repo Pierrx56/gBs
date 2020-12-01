@@ -80,6 +80,7 @@ class _SelectGame extends State<SelectGame> {
   Star dataPlane;
   Star dataTemp;
   bool isEmpty;
+  List<double> totalStar = [];
 
   Color colorMesureButton = Colors.black;
 
@@ -121,6 +122,8 @@ class _SelectGame extends State<SelectGame> {
     firstPosition = 0.0;
     hasMoved = false;
     level = 1;
+    totalStar = [];
+
     super.initState();
   }
 
@@ -145,6 +148,7 @@ class _SelectGame extends State<SelectGame> {
       return dataTemp = await db.getStar(user.userId, idGame, level);
   }
 
+  //Retourne un widget de 5 etoiles en lignes
   Widget numberOfStars(int idGame, int level) {
     return FutureBuilder(
         future: getStar(idGame, level),
@@ -765,7 +769,7 @@ class _SelectGame extends State<SelectGame> {
     }
   }
 
-  //Système de navigation en 3 par 3
+  //DEBUT Système de navigation en 3 par 3
   _moveLeft() {
     _controller.animateTo(_controller.offset - screenSize.width,
         curve: Curves.linear, duration: Duration(milliseconds: 500));

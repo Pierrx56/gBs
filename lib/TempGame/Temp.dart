@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -55,6 +56,7 @@ class _Temp extends State<Temp> {
   Timer timer;
   Timer _timer;
   Timer timerHeight;
+  Timer timerPush;
   int _start = 5;
   Timer timerThread;
   Timer timerConnexion;
@@ -63,6 +65,12 @@ class _Temp extends State<Temp> {
   UI gameUI;
   int score;
   int level;
+  int six = 6;
+  double totalPush = 0.0;
+  int k = 0;
+
+  //Si raté 0, sinon étage 1, 2 ou 3
+  int jumpToFloor = 1;
 
   _Temp(User _user, AppLanguage _appLanguage, String _level) {
     user = _user;
@@ -78,7 +86,7 @@ class _Temp extends State<Temp> {
       score = 0;
       isConnected = false;
       start = false;
-      push = 0.0;
+      push = 0.99;
       connect();
     }
     game = null;
@@ -92,6 +100,7 @@ class _Temp extends State<Temp> {
     timer?.cancel();
     _timer?.cancel();
     timerHeight?.cancel();
+    timerPush?.cancel();
     timerThread?.cancel();
     super.dispose();
   }
@@ -99,9 +108,8 @@ class _Temp extends State<Temp> {
   initTemp() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    game = new TempGame(getData, getPush, user, appLanguage);
-    refreshScore();
-    mainThread();
+    game = TempGame(getData, getPush, getFloor, user, appLanguage);
+
     //gameUI.state.game = game;
     Util flameUtil = Util();
     flameUtil.fullScreen();
@@ -110,6 +118,8 @@ class _Temp extends State<Temp> {
 
     tapper.onTapDown = game.onTapDown;
 
+    refreshScore();
+    mainThread();
     //runApp(game.widget);
     flameUtil.addGestureRecognizer(tapper);
   }
@@ -119,13 +129,14 @@ class _Temp extends State<Temp> {
     if (await btManage.enableBluetooth()) {
       connect();
     } else {
-      btManage.connect(user.userMacAddress, user.userSerialNumber);
       isConnected = await btManage.getStatus();
-      if (isConnected) {
+      if(!isConnected)
+        btManage.connect(user.userMacAddress, user.userSerialNumber);
+      else {
         launchGame();
         return;
       }
-      testConnect();
+      //testConnect();
     }
   }
 
@@ -220,6 +231,63 @@ class _Temp extends State<Temp> {
     double tempPush = getData();
 
     if (game.isWaiting) {
+      //push = 0.99;
+      if (double.parse(user.userInitialPush) < tempPush && push > 0.0 && six == 6) {
+
+          six--;
+          timerPush = new Timer.periodic(
+            Duration(milliseconds: 200),
+                (Timer timer) {
+
+              totalPush += getData();
+              k++;
+              if (six < 1) {
+                timer.cancel();
+              }
+
+            },
+          );
+          timerHeight = new Timer.periodic(
+            Duration(seconds: 1),
+                (Timer timer) {
+
+              if(push > 1/6)
+                push -= 1/6;
+              else
+                push = 0.0;
+
+              if (six < 1) {
+                timer.cancel();
+              } else {
+                six--;
+              }
+            },
+          );
+      }
+      else {
+        double determineJump = totalPush / k;
+
+
+        if (determineJump < double.parse(user.userInitialPush))
+          jumpToFloor = 0;
+        if (determineJump >= double.parse(user.userInitialPush) &&
+            determineJump < double.parse(user.userInitialPush) * 1.2)
+          jumpToFloor = 1;
+        if (determineJump >= double.parse(user.userInitialPush) * 1.2 &&
+            determineJump < double.parse(user.userInitialPush) * 1.4)
+          jumpToFloor = 2;
+        if (determineJump >= double.parse(user.userInitialPush) * 1.4)
+          jumpToFloor = 3;
+        //print(determineJump);
+      }
+    }
+    else {
+      six = 6;
+      push = 0.99;
+      k = 0;
+      totalPush = 0;
+    }
+      /*
       //Poussée pendant 6 secondes
       if (double.parse(user.userInitialPush) < tempPush && push <= 1) {
         timerHeight = new Timer(const Duration(milliseconds: 600), () {
@@ -233,9 +301,14 @@ class _Temp extends State<Temp> {
     }
     else if(game.isRunning) {
       push = 0.0;
-    }
+    }*/
     //On retourne un pourcentage
     return push;
+  }
+
+  int getFloor(){
+    return 2;
+    //return jumpToFloor;
   }
 
   double getPush() {
@@ -350,13 +423,14 @@ class _Temp extends State<Temp> {
             ),
           ),
           //Display message pour afficher score
-          Container(
+
+          game != null && !game.getGameOver() ? Container(
             alignment: Alignment.bottomRight,
             padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
             child: game == null || game.pauseGame
                 ? Container()
-                : gameUI.state.displayScore(context, appLanguage, score),
-          ),
+                : gameUI.state.displayScore(score.toString(),game),
+          ):Container(),
           //Consigne et jauge à remplir
           game != null
               ? game.isWaiting
@@ -394,6 +468,7 @@ class _Temp extends State<Temp> {
                     )
                   : Container()
               : Container(),
+          //Display jauge
           game != null
               ? game.isWaiting
                   ? Container(
@@ -423,38 +498,6 @@ class _Temp extends State<Temp> {
                     )
                   : Container()
               : Container(),
-          //Display message pour relancher
-          Container(
-            alignment: Alignment.bottomCenter,
-            child: game != null
-                ? game.getColorFilterBool() &&
-                        game.getPosition() &&
-                        !game.getGameOver() &&
-                        !game.getPauseStatus() &&
-                        !game.isTooHigh
-                    ? gameUI.state.displayMessage(
-                        AppLocalizations.of(context).translate('relacher'),
-                        game,
-                        Colors.redAccent)
-                    : Container()
-                : Container(),
-          ),
-          //Display message pour pousser
-          Container(
-            alignment: Alignment.topCenter,
-            child: game != null
-                ? game.getColorFilterBool() &&
-                        !game.getPosition() &&
-                        !game.getGameOver() &&
-                        !game.getPauseStatus() &&
-                        !game.isTooHigh
-                    ? gameUI.state.displayMessage(
-                        AppLocalizations.of(context).translate('pousser'),
-                        game,
-                        Colors.redAccent)
-                    : Container()
-                : Container(),
-          ),
           //Display message Game Over
           Container(
             alignment: Alignment.topCenter,
