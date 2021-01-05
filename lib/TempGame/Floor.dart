@@ -415,12 +415,11 @@ class ManageFloors {
   Rect rectGrassLeft;
   bool hasChanged;
   Paint opacity; // = Paint()..color = Colors.white.withOpacity(opacity);
-  int j = 0;
+  int j;
 
   ManageFloors(this.game) {
     grassSize = game.screenSize.width * 0.1;
 
-    j = 0;
     hasChanged = false;
     blockOne = false;
   }
@@ -436,8 +435,14 @@ class ManageFloors {
       if (!isInit) {
         offset = game.tempPosX.toInt();
         posFloorY = 0;
+        j = 0;
         isInit = true;
         isTheFirstPlatform = false;
+      }
+
+      //Ne pas faire avancer les blocs pendant qu'il pousse
+      if(game.isWaiting && game.getPush() > 0.0 && !pause){
+        j -= screenSpeed;
       }
 
       //Marche jusquau premier vide
@@ -445,10 +450,10 @@ class ManageFloors {
       if (j >=
               game.tabBottomFloor[0]
                       .grassXOffset[game.tabBottomFloor[0].getLength() - 1] -
-                  offset -
-                  grassSize / 2 &&
+                  offset &&
           !game.hasJumped &&
           !isTheFirstPlatform) {
+
         j -= screenSpeed;
         //isMoving = false;
         if (!hasChanged) {
@@ -471,12 +476,18 @@ class ManageFloors {
         jump();
       }
 
+       //print(game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1]
+       //    .grassXOffset[game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].getLength() - 1] -
+       //    offset -
+       //    grassSize / 2);
+       //print(game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].getGrassXOffset());
+       //print("j: $j");
+
       //Marche jusqu'au bout de la plateforme
-      if (j >=
-              game.tabBottomFloor[game.getFloor() - 1]
-                      .grassXOffset[game.tabBottomFloor[game.getFloor() - 1].getLength() - 1] -
-                  offset -
-                  grassSize / 2 &&
+      if (j ==
+              game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1]
+                      .grassXOffset[game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].getLength() - 1] -
+                  offset &&
           !game.hasJumped &&
           !blockOne) {
 
@@ -489,11 +500,10 @@ class ManageFloors {
         }
       }
       //Marche jusqu'au bout de l'autre plateforme
-      else if (j >=
-              game.tabFloor[game.getFloor() - 1].grassXOffset[
-                      game.tabFloor[game.getFloor() - 1].getLength() - 1] -
-                  offset -
-                  grassSize / 2 &&
+      else if (j ==
+              game.tabFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].grassXOffset[
+                      game.tabFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].getLength() - 1] -
+                  offset &&
           !game.hasJumped &&
           blockOne) {
         j -= screenSpeed;
@@ -508,12 +518,12 @@ class ManageFloors {
 
       //Vide à sauter
       else if (j >=
-              game.tabBottomFloor[game.getFloor() - 1].grassXOffset[
-                      game.tabBottomFloor[game.getFloor() - 1].getLength() - 1] -
+              game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].grassXOffset[
+                      game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].getLength() - 1] -
                   offset -
                   grassSize / 2 &&
           j <=
-              game.tabFloor[game.getFloor() - 1].grassXOffset[0] -
+              game.tabFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].grassXOffset[0] -
                   offset -
                   grassSize / 2 &&
           game.hasJumped &&
@@ -521,12 +531,12 @@ class ManageFloors {
         jump();
         //blockOne = true;
       } else if (j >=
-              game.tabFloor[game.getFloor() - 1].grassXOffset[
-                      game.tabBottomFloor[game.getFloor() - 1].getLength() - 1] -
+              game.tabFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].grassXOffset[
+                      game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].getLength() - 1] -
                   offset -
                   grassSize / 2 &&
           j <=
-              game.tabBottomFloor[game.getFloor() - 1].grassXOffset[0] -
+              game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].grassXOffset[0] -
                   offset -
                   grassSize / 2 &&
           game.hasJumped &&
@@ -536,79 +546,64 @@ class ManageFloors {
       }
 
       //Déplacement du bloc à la suite de l'ancien
-      //BlockOne = True
-      if (j > game.tabBottomFloor[game.getFloor() - 1].grassXOffset[
-                  game.tabBottomFloor[game.getFloor() - 1].getLength() - 1] + grassSize * 1) {
+      //BlockOne = false
+      //if (game.getFloor() != 0 && j - 2*grassSize > game.tabBottomFloor[game.getFloor() - 1].grassXOffset[
+      //            game.tabBottomFloor[game.getFloor() - 1].getLength() - 1] + grassSize * 1) {
+      if(game.getFloor() != 0 && game.isOutOfScreen && !blockOne ){
         game.tabBottomFloor[0].setOpacity(1);
         game.tabBottomFloor[1].setOpacity(1);
         game.tabBottomFloor[2].setOpacity(1);
-        blockOne = !blockOne;
-        print(blockOne);
+        game.isOutOfScreen = false;
+        blockOne = true;
 
+        //Placement des plateformes en fonction de la plateforme précédente
+        List<double> temps = game.tabFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].getGrassXOffset();
         firstFloorY = game.floorPosition[1];
         grassYOffset = firstFloorY;
-        //for (int i = 0; i < game.tabBottomFloor[game.getFloor()].getLength(); i++) {
-
-        List<double> temps = game.tabFloor[game.getFloor() - 1].getGrassXOffset();
-
-        game.tabBottomFloor[0].setGrassXOffset(temps[game.tabFloor[game.getFloor() - 1].getLength() - 1] + 3 * grassSize);
-        //game.tabBottomFloor[0].setGrassXOffset(grassSize * 24);
-        //}
+        game.tabBottomFloor[0].setGrassXOffset(temps[game.tabFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].getLength() - 1] + 3 * grassSize);
         game.tabBottomFloor[0].updateRect();
 
         temps = game.tabBottomFloor[0].getGrassXOffset();
-
         firstFloorY = game.floorPosition[2];
         grassYOffset = firstFloorY;
-        //for (int i = 0; i < game.tabBottomFloor[game.getFloor()].getLength(); i++) {
-        game.tabBottomFloor[1].setGrassXOffset(temps[game.tabBottomFloor[0].getLength() - 1] + grassSize/2);
-        //  game.tabBottomFloor[1].setGrassXOffset(grassSize * 24 + grassSize/2);
-          //grassXOffset[i] += grassSize / 2;
-        //}
+        game.tabBottomFloor[1].setGrassXOffset(temps[0] + grassSize/2);
         game.tabBottomFloor[1].updateRect();
 
-        //TODO Check changement position en fonction des anciens
-        temps = game.tabBottomFloor[0].getGrassXOffset();
+        temps = game.tabBottomFloor[1].getGrassXOffset();
         firstFloorY = game.floorPosition[3];
         grassYOffset = firstFloorY;
-        game.tabBottomFloor[1].setGrassXOffset(temps[game.tabBottomFloor[1].getLength() - 1] + grassSize);
-        //game.tabBottomFloor[2].setGrassXOffset(grassSize * 24 + grassSize);
-        //for (int i = 0; i < game.tabBottomFloor[game.getFloor()].getLength(); i++) {
-        //  grassXOffset[i] += grassSize;
-        //}
+        game.tabBottomFloor[2].setGrassXOffset(temps[0] + grassSize/2);
         game.tabBottomFloor[2].updateRect();
-      } else if (j >  game.tabFloor[game.getFloor() - 1].grassXOffset[
-      game.tabFloor[game.getFloor() - 1].getLength() - 1] + grassSize * 1) {
+
+      }
+    //else if (game.getFloor() != 0 && j - 2*grassSize >  game.tabFloor[game.getFloor() - 1].grassXOffset[
+    //  game.tabFloor[game.getFloor() - 1].getLength() - 1] + grassSize * 1) {
+      else if(game.getFloor() != 0 && game.isOutOfScreen && blockOne ){
         game.tabFloor[0].setOpacity(1);
         game.tabFloor[1].setOpacity(1);
         game.tabFloor[2].setOpacity(1);
-        blockOne = !blockOne;
+        game.isOutOfScreen = false;
+        blockOne = false;
+
+        List<double> temps = game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].getGrassXOffset();
 
         firstFloorY = game.floorPosition[1];
         grassYOffset1 = firstFloorY;
-        //for (int i = 0; i < grassXOffset1.length; i++) {
-        //  grassXOffset1[i] += grassSize * 24;
-        //}
-        game.tabFloor[0].setGrassXOffset(grassSize * 24);
+        game.tabFloor[0].setGrassXOffset(temps[0]);
         game.tabFloor[0].updateRect();
 
         firstFloorY = game.floorPosition[2];
         grassYOffset1 = firstFloorY;
-        //for (int i = 0; i < grassXOffset1.length; i++) {
-        //  grassXOffset1[i] += grassSize / 2;
-        //}
-        game.tabFloor[1].setGrassXOffset(grassSize * 24 + grassSize/2);
+        game.tabFloor[1].setGrassXOffset(temps[0] + grassSize/2);
         game.tabFloor[1].updateRect();
 
         firstFloorY = game.floorPosition[3];
         grassYOffset1 = firstFloorY;
-        //for (int i = 0; i < grassXOffset1.length; i++) {
-        //  grassXOffset1[i] += grassSize;
-        //}
-        game.tabFloor[2].setGrassXOffset(grassSize * 24 + grassSize);
+        game.tabFloor[2].setGrassXOffset(temps[0] + grassSize);
         game.tabFloor[2].updateRect();
       }
       //-1190
+
 
       c.translate(-j.toDouble(), 0);
       //-game.screenSize.width * 0.1 + game.screenSize.width * 0.1);
@@ -634,6 +629,7 @@ class ManageFloors {
 
   void jump() {
     j += 3 * screenSpeed;
+    //Run
     game.setPlayerState(1);
     hasChanged = false;
   }

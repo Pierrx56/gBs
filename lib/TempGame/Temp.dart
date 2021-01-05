@@ -70,7 +70,8 @@ class _Temp extends State<Temp> {
   int k = 0;
 
   //Si raté 0, sinon étage 1, 2 ou 3
-  int jumpToFloor = 1;
+  int jumpToFloor = -1;
+  int previousFloor = 1;
 
   _Temp(User _user, AppLanguage _appLanguage, String _level) {
     user = _user;
@@ -102,13 +103,14 @@ class _Temp extends State<Temp> {
     timerHeight?.cancel();
     timerPush?.cancel();
     timerThread?.cancel();
+
     super.dispose();
   }
 
   initTemp() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    game = TempGame(getData, getPush, getFloor, user, appLanguage);
+    game = TempGame(getData, getPush, getFloor, setFloor, user, appLanguage);
 
     //gameUI.state.game = game;
     Util flameUtil = Util();
@@ -130,7 +132,7 @@ class _Temp extends State<Temp> {
       connect();
     } else {
       isConnected = await btManage.getStatus();
-      if(!isConnected)
+      if (!isConnected)
         btManage.connect(user.userMacAddress, user.userSerialNumber);
       else {
         launchGame();
@@ -232,62 +234,74 @@ class _Temp extends State<Temp> {
 
     if (game.isWaiting) {
       //push = 0.99;
-      if (double.parse(user.userInitialPush) < tempPush && push > 0.0 && six == 6) {
+      if (double.parse(user.userInitialPush) < tempPush &&
+          push > 0.0 &&
+          six == 6) {
+        print(six);
+        six--;
 
-          six--;
-          timerPush = new Timer.periodic(
-            Duration(milliseconds: 200),
-                (Timer timer) {
+        //Récupère les données du capteur toutes les 200ms
+        timerPush = new Timer.periodic(
+          Duration(milliseconds: 200),
+          (Timer timer) {
+            totalPush += getData();
+            k++;
+            if (six < 1) {
+              timer.cancel();
+            }
+          },
+        );
+        //Compteur de 6 secs
+        timerHeight = new Timer.periodic(
+          Duration(seconds: 1),
+          (Timer timer) {
+            if (push >= 1 / 6)
+              push -= 1 / 6;
+            else
+              push = 0.0;
 
-              totalPush += getData();
-              k++;
-              if (six < 1) {
-                timer.cancel();
-              }
-
-            },
-          );
-          timerHeight = new Timer.periodic(
-            Duration(seconds: 1),
-                (Timer timer) {
-
-              if(push > 1/6)
-                push -= 1/6;
-              else
-                push = 0.0;
-
-              if (six < 1) {
-                timer.cancel();
-              } else {
-                six--;
-              }
-            },
-          );
-      }
-      else {
+            if (six < 1) {
+              //push = 0.0;
+              timer.cancel();
+            } else {
+              six--;
+            }
+          },
+        );
+      } else {
         double determineJump = totalPush / k;
 
+        //if (jumpToFloor != 0) previousFloor = jumpToFloor;
 
-        if (determineJump < double.parse(user.userInitialPush))
+        if (determineJump < double.parse(user.userInitialPush)) {
           jumpToFloor = 0;
+        }
         if (determineJump >= double.parse(user.userInitialPush) &&
-            determineJump < double.parse(user.userInitialPush) * 1.2)
+            determineJump < double.parse(user.userInitialPush) * 1.2) {
+          if (jumpToFloor == -1 || jumpToFloor == 0) jumpToFloor = 1;
+          previousFloor = jumpToFloor;
           jumpToFloor = 1;
+        }
         if (determineJump >= double.parse(user.userInitialPush) * 1.2 &&
-            determineJump < double.parse(user.userInitialPush) * 1.4)
+            determineJump < double.parse(user.userInitialPush) * 1.4) {
+          if (jumpToFloor == -1 || jumpToFloor == 0) jumpToFloor = 2;
+          previousFloor = jumpToFloor;
           jumpToFloor = 2;
-        if (determineJump >= double.parse(user.userInitialPush) * 1.4)
+        }
+        if (determineJump >= double.parse(user.userInitialPush) * 1.4) {
+          if (jumpToFloor == -1 || jumpToFloor == 0) jumpToFloor = 3;
+          previousFloor = jumpToFloor;
           jumpToFloor = 3;
+        }
         //print(determineJump);
       }
-    }
-    else {
+    } else {
       six = 6;
       push = 0.99;
       k = 0;
       totalPush = 0;
     }
-      /*
+    /*
       //Poussée pendant 6 secondes
       if (double.parse(user.userInitialPush) < tempPush && push <= 1) {
         timerHeight = new Timer(const Duration(milliseconds: 600), () {
@@ -306,9 +320,15 @@ class _Temp extends State<Temp> {
     return push;
   }
 
-  int getFloor(){
-    return 2;
-    //return jumpToFloor;
+  void setFloor(){
+    print("JumpToFloor: $jumpToFloor");
+    print("PreviousFloor: $previousFloor");
+    jumpToFloor = previousFloor;
+  }
+
+  int getFloor() {
+    //return 0;
+    return jumpToFloor;
   }
 
   double getPush() {
@@ -424,78 +444,92 @@ class _Temp extends State<Temp> {
           ),
           //Display message pour afficher score
 
-          game != null && !game.getGameOver() ? Container(
-            alignment: Alignment.bottomRight,
-            padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-            child: game == null || game.pauseGame
-                ? Container()
-                : gameUI.state.displayScore(score.toString(),game),
-          ):Container(),
+          game != null && !game.getGameOver()
+              ? game.getConnectionState()
+                  ? Container(
+                      alignment: Alignment.bottomRight,
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
+                      child: game == null || game.pauseGame
+                          ? Container()
+                          : gameUI.state.displayScore(score.toString(), game),
+                    )
+                  : Container()
+              : Container(),
           //Consigne et jauge à remplir
           game != null
-              ? game.isWaiting
-                  ? Container(
-                      alignment: Alignment.topLeft,
-                      padding: EdgeInsets.all(20),
-                      child: Container(
-                        width: screenSize.width / 2,
-                        height: screenSize.height / 3,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Color.fromRGBO(255, 255, 255, 0.7),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.all(5),
+              ? game.isWaiting && !game.getGameOver() && game.score == 0 ||
+                      game.life < 2 && game.isWaiting
+                  ? !game.getGameOver()
+                      ? game.getConnectionState()
+                          ? Container(
+                              alignment: Alignment.topLeft,
+                              padding: EdgeInsets.fromLTRB(
+                                  screenSize.height / 8 + 40, 20, 20, 20),
                               child: Container(
-                                height: screenSize.height / 3.5,
-                                child: AutoSizeText(
-                                  AppLocalizations.of(context)
-                                      .translate('remplir_jauge'),
-                                  minFontSize: 20,
-                                  maxLines: 3,
-                                  style: TextStyle(fontSize: 35),
-                                  textAlign: TextAlign.center,
+                                width: screenSize.width / 2,
+                                height: screenSize.height / 3,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Color.fromRGBO(255, 255, 255, 0.7),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Padding(
+                                      padding: EdgeInsets.all(5),
+                                      child: Container(
+                                        height: screenSize.height / 3.5,
+                                        child: AutoSizeText(
+                                          AppLocalizations.of(context)
+                                              .translate('remplir_jauge'),
+                                          minFontSize: 20,
+                                          maxLines: 3,
+                                          style: TextStyle(fontSize: 35),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
+                            )
+                          : Container()
+                      : Container()
                   : Container()
               : Container(),
           //Display jauge
           game != null
               ? game.isWaiting
-                  ? Container(
-                      alignment: Alignment.bottomLeft,
-                      padding: EdgeInsets.all(20),
-                      child: Container(
-                        width: screenSize.height / 8,
-                        height: screenSize.width / 4,
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white,
-                        ),
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                            width: screenSize.height / 8,
-                            height:
-                                (screenSize.width / 4) * getPush(),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.blue[300],
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
+                  ? !game.getGameOver()
+                      ? game.getConnectionState()
+                          ? Container(
+                              alignment: Alignment.topLeft,
+                              padding: EdgeInsets.all(20),
+                              child: Container(
+                                width: screenSize.height / 8,
+                                height: screenSize.width / 4,
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.white,
+                                ),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: AnimatedContainer(
+                                    duration: Duration(seconds: 1),
+                                    width: screenSize.height / 8,
+                                    height: (screenSize.width / 4) * getPush(),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.blue[300],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Container()
+                      : Container()
                   : Container()
               : Container(),
           //Display message Game Over

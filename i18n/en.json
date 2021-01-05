@@ -95,6 +95,11 @@
   "modifier": "Modify",
   "modification": "Manage profile",
   "modification_prise": "Profile successfully updated. Redirect...",
+  "notifications": "Notifications",
+  "notif_desactive":"Disable notifications",
+  "notif_1_jour": "Remind me every day to make exercices.",
+  "notif_2_jour": "Remind me every 2 days to make exercices.",
+  "notif_3_jour": "Remind me every 3 days to make exercices.",
   "num_serie": "Serial number",
   "premiere_mesure": "First measurement",
   "prendre_photo": "Take a picture",
@@ -127,5 +132,5 @@
   "quitter": "Quit",
   "verif_alim": "Connexion to gBs and loading game... Please make sure gBs is plugged",
   "comment_temp": "------------------------------------------------ Page Temp ------------------------------------------------",
-  "remplir_jauge": "Push on the height during 6 seconds to fill the gauge"
+  "remplir_jauge": "Push on the height during 6 seconds to jump on platforms"
 }

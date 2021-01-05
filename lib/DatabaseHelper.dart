@@ -27,6 +27,8 @@ String KEY_USER_HEIGHT_BOTTOM = "user_height_bottom";
 String KEY_USER_INITIAL_PUSH = "user_initial_push";
 String KEY_USER_MAC_ADDRESS = "user_mac_address";
 String KEY_USER_SERIAL = "user_serial_number";
+String KEY_USER_NOTIF_EVENT = "user_notif_event";
+String KEY_USER_LAST_LOGIN = "user_last_login";
 
 String TABLE_ACTIVITY = "Activity";
 String TABLE_SCORE = "Score";
@@ -34,7 +36,7 @@ String TABLE_STAR = "Star";
 String TABLE_USER = "User";
 
 String DATABASE_NAME = "gBs_database";
-int DATABASE_VERSION = 3;
+int DATABASE_VERSION = 1;
 
 const int ID_SWIMMER_ACTIVITY = 0;
 const int ID_PLANE_ACTIVITY = 1;
@@ -106,6 +108,10 @@ final String CREATE_TABLE_USERS = "CREATE TABLE " +
     KEY_USER_MAC_ADDRESS +
     " TEXT, " +
     KEY_USER_SERIAL +
+    " TEXT, " +
+    KEY_USER_NOTIF_EVENT +
+    " TEXT, " +
+    KEY_USER_LAST_LOGIN +
     " TEXT" +
     ");";
 
@@ -159,8 +165,9 @@ class DatabaseHelper {
           db.execute(CREATE_TABLE_STAR);
           db.execute(CREATE_TABLE_USERS);
         },
-        //Si la structure de la table change lors d'une MàJ, cette fonction est appelée
         //TODO à tester
+        //Si la structure de la table change lors d'une MàJ, cette fonction est appelée
+        //Variable DATABASE_VERSION à changer plus haut
         onUpgrade: (Database db, int oldVersion, int newVersion) async {
           if (oldVersion < newVersion) {
             //Ne mettre que l'execute qui change qq chose
@@ -408,6 +415,8 @@ class DatabaseHelper {
         userInitialPush: maps[i][KEY_USER_INITIAL_PUSH],
         userMacAddress: maps[i][KEY_USER_MAC_ADDRESS],
         userSerialNumber: maps[i][KEY_USER_SERIAL],
+        userNotifEvent: maps[i][KEY_USER_NOTIF_EVENT],
+        userLastLogin: maps[i][KEY_USER_LAST_LOGIN],
       );
     });
   }
@@ -482,6 +491,8 @@ class DatabaseHelper {
         userInitialPush: maps[i][KEY_USER_INITIAL_PUSH],
         userMacAddress: maps[i][KEY_USER_MAC_ADDRESS],
         userSerialNumber: maps[i][KEY_USER_SERIAL],
+        userNotifEvent: maps[i][KEY_USER_NOTIF_EVENT],
+        userLastLogin: maps[i][KEY_USER_LAST_LOGIN],
       );
     });
 
@@ -590,6 +601,8 @@ class User {
   final String userInitialPush;
   final String userMacAddress;
   final String userSerialNumber;
+  final String userNotifEvent;
+  final String userLastLogin;
 
   User({
     this.userId,
@@ -601,6 +614,8 @@ class User {
     this.userInitialPush,
     this.userMacAddress,
     this.userSerialNumber,
+    this.userNotifEvent,
+    this.userLastLogin,
   });
 
   Map<String, dynamic> toMap() {
@@ -614,6 +629,8 @@ class User {
       KEY_USER_INITIAL_PUSH: userInitialPush,
       KEY_USER_MAC_ADDRESS: userMacAddress,
       KEY_USER_SERIAL: userSerialNumber,
+      KEY_USER_NOTIF_EVENT: userNotifEvent,
+      KEY_USER_LAST_LOGIN: userLastLogin,
     };
   }
 }

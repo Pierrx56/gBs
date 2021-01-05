@@ -5,12 +5,18 @@ import 'dart:math' as math;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/ManageProfile.dart';
+import 'package:gbsalternative/NotificationManager.dart';
+import 'package:rxdart/subjects.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import 'DatabaseHelper.dart';
 
 class MainTitle extends StatefulWidget {
@@ -58,11 +64,11 @@ class _MainTitle extends State<MainTitle> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   static const TextStyle optionStyle =
-  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const Color orangeColor = Colors.orange; //Colors.amber[800];
 
   BluetoothManager btManage =
-  new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
+      new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
   _MainTitle(AppLanguage _appLanguage, User userIn, String messageIn) {
     appLanguage = _appLanguage;
@@ -92,6 +98,12 @@ class _MainTitle extends State<MainTitle> {
     //Temp
     getScores(user.userId, ID_TEMP_ACTIVITY);
 
+    //Gestion des notifications
+    //initialise une notification pour le/les jours suivants
+    NotificationManager notificationManager = new NotificationManager();
+    notificationManager.init(user);
+    notificationManager.setNotificationAlert();
+
     //Connexion directement dès le login
     connect();
 
@@ -115,8 +127,19 @@ class _MainTitle extends State<MainTitle> {
       if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
       }
+      getConnectState();
       //testConnect();
     }
+  }
+
+  void getConnectState() async {
+    timerConnexion = new Timer.periodic(Duration(milliseconds: 1000),
+        (timerConnexion) async {
+      isConnected = await btManage.getStatus();
+      setState(() {
+        isConnected;
+      });
+    });
   }
 
   testConnect() async {
@@ -124,7 +147,7 @@ class _MainTitle extends State<MainTitle> {
     if (!isConnected) {
       timerConnexion = new Timer.periodic(
         Duration(milliseconds: 3000),
-            (timerConnexion) async {
+        (timerConnexion) async {
           btManage.connect(user.userMacAddress, user.userSerialNumber);
 
           isConnected = await btManage.getStatus();
@@ -159,95 +182,100 @@ class _MainTitle extends State<MainTitle> {
   }
 
   Widget menu() {
-    Size screenSize = MediaQuery
-        .of(this.context)
-        .size;
+    Size screenSize = MediaQuery.of(this.context).size;
     int numberOfCard = 3;
     //print("id: " + user.userId.toString());
 
     var temp = AppLocalizations.of(context);
 
     return Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          title: Row(
-            children: <Widget>[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image.file(
-                  new File(user.userPic),
-                  height: screenSize.height * 0.12,
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Row(
+          children: <Widget>[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image.file(
+                new File(user.userPic),
+                height: screenSize.height * 0.12,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(10),
+            ),
+            temp != null
+                ? Text(AppLocalizations.of(context).translate('bonjour') +
+                    user.userName)
+                : Text("Check Language file (en/fr.json)"),
+            Container(
+              alignment: Alignment.center,
+              width: screenSize.width * 0.04,
+              height: screenSize.width * 0.04,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: !isConnected ? Colors.red : Colors.green,
+              ),
+            )
+          ],
+        ),
+        backgroundColor: Colors.blue,
+        actions: <Widget>[
+          FlatButton.icon(
+            icon: Icon(
+              Icons.question_answer,
+              color: Colors.white,
+            ),
+            label: Text(
+              "FAQ",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            splashColor: Colors.blue,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoadPage(
+                      user: user,
+                      appLanguage: appLanguage,
+                      messageIn: "fromMainTitle",
+                      page: faq),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(10),
-              ),
-              temp != null
-                  ? Text(AppLocalizations.of(context).translate('bonjour') +
-                  user.userName)
-                  : Text("Check Language file (en/fr.json)"),
-            ],
+              );
+            },
           ),
-          backgroundColor: Colors.blue,
-          actions: <Widget>[
-            FlatButton.icon(
-              icon: Icon(
-                Icons.question_answer,
-                color: Colors.white,
-              ),
-              label: Text(
-                "FAQ",
-                style: TextStyle(
-                  color: Colors.white,
+          FlatButton.icon(
+            icon: Icon(
+              Icons.settings,
+              color: Colors.white,
+            ),
+            label: Text(
+              "",
+              //AppLocalizations.of(context).translate('reglages'),
+              style: TextStyle(color: Colors.white),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            splashColor: Colors.blue,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoadPage(
+                      user: user,
+                      appLanguage: appLanguage,
+                      messageIn: "fromMainTitle",
+                      page: manageProfile),
                 ),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              splashColor: Colors.blue,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        LoadPage(
-                            user: user,
-                            appLanguage: appLanguage,
-                            messageIn: "fromMainTitle",
-                            page: faq),
-                  ),
-                );
-              },
-            ),
-            FlatButton.icon(
-              icon: Icon(
-                Icons.settings,
-                color: Colors.white,
-              ),
-              label: Text(
-                "",
-                //AppLocalizations.of(context).translate('reglages'),
-                style: TextStyle(color: Colors.white),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              splashColor: Colors.blue,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        LoadPage(
-                            user: user,
-                            appLanguage: appLanguage,
-                            messageIn: "fromMainTitle",
-                            page: manageProfile),
-                  ),
-                );
-              },
-            ),
-            /*FlatButton.icon(
+              );
+            },
+          ),
+          /*FlatButton.icon(
               icon: Icon(
                 Icons.add,
                 color: Colors.white,
@@ -268,7 +296,7 @@ class _MainTitle extends State<MainTitle> {
                 //db.deleteScore(user.userId);
 
 */
-            /*
+          /*
                 db.updateUser(
                   User(
                       userHeightBottom: user.userHeightBottom,
@@ -282,7 +310,7 @@ class _MainTitle extends State<MainTitle> {
                       userSerialNumber: user.userSerialNumber),
                 );
 */
-            /*
+          /*
                 db.updateUser(
                   User(
                       userHeightBottom: user.userHeightBottom,
@@ -295,7 +323,7 @@ class _MainTitle extends State<MainTitle> {
                       userMacAddress: "78:DB:2F:BF:1F:72",
                       userSerialNumber: user.userSerialNumber),
                 );*/
-            /*                Navigator.pushReplacement(
+          /*                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => LoadPage(
@@ -306,7 +334,7 @@ class _MainTitle extends State<MainTitle> {
                     ),
                   ),
                 );*/
-            /*
+          /*
 
                 Score newScore = Score(
                     scoreId: null,
@@ -354,304 +382,286 @@ class _MainTitle extends State<MainTitle> {
                 //setState(() {});
               },
             ),*/
-            FlatButton.icon(
-              icon: Icon(
-                Icons.power_settings_new,
-                color: Colors.white,
-              ),
-              label: temp != null
-                  ? Text(''
-                /*AppLocalizations.of(context).translate('deconnexion'),
+          FlatButton.icon(
+            icon: Icon(
+              Icons.power_settings_new,
+              color: Colors.white,
+            ),
+            label: temp != null
+                ? Text(''
+                    /*AppLocalizations.of(context).translate('deconnexion'),
                       style: TextStyle(
                         color: Colors.white,
                       ),*/
-              )
-                  : Text("Check Language file (en/fr.json)"),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              splashColor: Colors.blue,
-              onPressed: () {
-                btManage.disconnect("");
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            LoadPage(
-                              user: null,
-                              appLanguage: appLanguage,
-                              messageIn: "deconnexion",
-                              page: login,
-                            )));
-              },
+                    )
+                : Text("Check Language file (en/fr.json)"),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
             ),
-          ],
-          leading: new Container(),
-        ),
-        body: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.all(10),
-                child: Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: widthCard =
-                          (screenSize.width / numberOfCard) - 7,
-                      height: heightCard = screenSize.width / numberOfCard,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
+            splashColor: Colors.blue,
+            onPressed: () {
+              btManage.disconnect("");
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => LoadPage(
+                            user: null,
+                            appLanguage: appLanguage,
+                            messageIn: "deconnexion",
+                            page: login,
+                          )));
+            },
+          ),
+        ],
+        leading: new Container(),
+      ),
+      body: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.all(10),
+              child: Row(
+                children: <Widget>[
+                  SizedBox(
+                    width: widthCard = (screenSize.width / numberOfCard) - 7,
+                    height: heightCard = screenSize.width / numberOfCard,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LoadPage(
+                              appLanguage: appLanguage,
+                              page: firstPush,
+                              user: user,
+                              messageIn: "fromMain",
+                            ),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        color: message == "fromRegister"
+                            ? Colors.grey[200]
+                            : Colors.white,
+                        elevation: 8,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: <Widget>[
+                              temp != null
+                                  ? AutoSizeText(
+                                      AppLocalizations.of(context)
+                                          .translate('poussee_max'),
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: message == "fromRegister"
+                                            ? Colors.grey
+                                            : Colors.black,
+                                      ),
+                                    )
+                                  : Text("Check Language file (en/fr.json)"),
+                              Transform.rotate(
+                                angle: -math.pi,
+                                child: Icon(
+                                  Icons.file_download,
+                                  size: heightCard * 0.7,
+                                  color: message == "fromRegister"
+                                      ? Colors.grey
+                                      : Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  //Selection jeux
+                  SizedBox(
+                    width: widthCard = (screenSize.width / numberOfCard) - 7,
+                    height: heightCard = screenSize.width / numberOfCard,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  LoadPage(
-                                    appLanguage: appLanguage,
-                                    page: firstPush,
-                                    user: user,
-                                    messageIn: "fromMain",
+                                builder: (context) => LoadPage(
+                                      user: user,
+                                      appLanguage: appLanguage,
+                                      messageIn: "0",
+                                      page: selectGame,
+                                    )));
+                      },
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 8,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          padding: const EdgeInsets.all(10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: <Widget>[
+                              temp != null
+                                  ? Text(
+                                      AppLocalizations.of(context)
+                                          .translate('activites'),
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  : Text("Check Language file (en/fr.json)"),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    elevation: 8,
+                                    child: Container(
+                                      width: widthCard / 3,
+                                      height: heightCard / 3,
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        child: Image.asset(
+                                          'assets/plane.png',
+                                          width: widthCard / 4,
+                                          height: heightCard / 4,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                            ),
-                          );
-                        },
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          color: message == "fromRegister"
-                              ? Colors.grey[200]
-                              : Colors.white,
-                          elevation: 8,
-                          child: SingleChildScrollView(
-                            padding:
-                            const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.max,
-                              children: <Widget>[
-                                temp != null
-                                    ? AutoSizeText(
-                                  AppLocalizations.of(context)
-                                      .translate('poussee_max'),
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: message == "fromRegister"
-                                        ? Colors.grey
-                                        : Colors.black,
+                                  Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    elevation: 8,
+                                    child: Container(
+                                      width: widthCard / 3,
+                                      height: heightCard / 3,
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        child: Image.asset(
+                                          'assets/swim.png',
+                                          width: widthCard / 4,
+                                          height: heightCard / 4,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                )
-                                    : Text(
-                                    "Check Language file (en/fr.json)"),
-                                Transform.rotate(
-                                  angle: -math.pi,
-                                  child: Icon(
-                                    Icons.file_download,
-                                    size: heightCard * 0.7,
-                                    color: message == "fromRegister"
-                                        ? Colors.grey
-                                        : Colors.black,
+                                ],
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    elevation: 8,
+                                    child: Container(
+                                      width: widthCard / 3,
+                                      height: heightCard / 3,
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        child: Image.asset(
+                                          'assets/temp.png',
+                                          width: widthCard / 4,
+                                          height: heightCard / 4,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                  Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    elevation: 8,
+                                    child: Container(
+                                      width: widthCard / 3,
+                                      height: heightCard / 3,
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        child: Image.asset(
+                                          'assets/plane.png',
+                                          width: widthCard / 4,
+                                          height: heightCard / 4,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                    //Selection jeux
-                    SizedBox(
-                      width: widthCard =
-                          (screenSize.width / numberOfCard) - 7,
-                      height: heightCard = screenSize.width / numberOfCard,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      LoadPage(
-                                        user: user,
-                                        appLanguage: appLanguage,
-                                        messageIn: "0",
-                                        page: selectGame,
-                                      )));
-                        },
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 8,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            padding: const EdgeInsets.all(10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.max,
-                              children: <Widget>[
-                                temp != null
-                                    ? Text(
-                                  AppLocalizations.of(context)
-                                      .translate('activites'),
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                )
-                                    : Text(
-                                    "Check Language file (en/fr.json)"),
-                                Row(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(10),
-                                      ),
-                                      elevation: 8,
-                                      child: Container(
-                                        width: widthCard / 3,
-                                        height: heightCard / 3,
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          child: Image.asset(
-                                            'assets/plane.png',
-                                            width: widthCard / 4,
-                                            height: heightCard / 4,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(10),
-                                      ),
-                                      elevation: 8,
-                                      child: Container(
-                                        width: widthCard / 3,
-                                        height: heightCard / 3,
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          child: Image.asset(
-                                            'assets/swim.png',
-                                            width: widthCard / 4,
-                                            height: heightCard / 4,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(10),
-                                      ),
-                                      elevation: 8,
-                                      child: Container(
-                                        width: widthCard / 3,
-                                        height: heightCard / 3,
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          child: Image.asset(
-                                            'assets/temp.png',
-                                            width: widthCard / 4,
-                                            height: heightCard / 4,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(10),
-                                      ),
-                                      elevation: 8,
-                                      child: Container(
-                                        width: widthCard / 3,
-                                        height: heightCard / 3,
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          child: Image.asset(
-                                            'assets/plane.png',
-                                            width: widthCard / 4,
-                                            height: heightCard / 4,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                  ),
+                  SizedBox(
+                    width: widthCard = (screenSize.width / numberOfCard) - 7,
+                    height: heightCard = screenSize.width / numberOfCard,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoadPage(
+                                      user: user,
+                                      appLanguage: appLanguage,
+                                      messageIn: "0",
+                                      page: selectStatistic,
+                                    )));
+                      },
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 8,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: <Widget>[
+                              temp != null
+                                  ? Text(
+                                      AppLocalizations.of(context)
+                                          .translate('statistiques'),
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  : Text("Check Language file (en/fr.json)"),
+                              Image.asset(
+                                'assets/chart.png',
+                                width: widthCard * 0.7,
+                                height: heightCard * 0.7,
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: widthCard =
-                          (screenSize.width / numberOfCard) - 7,
-                      height: heightCard = screenSize.width / numberOfCard,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      LoadPage(
-                                        user: user,
-                                        appLanguage: appLanguage,
-                                        messageIn: "0",
-                                        page: selectStatistic,
-                                      )));
-                        },
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 8,
-                          child: SingleChildScrollView(
-                            padding:
-                            const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.max,
-                              children: <Widget>[
-                                temp != null
-                                    ? Text(
-                                  AppLocalizations.of(context)
-                                      .translate('statistiques'),
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                )
-                                    : Text(
-                                    "Check Language file (en/fr.json)"),
-                                Image.asset(
-                                  'assets/chart.png',
-                                  width: widthCard * 0.7,
-                                  height: heightCard * 0.7,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
     );
   }
 
@@ -659,8 +669,7 @@ class _MainTitle extends State<MainTitle> {
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                LoadPage(
+            builder: (context) => LoadPage(
                   user: null,
                   appLanguage: appLanguage,
                   messageIn: "0",
@@ -716,12 +725,13 @@ class _MainTitle extends State<MainTitle> {
       settingsPage,
     ];
 
-    return  menu();
+    return menu();
   }
 
   // Method to show a Snackbar,
   // taking message as the text
-  Future show(String message, {
+  Future show(
+    String message, {
     Duration duration: const Duration(seconds: 3),
   }) async {
     await new Future.delayed(new Duration(milliseconds: 100));

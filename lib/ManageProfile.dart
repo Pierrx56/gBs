@@ -79,8 +79,10 @@ class _ManageProfile extends State<ManageProfile> {
   bool isSwitched = false;
   bool hasChangedState;
 
-  var hauteur_min = new TextEditingController();
-  var hauteur_max = new TextEditingController();
+  String selection;
+  int days = 0;
+
+
   String initialPush;
 
   Color colorButton = Colors.black;
@@ -91,9 +93,8 @@ class _ManageProfile extends State<ManageProfile> {
   void initState() {
     btData = "0.0";
     name.text = '';
-    hauteur_min.text = '';
-    hauteur_max.text = '';
     hasChangedState = false;
+    days = int.parse(user.userNotifEvent);
 
     timer = Timer.periodic(
         Duration(milliseconds: 500), (Timer t) => hasChangedThread());
@@ -132,23 +133,9 @@ class _ManageProfile extends State<ManageProfile> {
           hasChangedState = true;
         });
     }
-    if (hauteur_max.text != '') {
-      if (mounted)
-        setState(() {
-          hasChangedState = true;
-        });
-    }
-    if (hauteur_min.text != '') {
-      if (mounted)
-        setState(() {
-          hasChangedState = true;
-        });
-    }
     if (name.text == '' &&
         _pathSaved == user.userPic &&
-        _userMode == user.userMode &&
-        hauteur_min.text == '' &&
-        hauteur_max.text == '') {
+        _userMode == user.userMode) {
       if (mounted)
         setState(() {
           hasChangedState = false;
@@ -203,8 +190,6 @@ class _ManageProfile extends State<ManageProfile> {
     if (name.text == '') name.text = user.userName;
     if (_pathSaved == '') _pathSaved = user.userPic;
     if (_userMode == null) _userMode = user.userMode;
-    if (hauteur_max.text == '') hauteur_max.text = user.userHeightTop;
-    if (hauteur_min.text == '') hauteur_min.text = user.userHeightBottom;
     if (initialPush == null) initialPush = user.userInitialPush;
 
     String macAddress = user.userMacAddress;
@@ -215,19 +200,19 @@ class _ManageProfile extends State<ManageProfile> {
       userName: name.text,
       userMode: _userMode,
       userPic: _pathSaved,
-      userHeightTop: hauteur_max.text,
-      userHeightBottom: hauteur_min.text,
+      userHeightTop: user.userHeightTop,
+      userHeightBottom: user.userHeightBottom,
       userInitialPush: initialPush,
       userMacAddress: macAddress,
       userSerialNumber: serialNumber,
+      userNotifEvent: days.toString(),
+      userLastLogin: user.userLastLogin,
     ));
 
     show(AppLocalizations.of(this.context).translate('modification_prise'));
 
     //Réinitialisation des champs pour virer le message enregister
     name.text = '';
-    hauteur_min.text = '';
-    hauteur_max.text = '';
     hasChangedState = false;
     _userMode = user.userMode;
     _pathSaved = user.userPic;
@@ -254,6 +239,18 @@ class _ManageProfile extends State<ManageProfile> {
 
     if (_pathSaved == null) _pathSaved = user.userPic;
 
+    if (selection == null)
+      selection = AppLocalizations.of(context).translate('notif_1_jour');
+
+    List<String> notifs = [
+      AppLocalizations.of(context).translate('notif_desactive'),
+      AppLocalizations.of(context).translate('notif_1_jour'),
+      AppLocalizations.of(context).translate('notif_2_jour'),
+      AppLocalizations.of(context).translate('notif_3_jour'),
+    ];
+
+    selection = notifs[days];
+
     return Form(
       key: _formKey,
       child: Column(
@@ -265,6 +262,34 @@ class _ManageProfile extends State<ManageProfile> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
+                  //Notifications
+                  Column(
+                    children: <Widget>[
+                      new DropdownButton<String>(
+                        items: notifs.map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Container(
+                              width: 200.0,
+                              child: Text(value),
+                            ),
+                          );
+                        }).toList(),
+                        hint: Text(selection),
+                        onChanged: (String value) {
+                          selection = value;
+                          for (int i = 0; i < notifs.length - 1; i++) {
+                            if (selection == notifs[i]) {
+                              days = i;
+                              break;
+                            } else
+                              days = 0;
+                          }
+                          setState(() {});
+                        },
+                      )
+                    ],
+                  ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -348,41 +373,6 @@ class _ManageProfile extends State<ManageProfile> {
                                 user.userName,
                         hasFloatingPlaceholder: true),
                   ),
-/*                    SizedBox(
-                    height: 20,
-                  ),
-                  TextFormField(
-                    controller: hauteur_min,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      WhitelistingTextInputFormatter.digitsOnly
-                    ],
-                    decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)
-                                .translate('haut_min') +
-                            ": " +
-                            user.userHeightBottom,
-                        hasFloatingPlaceholder: true),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  TextFormField(
-                      controller: hauteur_max,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        WhitelistingTextInputFormatter.digitsOnly
-                      ],
-                      decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)
-                                  .translate('haut_max') +
-                              ": " +
-                              user.userHeightTop,
-                          hasFloatingPlaceholder: true),
-                      validator: (value) {
-                        if (value.isEmpty) return 'Veuillez remplir ce champ';
-                        return null;
-                      }),*/
                   SizedBox(
                     height: 20,
                   ),
@@ -530,6 +520,7 @@ class _ManageProfile extends State<ManageProfile> {
                                             .translate('supprimer')),
                                     onPressed: () {
                                       Navigator.of(context).pop();
+                                      btManage.disconnect("origin");
                                       print("ID à SUPPR:" +
                                           user.userId.toString());
                                       db.deleteUser(user.userId);
@@ -780,18 +771,17 @@ class _ManageProfile extends State<ManageProfile> {
         backgroundColor: Colors.blue,
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () =>
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LoadPage(
-                    appLanguage: appLanguage,
-                    page: mainTitle,
-                    user: user,
-                    messageIn: "",
-                  ),
-                ),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LoadPage(
+                appLanguage: appLanguage,
+                page: mainTitle,
+                user: user,
+                messageIn: "",
               ),
+            ),
+          ),
         ),
       ),
       body: Stack(

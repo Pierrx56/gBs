@@ -14,9 +14,11 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -87,6 +89,17 @@ public class MainActivity extends FlutterActivity {
     BluetoothGatt mBluetoothGatt;
     BluetoothLeScanner btScanner;
     BluetoothAdapter btAdapter;
+
+    private static String resourceToUriString(Context context, int resId) {
+        return
+                ContentResolver.SCHEME_ANDROID_RESOURCE
+                        + "://"
+                        + context.getResources().getResourcePackageName(resId)
+                        + "/"
+                        + context.getResources().getResourceTypeName(resId)
+                        + "/"
+                        + context.getResources().getResourceEntryName(resId);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -231,6 +244,20 @@ public class MainActivity extends FlutterActivity {
                         /* else {
                             result.error("Unavailable", "No method", null);
                         }*/
+                    }
+                }
+        );
+        new MethodChannel(flutterEngine.getDartExecutor(), "dexterx.dev/flutter_local_notifications_example").setMethodCallHandler(
+                (call, result) -> {
+                    if ("drawableToUri".equals(call.method)) {
+                        int resourceId = MainActivity.this.getResources().getIdentifier((String) call.arguments, "drawable", MainActivity.this.getPackageName());
+                        result.success(resourceToUriString(MainActivity.this.getApplicationContext(), resourceId));
+                    }
+                    if("getAlarmUri".equals(call.method)) {
+                        result.success(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM).toString());
+                    }
+                    if("getTimeZoneName".equals(call.method)) {
+                        result.success(TimeZone.getDefault().getID());
                     }
                 }
         );

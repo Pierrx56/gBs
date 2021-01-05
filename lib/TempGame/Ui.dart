@@ -61,7 +61,7 @@ class UIState extends State<UI> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Text(
-                "$message",
+                "$message /10",
                 style: TextStyle(
                   fontSize: 50,
                   color: Colors.black,
@@ -73,6 +73,34 @@ class UIState extends State<UI> {
                     ),
                   ],
                 ),
+              ),
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                    child: Image.asset(
+                      'assets/images/temp/red_heart.png',
+                      width: game.screenSize.width * 0.05,
+                      height: game.screenSize.height * 0.2,
+                    ),
+                  ),
+                  game.life > 1 ? Padding(
+                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                    child: Image.asset(
+                      'assets/images/temp/red_heart.png',
+                      width: game.screenSize.width * 0.05,
+                      height: game.screenSize.height * 0.2,
+                    ),
+                  ): Container(),
+                  game.life > 2 ? Padding(
+                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                    child: Image.asset(
+                      'assets/images/temp/red_heart.png',
+                      width: game.screenSize.width * 0.05,
+                      height: game.screenSize.height * 0.2,
+                    ),
+                  ) : Container(),
+                ],
               ),
             ],
           ),
@@ -87,7 +115,7 @@ class UIState extends State<UI> {
       child: Container(
         alignment: Alignment.topCenter,
         decoration: new BoxDecoration(
-            color: color.withAlpha(150),//Colors.blue.withAlpha(150),
+            color: color.withAlpha(150), //Colors.blue.withAlpha(150),
             //new Color.fromRGBO(255, 0, 0, 0.0),
             borderRadius: new BorderRadius.only(
                 topLeft: const Radius.circular(20.0),
@@ -198,7 +226,9 @@ class UIState extends State<UI> {
       padding: const EdgeInsets.all(10.0),
       child: Container(
         height: game.screenSize.height * 0.2,
-        width: game.pauseGame ? game.screenSize.width / 3 :game.screenSize.width / 4 ,
+        width: game.pauseGame
+            ? game.screenSize.width / 3
+            : game.screenSize.width / 4,
         child: RaisedButton(
           onPressed: !game.getGameOver()
               ? game.getConnectionState()

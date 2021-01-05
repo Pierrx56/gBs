@@ -95,6 +95,11 @@
   "modifier": "Modifier",
   "modification": "Modification de profil",
   "modification_prise": "Modifications prises en compte. Redirection...",
+  "notifications": "Notifications",
+  "notif_desactive":"Désactiver les notifications",
+  "notif_1_jour": "Me rappeler tous les jours mes exercices à faire.",
+  "notif_2_jour": "Me rappeler tous les 2 jours mes exercices à faire.",
+  "notif_3_jour": "Me rappeler tous les 3 jours mes exercices à faire.",
   "num_serie": "Numéro de série",
   "premiere_mesure": "Première mesure",
   "prendre_photo": "Prendre une photo",
@@ -127,7 +132,7 @@
   "quitter": "Quitter le jeu",
   "verif_alim": "Connexion au gBs et chargement du jeu en cours... Assurez vous que le gBs est alimenté",
   "comment_temp": "------------------------------------------------ Page Temp ------------------------------------------------",
-  "remplir_jauge": "Poussez sur la toise pendant 6 secondes pour remplir la jauge"
+  "remplir_jauge": "Poussez sur la toise pendant 6 secondes pour sauter sur une platefrome"
 }
 
 

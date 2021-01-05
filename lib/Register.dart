@@ -18,6 +18,9 @@ import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class _Message {
   int whom;
@@ -45,6 +48,9 @@ class _Register extends State<Register> {
 
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
+
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   Size screenSize;
 
@@ -74,6 +80,9 @@ class _Register extends State<Register> {
   ScrollController _controller;
   double posScroll = 0.0;
   bool isFound;
+  String selection;
+  //Par défaut: 1 notif par jour
+  int days = 1;
 
   TextStyle textStyle =
       TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold);
@@ -116,6 +125,7 @@ class _Register extends State<Register> {
     tempHautMin = 0;
     tempHautMax = 0;
 
+    tz.initializeTimeZones();
     isFound = false;
     isConnected = false;
 
@@ -226,6 +236,8 @@ class _Register extends State<Register> {
       userMacAddress: macAddress,
       userSerialNumber:
           "gBs" + serialNumber.text.toUpperCase().replaceAll(" ", ""),
+      userNotifEvent: days.toString(),
+      userLastLogin: tz.TZDateTime.now(tz.local).toString(),
     ));
     print("ID INScr: " + id.toString());
     user = await db.getUser(id);
@@ -237,9 +249,10 @@ class _Register extends State<Register> {
   }
 
   next() {
-    currentStep + 1 != steps.length
-        ? goTo(currentStep + 1)
-        : setState(() => complete = true);
+    if (currentStep + 1 != steps.length)
+      goTo(currentStep + 1);
+    else
+      setState(() => complete = true);
     //if (currentStep == 2 || currentStep == 3) myFocusNode.requestFocus();
   }
 
@@ -264,6 +277,22 @@ class _Register extends State<Register> {
 
     if (statusBT == null)
       statusBT = AppLocalizations.of(context).translate('connecter_app');
+
+    if (selection == null)
+      selection = AppLocalizations.of(context).translate('notif_1_jour');
+
+    List<String> notifs = [
+      AppLocalizations.of(context).translate('notif_desactive'),
+      AppLocalizations.of(context).translate('notif_1_jour'),
+      AppLocalizations.of(context).translate('notif_2_jour'),
+      AppLocalizations.of(context).translate('notif_3_jour'),
+    ];
+
+    /*
+    List<int> heures = [
+      0,1,2,3,4,5,6,7,8,9,10,11,12,
+      13,14,15,16,17,18,19,20,21,22,23];
+    List<int> minutes = [0,15,30,45];*/
 
     Widget nextButton = FlatButton(
       onPressed: /*!clickable ? null : */ () {
@@ -405,84 +434,13 @@ class _Register extends State<Register> {
           ),
         ),
       ),
-      /*
-      Step(
-        title: Text(AppLocalizations.of(context).translate('haut_min')),
-        isActive: currentStep > 1,
-        state: currentStep > 1 ? StepState.complete : StepState.disabled,
-        content: SizedBox(
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: TextFormField(
-                  style: textStyle,
-                  focusNode: posBNode,
-                  //autofocus: currentStep == 2 ? true : false,
-                  controller: hauteur_min,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    WhitelistingTextInputFormatter.digitsOnly
-                  ],
-                  decoration: InputDecoration(
-                    labelText:
-                        AppLocalizations.of(context).translate('haut_min'),
-                    errorText: isEmpty
-                        ? AppLocalizations.of(context)
-                            .translate('erreur_hauteur')
-                        : null,
-                  ),
-                ),
-              ),
-              Expanded(child: nextButton),
-              Expanded(child: backButton),
-            ],
-          ),
-        ),
-      ),
-      Step(
-        title: Text(AppLocalizations.of(context).translate('haut_max')),
-        isActive: currentStep > 2,
-        state: currentStep > 2 ? StepState.complete : StepState.disabled,
-        content: SizedBox(
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: TextFormField(
-                  style: textStyle,
-                  autofocus: true,
-                  //autofocus: currentStep == 3 ? true : false,
-                  focusNode: posTNode,
-                  controller: hauteur_max,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    WhitelistingTextInputFormatter.digitsOnly
-                  ],
-                  decoration: InputDecoration(
-                    labelText:
-                        AppLocalizations.of(context).translate('haut_max'),
-                    errorText: isEmpty
-                        ? AppLocalizations.of(context)
-                            .translate('erreur_hauteur')
-                        : _validate
-                            ? AppLocalizations.of(context)
-                                .translate('erreur_haut_max')
-                            : null,
-                  ),
-                ),
-              ),
-              Expanded(child: nextButton),
-              Expanded(child: backButton),
-            ],
-          ),
-        ),
-      ),*/
       //Mode
       Step(
         title: Text(
           AppLocalizations.of(context).translate('mode'),
         ),
-        isActive: currentStep > 3,
-        state: currentStep > 3 ? StepState.complete : StepState.disabled,
+        isActive: currentStep > 1,
+        state: currentStep > 1 ? StepState.complete : StepState.disabled,
         content: Column(
           children: <Widget>[
             Row(
@@ -516,12 +474,12 @@ class _Register extends State<Register> {
             ),
             _userMode == AppLocalizations.of(context).translate('sportif')
                 ? AutoSizeText(
-                AppLocalizations.of(context).translate('mode_sportif'),
+                    AppLocalizations.of(context).translate('mode_sportif'),
                     maxLines: 2,
                     minFontSize: 20,
                   )
                 : AutoSizeText(
-              AppLocalizations.of(context).translate('mode_familiale'),
+                    AppLocalizations.of(context).translate('mode_familiale'),
                     maxLines: 2,
                     minFontSize: 20,
                   )
@@ -531,8 +489,8 @@ class _Register extends State<Register> {
       //Image
       Step(
         title: Text(AppLocalizations.of(context).translate('select_image')),
-        isActive: currentStep > 4,
-        state: currentStep > 4 ? StepState.complete : StepState.disabled,
+        isActive: currentStep > 2,
+        state: currentStep > 2 ? StepState.complete : StepState.disabled,
         content: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
@@ -591,8 +549,8 @@ class _Register extends State<Register> {
       //Connexion appareil
       Step(
         title: Text(AppLocalizations.of(context).translate('connecter_app')),
-        isActive: currentStep > 5,
-        state: currentStep > 5 ? StepState.complete : StepState.disabled,
+        isActive: currentStep > 3,
+        state: currentStep > 3 ? StepState.complete : StepState.disabled,
         content: Column(
           children: <Widget>[
             TextFormField(
@@ -715,119 +673,161 @@ class _Register extends State<Register> {
           ],
         ),
       ),
+      //Notifications
+      Step(
+        title: Text(AppLocalizations.of(context).translate('notifications')),
+        isActive: currentStep > 4,
+        state: currentStep > 4 ? StepState.complete : StepState.disabled,
+        content: SizedBox(
+          child: Column(
+            children: <Widget>[
+              new DropdownButton<String>(
+                items: notifs.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Container(
+                      width: 200.0,
+                      child: Text(value),
+                    ),
+                  );
+                }).toList(),
+                hint: Text(selection),
+                onChanged: (String value) {
+                  selection = value;
+                  for (int i = 0; i < notifs.length - 1; i++) {
+                    if (selection == notifs[i]) {
+                      days = i;
+                      break;
+                    } else
+                      days = 0;
+                  }
+                  setState(() {});
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
       //Recap
       Step(
-          title: Text(AppLocalizations.of(context).translate('recap')),
-          isActive: currentStep > 6,
-          state: currentStep > 6 ? StepState.complete : StepState.disabled,
-          content: Column(
-            children: <Widget>[
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: <Widget>[
-                    Image.asset(
-                      _pathSaved,
-                      width: screenSize.width * 0.15,
-                    ),
-                    Column(
+        title: Text(AppLocalizations.of(context).translate('recap')),
+        isActive: currentStep > 5,
+        state: currentStep > 5 ? StepState.complete : StepState.disabled,
+        content: Column(
+          children: <Widget>[
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: <Widget>[
+                  Image.asset(
+                    _pathSaved,
+                    width: screenSize.width * 0.15,
+                  ),
+                  Container(
+                    width: screenSize.width * 0.4,
+                    child: Column(
                       children: <Widget>[
-                        Text(
-                          AppLocalizations.of(context).translate('prenom') +
-                              ": " +
-                              name.text,
-                          style: textStyle,
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            AppLocalizations.of(context).translate('prenom') +
+                                ": " +
+                                name.text,
+                            style: textStyle,
+                          ),
                         ),
-                        Text(
-                          AppLocalizations.of(context).translate('mode') +
-                              ": " +
-                              _userMode,
-                          style: textStyle,
-                        ), /*
-                        Text(
-                          AppLocalizations.of(context).translate('haut_min') +
-                              ": " +
-                              hauteur_min.text,
-                          style: textStyle,
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            AppLocalizations.of(context).translate('mode') +
+                                ": " +
+                                _userMode,
+                            style: textStyle,
+                          ),
                         ),
-                        Text(
-                          AppLocalizations.of(context).translate('haut_max') +
-                              ": " +
-                              hauteur_max.text,
-                          style: textStyle,
-                        ),*/
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Text(
+                            AppLocalizations.of(context)
+                                    .translate('notifications') +
+                                ": " +
+                                selection,
+                            style: textStyle,
+                          ),
+                        ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(20),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  FlatButton(
-                    child: Text(
-                        AppLocalizations.of(context).translate('valider_insc')),
-                    color: Colors.blue,
-                    textColor: Colors.white,
-                    padding: EdgeInsets.only(
-                        left: 38, right: 38, top: 15, bottom: 15),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5)),
-                    onPressed: () async {
-                      //Conditions d'inscriptions
-
-                      if (_pathSaved == "assets/default.png") {
-                        var bytes = await rootBundle.load(_pathSaved);
-                        String dir =
-                            (await getApplicationDocumentsDirectory()).path;
-                        File tempFile =
-                            await writeToFile(bytes, '$dir/default.png');
-
-                        setState(() {
-                          _pathSaved = tempFile.path;
-                        });
-                      }
-
-                      User user = await addUser();
-                      //getUser();
-                      //connectBT();
-
-                      if (user != null) {
-                        //print("salut " + user.userId.toString());
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LoadPage(
-                              appLanguage: appLanguage,
-                              user: user,
-                              page: firstPush,
-                              messageIn: "fromRegister",
-                            ),
-                          ),
-                        );
-                        //dispose();
-                      } else
-                        print("Something went wrong");
-                    },
-                  ),
-                  FlatButton(
-                    onPressed: () {
-                      back();
-                      _controller.animateTo((((currentStep) * 75)).toDouble(),
-                          duration: Duration(milliseconds: 500),
-                          curve: Curves.linear);
-                    },
-                    child:
-                        Text(AppLocalizations.of(context).translate('retour')),
                   ),
                 ],
               ),
-            ],
-          )),
+            ),
+            Padding(
+              padding: EdgeInsets.all(20),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                FlatButton(
+                  child: Text(
+                      AppLocalizations.of(context).translate('valider_insc')),
+                  color: Colors.blue,
+                  textColor: Colors.white,
+                  padding:
+                      EdgeInsets.only(left: 38, right: 38, top: 15, bottom: 15),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)),
+                  onPressed: () async {
+                    //Conditions d'inscriptions
+
+                    if (_pathSaved == "assets/default.png") {
+                      var bytes = await rootBundle.load(_pathSaved);
+                      String dir =
+                          (await getApplicationDocumentsDirectory()).path;
+                      File tempFile =
+                          await writeToFile(bytes, '$dir/default.png');
+
+                      setState(() {
+                        _pathSaved = tempFile.path;
+                      });
+                    }
+
+                    User user = await addUser();
+                    //getUser();
+                    //connectBT();
+
+                    if (user != null) {
+                      //print("salut " + user.userId.toString());
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoadPage(
+                            appLanguage: appLanguage,
+                            user: user,
+                            page: firstPush,
+                            messageIn: "fromRegister",
+                          ),
+                        ),
+                      );
+                      //dispose();
+                    } else
+                      print("Something went wrong");
+                  },
+                ),
+                FlatButton(
+                  onPressed: () {
+                    back();
+                    _controller.animateTo((((currentStep) * 75)).toDouble(),
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.linear);
+                  },
+                  child: Text(AppLocalizations.of(context).translate('retour')),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     ];
 
     Future<bool> _onBackPressed() {
@@ -902,8 +902,8 @@ class _Register extends State<Register> {
                           children: <Widget>[
                             currentStep >= 1 ? nextButton : Container(),
                             currentStep >= 1 ? backButton : Container(),
-                            currentStep == 5 ? Container() : Container(),
-                            currentStep == 5 ? Container() : Container(),
+                            currentStep == 6 ? Container() : Container(),
+                            currentStep == 6 ? Container() : Container(),
                           ],
                         ),
                         Padding(
