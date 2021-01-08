@@ -15,6 +15,7 @@ import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
+import 'package:gbsalternative/NotificationManager.dart';
 import 'package:gbsalternative/Register.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -95,6 +96,9 @@ class _ManageProfile extends State<ManageProfile> {
     name.text = '';
     hasChangedState = false;
     days = int.parse(user.userNotifEvent);
+
+    if(days == null)
+      days = 0;
 
     timer = Timer.periodic(
         Duration(milliseconds: 500), (Timer t) => hasChangedThread());
@@ -219,7 +223,7 @@ class _ManageProfile extends State<ManageProfile> {
 
     //Redirection vers l'écran d'accueil
     Future.delayed(const Duration(milliseconds: 2000), () {
-      Navigator.push(
+      Navigator.pushReplacement(
         this.context,
         MaterialPageRoute(
           builder: (context) => LoadPage(
@@ -461,7 +465,7 @@ class _ManageProfile extends State<ManageProfile> {
                           if (hasChangedState)
                             pousseeDialog();
                           else
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => LoadPage(
@@ -523,7 +527,12 @@ class _ManageProfile extends State<ManageProfile> {
                                       btManage.disconnect("origin");
                                       print("ID à SUPPR:" +
                                           user.userId.toString());
+                                      NotificationManager notificationManager = new NotificationManager();
+                                      notificationManager.init(user);
+                                      notificationManager.cancelNotification();
                                       db.deleteUser(user.userId);
+
+
                                       //dispose();
                                       Navigator.pushReplacement(
                                           context,
@@ -578,7 +587,7 @@ class _ManageProfile extends State<ManageProfile> {
                         children: <Widget>[
                           RaisedButton(
                             onPressed: () {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => LoadPage(
@@ -763,7 +772,7 @@ class _ManageProfile extends State<ManageProfile> {
     }
 
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomPadding: true,
       key: _scaffoldKey,
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -771,7 +780,7 @@ class _ManageProfile extends State<ManageProfile> {
         backgroundColor: Colors.blue,
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.push(
+          onPressed: () => Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => LoadPage(

@@ -140,8 +140,10 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
       connect();
     } else {
       isConnected = await btManage.getStatus();
-      if(!isConnected)
+      if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
+        connect();
+      }
       if (isConnected) {
         launchGame();
         return;
@@ -254,29 +256,38 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     const oneSec = const Duration(seconds: 1);
     _timer = new Timer.periodic(
       oneSec,
-      (Timer timer) => mounted ? setState(
-        () {
-          if (_start < 1) {
-            //TODO Update value
-            if (user.userMode ==
-                    AppLocalizations.of(context).translate('familial') &&
-                score > 15) {
-              game.setStarValue(starValue = 0.5);
-            } else if (user.userMode ==
-                    AppLocalizations.of(context).translate('sportif') &&
-                score > 50)
-              game.setStarValue(starValue = 0.5);
-            else
-              game.setStarValue(starValue = 0.0);
+      (Timer timer) => mounted
+          ? setState(
+              () {
+                if (_start < 1) {
+                  //TODO Update value
+                  if (user.userMode ==
+                          AppLocalizations.of(context).translate('familial') &&
+                      score > 15) {
+                    setState(() {
+                      game.setStarValue(starValue = 0.5);
+                    });
+                  } else if (user.userMode ==
+                          AppLocalizations.of(context).translate('sportif') &&
+                      score > 50) {
+                    setState(() {
+                      game.setStarValue(starValue = 0.5);
+                    });
+                  } else {
+                    setState(() {
+                      game.setStarValue(starValue = 0.0);
+                    });
+                  }
 
-            timer.cancel();
-            gameUI.state.saveAndExit(
-                context, appLanguage, user, score, game, starValue, level);
-          } else {
-            _start = _start - 1;
-          }
-        },
-      ) : start = start,
+                  timer.cancel();
+                  gameUI.state.saveAndExit(context, appLanguage, user, score,
+                      game, starValue, level);
+                } else {
+                  _start = _start - 1;
+                }
+              },
+            )
+          : start = start,
     );
   }
 
@@ -291,7 +302,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
             : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
         child: Stack(
           children: <Widget>[
-            game == null
+            game == null || double.parse(user.userInitialPush) == 0
                 ? Center(
                     child: Container(
                         width: screenSize.width,
@@ -321,7 +332,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       CircularProgressIndicator(),
-                                      user.userInitialPush == "0.0"
+                                      double.parse(user.userInitialPush) == 0
                                           ? AutoSizeText(AppLocalizations.of(
                                                   context)
                                               .translate('premiere_poussee_sw'))
@@ -335,7 +346,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                             ),
                                       RaisedButton(
                                         onPressed: () {
-                                          Navigator.push(
+                                          Navigator.pushReplacement(
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) => LoadPage(
@@ -396,13 +407,18 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                       Align(
                                         alignment: Alignment.center,
                                         child: gameUI.state.endScreen(
-                                            context, appLanguage, game, user, _controllerTopCenter),
+                                            context,
+                                            appLanguage,
+                                            game,
+                                            user,
+                                            _controllerTopCenter),
                                       ),
                                       //TOP CENTER - shoot down
                                       Align(
                                         alignment: Alignment.topCenter,
                                         child: ConfettiWidget(
-                                          confettiController: _controllerTopCenter,
+                                          confettiController:
+                                              _controllerTopCenter,
                                           blastDirection: math.pi / 2,
                                           maxBlastForce: 5,
                                           // set a lower max blast force
@@ -415,7 +431,6 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                         ),
                                       ),
                                     ],
-
                                   ))
                       : Container(),
 

@@ -74,18 +74,19 @@ class _Register extends State<Register> {
   bool isStopped = false;
   List<Step> steps;
   FocusNode nameNode;
-  FocusNode posBNode;
-  FocusNode posTNode;
   FocusNode serialNode;
   ScrollController _controller;
   double posScroll = 0.0;
   bool isFound;
   String selection;
+
   //Par défaut: 1 notif par jour
   int days = 1;
 
   TextStyle textStyle =
       TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold);
+  TextStyle textStyleW =
+      TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold);
 
   CameraController controller;
   List cameras;
@@ -98,6 +99,7 @@ class _Register extends State<Register> {
 
   bool isConnected;
   Timer timerConnexion;
+  Timer timerNode;
 
   String discovering;
   String statusBT;
@@ -112,6 +114,7 @@ class _Register extends State<Register> {
 
   int currentStep = 0;
   bool complete = false;
+  bool isGoodLength;
 
   @override
   void initState() {
@@ -119,8 +122,6 @@ class _Register extends State<Register> {
     _controller = ScrollController();
     _pathSaved = "assets/default.png";
     nameNode = FocusNode();
-    posBNode = FocusNode();
-    posTNode = FocusNode();
     serialNode = FocusNode();
     tempHautMin = 0;
     tempHautMax = 0;
@@ -128,6 +129,7 @@ class _Register extends State<Register> {
     tz.initializeTimeZones();
     isFound = false;
     isConnected = false;
+    isGoodLength = false;
 
     if (currentStep == 0) nameNode.requestFocus();
     super.initState();
@@ -137,11 +139,10 @@ class _Register extends State<Register> {
   void dispose() {
     // Clean up the focus node when the Form is disposed.
     nameNode.dispose();
-    posBNode.dispose();
-    posTNode.dispose();
     serialNode.dispose();
     controller?.dispose();
     timerConnexion?.cancel();
+    timerNode?.cancel();
     super.dispose();
   }
 
@@ -339,18 +340,31 @@ class _Register extends State<Register> {
           FocusScope.of(context).requestFocus(new FocusNode());
           next();
 
+          print(currentStep);
           //Changer le focus texte
           if (currentStep == 0) {
             nameNode.requestFocus();
           } else if (currentStep == 1) {
-            posBNode.requestFocus();
-          } else if (currentStep == 2) {
-            posTNode.requestFocus();
-          } else if (currentStep == 3) {
             if (_userMode == "")
               _userMode = AppLocalizations.of(context).translate('familial');
-          } else if (currentStep == 5) {
+          } else if (currentStep == 3) {
             serialNode.requestFocus();
+
+            timerNode = Timer.periodic(Duration(milliseconds: 300), (timerNode) {
+              if(serialNumber.text.length >= 8) {
+                setState(() {
+                  isGoodLength = true;
+                });
+              }
+              else {
+                setState(() {
+                  isGoodLength = false;
+                });
+              }
+            });
+          }
+          else if(currentStep == 4){
+            timerNode?.cancel();
           }
 
           _controller.animateTo(((currentStep) * 75).toDouble(),
@@ -393,11 +407,7 @@ class _Register extends State<Register> {
               ),
             ),
           );
-        } else if (currentStep == 1)
-          posBNode.requestFocus();
-        else if (currentStep == 2)
-          posTNode.requestFocus();
-        else if (currentStep == 5) serialNode.requestFocus();
+        } else if (currentStep == 3) serialNode.requestFocus();
 
         _controller.animateTo((((currentStep) * 75)).toDouble(),
             duration: Duration(milliseconds: 500), curve: Curves.linear);
@@ -411,10 +421,14 @@ class _Register extends State<Register> {
         title: Text(AppLocalizations.of(context).translate('prenom')),
         isActive: currentStep > 0,
         state: currentStep > 0 ? StepState.complete : StepState.disabled,
-        content: SizedBox(
-          child: Row(
-            children: <Widget>[
-              Expanded(
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                width: screenSize.width * 0.4,
                 child: TextFormField(
                   style: textStyle,
                   focusNode: nameNode,
@@ -428,10 +442,14 @@ class _Register extends State<Register> {
                   ),
                 ),
               ),
-              Expanded(child: nextButton),
-              Expanded(child: backButton),
-            ],
-          ),
+            ),
+            Row(
+              children: <Widget>[
+                nextButton,
+                backButton,
+              ],
+            ),
+          ],
         ),
       ),
       //Mode
@@ -463,8 +481,8 @@ class _Register extends State<Register> {
                       _userMode =
                           AppLocalizations.of(context).translate('familial');
                   },
-                  activeTrackColor: Colors.lightGreenAccent,
-                  activeColor: Colors.green,
+                  activeTrackColor: Colors.grey,
+                  activeColor: Colors.grey[100],
                 ),
                 Text(
                   AppLocalizations.of(context).translate('sportif'),
@@ -551,120 +569,130 @@ class _Register extends State<Register> {
         title: Text(AppLocalizations.of(context).translate('connecter_app')),
         isActive: currentStep > 3,
         state: currentStep > 3 ? StepState.complete : StepState.disabled,
-        content: Column(
+        content: Row(
           children: <Widget>[
-            TextFormField(
-              enabled: isFound ? false : true,
-              style: textStyle,
-              focusNode: serialNode,
-              controller: serialNumber,
-              decoration: InputDecoration(
-                labelText:
-                    "1. " + AppLocalizations.of(context).translate('num_serie'),
+            Container(
+              width: screenSize.width * 0.3,
+              child: TextFormField(
+                enabled: isFound ? false : true,
+                style: textStyle,
+                focusNode: serialNode,
+                controller: serialNumber,
+                maxLength: 8,
+                decoration: InputDecoration(
+                  labelText: "1. " +
+                      AppLocalizations.of(context).translate('num_serie'),
+                ),
               ),
             ),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: RaisedButton(
-                    child: Text(
-                      "2. " + discovering,
-                      style: textStyle,
-                    ),
-                    onPressed: !isFound && serialNumber.text.length >= 8
-                        ? () async {
-                            //On met isFound à true pour désactiver l'appuie du bouton
-                            setState(
-                              () {
-                                isFound = true;
-                              },
-                            );
-                            macAddress = await btManage.getDevice(
-                              serialNumber.text
-                                  .toUpperCase()
-                                  .replaceAll(" ", ""),
-                            );
+            Container(
+              width: screenSize.width * 0.4,
+              child: isGoodLength
+                  ? RaisedButton(
+                      child: Text(
+                        "2. " + discovering,
+                        style: textStyle,
+                      ),
+                      onPressed: !isFound && isGoodLength
+                          ? () async {
+                              //On met isFound à true pour désactiver l'appuie du bouton
+                              setState(
+                                () {
+                                  isFound = true;
+                                },
+                              );
+                              macAddress = await btManage.getDevice(
+                                serialNumber.text
+                                    .toUpperCase()
+                                    .replaceAll(" ", ""),
+                              );
 
-                            int tempTimer = 0;
-                            //Check tant que l'adresse mac est égale à -1 toute les secondes
-                            //Si pas trouve au bout de 30 secondes, affiche message d'erreur
-                            Timer.periodic(
-                              const Duration(seconds: 1),
-                              (timer) async {
-                                if (macAddress == "0") {
-                                  macAddress = await btManage.getDevice(
-                                    serialNumber.text
-                                        .toUpperCase()
-                                        .replaceAll(" ", ""),
-                                  );
-                                }
-                                if (macAddress != "-1") {
-                                  timer.cancel();
-                                  //Appareil trouvé
-                                  setState(
-                                    () {
-                                      discovering = AppLocalizations.of(context)
-                                          .translate('app_trouve');
-                                      isFound = true;
-                                      connect();
-
-                                      Timer.periodic(
-                                        const Duration(seconds: 1),
-                                        (timer) {
-                                          if (isConnected) {
-                                            timer.cancel();
-                                            setState(
-                                              () {
-                                                discovering = AppLocalizations
-                                                        .of(context)
-                                                    .translate(
-                                                        'status_connexion_bon');
-                                              },
-                                            );
-                                          } else {
-                                            setState(
-                                              () {
-                                                discovering = AppLocalizations
-                                                        .of(context)
-                                                    .translate(
-                                                        'connexion_en_cours');
-                                              },
-                                            );
-                                          }
-                                        },
-                                      );
-                                    },
-                                  );
-                                } else if (macAddress == "-1") {
-                                  if (tempTimer >= 20) {
-                                    setState(() {
-                                      show(AppLocalizations.of(context)
-                                          .translate('app_non_trouve'));
-                                      discovering = AppLocalizations.of(context)
-                                          .translate('connecter_app');
-                                    });
-                                    isFound = false;
+                              int tempTimer = 0;
+                              //Check tant que l'adresse mac est égale à -1 toute les secondes
+                              //Si pas trouve au bout de 30 secondes, affiche message d'erreur
+                              Timer.periodic(
+                                const Duration(seconds: 1),
+                                (timer) async {
+                                  if (macAddress == "0") {
+                                    macAddress = await btManage.getDevice(
+                                      serialNumber.text
+                                          .toUpperCase()
+                                          .replaceAll(" ", ""),
+                                    );
+                                  }
+                                  if (macAddress != "-1") {
                                     timer.cancel();
-                                    tempTimer = 0;
-                                  } else {
-                                    macAddress = await btManage.getMacAddress();
+                                    //Appareil trouvé
                                     setState(
                                       () {
                                         discovering =
                                             AppLocalizations.of(context)
-                                                .translate('recherche_app');
-                                        //isFound = false;
+                                                .translate('app_trouve');
+                                        isFound = true;
+                                        connect();
+
+                                        Timer.periodic(
+                                          const Duration(seconds: 1),
+                                          (timer) {
+                                            if (isConnected) {
+                                              timer.cancel();
+                                              setState(
+                                                () {
+                                                  discovering = AppLocalizations
+                                                          .of(context)
+                                                      .translate(
+                                                          'status_connexion_bon');
+                                                },
+                                              );
+                                            } else {
+                                              setState(
+                                                () {
+                                                  discovering = AppLocalizations
+                                                          .of(context)
+                                                      .translate(
+                                                          'connexion_en_cours');
+                                                },
+                                              );
+                                            }
+                                          },
+                                        );
                                       },
                                     );
+                                  } else if (macAddress == "-1") {
+                                    if (tempTimer >= 20) {
+                                      setState(() {
+                                        show(AppLocalizations.of(context)
+                                            .translate('app_non_trouve'));
+                                        discovering =
+                                            AppLocalizations.of(context)
+                                                .translate('connecter_app');
+                                      });
+                                      isFound = false;
+                                      timer.cancel();
+                                      tempTimer = 0;
+                                    } else {
+                                      macAddress =
+                                          await btManage.getMacAddress();
+                                      setState(
+                                        () {
+                                          discovering =
+                                              AppLocalizations.of(context)
+                                                  .translate('recherche_app');
+                                          //isFound = false;
+                                        },
+                                      );
+                                    }
                                   }
-                                }
-                                tempTimer++;
-                              },
-                            );
-                          }
-                        : null,
-                  ),
-                ),
+                                  tempTimer++;
+                                },
+                              );
+                            }
+                          : null,
+                    )
+                  : Container(),
+            ),
+            Row(
+              children: <Widget>[
                 Padding(
                   padding: EdgeInsets.all(10),
                 ),
@@ -851,34 +879,49 @@ class _Register extends State<Register> {
           backgroundColor: Colors.blue,
           key: _formKey,
           actions: <Widget>[
-            StepProgressIndicator(
-              totalSteps: steps.length - 1,
-              currentStep: currentStep,
-              fallbackLength: screenSize.width / 2,
-              selectedColor: Colors.lightGreenAccent,
-              unselectedColor: Colors.white38,
-              roundedEdges: Radius.circular(10),
-              padding: 1,
-            ),
-            new FlatButton(
-              child: new Text(
-                "AutoFill",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w600,
-                ),
+            Container(
+              width: screenSize.width * 0.8,
+              //color: Colors.red,
+              child: Row(
+                children: <Widget>[
+                  Spacer(),
+                  Text("$currentStep/${steps.length - 1}",
+                      style: textStyleW // TextStyle(fontSize: 20),
+                      ),
+                  Padding(
+                    padding: EdgeInsets.all(20),
+                  ),
+                  StepProgressIndicator(
+                    totalSteps: steps.length - 1,
+                    currentStep: currentStep,
+                    fallbackLength: screenSize.width / 2,
+                    selectedColor: Colors.lightGreenAccent,
+                    unselectedColor: Colors.white38,
+                    roundedEdges: Radius.circular(10),
+                    padding: 0.00001,
+                    size: 15,
+                  ),
+                  Spacer(),
+                  new FlatButton(
+                    child: new Text(
+                      "Fill",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    onPressed: () {
+                      name.text = "Jean";
+                      _userMode = "Sportif";
+                      macAddress = "78:DB:2F:BF:3B:03";
+                      serialNumber.text = "1230997P";
+                      //result = 6.31;
+                      _pathSaved = "assets/default.png";
+                    },
+                  ),
+                ],
               ),
-              onPressed: () {
-                name.text = "Jean";
-                _userMode = "Sportif";
-                hauteur_min.text = "115";
-                hauteur_max.text = "125";
-                macAddress = "78:DB:2F:BF:3B:03";
-                serialNumber.text = "1230997P";
-                //result = 6.31;
-                _pathSaved = "assets/default.png";
-              },
             ),
           ],
         ),

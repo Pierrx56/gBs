@@ -8,6 +8,7 @@ import 'dart:typed_data';
 import 'dart:math' as math;
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -55,7 +56,11 @@ class _MaxPush extends State<MaxPush> {
   //Déclaration de variables
   String _pairedDevices = 'No devices paired';
   bool isConnected = false;
+  bool isTryingConnect = false;
+  bool isTooHigh = false;
   bool isRunning = true;
+  int bottomSelection = 0;
+  int topSelection = 0;
   Timer timer;
   Timer timerConnexion;
   String macAdress;
@@ -63,9 +68,6 @@ class _MaxPush extends State<MaxPush> {
   User user;
   String inputMessage;
   AppLanguage appLanguage;
-  double x, y, z;
-
-  Color colorMesureButton = Colors.black;
 
   //RoundedProgressBarTheme colorProgressBar = RoundedProgressBarTheme.yellow;
   Color colorProgressBar = Colors.red;
@@ -77,7 +79,7 @@ class _MaxPush extends State<MaxPush> {
   List<double> average = new List(10 * _reset.toInt());
   static double delta = 102.0;
   double coefKg = 0.45359237;
-  double result;
+  double result = 0.0;
   String recording;
   String btData;
   bool isCorrect = false;
@@ -85,10 +87,13 @@ class _MaxPush extends State<MaxPush> {
   Size screenSize;
 
   String backButtonText;
-  NumberPicker bottomPicker;
-  NumberPicker topPicker;
+  DropdownButton<int> bottomPicker;
+  DropdownButton<int> topPicker;
   int bottom;
   int top;
+
+  List<int> bottomNumbers = [];
+  List<int> topNumbers = [];
 
   //Initializing database
   DatabaseHelper db = new DatabaseHelper();
@@ -121,12 +126,43 @@ class _MaxPush extends State<MaxPush> {
     if (await btManage.enableBluetooth()) {
       connect();
     } else {
+      isTryingConnect = false;
       isConnected = await btManage.getStatus();
       if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
-        //testConnect();
       }
+      getConnectState();
     }
+  }
+
+  void getConnectState() async {
+    timerConnexion = new Timer.periodic(Duration(milliseconds: 300),
+        (timerConnexion) async {
+      isConnected = await btManage.getStatus();
+      if (!isConnected && !isTryingConnect) {
+        show("Device disconnected ! Waiting for reconnexion...");
+        btManage.connect(user.userMacAddress, user.userSerialNumber);
+        setState(() {
+          isTryingConnect = true;
+        });
+
+      } else if (isConnected && isTryingConnect) {
+        setState(() {
+          isTryingConnect = false;
+        });
+        show("Device connected !");
+      }
+
+      //Affiche le message pendant 3 secondes
+      if (isTooHigh) {
+        await Future.delayed(const Duration(seconds: 5), () {
+          setState(() {
+            isTooHigh = false;
+            getData();
+          });
+        });
+      }
+    });
   }
 
   @override
@@ -136,15 +172,13 @@ class _MaxPush extends State<MaxPush> {
     bottom = 0;
     top = 1;
 
-    if (gyroscopeEvents.isEmpty != null) {
-      gyroscopeEvents.listen((GyroscopeEvent event) {
-        setState(() {
-          x = event.x;
-          y = event.y;
-          z = event.z;
-        });
-      }); //get the sensor data and set then to the data types
+    for (int i = 0; i < 100; i++) {
+      bottomNumbers.add(i);
     }
+    for (int i = 1; i < 101; i++) {
+      topNumbers.add(i);
+    }
+
     connect();
   }
 
@@ -183,23 +217,63 @@ class _MaxPush extends State<MaxPush> {
   }
 
   void initializeNumberPicker() {
-    bottomPicker = new NumberPicker.integer(
-      initialValue: bottom,
-      minValue: 0,
-      maxValue: 99,
-      onChanged: (bottomValue) => setState(() {
-        bottom = bottomValue;
-        top = bottom + 1;
-        if (bottom != 0) {
+    bottomPicker = new DropdownButton<int>(
+      items: bottomNumbers.map((int value) {
+        return DropdownMenuItem<int>(
+          value: value,
+          child: Container(
+            width: 30.0,
+            child: Text(value.toString()),
+          ),
+        );
+      }).toList(),
+      hint: Text(bottomSelection.toString()),
+      onChanged: (int value) {
+        bottomSelection = value;
+        topNumbers = [];
+        for (int i = 0; i < 100 - bottomSelection; i++) {
+          topNumbers.add(bottomSelection + i + 1);
+        }
+
+        if (bottomSelection != 0 && topSelection != 1) {
           backButtonText = AppLocalizations.of(context).translate('valider');
         } else
           backButtonText = AppLocalizations.of(context).translate('retour');
-      }),
+
+        setState(() {
+          if (bottomSelection > topSelection) topSelection = topNumbers[0];
+        });
+      },
     );
-    topPicker = new NumberPicker.integer(
+    topPicker = new DropdownButton<int>(
+      items: topNumbers.map((int value) {
+        return DropdownMenuItem<int>(
+          value: value,
+          child: Container(
+            width: 30.0,
+            child: Text(value.toString()),
+          ),
+        );
+      }).toList(),
+      hint: Text(topSelection.toString()),
+      onChanged: (int value) {
+        topSelection = value;
+
+        if (bottomSelection != 0 && topSelection != 1) {
+          backButtonText = AppLocalizations.of(context).translate('valider');
+        } else
+          backButtonText = AppLocalizations.of(context).translate('retour');
+
+        setState(() {
+          if (topSelection < bottomSelection)
+            bottomSelection = topSelection - 1;
+        });
+      },
+    );
+    /*topPicker = new NumberPicker.integer(
       initialValue: top,
       minValue: bottom + 1,
-      maxValue: 100,
+      maxValue: 101,
       onChanged: (topValue) => setState(() {
         top = topValue;
         if (top != 1) {
@@ -207,7 +281,7 @@ class _MaxPush extends State<MaxPush> {
         } else
           backButtonText = AppLocalizations.of(context).translate('retour');
       }),
-    );
+    );*/
   }
 
   @override
@@ -252,12 +326,19 @@ class _MaxPush extends State<MaxPush> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  AutoSizeText(
-                    AppLocalizations.of(context)
-                        .translate('explications_mesure'),
-                    style: textStyle,
-                    textAlign: TextAlign.center,
-                  ),
+                  !isCorrect
+                      ? AutoSizeText(
+                          AppLocalizations.of(context)
+                              .translate('explications_mesure'),
+                          style: textStyle,
+                          textAlign: TextAlign.center,
+                        )
+                      : AutoSizeText(
+                          AppLocalizations.of(context)
+                              .translate('explications_hauteur'),
+                          style: textStyle,
+                          textAlign: TextAlign.center,
+                        ),
                   Padding(
                     padding: EdgeInsets.all(10.0),
                     child: Row(
@@ -311,12 +392,16 @@ class _MaxPush extends State<MaxPush> {
                                           ),
                                         ),
                                         //40.0 pour éviter des bugs d'affichage
-                                        height: double.parse(btData) < 40.0
-                                            ? 40.0
-                                            : double.parse(btData) > 100.0
-                                                ? screenSize.height / 2 - 10
-                                                //*1.7 pour remplir la progress bar à 100% lorsque le capteur renvoi 100
-                                                : double.parse(btData) * 1.7,
+                                        height: _start > 0.1
+                                            ? double.parse(btData) < 40.0
+                                                ? 40.0
+                                                : double.parse(btData) > 100.0
+                                                    ? screenSize.height / 2 - 10
+                                                    //*1.7 pour remplir la progress bar à 100% lorsque le capteur renvoi 100
+                                                    : double.parse(btData) * 1.7
+                                            : result < 40.0
+                                                ? 40.0
+                                                : result * (1.7),
                                         width: screenSize.width * 0.15,
                                       ),
                                       //Container d'affichage de la valeur du capteur
@@ -325,13 +410,16 @@ class _MaxPush extends State<MaxPush> {
                                         color: Colors.transparent,
                                         //new Color.fromRGBO(255, 0, 0, 0.0),
                                         child: Center(
-                                            child: Transform.rotate(
-                                                angle: -math.pi,
-                                                child: AutoSizeText(
-                                                  (double.parse(btData))
-                                                      .toString(),
-                                                  style: textStyle,
-                                                ))),
+                                          child: Transform.rotate(
+                                              angle: -math.pi,
+                                              //Affiche la mesure en live puis la moyenne à la fin
+                                              child: _start <= 0.1
+                                                  ? AutoSizeText(
+                                                      (result).toString())
+                                                  : AutoSizeText(
+                                                      (double.parse(btData))
+                                                          .toString())),
+                                        ),
                                         width: screenSize.width * 0.15,
                                         height: screenSize.height / 2,
                                       ),
@@ -349,61 +437,82 @@ class _MaxPush extends State<MaxPush> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              Row(
+                              Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: <Widget>[
                                   isCorrect
-                                      ? Column(
+                                      ? Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
                                           children: <Widget>[
-                                            Text(" "),
-                                            bottomPicker,
-                                            AutoSizeText(
-                                              AppLocalizations.of(context)
-                                                  .translate('haut_min'),
-                                              style: textStyle,
-                                              textAlign: TextAlign.center,
+                                            Column(
+                                              children: <Widget>[
+                                                AutoSizeText(
+                                                  AppLocalizations.of(context)
+                                                      .translate('haut_min'),
+                                                  style: textStyle,
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                                bottomPicker,
+                                              ],
                                             ),
+                                            Padding(
+                                              padding: EdgeInsets.all(20.0),
+                                            ),
+                                            Column(
+                                              children: <Widget>[
+                                                AutoSizeText(
+                                                  AppLocalizations.of(context)
+                                                      .translate('haut_max'),
+                                                  style: textStyle,
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                                topPicker,
+                                              ],
+                                            )
                                           ],
                                         )
                                       : Container(),
-                                  isCorrect
-                                      ? Column(
-                                          children: <Widget>[
-                                            AutoSizeText(
-                                              AppLocalizations.of(context)
-                                                  .translate('haut_max'),
-                                              style: textStyle,
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            topPicker,
-                                            Text(" "),
-                                            Text(" "),
-                                          ],
-                                        )
-                                      : Container(),
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(0, 20.0, 0, 0),
+                                  ),
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: <Widget>[
-                                      user.userHeightBottom != ""
+/*                                      user.userHeightBottom != ""
                                           ? AutoSizeText(
                                               "Hmin: ${user.userHeightBottom} | "
                                               "HMAX: ${user.userHeightTop}",
                                               style: textStyle,
+                                            )
+                                          : Container(),*/
+                                      isTooHigh
+                                          ? Container(
+                                              width: screenSize.width * 0.6,
+                                              child: AutoSizeText(
+                                                AppLocalizations.of(context)
+                                                    .translate(
+                                                        'status_mesure_mauvais'),
+                                                textAlign: TextAlign.center,
+                                                style: textStyle,
+                                              ),
                                             )
                                           : Container(),
                                       Container(
                                         width: screenSize.width * 0.3,
                                         child: RaisedButton(
                                           //child: Text("Démarrer l'enregistrement."),
-                                          onPressed: !isCorrect || _start < 0.1
+                                          onPressed:!isTryingConnect && !isTooHigh && !isCorrect && !isPush
                                               ? () async {
+                                                  //Initialisation du timer
+                                                  _start = _reset;
                                                   if (!isPush) {
                                                     isPush = true;
-                                                    colorMesureButton =
-                                                        Colors.black;
                                                     const oneSec =
                                                         const Duration(
                                                             milliseconds: 100);
@@ -411,9 +520,20 @@ class _MaxPush extends State<MaxPush> {
                                                       oneSec,
                                                       (Timer timer) => setState(
                                                         () {
-                                                          if (_start < 0.1) {
+                                                          //Si déco pendant une mesure
+                                                          if(isTryingConnect){
                                                             timer.cancel();
+                                                            isPush = false;
                                                             _start = _reset;
+                                                            i = 100;
+                                                            setState(() {
+                                                              recording =
+                                                                  AppLocalizations.of(context).translate('demarrer_enregistrement');
+                                                            });
+                                                          }
+                                                          else if (_start < 0.1) {
+                                                            timer.cancel();
+                                                            print(average);
                                                             result = double.parse(
                                                                 (average.reduce((a,
                                                                                 b) =>
@@ -428,24 +548,17 @@ class _MaxPush extends State<MaxPush> {
                                                                     2));
                                                             i = 100;
                                                             if (result <=
-                                                                    50.0 ||
-                                                                result >=
-                                                                    100.0) {
+                                                                50.0) {
                                                               //Mesure pas bonne, réajuster la toise
                                                               setState(() {
                                                                 recording = AppLocalizations.of(
                                                                         context)
                                                                     .translate(
                                                                         'status_mesure_mauvais');
-                                                                colorMesureButton =
-                                                                    Colors.red;
                                                                 isPush = false;
                                                               });
                                                             } else {
                                                               setState(() {
-                                                                colorMesureButton =
-                                                                    Colors
-                                                                        .green;
                                                                 recording = AppLocalizations.of(
                                                                         context)
                                                                     .translate(
@@ -475,6 +588,10 @@ class _MaxPush extends State<MaxPush> {
                                                                     user.userMacAddress,
                                                                 userSerialNumber:
                                                                     user.userSerialNumber,
+                                                                userNotifEvent:
+                                                                    user.userNotifEvent,
+                                                                userLastLogin: user
+                                                                    .userLastLogin,
                                                               );
 
                                                               db.updateUser(
@@ -484,36 +601,6 @@ class _MaxPush extends State<MaxPush> {
                                                                   const Duration(
                                                                       milliseconds:
                                                                           1000);
-                                                              /*_timer = new Timer.periodic(
-                                                      time,
-                                                      (Timer timer) {
-                                                        if (countdown < 1) {
-                                                          timer.cancel();
-                                                          if (inputMessage !=
-                                                              "fromRegister")
-                                                            inputMessage = "0";
-
-                                                          Navigator.pushReplacement(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  MainTitle(
-                                                                      userIn:
-                                                                          updatedUser,
-                                                                      appLanguage:
-                                                                          appLanguage,
-                                                                      messageIn:
-                                                                          inputMessage),
-                                                              //inputMessage == "fromRegister" ? "fromRegister" :
-                                                            ),
-                                                          );
-                                                        } else {
-                                                          setState(() {
-                                                            countdown = countdown - 1;
-                                                          });
-                                                        }
-                                                      },
-                                                    );*/
                                                             }
                                                           } else {
                                                             recording = _start
@@ -523,28 +610,68 @@ class _MaxPush extends State<MaxPush> {
                                                                 _start - 0.1;
                                                             i--;
                                                             getData();
-                                                            average[i] =
-                                                                double.parse(
-                                                                    btData);
-                                                            if (average[i] >
-                                                                    100.0 ||
-                                                                average[i] <
-                                                                    50.0) {
-                                                              setState(() {
-                                                                colorMesureButton =
-                                                                    Colors.red;
-                                                                colorProgressBar =
-                                                                    Colors.red;
-                                                              });
-                                                            } else {
-                                                              setState(() {
-                                                                colorMesureButton =
-                                                                    Colors
-                                                                        .green;
-                                                                colorProgressBar =
-                                                                    Colors
-                                                                        .green;
-                                                              });
+                                                            //Affiche la valeur en live
+                                                            if (_start >= 0.0) {
+                                                              average[i] =
+                                                                  double.parse(
+                                                                      btData);
+                                                              //Dépasse la valeur max, réajuster la toise
+                                                              if (average[i] >
+                                                                  100.0) {
+                                                                for (int i = 0;
+                                                                    i <
+                                                                        average.length -
+                                                                            1;
+                                                                    i++)
+                                                                  average[i] =
+                                                                      0;
+                                                                _start = 0.0;
+                                                                i = 99;
+                                                                average[i] =
+                                                                    double.parse(
+                                                                        btData);
+                                                                isPush = false;
+                                                                isTooHigh =
+                                                                    true;
+                                                                recording = AppLocalizations.of(
+                                                                        context)
+                                                                    .translate(
+                                                                        'demarrer_enregistrement');
+                                                                timer.cancel();
+                                                              } else if (average[
+                                                                      i] <
+                                                                  50.0) {
+                                                                setState(() {
+                                                                  colorProgressBar =
+                                                                      Colors
+                                                                          .red;
+                                                                });
+                                                              } else {
+                                                                setState(() {
+                                                                  colorProgressBar =
+                                                                      Colors
+                                                                          .green;
+                                                                });
+                                                              }
+                                                            }
+                                                            //Affiche la moyenne après la mesure
+                                                            else {
+                                                              if (result >
+                                                                      100.0 ||
+                                                                  result <
+                                                                      50.0) {
+                                                                setState(() {
+                                                                  colorProgressBar =
+                                                                      Colors
+                                                                          .red;
+                                                                });
+                                                              } else {
+                                                                setState(() {
+                                                                  colorProgressBar =
+                                                                      Colors
+                                                                          .green;
+                                                                });
+                                                              }
                                                             }
                                                           }
                                                         },
@@ -554,7 +681,6 @@ class _MaxPush extends State<MaxPush> {
                                                   }
                                                 }
                                               : null,
-                                          textColor: colorMesureButton,
                                           child: AutoSizeText(
                                             recording,
                                             maxLines: 1,
@@ -567,13 +693,15 @@ class _MaxPush extends State<MaxPush> {
                                                   isCorrect)
                                           ? RaisedButton(
                                               onPressed: () {
-                                                if (bottom == 0)
-                                                  bottom = int.parse(
-                                                      user.userHeightBottom);
+                                                if(inputMessage != "fromRegister") {
+                                                  if (bottomSelection == 0)
+                                                    bottomSelection = int.parse(
+                                                        user.userHeightBottom);
 
-                                                if (top == 1)
-                                                  top = int.parse(
-                                                      user.userHeightTop);
+                                                  if (topSelection == 1)
+                                                    topSelection = int.parse(
+                                                        user.userHeightTop);
+                                                }
 
                                                 if (result == null ||
                                                     (result <= 50.0 ||
@@ -587,9 +715,11 @@ class _MaxPush extends State<MaxPush> {
                                                   userName: user.userName,
                                                   userMode: user.userMode,
                                                   userPic: user.userPic,
-                                                  userHeightTop: top.toString(),
+                                                  userHeightTop:
+                                                      topSelection.toString(),
                                                   userHeightBottom:
-                                                      bottom.toString(),
+                                                      bottomSelection
+                                                          .toString(),
                                                   userInitialPush: result
                                                       .toStringAsFixed(2)
                                                       .toString(),
@@ -597,13 +727,14 @@ class _MaxPush extends State<MaxPush> {
                                                       user.userMacAddress,
                                                   userSerialNumber:
                                                       user.userSerialNumber,
-                                                  userNotifEvent: user.userNotifEvent,
-                                                  userLastLogin: user.userLastLogin,
+                                                  userNotifEvent:
+                                                      user.userNotifEvent,
+                                                  userLastLogin:
+                                                      user.userLastLogin,
                                                 );
 
                                                 db.updateUser(updatedUser);
-
-                                                Navigator.push(
+                                                Navigator.pushReplacement(
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) =>

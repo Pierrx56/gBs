@@ -129,8 +129,10 @@ class _Swimmer extends State<Swimmer> {
     } else {
 
       isConnected = await btManage.getStatus();
-      if(!isConnected)
+      if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
+        connect();
+      }
       else {
         launchGame();
         return;
@@ -169,7 +171,7 @@ class _Swimmer extends State<Swimmer> {
           if (_start < 1) {
             timer.cancel();
             //Redirection vers le menu
-            Navigator.push(
+            Navigator.pushReplacement(
               this.context,
               MaterialPageRoute(
                 builder: (context) => LoadPage(
@@ -307,7 +309,8 @@ class _Swimmer extends State<Swimmer> {
           : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
       child: Stack(
         children: <Widget>[
-          game == null || user.userInitialPush == "0.0"
+          game == null ||
+              double.parse(user.userInitialPush) == 0
               ? Center(
                   child: Container(
                       width: screenSize.width,
@@ -336,7 +339,7 @@ class _Swimmer extends State<Swimmer> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     CircularProgressIndicator(),
-                                    user.userInitialPush == "0.0"
+                                    double.parse(user.userInitialPush) == 0
                                         ? AutoSizeText(AppLocalizations.of(
                                                 context)
                                             .translate('premiere_poussee_sw'))
@@ -350,7 +353,7 @@ class _Swimmer extends State<Swimmer> {
                                           ),
                                     RaisedButton(
                                       onPressed: () {
-                                        Navigator.push(
+                                        Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) => LoadPage(

@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/ManageProfile.dart';
 import 'package:gbsalternative/TempGame/Background.dart';
@@ -21,8 +22,13 @@ import 'package:flame/position.dart' as position; // imports the Position class
 class TempGame extends Game {
   Size screenSize;
   bool inTouch = false;
-  bool hasJumped;
+  bool isPushable = false;
+  bool hasJumped = false;
   Background background;
+  ManageSign sign;
+
+  double signPosition = 4.5;
+  bool isDisplayingSign = false;
 
   //BottomFloor bottomFloor;
   //FirstFloor firstFloor;
@@ -40,22 +46,31 @@ class TempGame extends Game {
   bool redFilter;
   bool start;
   bool gameOver;
+  bool endGame = false;
   bool isConnected;
+  bool launchTuto = false;
   int counterHigh;
   bool isTooHigh;
   bool isInit;
+  int phaseTuto = 1;
 
   //Red Player
   bool isWaiting = false;
   bool isRunning;
   bool isJumping;
 
-  int score = 0;
+  int floor = 0;
+  int coins = 0;
+  int jumpCounter = 0;
+  int starLevel = 0;
+  double starValue = 0.0;
+
   int life;
   double opacity = 1;
   int increment;
   bool pauseGame = false;
   bool isMoving = false;
+  bool isPushing = false;
   bool posMax;
   bool gravity;
   String tempPic;
@@ -126,6 +141,7 @@ class TempGame extends Game {
   animation.Animation a;
   List<double> floorPosition = [];
   Timer tempTimer;
+  Timer timerPosition;
   bool isOutOfScreen;
 
   TempGame(this.getData, this.getPush, this.getFloor, this.setFloor, User _user,
@@ -152,26 +168,46 @@ class TempGame extends Game {
     manageFloors = new ManageFloors(this);
     manageFloors.j = 0;
     tabBottomFloor.add(new BottomFloor(this));
+    tabBottomFloor[0].setOpacityC0(0);
+    tabBottomFloor[0].setOpacityC1(0);
+    tabBottomFloor[0].setOpacityC2(0);
 
     firstFloorY = floorPosition[2];
     tabBottomFloor.add(new BottomFloor(this));
     tabBottomFloor[1].setGrassXOffset(grassSize / 2);
+    tabBottomFloor[1].setOpacityC0(0);
+    tabBottomFloor[1].setOpacityC1(0);
+    tabBottomFloor[1].setOpacityC2(0);
 
     tabBottomFloor.add(new BottomFloor(this));
     tabBottomFloor[2].setGrassXOffset(grassSize);
+    tabBottomFloor[2].setOpacityC0(0);
+    tabBottomFloor[2].setOpacityC1(0);
+    tabBottomFloor[2].setOpacityC2(0);
 
     firstFloorY = floorPosition[1];
     tabFloor.add(new FirstFloor(this));
+    tabFloor[0].setOpacityC0(1);
+    tabFloor[0].setOpacityC1(0);
+    tabFloor[0].setOpacityC2(0);
 
     firstFloorY = floorPosition[2];
     tabFloor.add(new FirstFloor(this));
     tabFloor[1].setGrassXOffset(grassSize / 2);
+    tabFloor[1].setOpacityC0(1);
+    tabFloor[1].setOpacityC1(1);
+    tabFloor[1].setOpacityC2(0);
     tabFloor[1].updateRect();
 
     firstFloorY = floorPosition[3];
     tabFloor.add(new FirstFloor(this));
     tabFloor[2].setGrassXOffset(grassSize);
+    tabFloor[2].setOpacityC0(1);
+    tabFloor[2].setOpacityC1(1);
+    tabFloor[2].setOpacityC2(1);
     tabFloor[2].updateRect();
+
+    sign = new ManageSign(this);
     gameUI = UI();
 
     life = 3;
@@ -186,10 +222,12 @@ class TempGame extends Game {
     creationTimer = 0.0;
     isTooHigh = false;
     counterHigh = 0;
+    phaseTuto = 1;
     isTopPosition = false;
     goodNumber = false;
     posMax = false;
     gameOver = false;
+    endGame = false;
     isConnected = true;
     isInit = false;
     start = false;
@@ -197,8 +235,6 @@ class TempGame extends Game {
     hasJumped = false;
     gravity = false;
     isOutOfScreen = false;
-    //posBottomFloor = bottomFloor.getDownPosition();
-    //posFirstFloor = firstFloor.getDownPosition();
 
     isWaiting = false;
     isRunning = true;
@@ -211,41 +247,17 @@ class TempGame extends Game {
     bgPaint.color = Color(0xff000000);
     canvas.drawRect(bgRect, bgPaint);
 
-    //String btData = _onDataReceiver();
-
-    double screenCenterX = screenSize.width / 2;
-    double screenCenterY = screenSize.height / 2;
-
-    /*
-    if (hasWon) {
-      boxPaint.color = Color(0xff00ff00);
-      hasWon = false;
-
-    } else {
-      boxPaint.color = Color(0xffffffff);
-    }*/
-
     if (canvas != null) {
       //Background
       if (background != null) background.render(canvas, pauseGame);
 
-      canvas.save();
-
       if (!gameOver) {
         if (isConnected) {
-          //Bonhomme rouge
-          if (temp != null) {
-            temp.render(canvas);
 
-            pos = temp.y + temp.height / 2;
-            //print("Position joueur: " + tempPos.toString());
-
-          }
-          canvas.restore();
-
+          canvas.save();
+          //Arrière plan
           if (manageFloors != null)
             manageFloors.render(canvas, pauseGame, isMoving);
-
           //Base
           if (tabBottomFloor != null) {
             tabBottomFloor[0].render(canvas, pauseGame, isMoving);
@@ -258,40 +270,17 @@ class TempGame extends Game {
             tabFloor[1].render(canvas, pauseGame, isMoving);
             tabFloor[2].render(canvas, pauseGame, isMoving);
           }
-          /*
-          //Premier étage
-          if (firstFloor1 != null) {
-            firstFloor1.render(canvas, pauseGame, isMoving);
-          }
-          //Premier étage
-          if (firstFloor2 != null) {
-            firstFloor2.render(canvas, pauseGame, isMoving);
-          }*/
 
-          //Conditions de défaite
-          //N'a pas poussé assez et est tombé dans le vide
-          if (pos < tabBottomFloor[0].getDownPosition()) {
-            //print("Attention au bord bas !");
-            //setColorFilter(true);
-            isTopPosition = true;
-            //Rentre une fois dans le timer
-            if (!start) {
-              counterHigh++;
-              //Si le joueur pousse trop fort 5 fois dans le jeu, on demande à ce qu'il réajuste la toise
-              if (counterHigh > 5) {
-                isTooHigh = true;
-                pauseGame = true;
-              } else {
-                isTooHigh = false;
-                pauseGame = false;
-              }
-
-              startTimer(start = true, 10.0);
-            }
-          } else {
-            setColorFilter(false);
-            startTimer(start = false, 0.0);
+          canvas.restore();
+          //Premier plan
+          if (sign != null)
+            sign.render(canvas, pauseGame, isMoving);
+          //Bonhomme rouge
+          if (temp != null) {
+            temp.render(canvas);
+            pos = temp.y + temp.height / 2;
           }
+
         }
       }
     }
@@ -318,12 +307,13 @@ class TempGame extends Game {
             i++;
           }
 
-          //if (pauseGame) i--;
-
           if (isJumping) {
             tempPic = jump[i];
             j = 0;
           } else if (isRunning) {
+            //On fige le joueur uniquement pour le tuto
+            if(launchTuto && isPushable);
+            else
             tempPic = run[i];
             j = 1;
           }
@@ -349,9 +339,6 @@ class TempGame extends Game {
             j = 2;
           }
 
-          //196
-          //print(floorPosition[1] - size);
-
           creationTimer = 0.0;
 
           Sprite sprite = Sprite(tempPic);
@@ -374,7 +361,8 @@ class TempGame extends Game {
           }
 
           if (!pauseGame) {
-            if (tempPosX < (screenSize.width - size) / 2) {
+            if(launchTuto && isPushable);
+            else if (tempPosX < (screenSize.width - size) / 2) {
               tempPosX += 3;
               temp.x = tempPosX;
             }
@@ -390,73 +378,74 @@ class TempGame extends Game {
           if (tempPosY >= screenSize.height - (size) - grassSize) {
             temp.y = tempPosY;
           }
-
-
-          // 2432 +
-          // print(tabFloor[getFloor() - 1].grassXOffset[tabFloor.length - 1]);
-          //3200
-          // print(tabBottomFloor[getFloor() - 1]
-          //    .grassXOffset[tabBottomFloor.length - 1]);
-          //2940
-          //print("j: ${manageFloors.j}");
-/*
-          //Sinon on fait descendre le bonhomme
-          else if (!posMax) {
-            temp.y += tempPosY;
-            tempPosY = temp.y + difficulte * 4.0;
-            if (pauseGame) tempPosY = temp.y;
-          } else {
-            if (temp.y == 0.0) {
-              temp.y = tempPosY;
-            }
-            posMax = false;
-          }*/
-          //component = new Component(dimensions);
-          //add(component);
         }
 
-        //On incrémente le score tous les x secondes
         if (!pauseGame) {
-          /*if (scoreTimer >= 0.5) {
-            score++;
-            scoreTimer = 0.0;
-          }*/
+          //Si le joueur a dépassé le drapeau, on autorise la jauge
+          if (temp != null) {
 
-          //getData = données reçues par le Bluetooth
-          //Montée du bonhomme
-          if (getData() > double.parse(user.userInitialPush) &&
-              !posMax &&
-              temp != null) {
-            //print(temp.y);
-            /*temp.y -= difficulte;
-            tempPosY = temp.y;*/
-            inTouch = false;
+
+            //Si c'est le premier lancement de l'activité, lancer le tuto
+            // Initializing database
+            DatabaseHelper db = new DatabaseHelper();
+            List<Scores> dataTemp = await db.getScore(user.userId, ID_TEMP_ACTIVITY);
+
+            if(dataTemp.isEmpty) {
+              launchTuto = true;
+            }
+            else {
+              launchTuto = false;
+            }
+
+            if (manageFloors.j + temp.x + grassSize >=
+                    tabBottomFloor[
+                            getFloor() - 1 > 0 ? getFloor() - 1 : 0]
+                        .getGrassXOffset()[3] &&
+                manageFloors.j + temp.x + grassSize - 2 <=
+                    tabBottomFloor[
+                            getFloor() - 1 > 0 ? getFloor() - 1 : 0]
+                        .getGrassXOffset()[3]) {
+              isPushable = true;
+            } else if (manageFloors.j + temp.x + grassSize >=
+                    tabFloor[getFloor() - 1 > 0 ? getFloor() - 1 : 0]
+                        .getGrassXOffset()[3] &&
+                manageFloors.j + temp.x + grassSize - 2 <=
+                    tabFloor[getFloor() - 1 > 0 ? getFloor() - 1 : 0]
+                        .getGrassXOffset()[3]) {
+              isPushable = true;
+            }
+            /*else if (manageFloors.j + temp.x + grassSize - 1 ==
+                tabFloor[getFloor() - 1 > 0 ? getFloor() - 1 : getFloor()]
+                    .getGrassXOffset()[3]) {
+              isPushable = true;
+            }*/
           }
 
           //Si il a poussé pendant 6 secondes et qu'il n'a pas déjà sauté
-          if (isWaiting) {
+          if (isWaiting || isPushable) {
             //print("push: ${getPush()}");
             if (getPush() <= 0 || inTouch) {
               setPlayerState(0);
               hasJumped = true;
+              isPushable = false;
               inTouch = false;
               //Détermination du sol où sauter
-              //switch (getFloor()){
-
+              jumpCounter++;
               //Reset du X des plateformes due au décallage des plateformes
               switch (getFloor()) {
                 //tombe dans le vide
                 case 0:
+                  jumpCounter--;
                   jumpIntoTheVoid();
                   break;
                 case 1:
-                  score++;
+                  coins = coins + 1;
                   firstFloorY = floorPosition[1];
                   if (blockOne) {
                     for (int i = 0;
                         i < tabBottomFloor[getFloor()].getLength();
                         i++) {
-                      if (score < 2)
+                      if (coins < 2)
                         tabBottomFloor[getFloor()].setGrassXOffset(-grassSize);
                       else
                         tabBottomFloor[getFloor()]
@@ -464,7 +453,7 @@ class TempGame extends Game {
                     }
                   } else if (!blockOne) {
                     for (int i = 0; i < tabFloor[getFloor()].getLength(); i++) {
-                      if (score < 2)
+                      if (coins < 2)
                         tabFloor[getFloor()].setGrassXOffset(-grassSize);
                       else
                         tabFloor[getFloor()].setGrassXOffset(-grassSize * 1.5);
@@ -473,13 +462,13 @@ class TempGame extends Game {
                   doAJump();
                   break;
                 case 2:
-                  score++;
+                  coins = coins + 2;
                   firstFloorY = floorPosition[2];
                   if (blockOne) {
                     for (int i = 0;
                         i < tabBottomFloor[getFloor()].getLength();
                         i++) {
-                      if (score < 2)
+                      if (coins < 2)
                         tabBottomFloor[getFloor()]
                             .setGrassXOffset(-grassSize / 2);
                       else
@@ -487,7 +476,7 @@ class TempGame extends Game {
                     }
                   } else if (!blockOne) {
                     for (int i = 0; i < tabFloor[getFloor()].getLength(); i++) {
-                      if (score < 2)
+                      if (coins < 2)
                         tabFloor[getFloor()].setGrassXOffset(-grassSize / 2);
                       else
                         tabFloor[getFloor()].setGrassXOffset(-grassSize);
@@ -496,7 +485,7 @@ class TempGame extends Game {
                   doAJump();
                   break;
                 case 3:
-                  score++;
+                  coins = coins + 3;
                   firstFloorY = floorPosition[3];
                   doAJump();
                   break;
@@ -510,6 +499,7 @@ class TempGame extends Game {
     //super.update(t);
   }
 
+  //Saute dans le vide
   void jumpIntoTheVoid() {
     //Animation de saut
     if (tempPosY <= floorPosition[0]) {
@@ -522,11 +512,30 @@ class TempGame extends Game {
             tabBottomFloor[0].setOpacity(opacity -= 0.1);
             tabBottomFloor[1].setOpacity(opacity -= 0.1);
             tabBottomFloor[2].setOpacity(opacity -= 0.1);
-          }
-          else if (!blockOne) {
+
+            tabBottomFloor[0].setOpacityC0(opacity -= 0.1);
+            tabBottomFloor[0].setOpacityC1(opacity -= 0.1);
+            tabBottomFloor[0].setOpacityC2(opacity -= 0.1);
+            tabBottomFloor[1].setOpacityC0(opacity -= 0.1);
+            tabBottomFloor[1].setOpacityC1(opacity -= 0.1);
+            tabBottomFloor[1].setOpacityC2(opacity -= 0.1);
+            tabBottomFloor[2].setOpacityC0(opacity -= 0.1);
+            tabBottomFloor[2].setOpacityC1(opacity -= 0.1);
+            tabBottomFloor[2].setOpacityC2(opacity -= 0.1);
+          } else if (!blockOne) {
             tabFloor[0].setOpacity(opacity -= 0.1);
             tabFloor[1].setOpacity(opacity -= 0.1);
             tabFloor[2].setOpacity(opacity -= 0.1);
+
+            tabFloor[0].setOpacityC0(opacity -= 0.1);
+            tabFloor[0].setOpacityC1(opacity -= 0.1);
+            tabFloor[0].setOpacityC2(opacity -= 0.1);
+            tabFloor[1].setOpacityC0(opacity -= 0.1);
+            tabFloor[1].setOpacityC1(opacity -= 0.1);
+            tabFloor[1].setOpacityC2(opacity -= 0.1);
+            tabFloor[2].setOpacityC0(opacity -= 0.1);
+            tabFloor[2].setOpacityC1(opacity -= 0.1);
+            tabFloor[2].setOpacityC2(opacity -= 0.1);
           }
           jumpIntoTheVoid();
         },
@@ -544,7 +553,6 @@ class TempGame extends Game {
         tempPosX = (screenSize.width - size) / 2;
 
         if (blockOne) {
-
           //Déplacement des blocs pour pouvoir re-sauter
           manageFloors.j =
               tabFloor[getFloor()].grassXOffset[tabFloor.length - 1].toInt();
@@ -552,7 +560,6 @@ class TempGame extends Game {
           tabBottomFloor[1].setOpacity(opacity = 1);
           tabBottomFloor[2].setOpacity(opacity = 1);
           tabFloor[getFloor()].setOpacity(opacity = 1);
-
         }
         if (!blockOne) {
           //Déplacement des blocs pour pouvoir re-sauter
@@ -572,7 +579,6 @@ class TempGame extends Game {
   }
 
   void doAJump() {
-
     //Montée du joueur
     if (tempPosY > firstFloorY - size - grassSize && !gravity) {
       tempTimer = new Timer(
@@ -587,14 +593,38 @@ class TempGame extends Game {
               case 1:
                 tabFloor[1].setOpacity(opacity -= 0.1);
                 tabFloor[2].setOpacity(opacity -= 0.1);
+
+                //Coins
+                tabFloor[1].setOpacityC0(opacity -= 0.1);
+                tabFloor[1].setOpacityC1(opacity -= 0.1);
+                tabFloor[1].setOpacityC2(opacity -= 0.1);
+                tabFloor[2].setOpacityC0(opacity -= 0.1);
+                tabFloor[2].setOpacityC1(opacity -= 0.1);
+                tabFloor[2].setOpacityC2(opacity -= 0.1);
                 break;
               case 2:
                 tabFloor[0].setOpacity(opacity -= 0.1);
                 tabFloor[2].setOpacity(opacity -= 0.1);
+
+                //Coins
+                tabFloor[0].setOpacityC0(opacity -= 0.1);
+                tabFloor[0].setOpacityC1(opacity -= 0.1);
+                tabFloor[0].setOpacityC2(opacity -= 0.1);
+                tabFloor[2].setOpacityC0(opacity -= 0.1);
+                tabFloor[2].setOpacityC1(opacity -= 0.1);
+                tabFloor[2].setOpacityC2(opacity -= 0.1);
                 break;
               case 3:
                 tabFloor[0].setOpacity(opacity -= 0.1);
                 tabFloor[1].setOpacity(opacity -= 0.1);
+
+                //Coins
+                tabFloor[0].setOpacityC0(opacity -= 0.1);
+                tabFloor[0].setOpacityC1(opacity -= 0.1);
+                tabFloor[0].setOpacityC2(opacity -= 0.1);
+                tabFloor[1].setOpacityC0(opacity -= 0.1);
+                tabFloor[1].setOpacityC1(opacity -= 0.1);
+                tabFloor[1].setOpacityC2(opacity -= 0.1);
                 break;
             }
           } else if (blockOne) {
@@ -604,14 +634,38 @@ class TempGame extends Game {
               case 1:
                 tabBottomFloor[1].setOpacity(opacity -= 0.1);
                 tabBottomFloor[2].setOpacity(opacity -= 0.1);
+
+                //Coins
+                tabBottomFloor[1].setOpacityC0(opacity -= 0.1);
+                tabBottomFloor[1].setOpacityC1(opacity -= 0.1);
+                tabBottomFloor[1].setOpacityC2(opacity -= 0.1);
+                tabBottomFloor[2].setOpacityC0(opacity -= 0.1);
+                tabBottomFloor[2].setOpacityC1(opacity -= 0.1);
+                tabBottomFloor[2].setOpacityC2(opacity -= 0.1);
                 break;
               case 2:
                 tabBottomFloor[0].setOpacity(opacity -= 0.1);
                 tabBottomFloor[2].setOpacity(opacity -= 0.1);
+
+                //Coins
+                tabBottomFloor[0].setOpacityC0(opacity -= 0.1);
+                tabBottomFloor[0].setOpacityC1(opacity -= 0.1);
+                tabBottomFloor[0].setOpacityC2(opacity -= 0.1);
+                tabBottomFloor[2].setOpacityC0(opacity -= 0.1);
+                tabBottomFloor[2].setOpacityC1(opacity -= 0.1);
+                tabBottomFloor[2].setOpacityC2(opacity -= 0.1);
                 break;
               case 3:
                 tabBottomFloor[0].setOpacity(opacity -= 0.1);
                 tabBottomFloor[1].setOpacity(opacity -= 0.1);
+
+                //Coins
+                tabBottomFloor[0].setOpacityC0(opacity -= 0.1);
+                tabBottomFloor[0].setOpacityC1(opacity -= 0.1);
+                tabBottomFloor[0].setOpacityC2(opacity -= 0.1);
+                tabBottomFloor[1].setOpacityC0(opacity -= 0.1);
+                tabBottomFloor[1].setOpacityC1(opacity -= 0.1);
+                tabBottomFloor[1].setOpacityC2(opacity -= 0.1);
                 break;
             }
           }
@@ -626,7 +680,6 @@ class TempGame extends Game {
       tempPosY -= 3;
       doAJump();
     } else {
-
       if (tempPosY < firstFloorY - size) {
         tempTimer = new Timer(
           const Duration(milliseconds: 5),
@@ -635,18 +688,22 @@ class TempGame extends Game {
             doAJump();
           },
         );
-      } else if (!blockOne &&
-          tabBottomFloor[getFloor() - 1].grassXOffset[tabBottomFloor[getFloor() - 1].grassXOffset.length - 1] <
-              manageFloors.j - 2*grassSize) {
+      } //descente des blocs après 2 blocs sur la nouvelle plateforme
+      else if (!blockOne &&
+          tabBottomFloor[getFloor() - 1].grassXOffset[
+                  tabBottomFloor[getFloor() - 1].grassXOffset.length - 1] <
+              manageFloors.j - 2 * grassSize) {
         tempTimer?.cancel();
         isOutOfScreen = true;
         hasJumped = false;
         isTheFirstPlatform = true;
         setPlayerDown();
         gravity = false;
-      }else if (blockOne &&
-          tabFloor[getFloor() - 1].grassXOffset[tabFloor[getFloor() - 1].grassXOffset.length - 1] <
-              manageFloors.j - 2*grassSize) {
+      } //descente des blocs après 2 blocs sur la nouvelle plateforme
+      else if (blockOne &&
+          tabFloor[getFloor() - 1].grassXOffset[
+                  tabFloor[getFloor() - 1].grassXOffset.length - 1] <
+              manageFloors.j - 2 * grassSize) {
         tempTimer?.cancel();
         isOutOfScreen = true;
         hasJumped = false;
@@ -657,32 +714,16 @@ class TempGame extends Game {
         tempTimer = new Timer(
           const Duration(milliseconds: 500),
           () {
+            tabFloor[getFloor() - 1].setOpacityC0(opacity -= 0.1);
+            tabFloor[getFloor() - 1].setOpacityC1(opacity -= 0.1);
+            tabFloor[getFloor() - 1].setOpacityC2(opacity -= 0.1);
+            tabBottomFloor[getFloor() - 1].setOpacityC0(opacity -= 0.1);
+            tabBottomFloor[getFloor() - 1].setOpacityC1(opacity -= 0.1);
+            tabBottomFloor[getFloor() - 1].setOpacityC2(opacity -= 0.1);
             doAJump();
           },
         );
 
-        /*
-        if (!blockOne &&
-            tabFloor[getFloor() - 1].getGrassXOffset()[tabFloor.length - 1] -
-                    4 * grassSize <
-                manageFloors.j) {
-          print("ah");
-          hasJumped = false;
-          isTheFirstPlatform = true;
-          setPlayerDown();
-          gravity = false;
-          return;
-        } else if (blockOne) {
-        } else*/
-/*        Future.delayed(
-          const Duration(seconds: 2),
-          () {
-            hasJumped = false;
-            isTheFirstPlatform = true;
-            setPlayerDown();
-            gravity = false;
-          },
-        );*/
       }
     }
     //tempPosY = (screenSize.height - screenSize.width * 0.3) - size;
@@ -696,23 +737,6 @@ class TempGame extends Game {
         //Descente du bonhomme
         if (tempPosY < screenSize.height - (size) - grassSize) {
           if (!pauseGame) tempPosY += 1;
-
-          //tabFloor[0].updateRect();
-          //tabFloor[1].updateRect();
-          //tabFloor[2].updateRect();
-
-/*            firstFloorY = screenSize.height - 4 * screenSize.width*0.1;
-            grassYOffset1 = firstFloorY;
-            tabFloor[0].updateRect();
-            firstFloorY = screenSize.height - 3 * screenSize.width*0.1;
-            grassYOffset1 = firstFloorY;
-            tabFloor[1].updateRect();
-            firstFloorY = screenSize.height - 2 * screenSize.width*0.1;
-            grassYOffset1 = firstFloorY;
-            tabFloor[2].updateRect();*/
-
-          //tabBottomFloor[0].updateRect();
-
           setPlayerDown();
         }
         //Descente du sol en fonction du bonhomme
@@ -747,7 +771,7 @@ class TempGame extends Game {
               break;
             case 1:
               tabBottomFloor[0].updateRect();
-              tabBottomFloor[1].setOpacity(opacity -= 0.001);
+              tabBottomFloor[1].setOpacity(opacity -= 0.01);
               tabBottomFloor[2].setOpacity(opacity -= 0.01);
               break;
             case 2:
@@ -764,6 +788,10 @@ class TempGame extends Game {
         }
       },
     );
+  }
+
+  double getSignPosition() {
+    return signPosition;
   }
 
   void setPlayerState(int state) {
@@ -806,15 +834,15 @@ class TempGame extends Game {
         d.globalPosition.dy >= screenCenterY - screenSize.height &&
         d.globalPosition.dy <= screenCenterY + screenSize.height) {
       inTouch = true;
-      //setPlayerState(0);
-      //score++;
-      //doAJump();
-      //hasJumped = true;
     }
   }
 
-  int getScore() {
-    return score;
+  int getCoins() {
+    return coins;
+  }
+
+  int getJumpCounter() {
+    return jumpCounter;
   }
 
   void setColorFilter(bool boolean) {
@@ -838,6 +866,10 @@ class TempGame extends Game {
     return gameOver;
   }
 
+  bool getEndGame() {
+    return endGame;
+  }
+
   bool getConnectionState() {
     return isConnected;
   }
@@ -850,6 +882,30 @@ class TempGame extends Game {
 
   bool getPauseStatus() {
     return pauseGame;
+  }
+
+  double getStarValue() {
+    return starValue;
+  }
+
+  void setStarValue(double _starValue) {
+    starValue = _starValue;
+  }
+
+  int getStarLevel() {
+    return starLevel;
+  }
+
+  void setStarLevel(int _starLevel) {
+    starLevel = _starLevel;
+  }
+
+  void setPushState(bool _isPushing) {
+    isPushing = _isPushing;
+  }
+
+  bool getPushState() {
+    return isPushing;
   }
 
   void startTimer(bool isStarted, double _start) async {

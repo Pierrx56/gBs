@@ -393,6 +393,7 @@ class _SelectGame extends State<SelectGame> {
           if (visible_temp) {
             data_temp = await db.getScore(user.userId, ID_TEMP_ACTIVITY);
 
+
             if (data_temp.length > 0) {
               lauchGame(ID_TEMP_ACTIVITY);
             } else {
@@ -672,7 +673,7 @@ class _SelectGame extends State<SelectGame> {
       height: heightCard = (screenSize.width / (numberOfCard) / 2),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => LoadPage(
@@ -718,7 +719,7 @@ class _SelectGame extends State<SelectGame> {
     switch (idGame) {
       case ID_SWIMMER_ACTIVITY:
         {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => LoadPage(
@@ -733,7 +734,7 @@ class _SelectGame extends State<SelectGame> {
         break;
       case ID_PLANE_ACTIVITY:
         {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => LoadPage(
@@ -748,14 +749,14 @@ class _SelectGame extends State<SelectGame> {
         break;
       case ID_TEMP_ACTIVITY:
         {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => LoadPage(
                 appLanguage: appLanguage,
                 page: temp,
                 user: user,
-                messageIn: "${100 + level*10 + ID_PLANE_ACTIVITY}",
+                messageIn: "${100 + level*10 + ID_TEMP_ACTIVITY}",
               ),
             ),
           );

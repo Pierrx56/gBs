@@ -330,13 +330,12 @@ class DatabaseHelper {
       );
     });
 
-    int j,
-        k = 0;
-
     Star data;
+
 
     //Recherche de la bonne info
     for (int i = 0; i < maps.length; i++) {
+      //print(starLevel);
       if (star[i].userId == userId && star[i].activityId == activityId && star[i].starLevel == starLevel) {
         //print(star[i].starValue);
         data = star[i];

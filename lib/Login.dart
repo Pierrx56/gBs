@@ -19,6 +19,8 @@ import 'package:gbsalternative/AppLocalizations.dart';
 
 TextStyle textStyle =
     TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold);
+TextStyle textStyleW =
+    TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold);
 TextStyle appBarStyle = TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold);
 
 class Login extends StatefulWidget {
@@ -173,7 +175,7 @@ class LoginWidget extends StatelessWidget {
               ),
               splashColor: Colors.blue,
               onPressed: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => LoadPage(

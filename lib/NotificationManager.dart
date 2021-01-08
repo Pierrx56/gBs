@@ -6,6 +6,12 @@ import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+//helpful tuto: https://www.youtube.com/watch?v=n8-dGz1yNC8&feature=emb_logo
+
+/*
+* Classe pour gérer les notifications
+* Une fois instanciée, doit impérativement être initialiser avec init(USER)
+* */
 
 class NotificationManager {
 
@@ -47,6 +53,7 @@ class NotificationManager {
 
 
   Future<void> setNotificationAlert() async {
+
     //Mise à jour du dernier lancement de l'appli
     db.updateUser(User(
       userId: user.userId,
@@ -72,7 +79,7 @@ class NotificationManager {
     await flutterLocalNotificationsPlugin.zonedSchedule(
         user.userId,
         "Daily remind",
-        "Let's train yourself with Spineo Home !",
+        "Hey ${user.userName}, let's train yourself with Spineo Home !",
         temp,
         const NotificationDetails(
           android: AndroidNotificationDetails(
@@ -96,7 +103,7 @@ class NotificationManager {
 
     //Si notifs désactivées
     if(day == "0"){
-      _cancelNotification();
+      cancelNotification();
       return null;
       //return scheduledDate.add(const Duration(days: 730));
     }
@@ -117,7 +124,7 @@ class NotificationManager {
     return scheduledDate;
   }
 
-  Future<void> _cancelNotification() async {
+  Future<void> cancelNotification() async {
     await flutterLocalNotificationsPlugin.cancel(user.userId);
   }
 

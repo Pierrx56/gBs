@@ -136,8 +136,8 @@ class _MainTitle extends State<MainTitle> {
     timerConnexion = new Timer.periodic(Duration(milliseconds: 1000),
         (timerConnexion) async {
       isConnected = await btManage.getStatus();
-      setState(() {
-        isConnected;
+      if(mounted)
+        setState(() {
       });
     });
   }
@@ -236,7 +236,7 @@ class _MainTitle extends State<MainTitle> {
             ),
             splashColor: Colors.blue,
             onPressed: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => LoadPage(
@@ -263,7 +263,7 @@ class _MainTitle extends State<MainTitle> {
             ),
             splashColor: Colors.blue,
             onPressed: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => LoadPage(
@@ -428,7 +428,7 @@ class _MainTitle extends State<MainTitle> {
                     height: heightCard = screenSize.width / numberOfCard,
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => LoadPage(
@@ -489,7 +489,7 @@ class _MainTitle extends State<MainTitle> {
                     height: heightCard = screenSize.width / numberOfCard,
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => LoadPage(
@@ -615,7 +615,7 @@ class _MainTitle extends State<MainTitle> {
                     height: heightCard = screenSize.width / numberOfCard,
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => LoadPage(

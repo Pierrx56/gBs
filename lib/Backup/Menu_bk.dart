@@ -65,7 +65,7 @@ class _Menu extends State<Menu> {
   }
 
   void manageProfile() async {
-    final information = await Navigator.push(
+    final information = await Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) => MainTitle(
@@ -74,7 +74,7 @@ class _Menu extends State<Menu> {
                   appLanguage: appLanguage,
                 )));
 
-    //final information = await Navigator.push(
+    //final information = await Navigator.pushReplacement(
     //    context,
     //    MaterialPageRoute(
     //        builder: (context) => ManageProfile(

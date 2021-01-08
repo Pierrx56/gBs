@@ -83,6 +83,7 @@
   "erreur_hauteur": "Please fill all blank.\n This must be more than 0",
   "erreur_haut_max": "Maximum value must be greater\n than minimal value !" ,
   "erreur_prenom": "Please fill blank.",
+  "explications_hauteur": "Please put the correct numbers you are seeing on the frame and save.",
   "explications_mesure": "You have to stay between 50.0 and 100.0 during 10 seconds. Click on Start recording when you're ready.",
   "familial": "Family",
   "haut_max": "Maximal height",

@@ -170,7 +170,7 @@ class _FAQ extends State<FAQ> {
             ),
             onPressed: () {
               if (inputMessage == "fromLogin") {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => LoadPage(

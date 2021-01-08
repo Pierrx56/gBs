@@ -175,7 +175,7 @@ class _SelectStatistic extends State<SelectStatistic> {
                         )
                       : Text("Check Language file (en/fr.json)"),
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => LoadPage(
@@ -325,7 +325,7 @@ class _SelectStatistic extends State<SelectStatistic> {
       height: heightCard = (screenSize.width / numberOfCard),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => LoadPage(
@@ -410,7 +410,7 @@ class _SelectStatistic extends State<SelectStatistic> {
                           height: heightCard*0.9,
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => LoadPage(
@@ -436,7 +436,7 @@ class _SelectStatistic extends State<SelectStatistic> {
                           height: heightCard*0.9,
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => LoadPage(
@@ -462,7 +462,7 @@ class _SelectStatistic extends State<SelectStatistic> {
                           height: heightCard*0.9,
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => LoadPage(

@@ -16,6 +16,7 @@ import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
+import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/TempGame/TempGame.dart';
 
 import 'Ui.dart';
@@ -59,18 +60,22 @@ class _Temp extends State<Temp> {
   Timer timerPush;
   int _start = 5;
   Timer timerThread;
+  Timer timerPosition;
+  Timer timerSign;
   Timer timerConnexion;
   bool start;
   double push;
   UI gameUI;
-  int score;
+  int coins;
+  int jumpCounter;
+  double starValue;
   int level;
   int six = 6;
   double totalPush = 0.0;
   int k = 0;
 
   //Si raté 0, sinon étage 1, 2 ou 3
-  int jumpToFloor = -1;
+  int jumpToFloor = 1;
   int previousFloor = 1;
 
   _Temp(User _user, AppLanguage _appLanguage, String _level) {
@@ -84,7 +89,7 @@ class _Temp extends State<Temp> {
     //myGame = GameWrapper(game);
     if (user.userInitialPush != "0.0") {
       gameUI = UI();
-      score = 0;
+      coins = 0;
       isConnected = false;
       start = false;
       push = 0.99;
@@ -103,6 +108,8 @@ class _Temp extends State<Temp> {
     timerHeight?.cancel();
     timerPush?.cancel();
     timerThread?.cancel();
+    timerSign?.cancel();
+    timerPosition?.cancel();
 
     super.dispose();
   }
@@ -122,6 +129,7 @@ class _Temp extends State<Temp> {
 
     refreshScore();
     mainThread();
+    //setSignPosition();
     //runApp(game.widget);
     flameUtil.addGestureRecognizer(tapper);
   }
@@ -132,9 +140,10 @@ class _Temp extends State<Temp> {
       connect();
     } else {
       isConnected = await btManage.getStatus();
-      if (!isConnected)
+      if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
-      else {
+        connect();
+      } else {
         launchGame();
         return;
       }
@@ -167,8 +176,18 @@ class _Temp extends State<Temp> {
   }
 
   mainThread() async {
-    timerThread = new Timer.periodic(Duration(milliseconds: 1000),
-        (timerConnexion) async {
+    timerThread =
+        new Timer.periodic(Duration(milliseconds: 500), (timerThread) async {
+      //TODO Changer pour mettre à 10
+      //Condition de victoire
+      if (game.getJumpCounter() >= 5) {
+        redirection();
+        game.endGame = true;
+        game.gameOver = true;
+        game.pauseGame = true;
+        timerThread.cancel();
+      }
+
       if (game.isTooHigh) {
         const oneSec = const Duration(seconds: 1);
         _timer = new Timer.periodic(oneSec, (Timer timer) {
@@ -220,7 +239,8 @@ class _Temp extends State<Temp> {
       if (mounted) {
         if (game != null) {
           setState(() {
-            score = game.getScore();
+            coins = game.getCoins();
+            jumpCounter = game.getJumpCounter();
           });
         }
       }
@@ -232,11 +252,13 @@ class _Temp extends State<Temp> {
   double heightProgressBar() {
     double tempPush = getData();
 
-    if (game.isWaiting) {
+    //Si le joueur a dépassé le drapeau ou qu'il attend au bout de la plateforme
+    if (game.isWaiting || game.isPushable) {
       //push = 0.99;
       if (double.parse(user.userInitialPush) < tempPush &&
           push > 0.0 &&
           six == 6) {
+        game.setPushState(true);
         print(six);
         six--;
 
@@ -300,27 +322,13 @@ class _Temp extends State<Temp> {
       push = 0.99;
       k = 0;
       totalPush = 0;
+      game.setPushState(false);
     }
-    /*
-      //Poussée pendant 6 secondes
-      if (double.parse(user.userInitialPush) < tempPush && push <= 1) {
-        timerHeight = new Timer(const Duration(milliseconds: 600), () {
-          push += 0.05;
-        });
-      } else if (push <= 1.5 && push > 0.06) {
-        timerHeight = new Timer(const Duration(milliseconds: 5), () {
-          push -= 0.05;
-        });
-      } else if (push <= 0.1) push = 0.0;
-    }
-    else if(game.isRunning) {
-      push = 0.0;
-    }*/
     //On retourne un pourcentage
     return push;
   }
 
-  void setFloor(){
+  void setFloor() {
     print("JumpToFloor: $jumpToFloor");
     print("PreviousFloor: $previousFloor");
     jumpToFloor = previousFloor;
@@ -333,6 +341,39 @@ class _Temp extends State<Temp> {
 
   double getPush() {
     return push;
+  }
+
+  void redirection() {
+    //TODO Update coin value
+    if (user.userMode == AppLocalizations.of(context).translate('familial') &&
+        coins > 2) {
+      setState(() {
+        game.setStarValue(starValue = 0.5);
+      });
+    } else if (user.userMode ==
+            AppLocalizations.of(context).translate('sportif') &&
+        coins > 2) {
+      setState(() {
+        game.setStarValue(starValue = 0.5);
+      });
+    } else {
+      setState(() {
+        game.setStarValue(starValue = 0.0);
+      });
+    }
+    const oneSec = const Duration(seconds: 3);
+    _timer = new Timer.periodic(
+      oneSec,
+      (Timer timer) => mounted
+          ? setState(
+              () {
+                timer.cancel();
+                gameUI.state.saveAndExit(
+                    context, appLanguage, user, coins, game, starValue, level);
+              },
+            )
+          : start = start,
+    );
   }
 
   @override
@@ -349,7 +390,7 @@ class _Temp extends State<Temp> {
           : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
       child: Stack(
         children: <Widget>[
-          game == null || user.userInitialPush == "0.0"
+          game == null || double.parse(user.userInitialPush) == 0
               ? Center(
                   child: Container(
                       width: screenSize.width,
@@ -378,7 +419,7 @@ class _Temp extends State<Temp> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     CircularProgressIndicator(),
-                                    user.userInitialPush == "0.0"
+                                    double.parse(user.userInitialPush) == 0
                                         ? AutoSizeText(AppLocalizations.of(
                                                 context)
                                             .translate('premiere_poussee_sw'))
@@ -392,7 +433,7 @@ class _Temp extends State<Temp> {
                                           ),
                                     RaisedButton(
                                       onPressed: () {
-                                        Navigator.push(
+                                        Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) => LoadPage(
@@ -426,6 +467,7 @@ class _Temp extends State<Temp> {
                             game.getConnectionState()
                         ? Container(
                             alignment: Alignment.topRight,
+                            color: Colors.transparent,
                             padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                             child: game == null
                                 ? Container()
@@ -443,26 +485,41 @@ class _Temp extends State<Temp> {
             ),
           ),
           //Display message pour afficher score
-
           game != null && !game.getGameOver()
               ? game.getConnectionState()
                   ? Container(
-                      alignment: Alignment.bottomRight,
+                      alignment: Alignment.topLeft,
                       padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-                      child: game == null || game.pauseGame
+                      child: game == null
                           ? Container()
-                          : gameUI.state.displayScore(score.toString(), game),
+                          : gameUI.state.displayCoin(coins.toString(), game),
                     )
                   : Container()
               : Container(),
-          //Consigne et jauge à remplir
+          //Display le panneau
+          game != null && !game.getGameOver()
+              ? game.getConnectionState()
+                  ? game.isPushable && game.coins == 0 && game.launchTuto
+                      ? Container(
+                          alignment: Alignment(-0.5, 0.5),
+                          padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
+                          child: game == null
+                              ? Container()
+                              : gameUI.state
+                                  .displayTuto(context,appLanguage, game, user),
+                        )
+                      : Container()
+                  : Container()
+              : Container(),
+          //Consigne
           game != null
-              ? game.isWaiting && !game.getGameOver() && game.score == 0 ||
-                      game.life < 2 && game.isWaiting
+              ? game.isWaiting && !game.getGameOver() && game.coins == 0 ||
+                      game.life < 2 && game.isWaiting ||
+                      game.coins == 0 && game.isPushable
                   ? !game.getGameOver()
                       ? game.getConnectionState()
                           ? Container(
-                              alignment: Alignment.topLeft,
+                              alignment: Alignment.topCenter,
                               padding: EdgeInsets.fromLTRB(
                                   screenSize.height / 8 + 40, 20, 20, 20),
                               child: Container(
@@ -498,13 +555,13 @@ class _Temp extends State<Temp> {
                       : Container()
                   : Container()
               : Container(),
-          //Display jauge
+          //Display jauge à remplir
           game != null
-              ? game.isWaiting
+              ? game.isWaiting || game.isPushable
                   ? !game.getGameOver()
                       ? game.getConnectionState()
                           ? Container(
-                              alignment: Alignment.topLeft,
+                              alignment: Alignment.centerLeft,
                               padding: EdgeInsets.all(20),
                               child: Container(
                                 width: screenSize.height / 8,
@@ -517,6 +574,7 @@ class _Temp extends State<Temp> {
                                 child: Align(
                                   alignment: Alignment.center,
                                   child: AnimatedContainer(
+                                    //child: Text(jumpToFloor.toString(), textAlign: TextAlign.center, style: textStyle,),
                                     duration: Duration(seconds: 1),
                                     width: screenSize.height / 8,
                                     height: (screenSize.width / 4) * getPush(),
@@ -536,7 +594,7 @@ class _Temp extends State<Temp> {
           Container(
             alignment: Alignment.topCenter,
             child: game != null
-                ? game.getGameOver() && !game.isTooHigh
+                ? game.getGameOver() && !game.isTooHigh && !game.getEndGame()
                     ? Row(
                         children: <Widget>[
                           gameUI.state.displayMessage(
@@ -544,6 +602,20 @@ class _Temp extends State<Temp> {
                                   .translate('game_over'),
                               game,
                               Colors.blueAccent),
+                        ],
+                      )
+                    : Container()
+                : Container(),
+          ),
+          //Display message Fin du jeu (pas GameOver)
+          Container(
+            alignment: Alignment.topCenter,
+            child: game != null
+                ? game.getEndGame() && !game.isTooHigh
+                    ? Row(
+                        children: <Widget>[
+                          gameUI.state
+                              .endScreen(context, appLanguage, game, user),
                         ],
                       )
                     : Container()

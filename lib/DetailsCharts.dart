@@ -156,7 +156,7 @@ class _DetailsCharts extends State<DetailsCharts> {
                       textAlign: TextAlign.center,
                     ),
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => LoadPage(

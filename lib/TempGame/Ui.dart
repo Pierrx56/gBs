@@ -39,10 +39,91 @@ class UIState extends State<UI> {
     setState(() {});
   }
 
-  Widget displayScore(String message, TempGame game) {
+  Widget displayCoin(String message, TempGame game) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
+        decoration: new BoxDecoration(
+            //color: Colors.blue.withAlpha(150),
+            //new Color.fromRGBO(255, 0, 0, 0.0),
+            borderRadius: new BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+                bottomLeft: const Radius.circular(20.0),
+                bottomRight: const Radius.circular(20.0))),
+        width: game.screenSize.width * 0.40,
+        height: game.screenSize.height * 0.30,
+        child: Stack(
+          children: <Widget>[
+            Align(
+              alignment: Alignment.topLeft,
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                    child: Image.asset(
+                      'assets/images/temp/red_heart.png',
+                      width: game.screenSize.height * 0.1,
+                      height: game.screenSize.height * 0.1,
+                    ),
+                  ),
+                  game.life > 1
+                      ? Padding(
+                          padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                          child: Image.asset(
+                            'assets/images/temp/red_heart.png',
+                            width: game.screenSize.height * 0.1,
+                            height: game.screenSize.height * 0.1,
+                          ),
+                        )
+                      : Container(),
+                  game.life > 2
+                      ? Padding(
+                          padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                          child: Image.asset(
+                            'assets/images/temp/red_heart.png',
+                            width: game.screenSize.height * 0.1,
+                            height: game.screenSize.height * 0.1,
+                          ),
+                        )
+                      : Container(),
+                ],
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                children: <Widget>[
+                  Image.asset(
+                    'assets/images/temp/coin.png',
+                    width: game.screenSize.height * 0.1,
+                    height: game.screenSize.height * 0.1,
+                  ),
+                  AutoSizeText(
+                    !game.getPushState()
+                        ? "${game.coins}/30"
+                        : "${game.coins}/30 + ${game.getFloor()}",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget endScreen(
+      BuildContext context, AppLanguage appLanguage, TempGame game, User user) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        width: game.screenSize.width / 3,
+        height: game.screenSize.height / 3,
         alignment: Alignment.topCenter,
         decoration: new BoxDecoration(
             color: Colors.blue.withAlpha(150),
@@ -52,60 +133,80 @@ class UIState extends State<UI> {
                 topRight: const Radius.circular(20.0),
                 bottomLeft: const Radius.circular(20.0),
                 bottomRight: const Radius.circular(20.0))),
-        width: game.screenSize.width * 0.20,
-        height: game.screenSize.height * 0.20,
-        child: FittedBox(
-          fit: BoxFit.fitWidth,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                "$message /10",
-                style: TextStyle(
-                  fontSize: 50,
-                  color: Colors.black,
-                  shadows: <Shadow>[
-                    Shadow(
-                      color: Color(0x88000000),
-                      blurRadius: 10,
-                      offset: Offset(2, 2),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                    child: Image.asset(
-                      'assets/images/temp/red_heart.png',
-                      width: game.screenSize.width * 0.05,
-                      height: game.screenSize.height * 0.2,
-                    ),
-                  ),
-                  game.life > 1 ? Padding(
-                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                    child: Image.asset(
-                      'assets/images/temp/red_heart.png',
-                      width: game.screenSize.width * 0.05,
-                      height: game.screenSize.height * 0.2,
-                    ),
-                  ): Container(),
-                  game.life > 2 ? Padding(
-                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                    child: Image.asset(
-                      'assets/images/temp/red_heart.png',
-                      width: game.screenSize.width * 0.05,
-                      height: game.screenSize.height * 0.2,
-                    ),
-                  ) : Container(),
-                ],
-              ),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              game.getStarValue() >= 0.5
+                  ? "Félicitation, vous gagnez 0.5 étoile !\n"
+                      "Retour au menu !"
+                  : "Vous n'avez pas gagné d'étoile, ça sera pour la prochaine fois, surpassez-vous !",
+              textAlign: TextAlign.center,
+              style: textStyle,
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget displayTuto(
+      BuildContext context, AppLanguage appLanguage, TempGame game, User user) {
+    return Container(
+      width: game.screenSize.width * 0.5,
+      height: game.screenSize.height * 0.5,
+      child: game.phaseTuto == 1
+          ? Stack(
+              children: <Widget>[
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child: Icon(
+                      Icons.arrow_back,
+                      size: 50,
+                    )),
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: game.screenSize.width * 0.3,
+                    height: game.screenSize.height * 0.3,
+                    decoration: new BoxDecoration(
+                        color: Colors.blue.withAlpha(150),
+                        //new Color.fromRGBO(255, 0, 0, 0.0),
+                        borderRadius: new BorderRadius.only(
+                            topLeft: const Radius.circular(20.0),
+                            topRight: const Radius.circular(20.0),
+                            bottomLeft: const Radius.circular(20.0),
+                            bottomRight: const Radius.circular(20.0))),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        AutoSizeText(
+                          "Jauge qui se consomme en 6 secondes.",
+                          textAlign: TextAlign.center,
+                          minFontSize: 15,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : game.phaseTuto == 2
+              ? Container(
+                  child: Text("useful text"),
+                )
+          : game.phaseTuto == 3
+              ? Container(
+                  child: Text("useful text"),
+                )
+          : game.phaseTuto == 4
+              ? Container(
+                  child: Text("useful text"),
+                )
+              : Container(),
     );
   }
 
@@ -228,8 +329,9 @@ class UIState extends State<UI> {
         height: game.screenSize.height * 0.2,
         width: game.pauseGame
             ? game.screenSize.width / 3
-            : game.screenSize.width / 4,
-        child: RaisedButton(
+            : game.screenSize.height * 0.2,
+        child: FlatButton(
+          color: !game.pauseGame ? Colors.transparent : Colors.grey[300],
           onPressed: !game.getGameOver()
               ? game.getConnectionState()
                   ? () async {
@@ -246,7 +348,8 @@ class UIState extends State<UI> {
               ),
               !game.pauseGame
                   ? Text(
-                      (AppLocalizations.of(context).translate('menu')),
+                      "",
+                      //(AppLocalizations.of(context).translate('menu')),
                       style: textStyle,
                     )
                   : Text(
@@ -314,10 +417,98 @@ class UIState extends State<UI> {
             ),
             pauseButton(context, appLanguage, game, user),
             restartButton(context, appLanguage, user, game),
-            closeButton(context, appLanguage, user, game.getScore(), game),
+            closeButton(context, appLanguage, user, game.getCoins(), game),
           ],
         ),
       ),
+    );
+  }
+
+  void saveAndExit(BuildContext context, AppLanguage appLanguage, User user,
+      int score, TempGame game, double starValue, int starLevel) async {
+    DatabaseHelper db = new DatabaseHelper();
+    //Date au format FR
+    String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
+
+    Score newScore = Score(
+        scoreId: null,
+        userId: user.userId,
+        activityId: ACTIVITY_NUMBER,
+        scoreValue: score,
+        scoreDate: date);
+
+    //db.deleteScore(user.userId);
+
+    List<Scores> everyScores = await db.getScore(user.userId, ACTIVITY_NUMBER);
+    Star tempStar = await db.getStar(user.userId, ACTIVITY_NUMBER, starLevel);
+
+    print(starValue);
+    print(starLevel);
+
+    if (everyScores.length == 0 && score != 0) {
+      print("here");
+      db.addScore(newScore);
+      db.addStar(Star(
+          starId: null,
+          activityId: ACTIVITY_NUMBER,
+          userId: user.userId,
+          starValue: starValue,
+          starLevel: starLevel));
+    } else if (score != 0) {
+      print("here2");
+      //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
+      for (int i = 0; i < everyScores.length; i++) {
+        //On remplace la valeur dans la bdd
+        //print(everyScores[i].scoreId);
+        if (everyScores[i].date == date && score > everyScores[i].score) {
+          db.updateScore(Score(
+              scoreId: everyScores[i].scoreId,
+              userId: user.userId,
+              activityId: ACTIVITY_NUMBER,
+              scoreValue: score,
+              scoreDate: date));
+
+          starValue += tempStar.starValue;
+          db.updateStar(Star(
+              starId: tempStar.starId,
+              activityId: ACTIVITY_NUMBER,
+              userId: user.userId,
+              starValue: starValue,
+              starLevel: starLevel));
+        }
+      }
+      //Sinon on enregistre si la dernière date enregistrée est différente du jour
+      if (everyScores[everyScores.length - 1].date != date) {
+        print("here3");
+        db.addScore(newScore);
+        starValue += tempStar.starValue;
+        db.updateStar(Star(
+            starId: tempStar.starId,
+            activityId: ACTIVITY_NUMBER,
+            userId: user.userId,
+            starValue: starValue,
+            starLevel: starLevel));
+      }
+    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+          builder: (context) => LoadPage(
+                appLanguage: appLanguage,
+                user: user,
+                messageIn: "0",
+                page: mainTitle,
+              )
+          /*MainTitle(
+                        appLanguage: appLanguage,
+                        userIn: user,
+                        messageIn: 0,
+                      )*/
+          /*      MainTitle(
+                  userIn: user,
+                  appLanguage: appLanguage,
+                     )*/
+          ),
     );
   }
 
