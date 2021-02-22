@@ -14,6 +14,7 @@ import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/ManageProfile.dart';
 import 'package:gbsalternative/Plane/Plane.dart';
 import 'package:gbsalternative/Register.dart';
+import 'package:gbsalternative/CarGame/Car.dart';
 import 'package:gbsalternative/SelectGame.dart';
 import 'package:gbsalternative/SelectStatistic.dart';
 import 'package:gbsalternative/Swimmer/Swimmer.dart';
@@ -28,6 +29,7 @@ String login = "Login";
 String mainTitle = "MainTitle";
 String manageProfile = "ManageProfile";
 String plane = "Plane";
+String car = "Car";
 String temp = "Temp";
 String register = "Register";
 String selectGame = "SelectGame";
@@ -99,6 +101,7 @@ class _LoadPage extends State<LoadPage> {
                 GlobalWidgetsLocalizations.delegate,
               ],
               home:
+              page == car ? Car(user: user, appLanguage: appLanguage, level: messageIn):
               page == detailsCharts ? DetailsCharts(appLanguage: appLanguage, scores: scores, user: user, messageIn: messageIn,):
               page == faq ? FAQ(user: user, inputMessage: messageIn, appLanguage: appLanguage):
               page == firstPush ? MaxPush(user: user, inputMessage: messageIn, appLanguage: appLanguage):

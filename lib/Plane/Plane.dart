@@ -85,15 +85,6 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
       _controllerTopCenter =
           ConfettiController(duration: const Duration(seconds: 10));
 
-      //TODO Ajust values
-      if (user.userMode == "Sportif") {
-        timeRemaining = "3:00";
-        seconds = 180;
-      } else {
-        timeRemaining = "2:00";
-        seconds = 120;
-      }
-
       start = false;
       gameOver = false;
       isConnected = false;
@@ -118,12 +109,27 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     game = new PlaneGame(getData, user, appLanguage);
 
     game.setStarLevel(level);
-    //Start timer of 2 minutes
-    startTimer(true);
     gameUI = new UI();
     refreshScore();
     Util flameUtil = Util();
     flameUtil.fullScreen();
+
+    //TODO Ajust values
+    //On double la vitesse des ballon et la vitesse de remontée/redescente de l'avion
+    //Le temps passe de 2 min à 3 min
+    if (user.userMode ==  AppLocalizations.of(context).translate('sportif')) {
+      timeRemaining = "3:00";
+      seconds = 180;
+      game.difficulte = 6.0;
+      game.setBalloonSpeed(4);
+    } else {
+      timeRemaining = "2:00";
+      seconds = 120;
+      game.difficulte = 3.0;
+      game.setBalloonSpeed(2);
+    }
+    //Start timer of 2 minutes
+    startTimer(true);
 
     TapGestureRecognizer tapper = TapGestureRecognizer();
 

@@ -21,7 +21,8 @@ TextStyle textStyle =
     TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold);
 TextStyle textStyleW =
     TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold);
-TextStyle appBarStyle = TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold);
+TextStyle appBarStyle =
+    TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold);
 
 class Login extends StatefulWidget {
   final AppLanguage appLanguage;
@@ -128,13 +129,13 @@ class LoginWidget extends StatelessWidget {
     ];
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            AppLocalizations.of(context).translate('bienvenue'),
-          ),
-          backgroundColor: Colors.blue,
-          actions: <Widget>[
-            /*FlatButton.icon(
+      appBar: AppBar(
+        title: Text(
+          AppLocalizations.of(context).translate('bienvenue'),
+        ),
+        backgroundColor: Colors.blue,
+        actions: <Widget>[
+          /*FlatButton.icon(
               icon: Icon(
                 Icons.exit_to_app,
                 color: Colors.white,
@@ -157,38 +158,38 @@ class LoginWidget extends StatelessWidget {
                 else if (Platform.isIOS) exit(0);
               },
             ),*/
-            FlatButton.icon(
-              icon: Icon(
-                Icons.question_answer,
+          FlatButton.icon(
+            icon: Icon(
+              Icons.question_answer,
+              color: Colors.white,
+            ),
+            label: AutoSizeText(
+              "FAQ",
+              style: TextStyle(
+                fontSize: 15,
                 color: Colors.white,
               ),
-              label: AutoSizeText(
-                "FAQ",
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.white,
-                ),
-                minFontSize: 10,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              splashColor: Colors.blue,
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoadPage(
-                        user: null,
-                        appLanguage: appLanguage,
-                        messageIn: "fromLogin",
-                        page: faq),
-                  ),
-                );
-              },
+              minFontSize: 10,
             ),
-            //Choix de la langue
-            /*Container(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            splashColor: Colors.blue,
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoadPage(
+                      user: null,
+                      appLanguage: appLanguage,
+                      messageIn: "fromLogin",
+                      page: faq),
+                ),
+              );
+            },
+          ),
+          //Choix de la langue
+          /*Container(
               width: screenSize.width / 4,
               child: Stack(
                 alignment: Alignment.centerLeft,
@@ -203,7 +204,7 @@ class LoginWidget extends StatelessWidget {
                     ),
                   ),
                   DropdownButton<FlatButton>(
-                    *//*value: languages[0],*//*
+                    */ /*value: languages[0],*/ /*
                     items: languages.map((FlatButton value) {
                       return DropdownMenuItem<FlatButton>(
                         value: value,
@@ -217,147 +218,174 @@ class LoginWidget extends StatelessWidget {
                 ],
               ),
             )*/
-          ],
-        ),
-        body: Column(
-          children: <Widget>[
-            Expanded(
-              child: FutureBuilder<List<User>>(
-                future: db.userList(),
-                builder:
-                    (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.separated(
-                      padding: EdgeInsets.all(10.0),
-                      itemCount: size = snapshot.data.length + 1,
-                      itemBuilder: (BuildContext context, int index) {
-                        if (index < size && index > 0) {
-                          User item = snapshot.data[index - 1];
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          //MainTitle(appLanguage: appLanguage,messageIn: "",userIn: snapshot.data[index -1],),
-                                          LoadPage(
-                                        user: snapshot.data[index - 1],
-                                        appLanguage: appLanguage,
-                                        page: mainTitle,
-                                        messageIn: "0",
-                                      )));
-                              /*
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => LoadPage(
-                                            user: snapshot.data[index - 1],
-                                            appLanguage: appLanguage,
-                                            page: mainTitle,
-                                            messageIn: "0",
-                                          )));*/
-                            },
-                            child: new Container(
-                              height: screenSize.height * 0.3,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).buttonColor,
-                                borderRadius: BorderRadius.circular(8.0),
+        ],
+      ),
+      body: FutureBuilder<List<User>>(
+        future: db.userList(),
+        builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
+          if (snapshot.hasData) {
+            return SingleChildScrollView(
+              child: Center(
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 40,
+                  children:
+                      List.generate(size = snapshot.data.length + 1, (index) {
+                    if (index < size - 1 && index >= 0) {
+                      User item = snapshot.data[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  //MainTitle(appLanguage: appLanguage,messageIn: "",userIn: snapshot.data[index -1],),
+                                  LoadPage(
+                                user: snapshot.data[index],
+                                appLanguage: appLanguage,
+                                page: mainTitle,
+                                messageIn: "0",
                               ),
-                              child: Padding(
-                                padding: EdgeInsets.all(12.0),
-                                child: Row(
-                                  children: <Widget>[
-                                    Stack(
+                            ),
+                          );
+                          /*
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoadPage(
+                                          user: snapshot.data[index - 1],
+                                          appLanguage: appLanguage,
+                                          page: mainTitle,
+                                          messageIn: "0",
+                                        )));*/
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Container(
+                            height: screenSize.height * 0.5,
+                            width: screenSize.height * 0.4,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                new Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).buttonColor.withAlpha(100),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: Stack(
                                       alignment: Alignment.center,
                                       children: <Widget>[
                                         Container(
                                           height: screenSize.height * 0.3,
                                           width: screenSize.width * 0.3,
                                         ),
-                                        //Text(AppLocalizations.of(context).translate('profil_existant') + ": "),
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                          child: Image.file(
-                                            File(snapshot
-                                                .data[index - 1].userPic),
+                                        Align(
+                                          alignment: Alignment.topCenter,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                            child: Image.file(
+                                              File(
+                                                  snapshot.data[index].userPic),
+                                              height: screenSize.height * 0.3,
+                                              width: screenSize.width * 0.3,
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
-                                    Text(
-                                      item.userName,
-                                      style: textStyle,
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                          );
-                        } else if (index == 0) {
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => LoadPage(
-                                            appLanguage: appLanguage,
-                                            page: register,
-                                            messageIn: "0",
-                                            user: null,
-                                          )));
-                            },
-                            child: new Container(
-                              height: screenSize.height * 0.3,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).buttonColor,
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.all(12.0),
-                                child: Row(
-                                  children: <Widget>[
-                                    Image.asset(
-                                      "assets/add.png",
-                                      height: screenSize.height * 0.3,
-                                      width: screenSize.width * 0.3,
-                                    ),
-                                    Text(
-                                      AppLocalizations.of(context)
-                                          .translate('inscription'),
-                                      style: textStyle,
-                                    ),
-                                  ],
+                                Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: AutoSizeText(
+                                    item.userName,
+                                    style: textStyle,
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          );
-                        } else
-                          return Center(child: CircularProgressIndicator());
-                      },
-                      separatorBuilder: (BuildContext context, int index) =>
-                          const Divider(),
-                    );
-                  } else {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          alignment: Alignment.center,
-                          child: CircularProgressIndicator(),
+                          ),
                         ),
-                        Container(
-                            alignment: Alignment.center,
-                            child: Text("Loading..."))
-                      ],
-                    );
-                  }
-                },
+                      );
+                    } else if (index == size - 1) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoadPage(
+                                        appLanguage: appLanguage,
+                                        page: register,
+                                        messageIn: "0",
+                                        user: null,
+                                      )));
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Container(
+                            height: screenSize.height * 0.5,
+                            width: screenSize.height * 0.4,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                new Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).buttonColor.withAlpha(100),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: Column(
+                                      children: <Widget>[
+                                        Image.asset(
+                                          "assets/add.png",
+                                          height: screenSize.height * 0.3,
+                                          width: screenSize.width * 0.3,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                AutoSizeText(
+                                  AppLocalizations.of(context)
+                                      .translate('inscription'),
+                                  style: textStyle,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    } else
+                      return Center(child: CircularProgressIndicator());
+                  }),
+                  //separatorBuilder: (BuildContext context, int index) =>
+                  //    const Divider(),
+                ),
               ),
-            ),
-          ],
-        ));
+            );
+          } else {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.all(10),
+                  alignment: Alignment.center,
+                  child: CircularProgressIndicator(),
+                ),
+                Container(
+                    alignment: Alignment.center, child: Text("Loading..."))
+              ],
+            );
+          }
+        },
+      ),
+    );
   }
 }

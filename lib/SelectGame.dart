@@ -155,14 +155,12 @@ class _SelectGame extends State<SelectGame> {
         builder: (context, AsyncSnapshot<Star> snapshot) {
           List<Widget> starArray = List<Widget>();
           if (!snapshot.hasData) {
-            for (int i = 0; i < 5; i++)
-              starArray.add(Icon(Icons.star_border));
+            for (int i = 0; i < 5; i++) starArray.add(Icon(Icons.star_border));
             return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: starArray);
-          }
-          else {
+          } else {
             getStar(idGame, level);
             double stars = snapshot.data.starValue;
 
@@ -227,7 +225,8 @@ class _SelectGame extends State<SelectGame> {
                                 width: widthCard * 0.5,
                                 height: heightCard * 0.5,
                               ),
-                              numberOfStars(ID_SWIMMER_ACTIVITY, 100 + _level * 10 + ID_SWIMMER_ACTIVITY),
+                              numberOfStars(ID_SWIMMER_ACTIVITY,
+                                  100 + _level * 10 + ID_SWIMMER_ACTIVITY),
                             ],
                           ),
                         ),
@@ -326,7 +325,8 @@ class _SelectGame extends State<SelectGame> {
                                 width: widthCard * 0.7,
                                 height: heightCard * 0.5,
                               ),
-                              numberOfStars(ID_PLANE_ACTIVITY, 100 + _level * 10 + ID_PLANE_ACTIVITY),
+                              numberOfStars(ID_PLANE_ACTIVITY,
+                                  100 + _level * 10 + ID_PLANE_ACTIVITY),
                             ],
                           ),
                         ),
@@ -393,7 +393,6 @@ class _SelectGame extends State<SelectGame> {
           if (visible_temp) {
             data_temp = await db.getScore(user.userId, ID_TEMP_ACTIVITY);
 
-
             if (data_temp.length > 0) {
               lauchGame(ID_TEMP_ACTIVITY);
             } else {
@@ -429,7 +428,8 @@ class _SelectGame extends State<SelectGame> {
                                       width: widthCard * 0.7,
                                       height: heightCard * 0.5,
                                     ),
-                                    numberOfStars(ID_TEMP_ACTIVITY, 100 + _level * 10 + ID_TEMP_ACTIVITY),
+                                    numberOfStars(ID_TEMP_ACTIVITY,
+                                        100 + _level * 10 + ID_TEMP_ACTIVITY),
                                   ],
                                 ),
                               ),
@@ -461,6 +461,143 @@ class _SelectGame extends State<SelectGame> {
                                       AutoSizeText(
                                         AppLocalizations.of(context)
                                             .translate('temp'),
+                                        minFontSize: 20,
+                                        maxFontSize: 35,
+                                        style: TextStyle(
+                                          fontSize: 50,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              /*Container(
+                                alignment: Alignment.bottomCenter,
+                                width: widthCard,
+                                child: FlatButton.icon(
+                                  label: temp != null
+                                      ? AutoSizeText(
+                                          AppLocalizations.of(context)
+                                              .translate('temp'),
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                          ),
+                                          minFontSize: 20,
+                                        )
+                                      : AutoSizeText(
+                                          "Check Language file (en/fr.json)"),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                  icon: Icon(
+                                    Icons.info_outline,
+                                    color: Colors.black,
+                                  ),
+                                  splashColor: Colors.blue,
+                                  onPressed: () {
+                                    if (mounted)
+                                      setState(
+                                        () {
+                                          launcherDialog(ID_TEMP_ACTIVITY);
+                                          */ /*visible_plane = !visible_plane;
+                                          !visible_plane
+                                              ? colorCard_plane = Colors.white70
+                                              : colorCard_plane = Colors.white;*/ /*
+                                        },
+                                      );
+                                  },
+                                ),
+                              ),*/
+                            ],
+                          )
+                        : Container(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget carGame(int _level) {
+    var temp = AppLocalizations.of(context);
+    return SizedBox(
+      width: widthCard = screenSize.width / (numberOfCard / 1),
+      height: heightCard = screenSize.height / (numberOfCard / 1.3),
+      child: new GestureDetector(
+        onTap: () async {
+          if (visible_temp) {
+            data_temp = await db.getScore(user.userId, ID_CAR_ACTIVITY);
+
+            if (data_temp.length > 0) {
+              lauchGame(ID_CAR_ACTIVITY);
+            } else {
+              launcherDialog(ID_CAR_ACTIVITY);
+            }
+          }
+        },
+        child: new Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          elevation: 8,
+          color: colorCard_temp,
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: Stack(
+                children: <Widget>[
+                  AnimatedOpacity(
+                    duration: Duration(milliseconds: 1000),
+                    opacity: visible_temp ? 1.0 : 0.0,
+                    child: visible_temp
+                        ? Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: <Widget>[
+                              Container(
+                                width: widthCard,
+                                height: heightCard - 20,
+                                child: Column(
+                                  children: <Widget>[
+                                    Image.asset(
+                                      'assets/car.png',
+                                      width: widthCard * 0.7,
+                                      height: heightCard * 0.5,
+                                    ),
+                                    numberOfStars(ID_CAR_ACTIVITY,
+                                        100 + _level * 10 + ID_CAR_ACTIVITY),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  if (mounted)
+                                    setState(() {
+                                      launcherDialog(ID_CAR_ACTIVITY);
+                                    });
+                                },
+                                child: Container(
+                                  width: widthCard,
+                                  height: heightCard * 0.25,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20))),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: <Widget>[
+                                      Icon(
+                                        Icons.info_outline,
+                                        size: 30.0,
+                                      ),
+                                      AutoSizeText("Cars",
                                         minFontSize: 20,
                                         maxFontSize: 35,
                                         style: TextStyle(
@@ -726,7 +863,7 @@ class _SelectGame extends State<SelectGame> {
                 appLanguage: appLanguage,
                 page: swimmer,
                 user: user,
-                messageIn: "${100 + level*10 + ID_SWIMMER_ACTIVITY}",
+                messageIn: "${100 + level * 10 + ID_SWIMMER_ACTIVITY}",
               ),
             ),
           );
@@ -741,7 +878,7 @@ class _SelectGame extends State<SelectGame> {
                 appLanguage: appLanguage,
                 page: plane,
                 user: user,
-                messageIn: "${100 + level*10 + ID_PLANE_ACTIVITY}",
+                messageIn: "${100 + level * 10 + ID_PLANE_ACTIVITY}",
               ),
             ),
           );
@@ -756,7 +893,22 @@ class _SelectGame extends State<SelectGame> {
                 appLanguage: appLanguage,
                 page: temp,
                 user: user,
-                messageIn: "${100 + level*10 + ID_TEMP_ACTIVITY}",
+                messageIn: "${100 + level * 10 + ID_TEMP_ACTIVITY}",
+              ),
+            ),
+          );
+        }
+        break;
+      case ID_CAR_ACTIVITY:
+        {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LoadPage(
+                appLanguage: appLanguage,
+                page: car,
+                user: user,
+                messageIn: "${100 + level * 10 + ID_CAR_ACTIVITY}",
               ),
             ),
           );
@@ -801,6 +953,7 @@ class _SelectGame extends State<SelectGame> {
     }
     setState(() {});
   }
+
   //FIN Système de navigation en 3 par 3
 
   @override
@@ -819,70 +972,74 @@ class _SelectGame extends State<SelectGame> {
       ],
       home: Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          //title: Text(AppLocalization.of(context).heyWorld),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(20.0), // here the desired height
+          child: AppBar(
+            //title: Text(AppLocalization.of(context).heyWorld),
 
-          //title: Text(AppLocalizations.of(context).translate('activites')),
-          backgroundColor: Colors.blue,
+            //title: Text(AppLocalizations.of(context).translate('activites')),
+            backgroundColor: Colors.blue,
 
-          flexibleSpace: Container(
-            height: screenSize.height,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(10),
-                ),
-                Container(
+            flexibleSpace: Container(
+              height: screenSize.height,
+              //color: Colors.red,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                  ),
+                  Container(
+                      width: (screenSize.width) / 4,
+                      child: Text(
+                        AppLocalizations.of(context).translate('activites'),
+                        style: appBarStyle,
+                        textAlign: TextAlign.left,
+                      )),
+                  /*Container(
+                    width: 30,
+                    child: RaisedButton(
+                      onPressed: () async {
+                        //db.addStar(Star(starId: null, activityId: ID_SWIMMER_ACTIVITY, userId: user.userId, starLevel: 100 + level * 10 + ID_SWIMMER_ACTIVITY, starValue: 3.5));
+
+                        //db.deleteScore(user.userId);
+                        //db.deleteStar(user.userId);
+
+                        //Star dataStar = await db.getStar(user.userId, ID_PLANE_ACTIVITY, 100 + level * 10 + ID_PLANE_ACTIVITY);
+                        Star dataStar = await db.getStar(user.userId, ID_SWIMMER_ACTIVITY, 100 + level * 10 + ID_SWIMMER_ACTIVITY);
+
+                        print(dataStar.starValue);
+                      },
+                      child: Text("Add Stars"),
+                    ),
+                  ),*/
+                  Spacer(),
+                  Text(
+                    "Hmin: " +
+                        user.userHeightBottom +
+                        " | Hmax:  " +
+                        user.userHeightTop,
+                    textAlign: TextAlign.center,
+                    style: appBarStyle,
+                  ),
+                  Spacer(),
+                  Container(
                     width: (screenSize.width) / 4,
                     child: Text(
-                      AppLocalizations.of(context).translate('activites'),
+                      "Level 1." + level.toString(),
                       style: appBarStyle,
-                      textAlign: TextAlign.left,
-                    )),
-                /*Container(
-                  width: 30,
-                  child: RaisedButton(
-                    onPressed: () async {
-                      //db.addStar(Star(starId: null, activityId: ID_SWIMMER_ACTIVITY, userId: user.userId, starLevel: 100 + level * 10 + ID_SWIMMER_ACTIVITY, starValue: 3.5));
-
-                      //db.deleteScore(user.userId);
-                      //db.deleteStar(user.userId);
-
-                      //Star dataStar = await db.getStar(user.userId, ID_PLANE_ACTIVITY, 100 + level * 10 + ID_PLANE_ACTIVITY);
-                      Star dataStar = await db.getStar(user.userId, ID_SWIMMER_ACTIVITY, 100 + level * 10 + ID_SWIMMER_ACTIVITY);
-
-                      print(dataStar.starValue);
-                    },
-                    child: Text("Add Stars"),
+                      textAlign: TextAlign.right,
+                    ),
                   ),
-                ),*/
-                Spacer(),
-                Text(
-                  "Hmin: " +
-                      user.userHeightBottom +
-                      " | Hmax:  " +
-                      user.userHeightTop,
-                  textAlign: TextAlign.center,
-                  style: appBarStyle,
-                ),
-                Spacer(),
-                Container(
-                  width: (screenSize.width) / 4,
-                  child: Text(
-                    "Level 1." + level.toString(),
-                    style: appBarStyle,
-                    textAlign: TextAlign.right,
+                  Padding(
+                    padding: EdgeInsets.all(10),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(10),
-                ),
-              ],
+                ],
+              ),
             ),
+            actions: <Widget>[],
           ),
-          actions: <Widget>[],
         ),
         body: Container(
           height: screenSize.height,
@@ -906,66 +1063,141 @@ class _SelectGame extends State<SelectGame> {
                   }
                   return;
                 },
-                child: AbsorbPointer(
-                  absorbing: hasMoved,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    controller: _controller,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        //Level 1.1
-                        swimmerGame(1),
-                        planeGame(1),
-                        tempGame(1),
-                        //Level 1.2
-                        swimmerGame(2),
-                        planeGame(2),
-                        tempGame(2),
-                      ],
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: <Widget>[
+
+                    AbsorbPointer(
+                      absorbing: hasMoved,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        controller: _controller,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Container(
+                              //color: Colors.green,
+                              width: screenSize.width,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      //Level 1.1
+                                      swimmerGame(1),
+                                      planeGame(1),
+                                    ],
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      //Level 1.1
+                                      tempGame(1),
+                                      carGame(1),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              //color: Colors.blue,
+                              width: screenSize.width,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      //Level 1.2
+                                      swimmerGame(2),
+                                      planeGame(2),
+                                    ],
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      //Level 1.2
+                                      tempGame(2),
+                                      carGame(2),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () {
+                              if (level > 1) _moveLeft();
+                              print("gauche");
+                            },
+                            child: Container(
+                              width: screenSize.width * 0.15,
+                              // / numberOfCard / 1.2,
+                              height: screenSize.height * 0.4,
+                              //color: Colors.red,
+                              child: Icon(
+                                Icons.keyboard_arrow_left,
+                                size: 100,
+                                color:
+                                level == 1 ? Colors.grey : Colors.black,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: screenSize.width * 0.15,
+                            child: backCard(),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Column(
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () {
+                              if (level < 2) _moveRight();
+                              print("droite");
+                            },
+                            child: Container(
+                              width: screenSize.width * 0.15,
+                              // numberOfCard / 1.2,
+                              height: screenSize.height * 0.4,
+                              //color: Colors.brown,
+                              child: Icon(
+                                Icons.keyboard_arrow_right,
+                                size: 100,
+                                color: level == 2 ? Colors.grey : Colors.black,
+                              ),
+                            ),
+                          ),
+
+                          Container(
+                            width: screenSize.width * 0.15,
+                            child: backCard(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              //Deuxième ligne
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  //swimmerGame(),
-                  GestureDetector(
-                    onTap: () {
-                      if (level > 1) _moveLeft();
-                      print("gauche");
-                    },
-                    child: Container(
-                      width: screenSize.width / numberOfCard / 1.2,
-                      height: screenSize.height / numberOfCard,
-                      child: Icon(
-                        Icons.keyboard_arrow_left,
-                        size: 100,
-                        color: level == 1 ? Colors.grey : Colors.black,
-                      ),
-                    ),
-                  ),
-                  backCard(),
-                  GestureDetector(
-                    onTap: () {
-                      if (level < 2) _moveRight();
-                      print("droite");
-                    },
-                    child: Container(
-                      width: screenSize.width / numberOfCard / 1.2,
-                      height: screenSize.height / numberOfCard,
-                      child: Icon(
-                        Icons.keyboard_arrow_right,
-                        size: 100,
-                        color: level == 2 ? Colors.grey : Colors.black,
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ],
           ),

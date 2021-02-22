@@ -11,6 +11,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
+import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Swimmer/SwimGame.dart';
@@ -36,7 +37,11 @@ class Swimmer extends StatefulWidget {
   final AppLanguage appLanguage;
   final String level;
 
-  Swimmer({Key key, @required this.user, @required this.appLanguage, @required this.level})
+  Swimmer(
+      {Key key,
+      @required this.user,
+      @required this.appLanguage,
+      @required this.level})
       : super(key: key);
 
   @override
@@ -59,7 +64,8 @@ class _Swimmer extends State<Swimmer> {
   Timer timerThread;
   Timer timerConnexion;
   UI gameUI;
-  bool gameOver;
+  CommonGamesUI commonGamesUI;
+  bool endGame;
   int score;
   double starValue;
   int level;
@@ -76,14 +82,7 @@ class _Swimmer extends State<Swimmer> {
     if (user.userInitialPush != "0.0") {
       score = 0;
       starValue = 0.0;
-      if (user.userMode == "Sportif") {
-        timeRemaining = "3:00";
-        seconds = 180;
-      } else {
-        timeRemaining = "2:00";
-        seconds = 120;
-      }
-      gameOver = false;
+      endGame = false;
       isConnected = false;
       connect();
     }
@@ -106,6 +105,7 @@ class _Swimmer extends State<Swimmer> {
 
     game = new SwimGame(getData, user, appLanguage);
     gameUI = new UI();
+    commonGamesUI = new CommonGamesUI();
     game.setStarLevel(level);
     refreshScore();
     mainThread();
@@ -127,13 +127,11 @@ class _Swimmer extends State<Swimmer> {
     if (await btManage.enableBluetooth()) {
       connect();
     } else {
-
       isConnected = await btManage.getStatus();
       if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
         connect();
-      }
-      else {
+      } else {
         launchGame();
         return;
       }
@@ -159,6 +157,13 @@ class _Swimmer extends State<Swimmer> {
   }
 
   void launchGame() {
+    if (user.userMode == AppLocalizations.of(context).translate('sportif')) {
+      timeRemaining = "3:00";
+      seconds = 180;
+    } else {
+      timeRemaining = "2:00";
+      seconds = 10;
+    }
     initSwimmer();
   }
 
@@ -224,7 +229,6 @@ class _Swimmer extends State<Swimmer> {
   }
 
   void startTimer(bool boolean) async {
-    Timer _timer;
     int _start = seconds;
     const int delay = 1;
 
@@ -239,9 +243,8 @@ class _Swimmer extends State<Swimmer> {
           if (_start < delay) {
             //TODO Display menu ?
             game.pauseGame = true;
-            gameOver = true;
+            endGame = true;
             timer.cancel();
-            redirection();
           } else if (!game.getConnectionState())
             timer.cancel();
           else if (game.pauseGame || game.getGameOver()) {
@@ -263,41 +266,6 @@ class _Swimmer extends State<Swimmer> {
     return "$twoDigitMinutes:$twoDigitSeconds";
   }
 
-  void redirection() {
-    const oneSec = const Duration(seconds: 1);
-    if (mounted)
-    _timer = new Timer.periodic(
-      oneSec,
-      (Timer timer) => setState(
-        () {
-          if (_start < 1) {
-
-            //S'il fait plus de 180m alors demi-étoile
-            if (user.userMode ==
-                AppLocalizations.of(context).translate('familial') &&
-                score > 180) {
-              game.setStarValue(starValue = 0.5);
-              print("Star: $starValue");
-              print("Lavel: $level");
-            }
-            //TODO Mode sportif pour le nageur
-            else if (user.userMode ==
-                AppLocalizations.of(context).translate('sportif') &&
-                score > 240)
-              game.setStarValue(starValue = 0.5);
-            else
-              game.setStarValue(starValue = 0.0);
-
-            timer.cancel();
-            gameUI.state.saveAndExit(context, appLanguage, user, score, game, starValue, level);
-          } else {
-            _start = _start - 1;
-          }
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -309,8 +277,7 @@ class _Swimmer extends State<Swimmer> {
           : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
       child: Stack(
         children: <Widget>[
-          game == null ||
-              double.parse(user.userInitialPush) == 0
+          game == null || double.parse(user.userInitialPush) == 0
               ? Center(
                   child: Container(
                       width: screenSize.width,
@@ -401,15 +368,22 @@ class _Swimmer extends State<Swimmer> {
                                 : gameUI.state.pauseButton(
                                     context, appLanguage, game, user),
                           )
-                        : !gameOver
+                        : !endGame
                             ? Container(
                                 alignment: Alignment.topRight,
                                 child: gameUI.state
                                     .menu(context, appLanguage, game, user))
                             : Container(
                                 alignment: Alignment.topCenter,
-                                child: gameUI.state.endScreen(
-                                    context, appLanguage, game, user))
+                                child: commonGamesUI.endScreen(
+                                    context,
+                                    appLanguage,
+                                    game,
+                                    ID_SWIMMER_ACTIVITY,
+                                    user,
+                                    starValue,
+                                    level,
+                                    score))
                     : Container(),
 
                 /*              Container(
@@ -427,10 +401,10 @@ class _Swimmer extends State<Swimmer> {
           Container(
             alignment: Alignment.bottomLeft,
             padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-            child: game == null
-                ? Container()
-                : gameUI.state.displayScore(context, appLanguage,
-                    score.toString(), timeRemaining, game),
+            child: game != null && !endGame
+                ? gameUI.state.displayScore(
+                    context, appLanguage, score.toString(), timeRemaining, game)
+                : Container(),
           ),
           //Display message pour relancher
           Container(

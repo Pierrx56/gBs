@@ -311,6 +311,14 @@ class _Register extends State<Register> {
           else
             isEmpty = false;
         }
+        if (currentStep == 1) {
+          if (_userMode == "") {
+            isEmpty = true;
+            show(AppLocalizations.of(context).translate('erreur_mode'));
+          }
+          else
+            isEmpty = false;
+        }
         /*else if (currentStep == 1) {
           if (hauteur_min.text == "")
             isEmpty = true;
@@ -345,25 +353,24 @@ class _Register extends State<Register> {
           if (currentStep == 0) {
             nameNode.requestFocus();
           } else if (currentStep == 1) {
-            if (_userMode == "")
-              _userMode = AppLocalizations.of(context).translate('familial');
+            //if (_userMode == "")
+              //_userMode = AppLocalizations.of(context).translate('familial');
           } else if (currentStep == 3) {
             serialNode.requestFocus();
 
-            timerNode = Timer.periodic(Duration(milliseconds: 300), (timerNode) {
-              if(serialNumber.text.length >= 8) {
+            timerNode =
+                Timer.periodic(Duration(milliseconds: 300), (timerNode) {
+              if (serialNumber.text.length >= 8) {
                 setState(() {
                   isGoodLength = true;
                 });
-              }
-              else {
+              } else {
                 setState(() {
                   isGoodLength = false;
                 });
               }
             });
-          }
-          else if(currentStep == 4){
+          } else if (currentStep == 4) {
             timerNode?.cancel();
           }
 
@@ -433,6 +440,9 @@ class _Register extends State<Register> {
                   style: textStyle,
                   focusNode: nameNode,
                   controller: name,
+                  onFieldSubmitted: (term) {
+                    next();
+                  },
                   decoration: InputDecoration(
                     labelText: AppLocalizations.of(context).translate('prenom'),
                     errorText: isEmpty
@@ -453,6 +463,77 @@ class _Register extends State<Register> {
         ),
       ),
       //Mode
+      Step(
+        title: Text(
+          AppLocalizations.of(context).translate('mode'),
+        ),
+        isActive: currentStep > 1,
+        state: currentStep > 1 ? StepState.complete : StepState.disabled,
+        content: Column(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Container(
+                  width: screenSize.width/3,
+                  height: screenSize.height/2.5,
+                  child: Column(
+                    children: <Widget>[
+                      RadioListTile<String>(
+                        title:
+                            Text(AppLocalizations.of(context).translate('sportif')),
+                        value: AppLocalizations.of(context).translate('sportif'),
+                        groupValue: _userMode,
+                        onChanged: (String value) {
+                          setState(() {
+                            _userMode = value;
+                          });
+                        },
+                      ),
+                      AutoSizeText(
+                        AppLocalizations.of(context).translate('mode_sportif'),
+                        maxLines: 3,
+                        minFontSize: 20,
+                      )
+                    ],
+                  ),
+                ),
+                Spacer(),
+                Container(
+                  width: 5,
+                  height: screenSize.height/2.5,
+                  color: Colors.black54,
+                ),
+                Spacer(),
+                Container(
+                  width: screenSize.width/3,
+                  height: screenSize.height/2.5,
+                  child: Column(
+                    children: <Widget>[
+                      RadioListTile<String>(
+                        title:
+                            Text(AppLocalizations.of(context).translate('familial')),
+                        value: AppLocalizations.of(context).translate('familial'),
+                        groupValue: _userMode,
+                        onChanged: (String value) {
+                          setState(() {
+                            _userMode = value;
+                          });
+                        },
+                      ),
+                      AutoSizeText(
+                        AppLocalizations.of(context).translate('mode_familiale'),
+                        maxLines: 3,
+                        minFontSize: 20,
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      /*
       Step(
         title: Text(
           AppLocalizations.of(context).translate('mode'),
@@ -503,7 +584,7 @@ class _Register extends State<Register> {
                   )
           ],
         ),
-      ),
+      ),*/
       //Image
       Step(
         title: Text(AppLocalizations.of(context).translate('select_image')),

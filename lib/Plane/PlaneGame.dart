@@ -67,15 +67,6 @@ class PlaneGame extends Game {
     topBalloon = TopBalloon(this);
     gameUI = UI();
 
-    //On double la vitesse des ballon et la vitesse de remontée/redescente de l'avion
-    //Le temps passe de 2 min à 3 min
-    if (user.userMode == "Sportif") {
-      difficulte = 6.0;
-      balloonSpeed = 4;
-    } else {
-      difficulte = 3.0;
-      balloonSpeed = 2;
-    }
 
     position = false;
     posMax = false;
@@ -313,6 +304,10 @@ class PlaneGame extends Game {
 
   void setColorFilter(bool boolean) {
     redFilter = boolean;
+  }
+
+  void setBalloonSpeed(int speed){
+    balloonSpeed = speed;
   }
 
   ColorFilter getColorFilter() {

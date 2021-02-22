@@ -203,6 +203,7 @@ class SwimGame extends Game {
 
           //if (pauseGame) i--;
 
+
           swimmerPic = tab[i];
 
           creationTimer = 0.0;
@@ -348,14 +349,13 @@ class SwimGame extends Game {
 
 
   void startTimer(bool isStarted, double _start) async {
-    Timer _timer;
 
     if (!isStarted && isConnected) {
       //_start = 5.0;
       start = false;
     } else {
       const time = const Duration(milliseconds: 500);
-      _timer = new Timer.periodic(
+      Timer.periodic(
         time,
         (Timer timer) {
           // S'il ressort de la zone avant le timer, on reset le timer

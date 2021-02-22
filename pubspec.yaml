@@ -80,6 +80,7 @@ flutter:
     - assets/
     - assets/flags/
     - assets/images/
+    - assets/images/car/
     - assets/images/plane/
     - assets/images/swimmer/
     - assets/images/temp/

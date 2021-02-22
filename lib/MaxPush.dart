@@ -136,8 +136,8 @@ class _MaxPush extends State<MaxPush> {
   }
 
   void getConnectState() async {
-    timerConnexion = new Timer.periodic(Duration(milliseconds: 300),
-        (timerConnexion) async {
+    timerConnexion =
+        new Timer.periodic(Duration(milliseconds: 300), (timerConnexion) async {
       isConnected = await btManage.getStatus();
       if (!isConnected && !isTryingConnect) {
         show("Device disconnected ! Waiting for reconnexion...");
@@ -145,7 +145,6 @@ class _MaxPush extends State<MaxPush> {
         setState(() {
           isTryingConnect = true;
         });
-
       } else if (isConnected && isTryingConnect) {
         setState(() {
           isTryingConnect = false;
@@ -235,7 +234,8 @@ class _MaxPush extends State<MaxPush> {
           topNumbers.add(bottomSelection + i + 1);
         }
 
-        if (bottomSelection != 0 && topSelection != 1) {
+        if (bottomSelection != 0 && topSelection != 1 ||
+            double.parse(user.userInitialPush) == 0.0) {
           backButtonText = AppLocalizations.of(context).translate('valider');
         } else
           backButtonText = AppLocalizations.of(context).translate('retour');
@@ -259,7 +259,8 @@ class _MaxPush extends State<MaxPush> {
       onChanged: (int value) {
         topSelection = value;
 
-        if (bottomSelection != 0 && topSelection != 1) {
+        if (bottomSelection != 0 && topSelection != 1 ||
+            double.parse(user.userInitialPush) == 0.0) {
           backButtonText = AppLocalizations.of(context).translate('valider');
         } else
           backButtonText = AppLocalizations.of(context).translate('retour');
@@ -376,7 +377,8 @@ class _MaxPush extends State<MaxPush> {
                                       //Container progress bar
                                       //Passe à vert au dessus de 50 et en dessous de 100
                                       //sinon rouge
-                                      Container(
+                                      AnimatedContainer(
+                                        duration: Duration(milliseconds: 400),
                                         decoration: new BoxDecoration(
                                           color: colorProgressBar,
                                           //new Color.fromRGBO(255, 0, 0, 0.0),
@@ -411,14 +413,17 @@ class _MaxPush extends State<MaxPush> {
                                         //new Color.fromRGBO(255, 0, 0, 0.0),
                                         child: Center(
                                           child: Transform.rotate(
-                                              angle: -math.pi,
-                                              //Affiche la mesure en live puis la moyenne à la fin
-                                              child: _start <= 0.1
-                                                  ? AutoSizeText(
-                                                      (result).toString())
-                                                  : AutoSizeText(
-                                                      (double.parse(btData))
-                                                          .toString())),
+                                            angle: -math.pi,
+                                            //Affiche la mesure en live puis la moyenne à la fin
+                                            child: _start <= 0.1
+                                                ? AutoSizeText(
+                                                    (result.toInt()).toString())
+                                                : AutoSizeText(
+                                                    (double.parse(btData)
+                                                            .toInt())
+                                                        .toString(),
+                                                  ),
+                                          ),
                                         ),
                                         width: screenSize.width * 0.15,
                                         height: screenSize.height / 2,
@@ -507,7 +512,10 @@ class _MaxPush extends State<MaxPush> {
                                         width: screenSize.width * 0.3,
                                         child: RaisedButton(
                                           //child: Text("Démarrer l'enregistrement."),
-                                          onPressed:!isTryingConnect && !isTooHigh && !isCorrect && !isPush
+                                          onPressed: !isTryingConnect &&
+                                                  !isTooHigh &&
+                                                  !isCorrect &&
+                                                  !isPush
                                               ? () async {
                                                   //Initialisation du timer
                                                   _start = _reset;
@@ -521,17 +529,20 @@ class _MaxPush extends State<MaxPush> {
                                                       (Timer timer) => setState(
                                                         () {
                                                           //Si déco pendant une mesure
-                                                          if(isTryingConnect){
+                                                          if (isTryingConnect) {
                                                             timer.cancel();
                                                             isPush = false;
                                                             _start = _reset;
                                                             i = 100;
                                                             setState(() {
-                                                              recording =
-                                                                  AppLocalizations.of(context).translate('demarrer_enregistrement');
+                                                              recording = AppLocalizations
+                                                                      .of(
+                                                                          context)
+                                                                  .translate(
+                                                                      'demarrer_enregistrement');
                                                             });
-                                                          }
-                                                          else if (_start < 0.1) {
+                                                          } else if (_start <
+                                                              0.1) {
                                                             timer.cancel();
                                                             print(average);
                                                             result = double.parse(
@@ -692,8 +703,11 @@ class _MaxPush extends State<MaxPush> {
                                               (inputMessage == "fromRegister" &&
                                                   isCorrect)
                                           ? RaisedButton(
-                                              onPressed: () {
-                                                if(inputMessage != "fromRegister") {
+                                              onPressed:
+                                              bottomSelection != 0 &&
+                                                  (topSelection != 0 || topSelection != 1) || inputMessage == "fromMain" ? () {
+                                                if (inputMessage !=
+                                                    "fromRegister") {
                                                   if (bottomSelection == 0)
                                                     bottomSelection = int.parse(
                                                         user.userHeightBottom);
@@ -746,7 +760,7 @@ class _MaxPush extends State<MaxPush> {
                                                     ),
                                                   ),
                                                 );
-                                              },
+                                              } : null,
                                               child: AutoSizeText(
                                                 backButtonText,
                                                 style: textStyle,

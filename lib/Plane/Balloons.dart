@@ -23,7 +23,8 @@ class BottomBalloon {
 
     var rng = new Random();
     //Génération de ballon de couleur aléatoire
-    int number = rng.nextInt(balloonArray.length);
+    //int number = rng.nextInt(balloonArray.length);
+    int number = 0;
 
     bottomBalloon = new Sprite(balloonArray[number]);
     widthBalloon = 30;//bottomBalloon.image.width;
@@ -47,8 +48,8 @@ class BottomBalloon {
       j = 0;
       var rng = new Random();
       //Génération de ballon de couleur aléatoire
-      int number = rng.nextInt(balloonArray.length);
-
+      //int number = rng.nextInt(balloonArray.length);
+      int number = 0;
       bottomBalloon = new Sprite(balloonArray[number]);
     }
     c.translate(posX = game.screenSize.width - widthBalloon - j.toDouble(), 0);
@@ -88,7 +89,8 @@ class TopBalloon {
 
     var rng = new Random();
     //Génération de ballon de couleur aléatoire
-    int number = rng.nextInt(balloonArray.length);
+    //int number = rng.nextInt(balloonArray.length);
+    int number = 0;
 
     topBalloon = new Sprite(balloonArray[number]);
 
@@ -113,7 +115,8 @@ class TopBalloon {
       j = 0;
       var rng = new Random();
       //Génération de ballon de couleur aléatoire
-      int number = rng.nextInt(balloonArray.length);
+      //int number = rng.nextInt(balloonArray.length);
+      int number = 0;
       topBalloon = new Sprite(balloonArray[number]);
     }
 

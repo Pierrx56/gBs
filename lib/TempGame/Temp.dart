@@ -14,6 +14,7 @@ import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
+import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
@@ -66,11 +67,12 @@ class _Temp extends State<Temp> {
   bool start;
   double push;
   UI gameUI;
+  CommonGamesUI commonGamesUI;
   int coins;
   int jumpCounter;
   double starValue;
   int level;
-  int six = 6;
+  int cinq = 5;
   double totalPush = 0.0;
   int k = 0;
 
@@ -89,6 +91,7 @@ class _Temp extends State<Temp> {
     //myGame = GameWrapper(game);
     if (user.userInitialPush != "0.0") {
       gameUI = UI();
+      commonGamesUI = CommonGamesUI();
       coins = 0;
       isConnected = false;
       start = false;
@@ -122,6 +125,7 @@ class _Temp extends State<Temp> {
     //gameUI.state.game = game;
     Util flameUtil = Util();
     flameUtil.fullScreen();
+    game.setStarLevel(level);
 
     TapGestureRecognizer tapper = TapGestureRecognizer();
 
@@ -181,7 +185,6 @@ class _Temp extends State<Temp> {
       //TODO Changer pour mettre à 10
       //Condition de victoire
       if (game.getJumpCounter() >= 5) {
-        redirection();
         game.endGame = true;
         game.gameOver = true;
         game.pauseGame = true;
@@ -253,14 +256,15 @@ class _Temp extends State<Temp> {
     double tempPush = getData();
 
     //Si le joueur a dépassé le drapeau ou qu'il attend au bout de la plateforme
-    if (game.isWaiting || game.isPushable) {
+    if ((game.isWaiting || game.isPushable) && !game.launchTuto ) {
       //push = 0.99;
       if (double.parse(user.userInitialPush) < tempPush &&
           push > 0.0 &&
-          six == 6) {
+          cinq == 5) {
         game.setPushState(true);
-        print(six);
-        six--;
+
+        print(cinq);
+        cinq--;
 
         //Récupère les données du capteur toutes les 200ms
         timerPush = new Timer.periodic(
@@ -268,25 +272,25 @@ class _Temp extends State<Temp> {
           (Timer timer) {
             totalPush += getData();
             k++;
-            if (six < 1) {
+            if (cinq < 1) {
               timer.cancel();
             }
           },
         );
-        //Compteur de 6 secs
+        //Compteur de 5 secs
         timerHeight = new Timer.periodic(
           Duration(seconds: 1),
           (Timer timer) {
-            if (push >= 1 / 6)
-              push -= 1 / 6;
+            if (push >= 1 / 5)
+              push -= 1 / 5;
             else
               push = 0.0;
 
-            if (six < 1) {
+            if (cinq < 1) {
               //push = 0.0;
               timer.cancel();
             } else {
-              six--;
+              cinq--;
             }
           },
         );
@@ -318,7 +322,7 @@ class _Temp extends State<Temp> {
         //print(determineJump);
       }
     } else {
-      six = 6;
+      cinq = 5;
       push = 0.99;
       k = 0;
       totalPush = 0;
@@ -335,7 +339,6 @@ class _Temp extends State<Temp> {
   }
 
   int getFloor() {
-    //return 0;
     return jumpToFloor;
   }
 
@@ -343,38 +346,6 @@ class _Temp extends State<Temp> {
     return push;
   }
 
-  void redirection() {
-    //TODO Update coin value
-    if (user.userMode == AppLocalizations.of(context).translate('familial') &&
-        coins > 2) {
-      setState(() {
-        game.setStarValue(starValue = 0.5);
-      });
-    } else if (user.userMode ==
-            AppLocalizations.of(context).translate('sportif') &&
-        coins > 2) {
-      setState(() {
-        game.setStarValue(starValue = 0.5);
-      });
-    } else {
-      setState(() {
-        game.setStarValue(starValue = 0.0);
-      });
-    }
-    const oneSec = const Duration(seconds: 3);
-    _timer = new Timer.periodic(
-      oneSec,
-      (Timer timer) => mounted
-          ? setState(
-              () {
-                timer.cancel();
-                gameUI.state.saveAndExit(
-                    context, appLanguage, user, coins, game, starValue, level);
-              },
-            )
-          : start = start,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -389,6 +360,7 @@ class _Temp extends State<Temp> {
           ? game.getColorFilter()
           : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
       child: Stack(
+        alignment: Alignment.center,
         children: <Widget>[
           game == null || double.parse(user.userInitialPush) == 0
               ? Center(
@@ -460,31 +432,38 @@ class _Temp extends State<Temp> {
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 game != null
                     ? !game.pauseGame &&
                             !game.getGameOver() &&
                             game.getConnectionState()
-                        ? Container(
+                        ? Align(
                             alignment: Alignment.topRight,
-                            color: Colors.transparent,
-                            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                            child: game == null
-                                ? Container()
-                                : gameUI.state.pauseButton(
-                                    context, appLanguage, game, user),
+                            child: Container(
+                              height: screenSize.height,
+                              alignment: Alignment.topRight,
+                              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                              child: game != null
+                                  ? commonGamesUI.pauseButton(
+                                      context, appLanguage, game, user)
+                                  : Container(),
+                            ),
                           )
-                        : !game.isTooHigh
-                            ? Container(
+                        : !game.isTooHigh && !game.getEndGame()
+                            ? Align(
                                 alignment: Alignment.topRight,
-                                child: gameUI.state
-                                    .menu(context, appLanguage, game, user))
+                                child: Container(
+                                    alignment: Alignment.topRight,
+                                    child: gameUI.state.menu(context,
+                                        appLanguage, game, user, level)),
+                              )
                             : Container()
                     : Container(),
               ],
             ),
           ),
-          //Display message pour afficher score
+          //Display coins and life
           game != null && !game.getGameOver()
               ? game.getConnectionState()
                   ? Container(
@@ -496,7 +475,7 @@ class _Temp extends State<Temp> {
                     )
                   : Container()
               : Container(),
-          //Display le panneau
+          //Display tuto
           game != null && !game.getGameOver()
               ? game.getConnectionState()
                   ? game.isPushable && game.coins == 0 && game.launchTuto
@@ -505,17 +484,23 @@ class _Temp extends State<Temp> {
                           padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
                           child: game == null
                               ? Container()
-                              : gameUI.state
-                                  .displayTuto(context,appLanguage, game, user),
+                              : gameUI.state.displayTuto(
+                                  context, appLanguage, game, user),
                         )
                       : Container()
                   : Container()
               : Container(),
           //Consigne
           game != null
-              ? game.isWaiting && !game.getGameOver() && game.coins == 0 ||
-                      game.life < 2 && game.isWaiting ||
-                      game.coins == 0 && game.isPushable
+              ? game.isWaiting &&
+                          !game.getGameOver() &&
+                          game.coins == 0 &&
+                          !game.pauseGame ||
+                      game.life < 2 && game.isWaiting && !game.pauseGame ||
+                      game.coins == 0 &&
+                          game.isPushable &&
+                          !game.launchTuto &&
+                          !game.pauseGame
                   ? !game.getGameOver()
                       ? game.getConnectionState()
                           ? Container(
@@ -557,7 +542,7 @@ class _Temp extends State<Temp> {
               : Container(),
           //Display jauge à remplir
           game != null
-              ? game.isWaiting || game.isPushable
+              ? (game.isWaiting || game.isPushable)
                   ? !game.getGameOver()
                       ? game.getConnectionState()
                           ? Container(
@@ -612,10 +597,14 @@ class _Temp extends State<Temp> {
             alignment: Alignment.topCenter,
             child: game != null
                 ? game.getEndGame() && !game.isTooHigh
+                    //? game.pauseGame
                     ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          gameUI.state
-                              .endScreen(context, appLanguage, game, user),
+                          commonGamesUI.endScreen(context, appLanguage, game,
+                              ID_TEMP_ACTIVITY, user, starValue, level, coins),
+                          //gameUI.state.endScreen(context, appLanguage, game, user, level),
                         ],
                       )
                     : Container()

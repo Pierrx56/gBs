@@ -27,7 +27,7 @@ double grassYOffset1;
 
 class BottomFloor {
   final TempGame game;
-  Sprite coin;
+  List<Sprite> coinSprite;
   Sprite flag;
   Sprite grass;
   Sprite grassLeft;
@@ -40,14 +40,16 @@ class BottomFloor {
   Rect rectGrass0;
   Rect rectGrass1;
   Rect rectGrass2;
-  Rect rectFlag;
   Rect rectGrass3;
   Rect rectGrass4;
+  Rect rectFlag;
   Rect rectGrass5;
   Rect rectGrass6;
   Rect rectGrass7;
   Rect rectGrass8;
   Rect rectGrass9;
+  Rect rectGrass10;
+  Rect rectGrass11;
   Rect rectGrassRight;
   bool hasChanged;
   Paint opacity; // = Paint()..color = Colors.white.withOpacity(opacity);
@@ -56,9 +58,46 @@ class BottomFloor {
   Paint opacityC2; // = Paint()..color = Colors.white.withOpacity(opacity);
   int j = 0;
   List<double> grassXOffset = [];
+  int increment = 0;
+
+  static List<String> coins = [
+    'temp/coin1.png',
+    'temp/coin2.png',
+    'temp/coin3.png',
+    'temp/coin4.png',
+    'temp/coin5.png',
+    'temp/coin6.png',
+    'temp/coin7.png',
+    'temp/coin8.png',
+    'temp/coin9.png',
+    'temp/coin10.png',
+    'temp/coin11.png',
+    'temp/coin12.png',
+    'temp/coin13.png',
+    'temp/coin14.png',
+    'temp/coin15.png',
+    'temp/coin16.png'
+  ];
 
   BottomFloor(this.game) {
-    coin = Sprite('temp/coin.png');
+    coinSprite = [
+      Sprite(coins[0]),
+      Sprite(coins[1]),
+      Sprite(coins[2]),
+      Sprite(coins[3]),
+      Sprite(coins[4]),
+      Sprite(coins[5]),
+      Sprite(coins[6]),
+      Sprite(coins[7]),
+      Sprite(coins[8]),
+      Sprite(coins[9]),
+      Sprite(coins[10]),
+      Sprite(coins[11]),
+      Sprite(coins[12]),
+      Sprite(coins[13]),
+      Sprite(coins[14]),
+      Sprite(coins[15]),
+    ];
     flag = Sprite('temp/flag.png');
     grass = Sprite('temp/grass.png');
     grassRight = Sprite('temp/grass_right.png');
@@ -95,6 +134,8 @@ class BottomFloor {
       9 * grassSize + offset,
       10 * grassSize + offset,
       11 * grassSize + offset,
+      12 * grassSize + offset,
+      13 * grassSize + offset,
     ];
   }
 
@@ -121,11 +162,11 @@ class BottomFloor {
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
     rectGrass2 = Rect.fromLTWH(grassXOffset[3], grassYOffset,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
-    rectFlag = Rect.fromLTWH(grassXOffset[3], grassYOffset - grassSize,
-        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
     rectGrass3 = Rect.fromLTWH(grassXOffset[4], grassYOffset,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
     rectGrass4 = Rect.fromLTWH(grassXOffset[5], grassYOffset,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectFlag = Rect.fromLTWH(grassXOffset[5], grassYOffset - grassSize,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
     rectGrass5 = Rect.fromLTWH(grassXOffset[6], grassYOffset,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
@@ -137,144 +178,42 @@ class BottomFloor {
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
     rectGrass9 = Rect.fromLTWH(grassXOffset[10], grassYOffset,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
-    rectGrassRight = Rect.fromLTWH(grassXOffset[11], grassYOffset,
+    rectGrass10 = Rect.fromLTWH(grassXOffset[11], grassYOffset,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrass11 = Rect.fromLTWH(grassXOffset[12], grassYOffset,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrassRight = Rect.fromLTWH(grassXOffset[13], grassYOffset,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
   }
 
   void render(Canvas c, bool pause, bool isMoving) {
-/*    if(isMoving)
-      c.translate(-game.screenSize.width / 2,
-          -game.screenSize.height * (1 - balloonPosition));*/
-/*
-    if (isMoving) {
-      if (!pause) j += screenSpeed;
-
-      if (!isInit) {
-        offset = game.tempPosX.toInt();
-        posFloorY = 0;
-        isInit = true;
-        isTheFirstPlatform = false;
-      }
-
-      //Marche jusquau premier vide
-      // if (j <= 5.5 * (-grassSize) && !game.hasJumped) {
-      if (j >= grassXOffset[grassXOffset.length - 1] - offset - grassSize / 2 &&
-          !game.hasJumped &&
-          !isTheFirstPlatform) {
-        j -= screenSpeed;
-        //isMoving = false;
-        if (!hasChanged) {
-          //Waiting
-          game.setPlayerState(2);
-          hasChanged = true;
-        }
-        //while(!game.hasJumped);
-
-      }
-      //Premier vide à sauter
-      else if (j >=
-              grassXOffset[grassXOffset.length - 1] - offset - grassSize / 2 &&
-          j <= grassXOffset1[0] - offset - grassSize / 2 &&
-          game.hasJumped &&
-          !isTheFirstPlatform) {
-        jump();
-      }
-
-      //Marche jusqu'au bout de la plateforme
-      if (j >= grassXOffset[grassXOffset.length - 1] - offset - grassSize / 2 &&
-          !game.hasJumped &&
-          !blockOne) {
-        j -= screenSpeed;
-        //isMoving = false;
-        if (!hasChanged) {
-          //Waiting
-          game.setPlayerState(2);
-          hasChanged = true;
-        }
-      }
-      //Marche jusqu'au bout de l'autre plateforme
-      else if (j >=
-              grassXOffset1[grassXOffset.length - 1] - offset - grassSize / 2 &&
-          !game.hasJumped &&
-          blockOne) {
-        j -= screenSpeed;
-        //isMoving = false;
-        if (!hasChanged) {
-          //Waiting
-          game.setPlayerState(2);
-          hasChanged = true;
-        }
-      }
-
-      //Vide à sauter
-      else if (j >=
-              grassXOffset[grassXOffset.length - 1] - offset - grassSize / 2 &&
-          j <= grassXOffset1[0] - offset - grassSize / 2 &&
-          game.hasJumped &&
-          !blockOne) {
-        jump();
-        //blockOne = true;
-      } else if (j >=
-              grassXOffset1[grassXOffset.length - 1] - offset - grassSize / 2 &&
-          j <= grassXOffset[0] - offset - grassSize / 2 &&
-          game.hasJumped &&
-          blockOne) {
-        jump();
-        //blockOne = false;
-      }
-
-      //Déplacement du bloc à la suite de l'ancien
-      if (j > grassXOffset[grassXOffset.length - 1] + grassSize * 1) {
-        for (int i = 0; i < grassXOffset.length; i++) {
-          grassXOffset[i] += grassSize * 24;
-        }
-        blockOne = !blockOne;
-        grassYOffset = firstFloorY;
-        updateRect();
-      } else if (j > grassXOffset1[grassXOffset1.length - 1] + grassSize * 1) {
-        for (int i = 0; i < grassXOffset1.length; i++) {
-          grassXOffset1[i] += grassSize * 24;
-        }
-
-        game.tabFloor[0].setOpacity(1);
-        game.tabFloor[1].setOpacity(1);
-        game.tabFloor[2].setOpacity(1);
-        blockOne = !blockOne;
-        firstFloorY = game.floorPosition[0];
-        grassYOffset1 = firstFloorY;
-        game.tabFloor[0].updateRect();
-        firstFloorY = game.floorPosition[1];
-        grassYOffset1 = firstFloorY;
-        game.tabFloor[1].updateRect();
-        firstFloorY = game.floorPosition[2];
-        grassYOffset1 = firstFloorY;
-        game.tabFloor[2].updateRect();
-      }
-
-      //-1190
-
-      c.translate(-j.toDouble(), 0);
-    } else
-      isInit = false;
-    */
-
     if (isMoving) c.translate(0, 0);
 
+    //Change coins sprite
+    increment++;
+    if (increment % 8 == 0) {
+      if (k < 15)
+        k++;
+      else
+        k = 0;
+    }
     grassLeft.renderRect(c, rectGrassLeft, overridePaint: getOpacity());
-    coin.renderRect(c, rectCoin0, overridePaint: getOpacityC0());
-    coin.renderRect(c, rectCoin1, overridePaint: getOpacityC1());
-    coin.renderRect(c, rectCoin2, overridePaint: getOpacityC2());
+    coinSprite[k].renderRect(c, rectCoin0, overridePaint: getOpacityC0());
+    coinSprite[k].renderRect(c, rectCoin1, overridePaint: getOpacityC1());
+    coinSprite[k].renderRect(c, rectCoin2, overridePaint: getOpacityC2());
     grass.renderRect(c, rectGrass0, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass1, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass2, overridePaint: getOpacity());
-    flag.renderRect(c, rectFlag, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass3, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass4, overridePaint: getOpacity());
+    flag.renderRect(c, rectFlag, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass5, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass6, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass7, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass8, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass9, overridePaint: getOpacity());
+    grass.renderRect(c, rectGrass10, overridePaint: getOpacity());
+    grass.renderRect(c, rectGrass11, overridePaint: getOpacity());
     grassRight.renderRect(c, rectGrassRight, overridePaint: getOpacity());
 
     // restore original state
@@ -321,6 +260,14 @@ class BottomFloor {
     return opacityC2;
   }
 
+  double getFlagPosition() {
+    return getGrassXOffset()[5];
+  }
+
+  double getCoinsPosition() {
+    return getGrassXOffset()[0];
+  }
+
   void jump() {
     j += 3 * screenSpeed;
     game.setPlayerState(1);
@@ -332,7 +279,7 @@ class BottomFloor {
 
 class FirstFloor {
   final TempGame game;
-  Sprite coin;
+  List<Sprite> coinSprite;
   Sprite flag;
   Sprite grass;
   Sprite grassRight;
@@ -344,15 +291,17 @@ class FirstFloor {
   Rect rectGrassLeft;
   Rect rectGrass0;
   Rect rectGrass1;
-  Rect rectFlag;
   Rect rectGrass2;
   Rect rectGrass3;
   Rect rectGrass4;
+  Rect rectFlag;
   Rect rectGrass5;
   Rect rectGrass6;
   Rect rectGrass7;
   Rect rectGrass8;
   Rect rectGrass9;
+  Rect rectGrass10;
+  Rect rectGrass11;
   Rect rectGrassRight;
 
   bool hasChanged;
@@ -362,9 +311,46 @@ class FirstFloor {
   Paint opacityC1; // = Paint()..color = Colors.white.withOpacity(opacity);
   Paint opacityC2; // = Paint()..color = Colors.white.withOpacity(opacity);
   List<double> grassXOffset = [];
+  int increment = 0;
+
+  static List<String> coins = [
+    'temp/coin1.png',
+    'temp/coin2.png',
+    'temp/coin3.png',
+    'temp/coin4.png',
+    'temp/coin5.png',
+    'temp/coin6.png',
+    'temp/coin7.png',
+    'temp/coin8.png',
+    'temp/coin9.png',
+    'temp/coin10.png',
+    'temp/coin11.png',
+    'temp/coin12.png',
+    'temp/coin13.png',
+    'temp/coin14.png',
+    'temp/coin15.png',
+    'temp/coin16.png'
+  ];
 
   FirstFloor(this.game) {
-    coin = Sprite('temp/coin.png');
+    coinSprite = [
+      Sprite(coins[0]),
+      Sprite(coins[1]),
+      Sprite(coins[2]),
+      Sprite(coins[3]),
+      Sprite(coins[4]),
+      Sprite(coins[5]),
+      Sprite(coins[6]),
+      Sprite(coins[7]),
+      Sprite(coins[8]),
+      Sprite(coins[9]),
+      Sprite(coins[10]),
+      Sprite(coins[11]),
+      Sprite(coins[12]),
+      Sprite(coins[13]),
+      Sprite(coins[14]),
+      Sprite(coins[15]),
+    ];
     flag = Sprite('temp/flag.png');
     grass = Sprite('temp/grass.png');
     grassRight = Sprite('temp/grass_right.png');
@@ -377,7 +363,7 @@ class FirstFloor {
     setGrassXOffset(0);
 
     grassXOffset = getGrassXOffset();
-
+    increment = 0;
     k = 0;
     hasChanged = false;
 
@@ -386,8 +372,6 @@ class FirstFloor {
 
   void setGrassXOffset(double offset) {
     grassXOffset = [
-      14 * grassSize + offset,
-      15 * grassSize + offset,
       16 * grassSize + offset,
       17 * grassSize + offset,
       18 * grassSize + offset,
@@ -398,6 +382,10 @@ class FirstFloor {
       23 * grassSize + offset,
       24 * grassSize + offset,
       25 * grassSize + offset,
+      26 * grassSize + offset,
+      27 * grassSize + offset,
+      28 * grassSize + offset,
+      29 * grassSize + offset,
     ];
   }
 
@@ -418,21 +406,17 @@ class FirstFloor {
         grassYOffset1 - coinSize, coinSize, coinSize);
     rectCoin2 = Rect.fromLTWH(grassXOffset[0] + coinSize,
         grassYOffset1 - coinSize, coinSize, coinSize);
-    rectGrassLeft = Rect.fromLTWH(grassXOffset[0], grassYOffset1,
-        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
-    rectGrassLeft = Rect.fromLTWH(grassXOffset[0], grassYOffset1,
-        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
     rectGrass0 = Rect.fromLTWH(grassXOffset[1], grassYOffset1,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
     rectGrass1 = Rect.fromLTWH(grassXOffset[2], grassYOffset1,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
     rectGrass2 = Rect.fromLTWH(grassXOffset[3], grassYOffset1,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
-    rectFlag = Rect.fromLTWH(grassXOffset[3], grassYOffset1 - grassSize,
-        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
     rectGrass3 = Rect.fromLTWH(grassXOffset[4], grassYOffset1,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
     rectGrass4 = Rect.fromLTWH(grassXOffset[5], grassYOffset1,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectFlag = Rect.fromLTWH(grassXOffset[5], grassYOffset1 - grassSize,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
     rectGrass5 = Rect.fromLTWH(grassXOffset[6], grassYOffset1,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
@@ -444,38 +428,50 @@ class FirstFloor {
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
     rectGrass9 = Rect.fromLTWH(grassXOffset[10], grassYOffset1,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrass10 = Rect.fromLTWH(grassXOffset[11], grassYOffset1,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
+    rectGrass11 = Rect.fromLTWH(grassXOffset[12], grassYOffset1,
+        game.screenSize.width * 0.1, game.screenSize.width * 0.1);
 
-    rectGrassRight = Rect.fromLTWH(grassXOffset[11], grassYOffset1,
+    rectGrassRight = Rect.fromLTWH(grassXOffset[13], grassYOffset1,
         game.screenSize.width * 0.1, game.screenSize.width * 0.1);
   }
 
   void render(Canvas c, bool pause, bool isMoving) {
     if (isMoving) {
       //j.toDouble() - j.toDouble()
-
       c.translate(0, 0);
 
       //if(j < -(game.screenSize.width)*1.5)
       //j=0;
       //print("oui");
-
+    }
+    //Change coins sprite
+    increment++;
+    if (increment % 8 == 0) {
+      if (k < 15)
+        k++;
+      else
+        k = 0;
     }
 
     grassLeft.renderRect(c, rectGrassLeft, overridePaint: getOpacity());
-    coin.renderRect(c, rectCoin0, overridePaint: getOpacityC0());
-    coin.renderRect(c, rectCoin1, overridePaint: getOpacityC1());
-    coin.renderRect(c, rectCoin2, overridePaint: getOpacityC2());
+    coinSprite[k].renderRect(c, rectCoin0, overridePaint: getOpacityC0());
+    coinSprite[k].renderRect(c, rectCoin1, overridePaint: getOpacityC1());
+    coinSprite[k].renderRect(c, rectCoin2, overridePaint: getOpacityC2());
     grass.renderRect(c, rectGrass0, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass1, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass2, overridePaint: getOpacity());
-    flag.renderRect(c, rectFlag, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass3, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass4, overridePaint: getOpacity());
+    flag.renderRect(c, rectFlag, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass5, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass6, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass7, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass8, overridePaint: getOpacity());
     grass.renderRect(c, rectGrass9, overridePaint: getOpacity());
+    grass.renderRect(c, rectGrass10, overridePaint: getOpacity());
+    grass.renderRect(c, rectGrass11, overridePaint: getOpacity());
     grassRight.renderRect(c, rectGrassRight, overridePaint: getOpacity());
     // restore original state
     //c.restore();
@@ -518,8 +514,12 @@ class FirstFloor {
     return opacityC2;
   }
 
-  double getDownPosition() {
-    return game.screenSize.height * (balloonPosition);
+  double getFlagPosition() {
+    return getGrassXOffset()[5];
+  }
+
+  double getCoinsPosition() {
+    return getGrassXOffset()[0];
   }
 
   void update(double t) {}
@@ -528,19 +528,6 @@ class FirstFloor {
 //Classe qui gère le déplacement horizontal des plateformes
 class ManageFloors {
   final TempGame game;
-  Sprite grass;
-  Sprite grassLeft;
-  Rect rectGrass0;
-  Rect rectGrass1;
-  Rect rectGrass2;
-  Rect rectGrass3;
-  Rect rectGrass4;
-  Rect rectGrass5;
-  Rect rectGrass6;
-  Rect rectGrass7;
-  Sprite grassRight;
-  Rect rectGrassRight;
-  Rect rectGrassLeft;
   bool hasChanged;
   Paint opacity; // = Paint()..color = Colors.white.withOpacity(opacity);
   int j;
@@ -559,7 +546,6 @@ class ManageFloors {
 
     if (isMoving) {
       if (!pause && !game.launchTuto) j += screenSpeed;
-
 
       if (!isInit) {
         offset = game.tempPosX.toInt();
@@ -806,7 +792,6 @@ class ManageFloors {
       }
       //-1190
 
-
       c.translate(-j.toDouble(), 0);
       //-game.screenSize.width * 0.1 + game.screenSize.width * 0.1);
     } else
@@ -864,8 +849,7 @@ class ManageSign {
   }
 
   void updateRect() {
-    rectSign = Rect.fromLTWH(
-        posXSign, posYSign, signWidth, signHeight);
+    rectSign = Rect.fromLTWH(posXSign, posYSign, signWidth, signHeight);
   }
 
   void render(Canvas c, bool pause, bool isMoving) {
@@ -874,9 +858,9 @@ class ManageSign {
     if (!pause) {
       //Gestion de la position des panneaux
       //Montée du panneau
-      if (game.hasJumped && posYSign > game.screenSize.height-signHeight  ||
+      if (game.hasJumped && posYSign > game.screenSize.height - signHeight ||
           game.isDisplayingSign &&
-              posYSign > game.screenSize.height-signHeight) {
+              posYSign > game.screenSize.height - signHeight) {
         game.isDisplayingSign = true;
         posYSign -= 2;
         updateRect();
@@ -890,7 +874,8 @@ class ManageSign {
         game.isDisplayingSign = false;
 
       sign.renderRect(c, rectSign);
-      config.render(c, "${game.jumpCounter}/10", Position(posXSign + 10, posYSign + 10));
+      config.render(
+          c, "${game.jumpCounter}/10", Position(posXSign + 10, posYSign + 10));
 
       // restore original state
       //c.restore();
@@ -926,8 +911,7 @@ class ManageFlag {
   }
 
   void updateRect() {
-    rectFlag = Rect.fromLTWH(
-        posXSign, posYSign, signWidth, signHeight);
+    rectFlag = Rect.fromLTWH(posXSign, posYSign, signWidth, signHeight);
   }
 
   void render(Canvas c, bool pause, bool isMoving) {
@@ -936,9 +920,9 @@ class ManageFlag {
     if (!pause) {
       //Gestion de la position des panneaux
       //Montée du panneau
-      if (game.hasJumped && posYSign > game.screenSize.height-signHeight  ||
+      if (game.hasJumped && posYSign > game.screenSize.height - signHeight ||
           game.isDisplayingSign &&
-              posYSign > game.screenSize.height-signHeight) {
+              posYSign > game.screenSize.height - signHeight) {
         game.isDisplayingSign = true;
         posYSign -= 2;
         updateRect();
@@ -952,7 +936,8 @@ class ManageFlag {
         game.isDisplayingSign = false;
 
       flag.renderRect(c, rectFlag);
-      config.render(c, "${game.jumpCounter}/10", Position(posXSign + 10, posYSign + 10));
+      config.render(
+          c, "${game.jumpCounter}/10", Position(posXSign + 10, posYSign + 10));
 
       // restore original state
       //c.restore();

@@ -87,7 +87,7 @@ class TempGame extends Game {
   double size;
   static List<String> jump = [
     'temp/jump1.png',
-    /*  'temp/jump2.png',*/
+    'temp/jump2.png',
   ];
 
   static List<String> run = [
@@ -253,7 +253,6 @@ class TempGame extends Game {
 
       if (!gameOver) {
         if (isConnected) {
-
           canvas.save();
           //Arrière plan
           if (manageFloors != null)
@@ -273,14 +272,12 @@ class TempGame extends Game {
 
           canvas.restore();
           //Premier plan
-          if (sign != null)
-            sign.render(canvas, pauseGame, isMoving);
+          if (sign != null) sign.render(canvas, pauseGame, isMoving);
           //Bonhomme rouge
           if (temp != null) {
             temp.render(canvas);
             pos = temp.y + temp.height / 2;
           }
-
         }
       }
     }
@@ -312,9 +309,10 @@ class TempGame extends Game {
             j = 0;
           } else if (isRunning) {
             //On fige le joueur uniquement pour le tuto
-            if(launchTuto && isPushable);
+            if (launchTuto && isPushable)
+              ;
             else
-            tempPic = run[i];
+              tempPic = run[i];
             j = 1;
           }
           //Gestion de l'animation d'attente
@@ -361,7 +359,8 @@ class TempGame extends Game {
           }
 
           if (!pauseGame) {
-            if(launchTuto && isPushable);
+            if (launchTuto && isPushable)
+              ;
             else if (tempPosX < (screenSize.width - size) / 2) {
               tempPosX += 3;
               temp.x = tempPosX;
@@ -381,50 +380,70 @@ class TempGame extends Game {
         }
 
         if (!pauseGame) {
-          //Si le joueur a dépassé le drapeau, on autorise la jauge
           if (temp != null) {
-
-
             //Si c'est le premier lancement de l'activité, lancer le tuto
             // Initializing database
             DatabaseHelper db = new DatabaseHelper();
-            List<Scores> dataTemp = await db.getScore(user.userId, ID_TEMP_ACTIVITY);
+            List<Scores> dataTemp =
+                await db.getScore(user.userId, ID_TEMP_ACTIVITY);
 
-            if(dataTemp.isEmpty) {
+            if (dataTemp.isEmpty && phaseTuto < 4 ||
+                dataTemp.isEmpty && phaseTuto == 5) {
               launchTuto = true;
-            }
-            else {
+            } else {
               launchTuto = false;
             }
-
+            //Deuxième phase du tuto pour l'explication des etages
             if (manageFloors.j + temp.x + grassSize >=
-                    tabBottomFloor[
-                            getFloor() - 1 > 0 ? getFloor() - 1 : 0]
-                        .getGrassXOffset()[3] &&
+                    tabBottomFloor[getCurrentFloor()].getGrassXOffset()[13] &&
+                coins == 0 &&
+                phaseTuto == 4) {
+              phaseTuto++;
+            }
+
+            //Si le joueur a dépassé le drapeau, on autorise la jauge
+            if (manageFloors.j + temp.x + grassSize >=
+                    tabBottomFloor[getCurrentFloor()].getFlagPosition() &&
                 manageFloors.j + temp.x + grassSize - 2 <=
-                    tabBottomFloor[
-                            getFloor() - 1 > 0 ? getFloor() - 1 : 0]
-                        .getGrassXOffset()[3]) {
+                    tabBottomFloor[getCurrentFloor()].getFlagPosition()) {
               isPushable = true;
             } else if (manageFloors.j + temp.x + grassSize >=
-                    tabFloor[getFloor() - 1 > 0 ? getFloor() - 1 : 0]
-                        .getGrassXOffset()[3] &&
+                    tabFloor[getCurrentFloor()].getFlagPosition() &&
                 manageFloors.j + temp.x + grassSize - 2 <=
-                    tabFloor[getFloor() - 1 > 0 ? getFloor() - 1 : 0]
-                        .getGrassXOffset()[3]) {
+                    tabFloor[getCurrentFloor()].getFlagPosition()) {
               isPushable = true;
             }
-            /*else if (manageFloors.j + temp.x + grassSize - 1 ==
-                tabFloor[getFloor() - 1 > 0 ? getFloor() - 1 : getFloor()]
-                    .getGrassXOffset()[3]) {
-              isPushable = true;
-            }*/
+          }
+          //If the player walks on coins, make coins disappear
+          if (manageFloors.j + temp.x + grassSize >=
+                  tabBottomFloor[getCurrentFloor()].getCoinsPosition() &&
+              blockOne) {
+            tabBottomFloor[getFloor() - 1].setOpacityC0(opacity -= 0.1);
+            tabBottomFloor[getFloor() - 1].setOpacityC1(opacity -= 0.1);
+            tabBottomFloor[getFloor() - 1].setOpacityC2(opacity -= 0.1);
+          } else if (manageFloors.j + temp.x + grassSize >=
+                  tabFloor[getCurrentFloor()].getCoinsPosition() &&
+              !blockOne) {
+            tabFloor[getFloor() - 1].setOpacityC0(opacity -= 0.1);
+            tabFloor[getFloor() - 1].setOpacityC1(opacity -= 0.1);
+            tabFloor[getFloor() - 1].setOpacityC2(opacity -= 0.1);
           }
 
           //Si il a poussé pendant 6 secondes et qu'il n'a pas déjà sauté
           if (isWaiting || isPushable) {
             //print("push: ${getPush()}");
-            if (getPush() <= 0 || inTouch) {
+            if (getPush() <= 0 &&
+                    manageFloors.j + temp.x + grassSize >=
+                        tabBottomFloor[getCurrentFloor()].getGrassXOffset()[
+                                tabBottomFloor[getCurrentFloor()].getLength() -
+                                    1] -
+                            grassSize / 2 ||
+                getPush() <= 0 &&
+                    manageFloors.j + temp.x + grassSize >=
+                        tabFloor[getCurrentFloor()].getGrassXOffset()[
+                                tabFloor[getCurrentFloor()].getLength() - 1] -
+                            grassSize / 2 ||
+                inTouch) {
               setPlayerState(0);
               hasJumped = true;
               isPushable = false;
@@ -499,6 +518,12 @@ class TempGame extends Game {
     //super.update(t);
   }
 
+  //Assure que ça ne retourne pas un negatif
+  //0: vide, 1: 1er etage, 2: 2eme etage, 3: 3eme etage
+  int getCurrentFloor() {
+    return getFloor() - 1 > 0 ? getFloor() - 1 : 0;
+  }
+
   //Saute dans le vide
   void jumpIntoTheVoid() {
     //Animation de saut
@@ -555,21 +580,42 @@ class TempGame extends Game {
         if (blockOne) {
           //Déplacement des blocs pour pouvoir re-sauter
           manageFloors.j =
-              tabFloor[getFloor()].grassXOffset[tabFloor.length - 1].toInt();
+              tabFloor[getFloor()].grassXOffset[tabFloor.length - 1].toInt()
+                  .toInt() - (grassSize * 3).toInt();
           tabBottomFloor[0].setOpacity(opacity = 1);
           tabBottomFloor[1].setOpacity(opacity = 1);
           tabBottomFloor[2].setOpacity(opacity = 1);
           tabFloor[getFloor()].setOpacity(opacity = 1);
+          //Reset coin opacity
+          tabBottomFloor[0].setOpacityC0(opacity = 1);
+          tabBottomFloor[0].setOpacityC1(opacity = 0);
+          tabBottomFloor[0].setOpacityC2(opacity = 0);
+          tabBottomFloor[1].setOpacityC0(opacity = 1);
+          tabBottomFloor[1].setOpacityC1(opacity = 1);
+          tabBottomFloor[1].setOpacityC2(opacity = 0);
+          tabBottomFloor[2].setOpacityC0(opacity = 1);
+          tabBottomFloor[2].setOpacityC1(opacity = 1);
+          tabBottomFloor[2].setOpacityC2(opacity = 1);
         }
         if (!blockOne) {
           //Déplacement des blocs pour pouvoir re-sauter
           manageFloors.j = tabBottomFloor[getFloor()]
               .grassXOffset[tabBottomFloor.length - 1]
-              .toInt();
+              .toInt() - (grassSize * 3).toInt();
           tabFloor[0].setOpacity(opacity = 1);
           tabFloor[1].setOpacity(opacity = 1);
           tabFloor[2].setOpacity(opacity = 1);
           tabBottomFloor[getFloor()].setOpacity(opacity = 1);
+          //Reset coin opacity
+          tabFloor[0].setOpacityC0(opacity = 1);
+          tabFloor[0].setOpacityC1(opacity = 0);
+          tabFloor[0].setOpacityC2(opacity = 0);
+          tabFloor[1].setOpacityC0(opacity = 1);
+          tabFloor[1].setOpacityC1(opacity = 1);
+          tabFloor[1].setOpacityC2(opacity = 0);
+          tabFloor[2].setOpacityC0(opacity = 1);
+          tabFloor[2].setOpacityC1(opacity = 1);
+          tabFloor[2].setOpacityC2(opacity = 1);
         }
         setFloor();
       }
@@ -588,6 +634,7 @@ class TempGame extends Game {
 
           if (!blockOne) {
             switch (getFloor()) {
+              //Fall in void
               case 0:
                 break;
               case 1:
@@ -714,16 +761,9 @@ class TempGame extends Game {
         tempTimer = new Timer(
           const Duration(milliseconds: 500),
           () {
-            tabFloor[getFloor() - 1].setOpacityC0(opacity -= 0.1);
-            tabFloor[getFloor() - 1].setOpacityC1(opacity -= 0.1);
-            tabFloor[getFloor() - 1].setOpacityC2(opacity -= 0.1);
-            tabBottomFloor[getFloor() - 1].setOpacityC0(opacity -= 0.1);
-            tabBottomFloor[getFloor() - 1].setOpacityC1(opacity -= 0.1);
-            tabBottomFloor[getFloor() - 1].setOpacityC2(opacity -= 0.1);
             doAJump();
           },
         );
-
       }
     }
     //tempPosY = (screenSize.height - screenSize.width * 0.3) - size;
@@ -833,7 +873,10 @@ class TempGame extends Game {
         d.globalPosition.dx <= screenCenterX + screenSize.width &&
         d.globalPosition.dy >= screenCenterY - screenSize.height &&
         d.globalPosition.dy <= screenCenterY + screenSize.height) {
-      inTouch = true;
+      phaseTuto++;
+      if (phaseTuto == 4 || phaseTuto == 6) launchTuto = false;
+
+      //inTouch = true;
     }
   }
 

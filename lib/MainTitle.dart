@@ -275,113 +275,6 @@ class _MainTitle extends State<MainTitle> {
               );
             },
           ),
-          /*FlatButton.icon(
-              icon: Icon(
-                Icons.add,
-                color: Colors.white,
-              ),
-              label: temp != null
-                  ? Text(
-                      "Debug",
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    )
-                  : Text("Check Language file (en/fr.json)"),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              splashColor: Colors.blue,
-              onPressed: () {
-                //db.deleteScore(user.userId);
-
-*/
-          /*
-                db.updateUser(
-                  User(
-                      userHeightBottom: user.userHeightBottom,
-                      userHeightTop: user.userHeightTop,
-                      userId: user.userId,
-                      userInitialPush: "7.0",
-                      userMode: user.userMode,
-                      userName: user.userName,
-                      userPic: user.userPic,
-                      userMacAddress: user.userMacAddress,
-                      userSerialNumber: user.userSerialNumber),
-                );
-*/
-          /*
-                db.updateUser(
-                  User(
-                      userHeightBottom: user.userHeightBottom,
-                      userHeightTop: user.userHeightTop,
-                      userId: user.userId,
-                      userInitialPush: user.userInitialPush,
-                      userMode: user.userMode,
-                      userName: user.userName,
-                      userPic: user.userPic,
-                      userMacAddress: "78:DB:2F:BF:1F:72",
-                      userSerialNumber: user.userSerialNumber),
-                );*/
-          /*                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoadPage(
-                      user: user,
-                      appLanguage: appLanguage,
-                      messageIn: "0",
-                      page: firstPush,
-                    ),
-                  ),
-                );*/
-          /*
-
-                Score newScore = Score(
-                    scoreId: null,
-                    userId: user.userId,
-                    activityId: 1,
-                    scoreValue: 123,
-                    scoreDate: "01-06-2020");
-                Score newScore1 = Score(
-                    scoreId: null,
-                    userId: user.userId,
-                    activityId: 1,
-                    scoreValue: 156,
-                    scoreDate: "02-06-2020");
-                Score newScore2 = Score(
-                    scoreId: null,
-                    userId: user.userId,
-                    activityId: 1,
-                    scoreValue: 196,
-                    scoreDate: "03-06-2020");
-                Score newScore3 = Score(
-                    scoreId: null,
-                    userId: user.userId,
-                    activityId: 1,
-                    scoreValue: 135,
-                    scoreDate: "04-06-2020");
-                Score newScore4 = Score(
-                    scoreId: null,
-                    userId: user.userId,
-                    activityId: 1,
-                    scoreValue: 155,
-                    scoreDate: "06-06-2020");
-                Score newScore5 = Score(
-                    scoreId: null,
-                    userId: user.userId,
-                    activityId: 1,
-                    scoreValue: 195,
-                    scoreDate: "09-06-2020");
-
-                db.addScore(newScore);
-                db.addScore(newScore1);
-                db.addScore(newScore2);
-                db.addScore(newScore3);
-                db.addScore(newScore4);
-                db.addScore(newScore5);
-                //setState(() {});
-              },
-            ),*/
           FlatButton.icon(
             icon: Icon(
               Icons.power_settings_new,
@@ -535,7 +428,7 @@ class _MainTitle extends State<MainTitle> {
                                       child: Container(
                                         alignment: Alignment.center,
                                         child: Image.asset(
-                                          'assets/plane.png',
+                                          'assets/swim.png',
                                           width: widthCard / 4,
                                           height: heightCard / 4,
                                         ),
@@ -553,7 +446,7 @@ class _MainTitle extends State<MainTitle> {
                                       child: Container(
                                         alignment: Alignment.center,
                                         child: Image.asset(
-                                          'assets/swim.png',
+                                          'assets/plane.png',
                                           width: widthCard / 4,
                                           height: heightCard / 4,
                                         ),
@@ -595,7 +488,7 @@ class _MainTitle extends State<MainTitle> {
                                       child: Container(
                                         alignment: Alignment.center,
                                         child: Image.asset(
-                                          'assets/plane.png',
+                                          'assets/car.png',
                                           width: widthCard / 4,
                                           height: heightCard / 4,
                                         ),

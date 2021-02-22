@@ -5,8 +5,10 @@ import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
+import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
@@ -24,6 +26,12 @@ class UI extends StatefulWidget {
 
 class UIState extends State<UI> {
   bool redFilter = false;
+
+  //Initializing database
+  DatabaseHelper db = new DatabaseHelper();
+
+  CommonGamesUI commonGamesUI = CommonGamesUI();
+
 
   void initState() {
     super.initState();
@@ -55,47 +63,42 @@ class UIState extends State<UI> {
         height: game.screenSize.height * 0.30,
         child: Stack(
           children: <Widget>[
-            Align(
-              alignment: Alignment.topLeft,
-              child: Row(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+            Padding(
+              padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+              child: Image.asset(
+                'assets/images/temp/red_heart.png',
+                width: game.screenSize.height * 0.1,
+                height: game.screenSize.height * 0.1,
+              ),
+            ),
+            game.life > 1
+                ? Padding(
+                    padding: EdgeInsets.fromLTRB(
+                        game.screenSize.height * 0.1 + 10, 0, 10, 0),
                     child: Image.asset(
                       'assets/images/temp/red_heart.png',
                       width: game.screenSize.height * 0.1,
                       height: game.screenSize.height * 0.1,
                     ),
-                  ),
-                  game.life > 1
-                      ? Padding(
-                          padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                          child: Image.asset(
-                            'assets/images/temp/red_heart.png',
-                            width: game.screenSize.height * 0.1,
-                            height: game.screenSize.height * 0.1,
-                          ),
-                        )
-                      : Container(),
-                  game.life > 2
-                      ? Padding(
-                          padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                          child: Image.asset(
-                            'assets/images/temp/red_heart.png',
-                            width: game.screenSize.height * 0.1,
-                            height: game.screenSize.height * 0.1,
-                          ),
-                        )
-                      : Container(),
-                ],
-              ),
-            ),
+                  )
+                : Container(),
+            game.life > 2
+                ? Padding(
+                    padding: EdgeInsets.fromLTRB(
+                        2 * game.screenSize.height * 0.1 + 20, 0, 10, 0),
+                    child: Image.asset(
+                      'assets/images/temp/red_heart.png',
+                      width: game.screenSize.height * 0.1,
+                      height: game.screenSize.height * 0.1,
+                    ),
+                  )
+                : Container(),
             Align(
               alignment: Alignment.centerLeft,
               child: Row(
                 children: <Widget>[
                   Image.asset(
-                    'assets/images/temp/coin.png',
+                    'assets/images/temp/coin1.png',
                     width: game.screenSize.height * 0.1,
                     height: game.screenSize.height * 0.1,
                   ),
@@ -117,96 +120,221 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget endScreen(
-      BuildContext context, AppLanguage appLanguage, TempGame game, User user) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Container(
-        width: game.screenSize.width / 3,
-        height: game.screenSize.height / 3,
-        alignment: Alignment.topCenter,
-        decoration: new BoxDecoration(
-            color: Colors.blue.withAlpha(150),
-            //new Color.fromRGBO(255, 0, 0, 0.0),
-            borderRadius: new BorderRadius.only(
-                topLeft: const Radius.circular(20.0),
-                topRight: const Radius.circular(20.0),
-                bottomLeft: const Radius.circular(20.0),
-                bottomRight: const Radius.circular(20.0))),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              game.getStarValue() >= 0.5
-                  ? "Félicitation, vous gagnez 0.5 étoile !\n"
-                      "Retour au menu !"
-                  : "Vous n'avez pas gagné d'étoile, ça sera pour la prochaine fois, surpassez-vous !",
-              textAlign: TextAlign.center,
-              style: textStyle,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget displayTuto(
       BuildContext context, AppLanguage appLanguage, TempGame game, User user) {
     return Container(
-      width: game.screenSize.width * 0.5,
-      height: game.screenSize.height * 0.5,
+      width: game.screenSize.width,
+      height: game.screenSize.height,
       child: game.phaseTuto == 1
           ? Stack(
               children: <Widget>[
-                Align(
+                Padding(
+                  padding: EdgeInsets.fromLTRB((game.screenSize.width * 0.1), 0,
+                      (game.screenSize.width * 0.3) + 50, 0),
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Icon(
+                        Icons.arrow_back,
+                        size: 50,
+                      )),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                      (game.screenSize.width * 0.2), 0, 0, 0),
+                  child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Icon(
-                      Icons.arrow_back,
-                      size: 50,
-                    )),
-                Align(
-                  alignment: Alignment.center,
-                  child: Container(
-                    width: game.screenSize.width * 0.3,
-                    height: game.screenSize.height * 0.3,
-                    decoration: new BoxDecoration(
-                        color: Colors.blue.withAlpha(150),
-                        //new Color.fromRGBO(255, 0, 0, 0.0),
-                        borderRadius: new BorderRadius.only(
-                            topLeft: const Radius.circular(20.0),
-                            topRight: const Radius.circular(20.0),
-                            bottomLeft: const Radius.circular(20.0),
-                            bottomRight: const Radius.circular(20.0))),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        AutoSizeText(
-                          "Jauge qui se consomme en 6 secondes.",
-                          textAlign: TextAlign.center,
-                          minFontSize: 15,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                    child: Container(
+                      width: game.screenSize.width * 0.3,
+                      height: game.screenSize.height * 0.3,
+                      decoration: new BoxDecoration(
+                          color: Colors.blue.withAlpha(150),
+                          //new Color.fromRGBO(255, 0, 0, 0.0),
+                          borderRadius: new BorderRadius.only(
+                              topLeft: const Radius.circular(20.0),
+                              topRight: const Radius.circular(20.0),
+                              bottomLeft: const Radius.circular(20.0),
+                              bottomRight: const Radius.circular(20.0))),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          AutoSizeText(
+                            "Jauge qui se consomme en 6 secondes.",
+                            textAlign: TextAlign.center,
+                            minFontSize: 15,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ],
             )
           : game.phaseTuto == 2
-              ? Container(
-                  child: Text("useful text"),
+              ? Stack(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                          (game.screenSize.width * 0.2),
+                          (game.screenSize.width * 0.1),
+                          0,
+                          0),
+                      child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Transform.rotate(
+                            angle: math.pi / 4,
+                            child: Icon(
+                              Icons.arrow_back,
+                              size: 50,
+                            ),
+                          )),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                          (game.screenSize.width * 0.25),
+                          (game.screenSize.width * 0.15),
+                          0,
+                          0),
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Container(
+                          width: game.screenSize.width * 0.3,
+                          height: game.screenSize.height * 0.3,
+                          decoration: new BoxDecoration(
+                              color: Colors.blue.withAlpha(150),
+                              //new Color.fromRGBO(255, 0, 0, 0.0),
+                              borderRadius: new BorderRadius.only(
+                                  topLeft: const Radius.circular(20.0),
+                                  topRight: const Radius.circular(20.0),
+                                  bottomLeft: const Radius.circular(20.0),
+                                  bottomRight: const Radius.circular(20.0))),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              AutoSizeText(
+                                "Le nombre de pièces est défini en fonction des plateformes atteintes\n"
+                                "Vous avez 3 chances de réessayer un saut.",
+                                textAlign: TextAlign.center,
+                                minFontSize: 15,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 )
-          : game.phaseTuto == 3
-              ? Container(
-                  child: Text("useful text"),
-                )
-          : game.phaseTuto == 4
-              ? Container(
-                  child: Text("useful text"),
-                )
-              : Container(),
+              : game.phaseTuto == 3
+                  ? Stack(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                              0, (game.screenSize.width * 0.1), 0, 0),
+                          child: Align(
+                              alignment: Alignment.center,
+                              child: Transform.rotate(
+                                angle: -math.pi / 2,
+                                child: Icon(
+                                  Icons.arrow_back,
+                                  size: 50,
+                                ),
+                              )),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                              0, (game.screenSize.width * 0.15), 0, 0),
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            child: Container(
+                              width: game.screenSize.width * 0.3,
+                              height: game.screenSize.height * 0.2,
+                              decoration: new BoxDecoration(
+                                  color: Colors.blue.withAlpha(150),
+                                  //new Color.fromRGBO(255, 0, 0, 0.0),
+                                  borderRadius: new BorderRadius.only(
+                                      topLeft: const Radius.circular(20.0),
+                                      topRight: const Radius.circular(20.0),
+                                      bottomLeft: const Radius.circular(20.0),
+                                      bottomRight:
+                                          const Radius.circular(20.0))),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  AutoSizeText(
+                                    "Vous devez commencer à pousser ici.",
+                                    textAlign: TextAlign.center,
+                                    minFontSize: 15,
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : game.phaseTuto == 5
+                      ? Stack(
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                  (game.screenSize.width * 0.25),
+                                  (game.screenSize.width * 0.1),
+                                  0,
+                                  0),
+                              child: Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Transform.rotate(
+                                    angle: math.pi / 4,
+                                    child: Icon(
+                                      Icons.arrow_back,
+                                      size: 50,
+                                    ),
+                                  )),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                  0, (game.screenSize.width * 0.15), 0, 0),
+                              child: Align(
+                                alignment: Alignment.topCenter,
+                                child: Container(
+                                  width: game.screenSize.width * 0.3,
+                                  height: game.screenSize.height * 0.2,
+                                  decoration: new BoxDecoration(
+                                      color: Colors.blue.withAlpha(150),
+                                      //new Color.fromRGBO(255, 0, 0, 0.0),
+                                      borderRadius: new BorderRadius.only(
+                                          topLeft: const Radius.circular(20.0),
+                                          topRight: const Radius.circular(20.0),
+                                          bottomLeft:
+                                              const Radius.circular(20.0),
+                                          bottomRight:
+                                              const Radius.circular(20.0))),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: <Widget>[
+                                      AutoSizeText(
+                                        "Correspond à la plateforme sur laquelle vous allez sauter.",
+                                        textAlign: TextAlign.center,
+                                        minFontSize: 15,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Container(),
     );
   }
 
@@ -252,119 +380,8 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget closeButton(BuildContext context, AppLanguage appLanguage, User user,
-      int score, TempGame game) {
-    DatabaseHelper db = new DatabaseHelper();
-
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Container(
-        height: game.screenSize.height * 0.2,
-        width: game.screenSize.width / 3,
-        child: RaisedButton(
-          onPressed: () async {
-            //db.getScore(user.userId);
-
-            //Date au format FR
-            String date =
-                new DateFormat('dd-MM-yyyy').format(new DateTime.now());
-
-            Score newScore = Score(
-                scoreId: null,
-                userId: user.userId,
-                activityId: ACTIVITY_NUMBER,
-                scoreValue: score,
-                scoreDate: date);
-
-            //db.deleteScore(user.userId);
-
-            List<Scores> everyScores =
-                await db.getScore(user.userId, ACTIVITY_NUMBER);
-
-            if (everyScores.length == 0 && score != 0)
-              db.addScore(newScore);
-            else if (score != 0) {
-              //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
-              for (int i = 0; i < everyScores.length; i++) {
-                //On remplace la valeur dans la bdd
-                //print(everyScores[i].scoreId);
-                if (everyScores[i].date == date && score > everyScores[i].score)
-                  db.updateScore(Score(
-                      scoreId: everyScores[i].scoreId,
-                      userId: user.userId,
-                      activityId: ACTIVITY_NUMBER,
-                      scoreValue: score,
-                      scoreDate: date));
-              }
-              //Sinon on enregistre si la dernière date enregistrée est différente du jour
-              if (everyScores[everyScores.length - 1].date != date)
-                db.addScore(newScore);
-            }
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoadPage(
-                  appLanguage: appLanguage,
-                  user: user,
-                  messageIn: "0",
-                  page: mainTitle,
-                ),
-              ),
-            );
-          },
-          child: Text(
-            AppLocalizations.of(context).translate('quitter'),
-            style: textStyle,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget pauseButton(
-      BuildContext context, AppLanguage appLanguage, TempGame game, User user) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Container(
-        height: game.screenSize.height * 0.2,
-        width: game.pauseGame
-            ? game.screenSize.width / 3
-            : game.screenSize.height * 0.2,
-        child: FlatButton(
-          color: !game.pauseGame ? Colors.transparent : Colors.grey[300],
-          onPressed: !game.getGameOver()
-              ? game.getConnectionState()
-                  ? () async {
-                      game.pauseGame = !game.pauseGame;
-                    }
-                  : null
-              : null,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Icon(
-                !game.pauseGame ? Icons.pause : Icons.play_arrow,
-              ),
-              !game.pauseGame
-                  ? Text(
-                      "",
-                      //(AppLocalizations.of(context).translate('menu')),
-                      style: textStyle,
-                    )
-                  : Text(
-                      (AppLocalizations.of(context).translate('play')),
-                      style: textStyle,
-                    ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget restartButton(
-      BuildContext context, AppLanguage appLanguage, User user, TempGame game) {
+      BuildContext context, AppLanguage appLanguage, User user, TempGame game, int level) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -376,7 +393,7 @@ class UIState extends State<UI> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => LoadPage(
-                          messageIn: "0",
+                          messageIn: level.toString(),
                           appLanguage: appLanguage,
                           page: temp,
                           user: user,
@@ -392,7 +409,7 @@ class UIState extends State<UI> {
   }
 
   Widget menu(
-      BuildContext context, AppLanguage appLanguage, TempGame game, User user) {
+      BuildContext context, AppLanguage appLanguage, TempGame game, User user, int level) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -415,103 +432,14 @@ class UIState extends State<UI> {
               "MENU",
               style: textStyle,
             ),
-            pauseButton(context, appLanguage, game, user),
-            restartButton(context, appLanguage, user, game),
-            closeButton(context, appLanguage, user, game.getCoins(), game),
+            commonGamesUI.pauseButton(context, appLanguage, game, user),
+            restartButton(context, appLanguage, user, game, level),
+            commonGamesUI.closeButton(context, appLanguage, user, game.getCoins(), game, ID_TEMP_ACTIVITY, game.getStarValue(), game.getStarLevel()),
           ],
         ),
       ),
     );
   }
-
-  void saveAndExit(BuildContext context, AppLanguage appLanguage, User user,
-      int score, TempGame game, double starValue, int starLevel) async {
-    DatabaseHelper db = new DatabaseHelper();
-    //Date au format FR
-    String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
-
-    Score newScore = Score(
-        scoreId: null,
-        userId: user.userId,
-        activityId: ACTIVITY_NUMBER,
-        scoreValue: score,
-        scoreDate: date);
-
-    //db.deleteScore(user.userId);
-
-    List<Scores> everyScores = await db.getScore(user.userId, ACTIVITY_NUMBER);
-    Star tempStar = await db.getStar(user.userId, ACTIVITY_NUMBER, starLevel);
-
-    print(starValue);
-    print(starLevel);
-
-    if (everyScores.length == 0 && score != 0) {
-      print("here");
-      db.addScore(newScore);
-      db.addStar(Star(
-          starId: null,
-          activityId: ACTIVITY_NUMBER,
-          userId: user.userId,
-          starValue: starValue,
-          starLevel: starLevel));
-    } else if (score != 0) {
-      print("here2");
-      //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
-      for (int i = 0; i < everyScores.length; i++) {
-        //On remplace la valeur dans la bdd
-        //print(everyScores[i].scoreId);
-        if (everyScores[i].date == date && score > everyScores[i].score) {
-          db.updateScore(Score(
-              scoreId: everyScores[i].scoreId,
-              userId: user.userId,
-              activityId: ACTIVITY_NUMBER,
-              scoreValue: score,
-              scoreDate: date));
-
-          starValue += tempStar.starValue;
-          db.updateStar(Star(
-              starId: tempStar.starId,
-              activityId: ACTIVITY_NUMBER,
-              userId: user.userId,
-              starValue: starValue,
-              starLevel: starLevel));
-        }
-      }
-      //Sinon on enregistre si la dernière date enregistrée est différente du jour
-      if (everyScores[everyScores.length - 1].date != date) {
-        print("here3");
-        db.addScore(newScore);
-        starValue += tempStar.starValue;
-        db.updateStar(Star(
-            starId: tempStar.starId,
-            activityId: ACTIVITY_NUMBER,
-            userId: user.userId,
-            starValue: starValue,
-            starLevel: starLevel));
-      }
-    }
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-          builder: (context) => LoadPage(
-                appLanguage: appLanguage,
-                user: user,
-                messageIn: "0",
-                page: mainTitle,
-              )
-          /*MainTitle(
-                        appLanguage: appLanguage,
-                        userIn: user,
-                        messageIn: 0,
-                      )*/
-          /*      MainTitle(
-                  userIn: user,
-                  appLanguage: appLanguage,
-                     )*/
-          ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return null;

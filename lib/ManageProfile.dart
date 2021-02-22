@@ -523,6 +523,7 @@ class _ManageProfile extends State<ManageProfile> {
                                         AppLocalizations.of(this.context)
                                             .translate('supprimer')),
                                     onPressed: () {
+
                                       Navigator.of(context).pop();
                                       btManage.disconnect("origin");
                                       print("ID à SUPPR:" +
