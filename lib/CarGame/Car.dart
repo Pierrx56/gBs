@@ -132,7 +132,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
       //TODO Remettre 120
       seconds = 360;
       game.difficulte = 3.0;
-      game.setRoadSpeed(4);
+      game.setRoadSpeed(6);
     }
     //Start timer of 2 minutes
     startTimer(true);
@@ -379,8 +379,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                 : game.widget,
 
             SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: Stack(
                 children: <Widget>[
 /*                Container(
                     alignment: Alignment.topLeft,
@@ -406,8 +405,8 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                               ? Container(
                                   alignment: Alignment.topRight,
                                   //alignment: Alignment.topLeft,
-                                  child: gameUI.state
-                                      .menuDebug(context, appLanguage, game, user))
+                                  child: gameUI.state.menuDebug(
+                                      context, appLanguage, game, user))
                               : Container(
                                   alignment: Alignment.topCenter,
                                   height: screenSize.height,
@@ -449,14 +448,29 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                   //Display coins and life
                   game != null && !game.getGameOver()
                       ? game.getConnectionState()
-                      ? Container(
-                    alignment: Alignment.topLeft,
-                    padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-                    child: game == null
-                        ? Container()
-                        : gameUI.state.displayItems(score.toString(), game),
-                  )
-                      : Container()
+                          ? Container(
+                              alignment: Alignment.topLeft,
+                              padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
+                              child: game == null
+                                  ? Container()
+                                  : gameUI.state
+                                      .displayItems(score.toString(), game),
+                            )
+                          : Container()
+                      : Container(),
+
+                  //Display waiting screen
+                  game != null && !game.getGameOver()
+                      ? game.getConnectionState()
+                          ? Container(
+                              alignment: Alignment.center,
+                              height: game.screenSize.height,
+                              padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
+                              child: game.previousActivity == 3
+                                  ? gameUI.state.waitingScreen(game)
+                                  : Container(),
+                            )
+                          : Container()
                       : Container(),
                   /*              Container(
                     alignment: Alignment.topLeft,

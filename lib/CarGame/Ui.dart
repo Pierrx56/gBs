@@ -33,6 +33,7 @@ class UIState extends State<UI> {
 
   int numberFuel;
 
+
   void initState() {
     numberFuel = 0;
     super.initState();
@@ -120,8 +121,6 @@ class UIState extends State<UI> {
   }
 
   Widget displayItems(String message, CarGame game) {
-
-
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -190,6 +189,42 @@ class UIState extends State<UI> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget waitingScreen(CarGame game) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+          height: game.screenSize.width * 0.30,
+          width: game.screenSize.height * 0.5,
+          child: Row(
+            children: <Widget>[
+              AnimatedContainer(
+                duration: Duration(milliseconds: 500),
+                alignment: Alignment.topCenter,
+                height: game.changeSize
+                    ? game.screenSize.width * 0.26
+                    : game.screenSize.width * 0.25,
+                width: game.changeSize
+                    ? game.screenSize.height * 0.21
+                    : game.screenSize.height * 0.2,
+                color: Colors.black54,
+              ),
+              Spacer(),
+              AnimatedContainer(
+                duration: Duration(milliseconds: 500),
+                alignment: Alignment.topCenter,
+                height: game.changeSize
+                    ? game.screenSize.width * 0.26
+                    : game.screenSize.width * 0.25,
+                width: game.changeSize
+                    ? game.screenSize.height * 0.21
+                    : game.screenSize.height * 0.2,
+                color: Colors.black54,
+              ),
+            ],
+          )),
     );
   }
 
