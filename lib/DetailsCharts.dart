@@ -8,6 +8,7 @@ import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
+import 'package:gbsalternative/SelectStatistic.dart';
 
 class DetailsCharts extends StatefulWidget {
   final AppLanguage appLanguage;
@@ -15,11 +16,10 @@ class DetailsCharts extends StatefulWidget {
   final User user;
   final String messageIn;
 
-  DetailsCharts(
-      {@required this.appLanguage,
-      @required this.scores,
-      @required this.user,
-      @required this.messageIn});
+  DetailsCharts({@required this.appLanguage,
+    @required this.scores,
+    @required this.user,
+    @required this.messageIn});
 
   @override
   _DetailsCharts createState() =>
@@ -58,14 +58,20 @@ class _DetailsCharts extends State<DetailsCharts> {
     dayLargestScore = "";
     double tempAverage = 0.0;
 
-    if(scores == null)
+    if (scores == null)
       return;
 
-    var listScore = scoresSorted.asMap().entries.map((entry) {
+    var listScore = scoresSorted
+        .asMap()
+        .entries
+        .map((entry) {
       final int score = entry.value.score;
       return score;
     });
-    var listDate = scoresSorted.asMap().entries.map((entry) {
+    var listDate = scoresSorted
+        .asMap()
+        .entries
+        .map((entry) {
       final String date = entry.value.date;
       return date;
     });
@@ -87,11 +93,13 @@ class _DetailsCharts extends State<DetailsCharts> {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery
+        .of(context)
+        .size;
 
-    return Material(
-      child: Container(
-        color: Colors.white,
+    return Scaffold(
+      body: Container(
+        color: backgroundColor,
         width: screenSize.width,
         height: screenSize.height,
         child: Row(
@@ -108,46 +116,46 @@ class _DetailsCharts extends State<DetailsCharts> {
                 children: <Widget>[
                   largestScore != 0
                       ? Text(
-                          AppLocalizations.of(context).translate('nb_jouees') +
-                              ": " +
-                              scores.length.toString(),
-                          style: textStyle,
-                          textAlign: TextAlign.center,
-                        )
+                    AppLocalizations.of(context).translate('nb_jouees') +
+                        ": " +
+                        scores.length.toString(),
+                    style: textStyle,
+                    textAlign: TextAlign.center,
+                  )
                       : Text(
-                          AppLocalizations.of(context)
-                              .translate('aucune_donnees'),
-                          style: textStyle,
-                          textAlign: TextAlign.center,
-                        ),
+                    AppLocalizations.of(context)
+                        .translate('aucune_donnees'),
+                    style: textStyle,
+                    textAlign: TextAlign.center,
+                  ),
                   largestScore != 0
                       ? Text(
-                          AppLocalizations.of(context).translate('score_max') +
-                              ": " +
-                              largestScore.toString(),
-                          style: textStyle,
-                          textAlign: TextAlign.center,
-                        )
+                    AppLocalizations.of(context).translate('score_max') +
+                        ": " +
+                        largestScore.toString(),
+                    style: textStyle,
+                    textAlign: TextAlign.center,
+                  )
                       : Container(),
                   largestScore != 0
                       ? Text(
-                          AppLocalizations.of(context)
-                                  .translate('jour_score_max') +
-                              ": " +
-                              dayLargestScore,
-                          style: textStyle,
-                          textAlign: TextAlign.center,
-                        )
+                    AppLocalizations.of(context)
+                        .translate('jour_score_max') +
+                        ": " +
+                        dayLargestScore,
+                    style: textStyle,
+                    textAlign: TextAlign.center,
+                  )
                       : Container(),
                   largestScore != 0
                       ? AutoSizeText(
-                          AppLocalizations.of(context).translate('moyenne') +
-                              ": " +
-                              average,
-                          style: textStyle,
-                          maxLines: 1,
-                          textAlign: TextAlign.center,
-                        )
+                    AppLocalizations.of(context).translate('moyenne') +
+                        ": " +
+                        average,
+                    style: textStyle,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                  )
                       : Container(),
                   RaisedButton(
                     child: Text(
@@ -156,17 +164,23 @@ class _DetailsCharts extends State<DetailsCharts> {
                       textAlign: TextAlign.center,
                     ),
                     onPressed: () {
+
+                      Navigator.pop(
+                        context,
+                      );
+                      /*
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LoadPage(
-                            appLanguage: appLanguage,
-                            page: selectStatistic,
-                            user: user,
-                            messageIn: "0",
-                          ),
+                          builder: (context) =>
+                              LoadPage(
+                                appLanguage: appLanguage,
+                                page: selectStatistic,
+                                user: user,
+                                messageIn: "0",
+                              ),
                         ),
-                      );
+                      );*/
                     },
                   ),
                   /*RaisedButton(
@@ -189,31 +203,42 @@ class _DetailsCharts extends State<DetailsCharts> {
               child: SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
-                    messageIn == "$ID_SWIMMER_ACTIVITY"
-                        ? Text(
+                    //Car
+                    if(messageIn == "$ID_CAR_ACTIVITY")
+                      Text(
+                        AppLocalizations.of(context)
+                            .translate('stat_car'),
+                        style: textStyle,
+                        textAlign: TextAlign.center,
+                      )
+                    //Plane
+                    else
+                      if(messageIn == "$ID_PLANE_ACTIVITY")
+                        Text(
+                          AppLocalizations.of(context)
+                              .translate('stat_plane'),
+                          style: textStyle,
+                          textAlign: TextAlign.center,
+                        )
+                      //Swimmer
+                      else
+                        if(messageIn == "$ID_SWIMMER_ACTIVITY")
+                          Text(
                             AppLocalizations.of(context)
-                                .translate('stat_nageur'),
+                                .translate('stat_swimmer'),
                             style: textStyle,
                             textAlign: TextAlign.center,
                           )
-                        //Plane
-                        : messageIn == "$ID_PLANE_ACTIVITY"
-                            ? Text(
-                                AppLocalizations.of(context)
-                                    .translate('stat_avion'),
-                                style: textStyle,
-                                textAlign: TextAlign.center,
-                              )
-                            :
                         //Temp
-                        messageIn == "$ID_TEMP_ACTIVITY"
-                            ? Text(
-                                AppLocalizations.of(context)
-                                    .translate('stat_temp'),
-                                style: textStyle,
-                                textAlign: TextAlign.center,
-                              )
-                            : Container(),
+                        else
+                          if(messageIn == "$ID_TEMP_ACTIVITY")
+                            Text(
+                              AppLocalizations.of(context)
+                                  .translate('stat_temp'),
+                              style: textStyle,
+                              textAlign: TextAlign.center,
+                            ),
+
                     Container(
                       child: DrawCharts(data: scores),
                       height: screenSize.height * 0.75,

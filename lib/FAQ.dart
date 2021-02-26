@@ -11,6 +11,7 @@ import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:gbsalternative/Login.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Questions {
@@ -160,42 +161,47 @@ class _FAQ extends State<FAQ> {
         GlobalWidgetsLocalizations.delegate,
       ],
       home: Scaffold(
+        backgroundColor: backgroundColor,
         key: _scaffoldKey,
         appBar: AppBar(
           //title: Text(AppLocalization.of(context).heyWorld),
+          elevation: 0.0,
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back,
-              color: Colors.white,
+              color: iconColor,
             ),
             onPressed: () {
               if (inputMessage == "fromLogin") {
-                Navigator.pushReplacement(
-                  context,
+                Navigator.pop(
+                    context /*
                   MaterialPageRoute(
                     builder: (context) => LoadPage(
                         user: null,
                         appLanguage: appLanguage,
                         messageIn: "0",
                         page: login),
-                  ),
-                );
+                  ),*/
+                    );
               } else if (inputMessage == "fromMainTitle") {
-                Navigator.pushReplacement(
-                  context,
+                Navigator.pop(
+                    context /*
                   MaterialPageRoute(
                     builder: (context) => LoadPage(
-                        user: user,
+                        user: null,
                         appLanguage: appLanguage,
                         messageIn: "0",
-                        page: mainTitle),
-                  ),
-                );
+                        page: login),
+                  ),*/
+                    );
               }
             },
           ),
-          title: Text("FAQ"),
-          backgroundColor: Colors.blue,
+          title: Text(
+            "FAQ",
+            style: textStyleBG,
+          ),
+          backgroundColor: backgroundColor,
           actions: <Widget>[],
         ),
         body: ListView.builder(

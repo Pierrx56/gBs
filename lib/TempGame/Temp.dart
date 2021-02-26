@@ -40,11 +40,17 @@ class Temp extends StatefulWidget {
   final User user;
   final AppLanguage appLanguage;
   final String level;
+  final String message;
 
-  Temp({@required this.user, @required this.appLanguage, @required this.level});
+  Temp({
+    @required this.user,
+    @required this.appLanguage,
+    @required this.level,
+    @required this.message,
+  });
 
   @override
-  _Temp createState() => new _Temp(user, appLanguage, level);
+  _Temp createState() => new _Temp(user, appLanguage, level, message);
 }
 
 class _Temp extends State<Temp> {
@@ -72,6 +78,7 @@ class _Temp extends State<Temp> {
   int jumpCounter;
   double starValue;
   int level;
+  String message;
   int cinq = 5;
   double totalPush = 0.0;
   int k = 0;
@@ -80,10 +87,11 @@ class _Temp extends State<Temp> {
   int jumpToFloor = 1;
   int previousFloor = 1;
 
-  _Temp(User _user, AppLanguage _appLanguage, String _level) {
+  _Temp(User _user, AppLanguage _appLanguage, String _level, String _message) {
     user = _user;
     appLanguage = _appLanguage;
     level = int.parse(_level);
+    message = _message;
   }
 
   @override
@@ -256,7 +264,7 @@ class _Temp extends State<Temp> {
     double tempPush = getData();
 
     //Si le joueur a dépassé le drapeau ou qu'il attend au bout de la plateforme
-    if ((game.isWaiting || game.isPushable) && !game.launchTuto ) {
+    if ((game.isWaiting || game.isPushable) && !game.launchTuto) {
       //push = 0.99;
       if (double.parse(user.userInitialPush) < tempPush &&
           push > 0.0 &&
@@ -346,7 +354,6 @@ class _Temp extends State<Temp> {
     return push;
   }
 
-
   @override
   Widget build(BuildContext context) {
     //UI gameUI = UI();
@@ -405,15 +412,16 @@ class _Temp extends State<Temp> {
                                           ),
                                     RaisedButton(
                                       onPressed: () {
-                                        Navigator.pushReplacement(
+                                        Navigator.pop(
                                           context,
+                                          /*
                                           MaterialPageRoute(
                                               builder: (context) => LoadPage(
                                                     appLanguage: appLanguage,
                                                     user: user,
                                                     messageIn: "0",
                                                     page: mainTitle,
-                                                  )),
+                                                  )),*/
                                         );
                                       },
                                       child: Text(AppLocalizations.of(context)
@@ -455,10 +463,11 @@ class _Temp extends State<Temp> {
                                 alignment: Alignment.topRight,
                                 child: Container(
                                     alignment: Alignment.topRight,
-                                    child: gameUI.state.menu(context,
-                                        appLanguage, game, user, level)),
+                                    child: commonGamesUI.menu(context,
+                                        appLanguage, game, user, ID_TEMP_ACTIVITY, message)),
                               )
                             : Container()
+                //TODO Endscreen
                     : Container(),
               ],
             ),
@@ -602,8 +611,16 @@ class _Temp extends State<Temp> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          commonGamesUI.endScreen(context, appLanguage, game,
-                              ID_TEMP_ACTIVITY, user, starValue, level, coins),
+                          commonGamesUI.endScreen(
+                              context,
+                              appLanguage,
+                              game,
+                              ID_TEMP_ACTIVITY,
+                              user,
+                              starValue,
+                              level,
+                              coins,
+                              message),
                           //gameUI.state.endScreen(context, appLanguage, game, user, level),
                         ],
                       )

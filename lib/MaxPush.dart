@@ -204,15 +204,15 @@ class _MaxPush extends State<MaxPush> {
   }
 
   Future<bool> _onBackPressed() {
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => LoadPage(
-                  user: user,
-                  appLanguage: appLanguage,
-                  messageIn: "0",
-                  page: login,
-                )));
+    if (inputMessage == "fromRegister")
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => Login(
+                    appLanguage: appLanguage,
+                  )));
+    else
+      Navigator.pop(context);
   }
 
   void initializeNumberPicker() {
@@ -312,13 +312,20 @@ class _MaxPush extends State<MaxPush> {
       home: WillPopScope(
         onWillPop: _onBackPressed,
         child: Scaffold(
+          backgroundColor: backgroundColor,
           key: _scaffoldKey,
-          appBar: AppBar(
-            //title: Text(AppLocalization.of(context).heyWorld),
-            title: AutoSizeText(
-                AppLocalizations.of(context).translate('poussee_max')),
-            backgroundColor: Colors.blue,
-            actions: <Widget>[],
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(20.0), // here the desired height
+            child: AppBar(
+              elevation: 0.0,
+              //title: Text(AppLocalization.of(context).heyWorld),
+              title: AutoSizeText(
+                AppLocalizations.of(context).translate('poussee_max'),
+                style: textStyleBG,
+              ),
+              backgroundColor: backgroundColor,
+              actions: <Widget>[],
+            ),
           ),
           body: SingleChildScrollView(
             child: Container(
@@ -703,64 +710,114 @@ class _MaxPush extends State<MaxPush> {
                                               (inputMessage == "fromRegister" &&
                                                   isCorrect)
                                           ? RaisedButton(
-                                              onPressed:
-                                              bottomSelection != 0 &&
-                                                  (topSelection != 0 || topSelection != 1) || inputMessage == "fromMain" ? () {
-                                                if (inputMessage !=
-                                                    "fromRegister") {
-                                                  if (bottomSelection == 0)
-                                                    bottomSelection = int.parse(
-                                                        user.userHeightBottom);
+                                              onPressed: bottomSelection != 0 &&
+                                                          (topSelection != 0 ||
+                                                              topSelection !=
+                                                                  1) ||
+                                                      inputMessage == "fromMain"
+                                                  ? () {
+                                                      if (user.userInitialPush ==
+                                                          "0.0")
+                                                        ;
+                                                      else {
+                                                        if (inputMessage !=
+                                                            "fromRegister") {
+                                                          if (bottomSelection ==
+                                                              0)
+                                                            bottomSelection =
+                                                                int.parse(user
+                                                                    .userHeightBottom);
 
-                                                  if (topSelection == 1)
-                                                    topSelection = int.parse(
-                                                        user.userHeightTop);
-                                                }
+                                                          if (topSelection == 1)
+                                                            topSelection =
+                                                                int.parse(user
+                                                                    .userHeightTop);
+                                                        }
 
-                                                if (result == null ||
-                                                    (result <= 50.0 ||
-                                                        result >= 100.0))
-                                                  result = double.parse(
-                                                      user.userInitialPush);
+                                                        if (result == null ||
+                                                            (result <= 50.0 ||
+                                                                result >=
+                                                                    100.0))
+                                                          result = double.parse(
+                                                              user.userInitialPush);
 
-                                                //update poussée
-                                                updatedUser = User(
-                                                  userId: user.userId,
-                                                  userName: user.userName,
-                                                  userMode: user.userMode,
-                                                  userPic: user.userPic,
-                                                  userHeightTop:
-                                                      topSelection.toString(),
-                                                  userHeightBottom:
-                                                      bottomSelection
-                                                          .toString(),
-                                                  userInitialPush: result
-                                                      .toStringAsFixed(2)
-                                                      .toString(),
-                                                  userMacAddress:
-                                                      user.userMacAddress,
-                                                  userSerialNumber:
-                                                      user.userSerialNumber,
-                                                  userNotifEvent:
-                                                      user.userNotifEvent,
-                                                  userLastLogin:
-                                                      user.userLastLogin,
-                                                );
+                                                        //update poussée
+                                                        updatedUser = User(
+                                                          userId: user.userId,
+                                                          userName:
+                                                              user.userName,
+                                                          userMode:
+                                                              user.userMode,
+                                                          userPic: user.userPic,
+                                                          userHeightTop:
+                                                              topSelection
+                                                                  .toString(),
+                                                          userHeightBottom:
+                                                              bottomSelection
+                                                                  .toString(),
+                                                          userInitialPush: result
+                                                              .toStringAsFixed(
+                                                                  2)
+                                                              .toString(),
+                                                          userMacAddress: user
+                                                              .userMacAddress,
+                                                          userSerialNumber: user
+                                                              .userSerialNumber,
+                                                          userNotifEvent: user
+                                                              .userNotifEvent,
+                                                          userLastLogin: user
+                                                              .userLastLogin,
+                                                        );
 
-                                                db.updateUser(updatedUser);
-                                                Navigator.pushReplacement(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        LoadPage(
-                                                      appLanguage: appLanguage,
-                                                      page: mainTitle,
-                                                      user: updatedUser,
-                                                      messageIn: "0",
-                                                    ),
-                                                  ),
-                                                );
-                                              } : null,
+                                                        db.updateUser(
+                                                            updatedUser);
+                                                      }
+                                                      if (inputMessage ==
+                                                          "fromMain") {/*
+                                                        MainTitle(
+                                                          appLanguage:
+                                                              appLanguage,
+                                                          userIn: updatedUser,
+                                                          messageIn: "",
+                                                        )
+                                                            .createState()
+                                                            .updateUser(
+                                                                updatedUser);*/
+                                                        Navigator
+                                                            .push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    MainTitle(
+                                                              appLanguage:
+                                                                  appLanguage,
+                                                              userIn:
+                                                                  updatedUser,
+                                                              messageIn:
+                                                                  "",
+                                                            ),
+                                                          ),
+                                                        );
+                                                      } else
+                                                        Navigator
+                                                            .pushReplacement(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    MainTitle(
+                                                              appLanguage:
+                                                                  appLanguage,
+                                                              userIn:
+                                                                  updatedUser,
+                                                              messageIn:
+                                                                  "fromRegister",
+                                                            ),
+                                                          ),
+                                                        );
+                                                    }
+                                                  : null,
                                               child: AutoSizeText(
                                                 backButtonText,
                                                 style: textStyle,
@@ -786,13 +843,6 @@ class _MaxPush extends State<MaxPush> {
                       ],
                     ),
                   ),
-                  /*RoundedProgressBar(
-                              percent: (double.parse(btData)) >= 0
-                                  ? (double.parse(btData))
-                                  : 0.0,
-                              theme: colorProgressBar,
-                              childCenter: Text((double.parse(btData)).toString())),
-                          */
                 ],
               ),
             ),

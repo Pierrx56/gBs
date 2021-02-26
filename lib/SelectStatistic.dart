@@ -19,6 +19,7 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/DetailsCharts.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
@@ -64,8 +65,9 @@ class _SelectStatistic extends State<SelectStatistic> {
   String inputMessage;
   AppLanguage appLanguage;
   double widthCard, heightCard;
-  List<Scores> dataSwim;
+  List<Scores> dataCar;
   List<Scores> dataPlane;
+  List<Scores> dataSwim;
   List<Scores> dataTemp;
 
   Color colorMesureButton = Colors.black;
@@ -96,8 +98,9 @@ class _SelectStatistic extends State<SelectStatistic> {
 
   @override
   void initState() {
-    getScores(user.userId, ID_SWIMMER_ACTIVITY);
+    getScores(user.userId, ID_CAR_ACTIVITY);
     getScores(user.userId, ID_PLANE_ACTIVITY);
+    getScores(user.userId, ID_SWIMMER_ACTIVITY);
     getScores(user.userId, ID_TEMP_ACTIVITY);
     super.initState();
   }
@@ -109,10 +112,10 @@ class _SelectStatistic extends State<SelectStatistic> {
   }
 
   void getScores(int userId, int activityId) async {
-    //Nageur
-    if (activityId == ID_SWIMMER_ACTIVITY) {
-      dataSwim = await db.getScore(userId, activityId);
-      if (dataSwim == null) {
+    //Car
+    if (activityId == ID_CAR_ACTIVITY) {
+      dataCar = await db.getScore(userId, activityId);
+      if (dataCar == null) {
         getScores(userId, activityId);
       }
     }
@@ -120,6 +123,13 @@ class _SelectStatistic extends State<SelectStatistic> {
     else if (activityId == ID_PLANE_ACTIVITY) {
       dataPlane = await db.getScore(userId, activityId);
       if (dataPlane == null) {
+        getScores(userId, activityId);
+      }
+    }
+    //Swimmer
+    else if (activityId == ID_SWIMMER_ACTIVITY) {
+      dataSwim = await db.getScore(userId, activityId);
+      if (dataSwim == null) {
         getScores(userId, activityId);
       }
     }
@@ -134,70 +144,58 @@ class _SelectStatistic extends State<SelectStatistic> {
     if (mounted) setState(() {});
   }
 
-/*  Widget swimStat() {
+  Widget backCard() {
     var temp = AppLocalizations.of(context);
     return SizedBox(
-      width: widthCard = screenSize.width / (numberOfCard / 2),
-      height: screenSize.width / numberOfCard,
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        elevation: 8,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              temp != null
-                  ? Text(
-                      AppLocalizations.of(context).translate('stat_nageur'),
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    )
-                  : Text("Check Language file (en/fr.json)"),
-              dataSwim == null
-                  ? Container()
-                  : Container(
-                      child: DrawCharts(data: dataSwim),
-                      height: heightCard,
-                    ),
-              Padding(
-                padding: EdgeInsets.all(10),
+      width: widthCard = screenSize.width / (numberOfCard * 0.5),
+      height: heightCard = (screenSize.width / numberOfCard),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pop(context);
+          /* Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LoadPage(
+                user: user,
+                appLanguage: appLanguage,
+                messageIn: "0",
+                page: mainTitle,
               ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: RaisedButton(
-                  child: temp != null
-                      ? Text(
-                          AppLocalizations.of(context).translate('details'),
-                        )
-                      : Text("Check Language file (en/fr.json)"),
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LoadPage(
-                          appLanguage: appLanguage,
-                          page: detailsCharts,
-                          user: user,
-                          messageIn: "$ID_SWIMMER_ACTIVITY",
-                          scores: dataSwim,
-                        ),
-                      ),
-                    );
-                  },
+            ),
+          );*/
+        },
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          elevation: 8,
+          color: backgroundColor,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Icon(
+                  Icons.exit_to_app,
+                  size: heightCard / 2,
                 ),
-              ),
-            ],
+                temp != null
+                    ? Text(
+                        AppLocalizations.of(context).translate('retour'),
+                        style: textStyle,
+                      )
+                    : Text("Check Language file (en/fr.json)"),
+                Container()
+              ],
+            ),
           ),
         ),
       ),
     );
-  }*/
+  }
 
-  Widget swimStat() {
+  Widget carStat() {
     var temp = AppLocalizations.of(context);
     return SizedBox(
       width: widthCard = screenSize.width / (numberOfCard / 2),
@@ -215,16 +213,19 @@ class _SelectStatistic extends State<SelectStatistic> {
             children: <Widget>[
               temp != null
                   ? AutoSizeText(
-                      AppLocalizations.of(context).translate('stat_nageur'),
+                      AppLocalizations.of(context).translate('voiture') +
+                          " " +
+                          AppLocalizations.of(context)
+                              .translate('statistiques'),
                       maxLines: 1,
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     )
                   : Text("Check Language file (en/fr.json)"),
-              dataSwim == null
+              dataCar == null
                   ? Container()
                   : Container(
-                      child: DrawCharts(data: dataSwim),
+                      child: DrawCharts(data: dataCar),
                       height: heightCard,
                     ),
               Padding(
@@ -255,7 +256,7 @@ class _SelectStatistic extends State<SelectStatistic> {
             children: <Widget>[
               temp != null
                   ? AutoSizeText(
-                      AppLocalizations.of(context).translate('stat_avion'),
+                      AppLocalizations.of(context).translate('stat_plane'),
                       maxLines: 1,
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -265,6 +266,46 @@ class _SelectStatistic extends State<SelectStatistic> {
                   ? Container()
                   : Container(
                       child: DrawCharts(data: dataPlane),
+                      height: heightCard,
+                    ),
+              Padding(
+                padding: EdgeInsets.all(10),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget swimStat() {
+    var temp = AppLocalizations.of(context);
+    return SizedBox(
+      width: widthCard = screenSize.width / (numberOfCard / 2),
+      height: heightCard = screenSize.height / (numberOfCard / 2.5),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 8,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              temp != null
+                  ? AutoSizeText(
+                      AppLocalizations.of(context).translate('stat_swimmer'),
+                      maxLines: 1,
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    )
+                  : Text("Check Language file (en/fr.json)"),
+              dataSwim == null
+                  ? Container()
+                  : Container(
+                      child: DrawCharts(data: dataSwim),
                       height: heightCard,
                     ),
               Padding(
@@ -318,55 +359,6 @@ class _SelectStatistic extends State<SelectStatistic> {
     );
   }
 
-  Widget backCard() {
-    var temp = AppLocalizations.of(context);
-    return SizedBox(
-      width: widthCard = screenSize.width / (numberOfCard / 2),
-      height: heightCard = (screenSize.width / numberOfCard),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => LoadPage(
-                user: user,
-                appLanguage: appLanguage,
-                messageIn: "0",
-                page: mainTitle,
-              ),
-            ),
-          );
-        },
-        child: Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          elevation: 8,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                Icon(
-                  Icons.exit_to_app,
-                  size: heightCard / 2,
-                ),
-                temp != null
-                    ? Text(
-                        AppLocalizations.of(context).translate('retour'),
-                        style: textStyle,
-                      )
-                    : Text("Check Language file (en/fr.json)"),
-                Container()
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     var temp = AppLocalizations.of(context);
@@ -382,111 +374,176 @@ class _SelectStatistic extends State<SelectStatistic> {
         GlobalWidgetsLocalizations.delegate,
       ],
       home: Scaffold(
+        backgroundColor: backgroundColor,
         key: _scaffoldKey,
-        appBar: AppBar(
-          //title: Text(AppLocalization.of(context).heyWorld),
-
-          title: Text(AppLocalizations.of(context).translate('statistiques')),
-          backgroundColor: Colors.blue,
-          actions: <Widget>[],
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(20.0), // here the desired height
+          child: AppBar(
+            //title: Text(AppLocalization.of(context).heyWorld),
+            backgroundColor: backgroundColor,
+            elevation: 0.0,
+            actions: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(10),
+              ),
+              Container(
+                width: (screenSize.width) * 0.1,
+                decoration: BoxDecoration(
+                    color: splashIconColor.withAlpha(50), shape: BoxShape.circle),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child:
+                      Icon(Icons.keyboard_arrow_left, size: 50, color: iconColor),
+                ),
+              ),
+              Spacer(),
+              Text(
+                AppLocalizations.of(context).translate('statistiques'),
+                style: textStyleBG,
+              ),
+              Spacer(),
+            ],
+          ),
         ),
         body: Container(
           height: screenSize.height,
           child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Column(
                   children: <Widget>[
-                    Stack(
-                      alignment: Alignment.center,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        swimStat(),
-                        Container(
-                          width: widthCard*0.9,
-                          height: heightCard*0.9,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LoadPage(
-                                    appLanguage: appLanguage,
-                                    page: detailsCharts,
-                                    user: user,
-                                    messageIn: "$ID_SWIMMER_ACTIVITY",
-                                    scores: dataSwim,
-                                  ),
-                                ),
-                              );
-                            },
+                        //Car
+                        Stack(
+                          alignment: Alignment.center,
+                          children: <Widget>[
+                            carStat(),
+                            Container(
+                              width: widthCard * 0.9,
+                              height: heightCard * 0.9,
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailsCharts(
+                                        appLanguage: appLanguage,
+                                        user: user,
+                                        messageIn: "$ID_CAR_ACTIVITY",
+                                        scores: dataCar,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        //Plane
+                        Stack(
+                          alignment: Alignment.center,
+                          children: <Widget>[
+                            planeStat(),
+                            Container(
+                              width: widthCard * 0.9,
+                              height: heightCard * 0.9,
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailsCharts(
+                                        appLanguage: appLanguage,
+                                        user: user,
+                                        messageIn: "$ID_PLANE_ACTIVITY",
+                                        scores: dataPlane,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Container(
+                            width: screenSize.width * 0.15,
+                            //child: backCard(),
+                          ),
+                        ),
+                        //Swimmer
+                        Stack(
+                          alignment: Alignment.center,
+                          children: <Widget>[
+                            swimStat(),
+                            Container(
+                              width: widthCard * 0.9,
+                              height: heightCard * 0.9,
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailsCharts(
+                                        appLanguage: appLanguage,
+                                        user: user,
+                                        messageIn: "$ID_SWIMMER_ACTIVITY",
+                                        scores: dataSwim,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        //Temp
+                        Stack(
+                          alignment: Alignment.center,
+                          children: <Widget>[
+                            tempStat(),
+                            Container(
+                              width: widthCard * 0.9,
+                              height: heightCard * 0.9,
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailsCharts(
+                                        appLanguage: appLanguage,
+                                        user: user,
+                                        messageIn: "$ID_TEMP_ACTIVITY",
+                                        scores: dataTemp,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Container(
+                            width: screenSize.width * 0.15,
+                            //child: backCard()),
                           ),
                         ),
                       ],
                     ),
-                    Stack(
-                      alignment: Alignment.center,
-                      children: <Widget>[
-                        planeStat(),
-                        Container(
-                          width: widthCard*0.9,
-                          height: heightCard*0.9,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LoadPage(
-                                    appLanguage: appLanguage,
-                                    page: detailsCharts,
-                                    user: user,
-                                    messageIn: "$ID_PLANE_ACTIVITY",
-                                    scores: dataPlane,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    Stack(
-                      alignment: Alignment.center,
-                      children: <Widget>[
-                        tempStat(),
-                        Container(
-                          width: widthCard*0.9,
-                          height: heightCard*0.9,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LoadPage(
-                                    appLanguage: appLanguage,
-                                    page: detailsCharts,
-                                    user: user,
-                                    messageIn: "$ID_TEMP_ACTIVITY",
-                                    scores: dataTemp,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    //swimmerGame(),
-                    backCard(),
                   ],
                 ),
               ],

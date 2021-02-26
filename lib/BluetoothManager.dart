@@ -155,7 +155,6 @@ class BluetoothManager {
   }
 
   //Fonction pour se déconnecter du gBs
-  //TODO Ne marche pas/N'est jamais appelée
   Future<void> disconnect(String origin) async {
     String connectStatus;
     try {

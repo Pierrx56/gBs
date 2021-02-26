@@ -36,16 +36,18 @@ class Swimmer extends StatefulWidget {
   final User user;
   final AppLanguage appLanguage;
   final String level;
+  final String message;
 
   Swimmer(
       {Key key,
       @required this.user,
       @required this.appLanguage,
-      @required this.level})
+      @required this.level,
+      @required this.message})
       : super(key: key);
 
   @override
-  _Swimmer createState() => new _Swimmer(user, appLanguage, level);
+  _Swimmer createState() => new _Swimmer(user, appLanguage, level, message);
 }
 
 class _Swimmer extends State<Swimmer> {
@@ -69,11 +71,13 @@ class _Swimmer extends State<Swimmer> {
   int score;
   double starValue;
   int level;
+  String message;
 
-  _Swimmer(User _user, AppLanguage _appLanguage, String _level) {
+  _Swimmer(User _user, AppLanguage _appLanguage, String _level, String _message) {
     user = _user;
     appLanguage = _appLanguage;
     level = int.parse(_level);
+    message = _message;
   }
 
   @override
@@ -320,15 +324,15 @@ class _Swimmer extends State<Swimmer> {
                                           ),
                                     RaisedButton(
                                       onPressed: () {
-                                        Navigator.pushReplacement(
-                                          context,
+                                        Navigator.pop(
+                                          context,/*
                                           MaterialPageRoute(
                                               builder: (context) => LoadPage(
                                                     appLanguage: appLanguage,
                                                     user: user,
                                                     messageIn: "0",
                                                     page: mainTitle,
-                                                  )),
+                                                  )),*/
                                         );
                                       },
                                       child: Text(AppLocalizations.of(context)
@@ -365,14 +369,14 @@ class _Swimmer extends State<Swimmer> {
                             padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                             child: game == null
                                 ? Container()
-                                : gameUI.state.pauseButton(
+                                : commonGamesUI.pauseButton(
                                     context, appLanguage, game, user),
                           )
                         : !endGame
                             ? Container(
                                 alignment: Alignment.topRight,
-                                child: gameUI.state
-                                    .menu(context, appLanguage, game, user))
+                                child: commonGamesUI
+                                    .menu(context, appLanguage, game, user, ID_SWIMMER_ACTIVITY ,message))
                             : Container(
                                 alignment: Alignment.topCenter,
                                 child: commonGamesUI.endScreen(
@@ -383,7 +387,7 @@ class _Swimmer extends State<Swimmer> {
                                     user,
                                     starValue,
                                     level,
-                                    score))
+                                    score, message))
                     : Container(),
 
                 /*              Container(

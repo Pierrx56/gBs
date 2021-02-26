@@ -16,6 +16,7 @@ import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/CarGame/CarGame.dart';
+import 'package:gbsalternative/MainTitle.dart';
 
 import 'Ui.dart';
 
@@ -35,16 +36,18 @@ class Car extends StatefulWidget {
   final User user;
   final AppLanguage appLanguage;
   final String level;
+  final String message;
 
   Car(
       {Key key,
       @required this.user,
       @required this.appLanguage,
-      @required this.level})
+      @required this.level,
+      @required this.message})
       : super(key: key);
 
   @override
-  _Car createState() => new _Car(user, appLanguage, level);
+  _Car createState() => new _Car(user, appLanguage, level, message);
 }
 
 class _Car extends State<Car> with TickerProviderStateMixin {
@@ -68,13 +71,15 @@ class _Car extends State<Car> with TickerProviderStateMixin {
   int score = 0;
   double starValue;
   int level;
+  String message = "";
 
   ConfettiController _controllerTopCenter;
 
-  _Car(User _user, AppLanguage _appLanguage, String _level) {
+  _Car(User _user, AppLanguage _appLanguage, String _level, String _message) {
     user = _user;
     appLanguage = _appLanguage;
     level = int.parse(_level);
+    message = _message;
   }
 
   @override
@@ -135,7 +140,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
       game.setRoadSpeed(6);
     }
     //Start timer of 2 minutes
-    startTimer(true);
+    //startTimer(true);
 
     flameUtil.addGestureRecognizer(tapper);
   }
@@ -234,6 +239,8 @@ class _Car extends State<Car> with TickerProviderStateMixin {
         time,
         (Timer timer) {
           //FIN DU JEU
+          //if(game.totalCounterActivity > )
+
           if (_start < delay) {
             game.pauseGame = true;
             gameOver = true;
@@ -289,7 +296,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
 
                   timer.cancel();
                   gameUI.state.saveAndExit(context, appLanguage, user, score,
-                      game, starValue, level);
+                      game, starValue, level, message);
                 } else {
                   _start = _start - 1;
                 }
@@ -303,231 +310,267 @@ class _Car extends State<Car> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
 
-    return Material(
-      child: ColorFiltered(
-        colorFilter: game != null
-            ? game.getColorFilter()
-            : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
-        child: Stack(
-          children: <Widget>[
-            game == null || double.parse(user.userInitialPush) == 0
-                ? Center(
-                    child: Container(
-                        width: screenSize.width,
-                        height: screenSize.height,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: ExactAssetImage(
-                                "assets/images/plane/background.png"),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
-                          child: Stack(
-                            children: <Widget>[
-                              Center(
-                                child: Container(
-                                  width: screenSize.width / 2,
-                                  height: screenSize.height / 2,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Color.fromRGBO(255, 255, 255, 0.7),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      CircularProgressIndicator(),
-                                      double.parse(user.userInitialPush) == 0
-                                          ? AutoSizeText(AppLocalizations.of(
-                                                  context)
-                                              .translate('premiere_poussee_sw'))
-                                          : AutoSizeText(
-                                              AppLocalizations.of(context)
-                                                  .translate('verif_alim'),
-                                              minFontSize: 15,
-                                              maxLines: 3,
-                                              style: TextStyle(fontSize: 25),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                      RaisedButton(
-                                        onPressed: () {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => LoadPage(
-                                                      appLanguage: appLanguage,
-                                                      user: user,
-                                                      messageIn: "0",
-                                                      page: mainTitle,
-                                                    )),
-                                          );
-                                        },
-                                        child: Text(AppLocalizations.of(context)
-                                            .translate('retour')),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
-                  )
-                : game.widget,
-
-            SingleChildScrollView(
-              child: Stack(
-                children: <Widget>[
-/*                Container(
-                    alignment: Alignment.topLeft,
-                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    child: game == null
-                        ? Container()
-                        : gameUI.state.closeButton(
-                        context, appLanguage, user, game.getScore()),
-                  ),*/
-                  game != null
-                      ? !game.pauseGame &&
-                              !game.getGameOver() &&
-                              game.getConnectionState()
-                          ? Container(
-                              alignment: Alignment.topRight,
-                              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                              child: game == null
-                                  ? Container()
-                                  : commonGamesUI.pauseDebugButton(
-                                      context, appLanguage, game, user),
-                            )
-                          : !gameOver
-                              ? Container(
-                                  alignment: Alignment.topRight,
-                                  //alignment: Alignment.topLeft,
-                                  child: gameUI.state.menuDebug(
-                                      context, appLanguage, game, user))
-                              : Container(
-                                  alignment: Alignment.topCenter,
-                                  height: screenSize.height,
-                                  child: Stack(
-                                    children: <Widget>[
-                                      Align(
-                                        alignment: Alignment.center,
-                                        child: commonGamesUI.endScreen(
-                                            context,
-                                            appLanguage,
-                                            game,
-                                            ID_CAR_ACTIVITY,
-                                            user,
-                                            game.getStarValue(),
-                                            game.getStarLevel(),
-                                            game.score),
-                                      ),
-                                      //TOP CENTER - shoot down
-                                      Align(
-                                        alignment: Alignment.topCenter,
-                                        child: ConfettiWidget(
-                                          confettiController:
-                                              _controllerTopCenter,
-                                          blastDirection: math.pi / 2,
-                                          maxBlastForce: 5,
-                                          // set a lower max blast force
-                                          minBlastForce: 2,
-                                          // set a lower min blast force
-                                          emissionFrequency: 0.05,
-                                          numberOfParticles: 50,
-                                          // a lot of particles at once
-                                          gravity: 1,
-                                        ),
-                                      ),
-                                    ],
-                                  ))
-                      : Container(),
-
-                  //Display coins and life
-                  game != null && !game.getGameOver()
-                      ? game.getConnectionState()
-                          ? Container(
-                              alignment: Alignment.topLeft,
-                              padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-                              child: game == null
-                                  ? Container()
-                                  : gameUI.state
-                                      .displayItems(score.toString(), game),
-                            )
-                          : Container()
-                      : Container(),
-
-                  //Display waiting screen
-                  game != null && !game.getGameOver()
-                      ? game.getConnectionState()
-                          ? Container(
-                              alignment: Alignment.center,
-                              height: game.screenSize.height,
-                              padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-                              child: game.previousActivity == 3
-                                  ? gameUI.state.waitingScreen(game)
-                                  : Container(),
-                            )
-                          : Container()
-                      : Container(),
-                  /*              Container(
-                    alignment: Alignment.topLeft,
-                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    child: game == null
-                        ? Container()
-                        : gameUI.state.restartButton(context, appLanguage, user),
-                  ),
-*/
-                ],
+    return WillPopScope(
+      onWillPop: () {
+        if (message == "fromRestart") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainTitle(
+                appLanguage: appLanguage,
+                messageIn: "",
+                userIn: user,
               ),
             ),
-            //Display message afficher le score et les secondes
-            game != null
-                ? !game.getGameOver() && game.getConnectionState()
-                    ? Container(
-                        alignment: Alignment.centerRight,
-                        padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-                        child: game == null
-                            ? Container()
-                            : gameUI.state.displayScore(
-                                score.toString(), game, timeRemaining),
-                      )
-                    : Container()
-                : Container(),
-            //Display message Game Over
-            Container(
-              alignment: Alignment.centerRight,
-              child: game != null
-                  ? game.getGameOver()
-                      ? gameUI.state.displayMessage(
-                          AppLocalizations.of(context).translate('game_over'),
-                          game,
-                          Colors.redAccent)
+          );
+        } else
+          Navigator.pop(context);
+
+        return;
+      },
+      child: Material(
+        child: ColorFiltered(
+          colorFilter: game != null
+              ? game.getColorFilter()
+              : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
+          child: Stack(
+            children: <Widget>[
+              game == null || double.parse(user.userInitialPush) == 0
+                  ? Center(
+                      child: Container(
+                          width: screenSize.width,
+                          height: screenSize.height,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: ExactAssetImage(
+                                  "assets/images/plane/background.png"),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+                            child: Stack(
+                              children: <Widget>[
+                                Center(
+                                  child: Container(
+                                    width: screenSize.width / 2,
+                                    height: screenSize.height / 2,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Color.fromRGBO(255, 255, 255, 0.7),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        CircularProgressIndicator(),
+                                        double.parse(user.userInitialPush) == 0
+                                            ? AutoSizeText(
+                                                AppLocalizations.of(context)
+                                                    .translate(
+                                                        'premiere_poussee_sw'))
+                                            : AutoSizeText(
+                                                AppLocalizations.of(context)
+                                                    .translate('verif_alim'),
+                                                minFontSize: 15,
+                                                maxLines: 3,
+                                                style: TextStyle(fontSize: 25),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                        RaisedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            /*Navigator.pushReplacement(
+                                              context
+                                              ,
+                                              MaterialPageRoute(
+                                                  builder: (context) => LoadPage(
+                                                        appLanguage: appLanguage,
+                                                        user: user,
+                                                        messageIn: "0",
+                                                        page: mainTitle,
+                                                      )),
+                                            );*/
+                                          },
+                                          child: Text(
+                                              AppLocalizations.of(context)
+                                                  .translate('retour')),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                    )
+                  : game.widget,
+
+              SingleChildScrollView(
+                child: Stack(
+                  children: <Widget>[
+/*                Container(
+                      alignment: Alignment.topLeft,
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: game == null
+                          ? Container()
+                          : gameUI.state.closeButton(
+                          context, appLanguage, user, game.getScore()),
+                    ),*/
+                    game != null
+                        ? !game.pauseGame &&
+                                !game.getGameOver() &&
+                                game.getConnectionState()
+                            ? Container(
+                                alignment: Alignment.topRight,
+                                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                child: game == null
+                                    ? Container()
+                                    : commonGamesUI.pauseDebugButton(
+                                        context, appLanguage, game, user),
+                              )
+                            : !gameOver
+                                ? Container(
+                                    alignment: Alignment.topRight,
+                                    //alignment: Alignment.topLeft,
+                                    child: commonGamesUI.menu(context,
+                                        appLanguage, game, user, ID_CAR_ACTIVITY, message))
+                                : Container(
+                                    alignment: Alignment.topCenter,
+                                    height: screenSize.height,
+                                    child: Stack(
+                                      children: <Widget>[
+                                        Align(
+                                          alignment: Alignment.center,
+                                          child: commonGamesUI.endScreen(
+                                              context,
+                                              appLanguage,
+                                              game,
+                                              ID_CAR_ACTIVITY,
+                                              user,
+                                              game.getStarValue(),
+                                              game.getStarLevel(),
+                                              game.score,
+                                              message),
+                                        ),
+                                        //TOP CENTER - shoot down
+                                        Align(
+                                          alignment: Alignment.topCenter,
+                                          child: ConfettiWidget(
+                                            confettiController:
+                                                _controllerTopCenter,
+                                            blastDirection: math.pi / 2,
+                                            maxBlastForce: 5,
+                                            // set a lower max blast force
+                                            minBlastForce: 2,
+                                            // set a lower min blast force
+                                            emissionFrequency: 0.05,
+                                            numberOfParticles: 50,
+                                            // a lot of particles at once
+                                            gravity: 1,
+                                          ),
+                                        ),
+                                      ],
+                                    ))
+                        : Container(),
+
+                    //Display coins and life
+                    game != null && !game.getGameOver()
+                        ? game.getConnectionState()
+                            ? Container(
+                                alignment: Alignment.topLeft,
+                                padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
+                                child: game == null
+                                    ? Container()
+                                    : gameUI.state
+                                        .displayItems(score.toString(), game),
+                              )
+                            : Container()
+                        : Container(),
+
+                    //Display waiting screen
+                    game != null && !game.getGameOver()
+                        ? game.getConnectionState()
+                            ? Container(
+                                alignment: Alignment.center,
+                                height: game.screenSize.height,
+                                padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
+                                child: game.previousActivity == 3
+                                    ? gameUI.state.waitingScreen(game)
+                                    : Container(),
+                              )
+                            : Container()
+                        : Container(),
+                    /*              Container(
+                      alignment: Alignment.topLeft,
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: game == null
+                          ? Container()
+                          : gameUI.state.restartButton(context, appLanguage, user),
+                    ),
+*/
+                  ],
+                ),
+              ),
+              //Display message afficher le score et les secondes
+              game != null
+                  ? !game.getGameOver() && game.getConnectionState()
+                      ? Container(
+                          alignment: Alignment.centerRight,
+                          padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
+                          child: game == null
+                              ? Container()
+                              : gameUI.state.displayScore(
+                                  score.toString(), game, timeRemaining),
+                        )
                       : Container()
                   : Container(),
-            ),
-            //Display message Lost connexion
-            Container(
-              alignment: Alignment.centerRight,
-              child: game != null
-                  ? !game.getConnectionState()
-                      ? gameUI.state.displayMessage(
-                          AppLocalizations.of(context)
-                              .translate('connexion_perdue'),
-                          game,
-                          Colors.redAccent)
-                      : Container()
-                  : Container(),
-            ), /*
-            //Display timer
-            Container(
+              //Display message Game Over
+              Container(
                 alignment: Alignment.centerRight,
                 child: game != null
-                    ? gameUI.state.displayMessage(timeRemaining, game)
-                    : Container()),*/
-          ],
+                    ? game.getGameOver()
+                        ? gameUI.state.displayMessage(
+                            AppLocalizations.of(context).translate('game_over'),
+                            game,
+                            Colors.redAccent)
+                        : Container()
+                    : Container(),
+              ),
+              //Display message Lost connexion
+              Container(
+                alignment: Alignment.centerRight,
+                child: game != null
+                    ? !game.getConnectionState()
+                        ? gameUI.state.displayMessage(
+                            AppLocalizations.of(context)
+                                .translate('connexion_perdue'),
+                            game,
+                            Colors.redAccent)
+                        : Container()
+                    : Container(),
+              ),
+              /*
+              Padding(
+                padding: EdgeInsets.fromLTRB(50, 0, 0, 0),
+                child: Container(
+                  width: 50,
+                  height: 50,
+                  color: Colors.red,
+                ),
+              )*/
+
+              /*
+              //Display timer
+              Container(
+                  alignment: Alignment.centerRight,
+                  child: game != null
+                      ? gameUI.state.displayMessage(timeRemaining, game)
+                      : Container()),*/
+            ],
+          ),
         ),
       ),
     );

@@ -40,6 +40,7 @@ class CarGame extends Game {
   bool changeSize;
 
   //Count CMV/CSI/TME/Wait
+  int totalCounterActivity;
   int CMVCounter;
   int CSICounter;
   int TMECounter;
@@ -58,6 +59,7 @@ class CarGame extends Game {
   double starValue = 0.0;
   bool pauseGame;
   bool hasCrash = false;
+  bool hasCrashSecondWay = false;
   bool reset = false;
   double creationTimer = 0.0;
   double scoreTimer = 0.0;
@@ -67,8 +69,8 @@ class CarGame extends Game {
   int i = 0;
   double difficulte = 3.0;
 
-  double sizeW = 130.0;
-  double sizeH = 65.0;
+  double sizeW;
+  double sizeH;
 
   double Function() getData;
   User user;
@@ -76,6 +78,7 @@ class CarGame extends Game {
   double posYTopLine;
   bool posMax;
   bool posMid;
+  bool posMin;
   UI gameUI;
   AppLanguage appLanguage;
 
@@ -94,11 +97,19 @@ class CarGame extends Game {
     police = POLICE(this);
     gameUI = UI();
 
+    //140 / 70
+    sizeW = screenSize.width * 0.22;
+    sizeH = sizeW * 0.5;
+
+    hasCrash = false;
+    hasCrashSecondWay = false;
+
     life = 3;
     pauseGame = false;
     isInit = false;
     posMax = false;
     posMid = false;
+    posMin = true;
     gameOver = false;
     isConnected = true;
     start = false;
@@ -110,6 +121,7 @@ class CarGame extends Game {
     fuelIsDown = true;
     isDoingExercice = false;
     isWaiting = false;
+    totalCounterActivity = 0;
     CMVCounter = 0;
     CSICounter = 0;
     TMECounter = 0;
@@ -142,7 +154,8 @@ class CarGame extends Game {
           canvas.save();
           //Road
           if (staightRoad != null) {
-            staightRoad.render(canvas, pauseGame, reset, hasCrash);
+            staightRoad.render(
+                canvas, pauseGame, reset, hasCrash, hasCrashSecondWay);
           }
 
           //Select randomly activity
@@ -154,7 +167,7 @@ class CarGame extends Game {
                 isWaiting = true;
                 randomNumber = 3;
               }
-              randomNumber = 0;
+              randomNumber = 1;
               switch (randomNumber) {
                 //CMV
                 case 0:
@@ -163,6 +176,7 @@ class CarGame extends Game {
                     isDoingExercice = true;
                     isWaiting = false;
                     cmv = new CMV(this);
+                    totalCounterActivity++;
                     CMVCounter++;
                   }
                   break;
@@ -173,6 +187,7 @@ class CarGame extends Game {
                     isDoingExercice = true;
                     isWaiting = false;
                     csi = CSI(this);
+                    totalCounterActivity++;
                     CSICounter++;
                   }
                   break;
@@ -183,6 +198,7 @@ class CarGame extends Game {
                     isDoingExercice = true;
                     isWaiting = false;
                     tme = new TME(this);
+                    totalCounterActivity++;
                     TMECounter++;
                   }
                   break;
@@ -241,49 +257,65 @@ class CarGame extends Game {
 
             //HitBox CMV
             if (cmv != null) {
-              //print(j * speedCars - screenSize.width *0.5 - plane.width * 0.4 );
-
-              //369.6
-              //print((cmv.getXPosition(2)));
-              //484
-              //print((cmv.getWidth()));
-              //900 à battre
-
-              print(cmv.getXPosition(0));
-
-              //First truck hitbox
-              if (j * speedCars - screenSize.width * 0.5 + plane.width * 0.4 >
-                      cmv.getXPosition(0) &&
-                  j * speedCars - screenSize.width * 0.5 - plane.width * 0.4 <
-                      (cmv.getXPosition(cmv.carsList.length - 1) +
-                          cmv.getWidth()) &&
-                  posY + plane.height * 0.5 <
-                      screenSize.height - widthRoad * 0.7 - cmv.getHeight()) {
-                print("touched");
-              }
-              //Cars 2nd way
-              /*else if (j * speedCars -
-                          screenSize.width / 2 +
-                          cmv.getWidth() * speedCars >
-                      cmv.getXPosition(1) + cmv.getWidth() * 0.5 &&
-                  j * speedCars -
-                          screenSize.width / 2 +
-                          cmv.getWidth() * speedCars <
-                      2 * (cmv.getXPosition(2) + cmv.getWidth() * 0.5) +
-                          cmv.getWidth() / 2 &&
-                  posY + plane.height * 0.5 <
-                      screenSize.height - widthRoad * 0.4 - cmv.getHeight()) {
-                print("2nd touched");
-              }*/
-              //Reset CMV
-              else if (j * speedCars -
-                          screenSize.width * 0.5 +
-                          plane.width * 0.4 >
-                      cmv.getXPosition(0) &&
-                  j * speedCars - screenSize.width * 0.5 - plane.width <
-                      (cmv.getXPosition(cmv.carsList.length - 1) +
-                          cmv.getWidth())) {
-                print("out");
+              //First way
+              if (posY + plane.height * 0.5 <
+                  screenSize.height * 0.7 - cmv.getHeight()) {
+                //Hitbox trucks
+                if (j * speedTruck -
+                            screenSize.width / 2 +
+                            cmv.getWidth() * 0.6 >
+                        cmv.getXPosition(0) &&
+                    j * speedTruck - screenSize.width / 2 <
+                        cmv.getXPosition(cmv.truckList.length - 1) +
+                            cmv.getWidth() * 0.62) {
+                  life--;
+                  hasCrash = true;
+                  //print("crashed");
+                  //TODO stop timer game
+                  Timer(Duration(seconds: 2), () {
+                    hasCrash = false;
+                  });
+                }
+                //Reset trucks spawn
+                else if (j * speedTruck -
+                        screenSize.width / 2 -
+                        screenSize.width >
+                    cmv.getXPosition(cmv.truckList.length - 1) +
+                        cmv.getWidth() * 0.9) {
+                  cmv = null;
+                  isDoingExercice = false;
+                }
+              } else if (posMid) {
+                //Hitbox Car
+                if (j * speedTruck -
+                            screenSize.width / 2 +
+                            cmv.getWidth() * 0.6 >
+                        cmv.getXPosition(1) &&
+                    j * speedTruck - screenSize.width / 2 <
+                        cmv.getXPosition(cmv.truckList.length - 1) +
+                            cmv.getWidth() * 0.62) {
+                  life--;
+                  hasCrashSecondWay = true;
+                  //print("crashed");
+                  //TODO stop timer game
+                  Timer(Duration(seconds: 2), () {
+                    hasCrashSecondWay = false;
+                  });
+                }
+                //Reset trucks spawn
+                else if (j * speedTruck -
+                        screenSize.width / 2 -
+                        screenSize.width >
+                    cmv.getXPosition(cmv.truckList.length - 1) +
+                        cmv.getWidth() * 0.9) {
+                  cmv = null;
+                  isDoingExercice = false;
+                }
+              } else if (j * speedTruck -
+                      screenSize.width / 2 -
+                      screenSize.width >
+                  cmv.getXPosition(cmv.truckList.length - 1) +
+                      cmv.getWidth() * 0.9) {
                 cmv = null;
                 isDoingExercice = false;
               }
@@ -294,7 +326,7 @@ class CarGame extends Game {
               //TODO a refaire pour voie 2 et 3
 
               //Hitbox fuel
-              for (int i = 0; i < csi.fuelList.length - 1; i++) {
+              for (int i = 0; i < csi.fuelList.length; i++) {
                 /*  print(j - screenSize.width / 2);
 
                   print(csi.getXPosition(0) - 2 * csi.getWidth());
@@ -302,7 +334,7 @@ class CarGame extends Game {
                   print(csi.getXPosition(0) - 1 * csi.getWidth());*/
 
                 //bottom Fuel
-                if (posMid && fuelIsDown) {
+                if (posMid /*&& fuelIsDown*/) {
                   if (j - screenSize.width / 2 >
                           csi.getXPosition(i) - 2 * csi.getWidth() &&
                       j - screenSize.width / 2 <
@@ -313,11 +345,12 @@ class CarGame extends Game {
                     }
                     print("Fuel bottom +1");
                   } else {
+                    //fuelIsDown = !fuelIsDown;
                     hasSetXFuel = false;
                   }
                 }
                 //Top Fuel
-                else if (posMax && !fuelIsDown) {
+                else if (posMax /*&& !fuelIsDown*/) {
                   if (j - screenSize.width / 2 >
                           csi.getXPosition(i) - 2 * csi.getWidth() &&
                       j - screenSize.width / 2 <
@@ -359,13 +392,17 @@ class CarGame extends Game {
                   });
                 }
                 //Reset trucks spawn
-                else if (j * speedTruck - screenSize.width / 2 >
+                else if (j * speedTruck -
+                        screenSize.width / 2 -
+                        screenSize.width >
                     tme.getXPosition(tme.truckList.length - 1) +
                         tme.getWidth() * 0.9) {
                   tme = null;
                   isDoingExercice = false;
                 }
-              } else if (j * speedTruck - screenSize.width - tme.getWidth() >
+              } else if (j * speedTruck -
+                      screenSize.width / 2 -
+                      screenSize.width >
                   tme.getXPosition(tme.truckList.length - 1) +
                       tme.getWidth() * 0.9) {
                 tme = null;
@@ -447,6 +484,7 @@ class CarGame extends Game {
             if (plane.y == 0.0) {
               plane.y = tempPos;
             }
+            posMin = true;
             posMid = false;
             posMax = false;
           }

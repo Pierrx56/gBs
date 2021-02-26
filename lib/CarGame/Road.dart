@@ -56,7 +56,7 @@ class StraightRoad {
         Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height);
   }
 
-  void render(Canvas c, bool pause, bool reset, bool hasCrash) {
+  void render(Canvas c, bool pause, bool reset, bool hasCrash, bool hasCrashSecondWay) {
     if (reset) j = 10;
 
     c.translate(posX = game.screenSize.width - widthRoad - j.toDouble(), 0);
@@ -66,12 +66,20 @@ class StraightRoad {
     //Replacing car in second road and go forward for 2 seconds
     else if (hasCrash) {
       j -= 2 * roadSpeed;
-      //Collision CMV
+      //Collision TME
       if ((game.tempPos >= game.screenSize.height * 0.4)) {
         game.tempPos = game.plane.y;
         game.plane.y -= game.difficulte;
       } else
         game.posMid = true;
+    }    else if (hasCrashSecondWay) {
+      j -= 2 * roadSpeed;
+      //Collision CMV
+      if ((game.tempPos >= game.screenSize.height * 0.1)) {
+        game.tempPos = game.plane.y;
+        game.plane.y -= game.difficulte;
+      } else
+        game.posMax = true;
     } else
       j += roadSpeed;
 
@@ -114,80 +122,61 @@ class StraightRoad {
 class CMV {
   final CarGame game;
   List<Rect> rectBottomList = [];
-  List<Sprite> carsList = [];
-  List<double> posXCars = [];
-  List<double> posYCars = [];
-  double widthCars = 0;
-  double heightCars = 0;
-  double spacerCars = 50;
-
+  List<Sprite> truckList = [];
+  List<double> posXTruck = [];
   double widthTruck = 0;
   double heightTruck = 0;
 
+  double widthCar = 0;
+  double heightCar = 0;
+
+  double spacerTruck = 50;
+
   CMV(this.game) {
     widthRoad = 150; //bottomBalloon.image.width;
+
     widthTruck = game.screenSize.width * 0.35;
     heightTruck = game.screenSize.width * 0.12;
 
-    widthCars = 130.0;
-    heightCars = 65.0;
-
-    //game.tme = new TME(this.game);
+    widthCar = game.screenSize.width * 0.22;
+    heightCar = widthCar*0.5;
 
     for (int l = 0; l < numberCars; l++) {
       if (l == 0)
-        carsList.add(new Sprite(spriteRedTruck));
+        truckList.add(new Sprite(spriteRedTruck));
       else
-        carsList.add(new Sprite(spriteGreenCar));
+        truckList.add(new Sprite(spriteGreenCar));
 
-      posXCars.add(0.0);
-      posYCars.add(0.0);
+      posXTruck.add(0.0);
       rectBottomList.add(
           Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height));
     }
 
-    print(carsList.length);
+    print(truckList.length);
 
     int k = 0;
-    for (int i = 0; i < rectBottomList.length; i++) {
+    for (int i = numberCars - truckList.length; i < truckList.length; i++) {
       rectBottomList[k] = Rect.fromLTWH(
           //336
-          k == 0
-              ? posXCars[k] = game.screenSize.width * 0.5 + speedCars * j + i * (widthTruck + spacerCars)
-              //? posXCars[k] = speedCars*j + i * (widthCars + spacerCars)
-              : posXCars[k] = game.screenSize.width * 0.5 + speedCars * j + i * (widthCars + spacerCars),
-          k == 0
-              ? posYCars[k] = game.screenSize.height * 0.7
-              //? posYCars[k] = game.screenSize.height * 0.4
-              : posYCars[k] = game.screenSize.height * 0.4,
-          k == 0 ? widthTruck : widthCars,
-          k == 0 ? heightTruck : heightCars);
-      /*
-      rectBottomList[k] = Rect.fromLTWH(
-        //336
-          k == 0
-              ? posXCars[k] = speedCars*j + i * (widthTruck + spacerCars)
-              : posXCars[k] = speedCars*j + i * (widthCars + spacerCars),
-          k == 0
-              ? posYCars[k] = game.screenSize.height * 0.7
-              : posYCars[k] = game.screenSize.height * 0.4,
-          k == 0 ? widthTruck : widthCars,
-          k == 0 ? heightTruck : heightCars);*/
+          posXTruck[k] = game.screenSize.width * 0.5 +
+              speedTruck * j +
+              i * (widthTruck + spacerTruck),
+          k == 0 ? game.screenSize.height * 0.7 : game.screenSize.height * 0.4,
+          k == 0 ? widthTruck : widthCar,
+          k == 0 ? heightTruck : heightCar,
+          );
 
       k++;
     }
-
-    print(rectBottomList);
     //width: 500
     //height: 300
   }
 
   void render(Canvas c, bool pause, bool reset) {
-    c.translate(posX = speedCars * j.toDouble(), 0);
+    c.translate(posX = speedTruck * j.toDouble(), 0);
 
     for (int i = 0; i < rectBottomList.length; i++)
-      carsList[i].renderRect(c, rectBottomList[i]);
-
+      truckList[i].renderRect(c, rectBottomList[i]);
 
     //print(posXTruck);
     /*
@@ -213,24 +202,20 @@ class CMV {
   }
 
   double getWidth() {
-
-    double tempWidth= rectBottomList[0].width +
-    rectBottomList[1].width +
-    rectBottomList[2].width;
-
-    return tempWidth;
+    return widthTruck;
   }
 
   double getHeight() {
-    return heightCars;
+    return heightTruck;
   }
 
   double getXPosition(int k) {
-    return posXCars[k];
+    return posXTruck[k];
   }
 
-  double getYPosition(int k) {
-    return posYCars[k];
+  double getYTopPosition() {
+    posY = game.screenSize.height - carSize;
+    return posY;
   }
 
   void update(double t) {}
@@ -247,6 +232,8 @@ class CSI {
   double spacerFuel = 150;
   double speedFuel = 0;
   int numberCSI = 0;
+  bool hasPassedMid = false;
+  bool hasPassedMax = false;
 
   CSI(this.game) {
     var rng = new Random();
@@ -255,6 +242,8 @@ class CSI {
     int number = 0;
 
     numberCSI = 0;
+    hasPassedMid = false;
+    hasPassedMax = false;
 
     widthRoad = 150; //bottomBalloon.image.width;
 
@@ -305,12 +294,12 @@ class CSI {
   }
 
   void setPosXFuel() {
-    game.score++;
     game.fuelIsDown = !game.fuelIsDown;
     numberCSI++;
 
     //If player has every fuels, reset datas
-    if (numberCSI == 2) {
+    /*if (numberCSI == 2) {
+      game.score++;
       for (int i = 0; i < rectBottomList.length; i++) {
         rectBottomList[i] = Rect.fromLTWH(
             //336
@@ -322,27 +311,47 @@ class CSI {
       numberCSI = 0;
       game.isDoingExercice = false;
       game.fuelIsDown = true;
-      game.csi = null;
-    } else {
+      //game.csi = null;
+    } else {*/
       List<double> tempPosX = posXFuel;
       List<double> tempPosY = posYFuel;
 
-      int offset = posXFuel.length - 1;
+      if(game.posMid && !hasPassedMid) {
+        hasPassedMid = true;
+        game.score++;
+        int offset = posXFuel.length - 1;
 
-      for (int i = 0; i < offset; i++) {
-        posXFuel[i] = tempPosX[(i + 1)];
-        posYFuel[i] = tempPosY[(i + 1)];
-      }
+        for (int i = 0; i < offset; i++) {
+          posXFuel[i] = tempPosX[(i + 1)];
+          posYFuel[i] = tempPosY[(i + 1)];
+        }
 
-      for (int i = 0; i < rectBottomList.length - 1; i++) {
-        rectBottomList[i] = Rect.fromLTWH(
+        for (int i = 0; i < offset; i++) {
+          rectBottomList[i] = Rect.fromLTWH(
             //336
-            posXFuel[i],
-            posYFuel[i],
-            widthFuel,
-            heightFuel);
+              posXFuel[i],
+              posYFuel[i],
+              widthFuel,
+              heightFuel);
+        }
+      }else if(game.posMax && !hasPassedMax){
+        hasPassedMax = true;
+        game.score++;
+          for (int i = 0; i < rectBottomList.length; i++) {
+            rectBottomList[i] = Rect.fromLTWH(
+              //336
+                posXFuel[i],
+                game.screenSize.height * 1.4,
+                widthFuel,
+                heightFuel);
+          }
+          numberCSI = 0;
+          game.isDoingExercice = false;
+          game.fuelIsDown = true;
+          //game.csi = null;
+
       }
-    }
+
   }
 
   double getYBottomPosition() {
@@ -353,13 +362,6 @@ class CSI {
   double getYTopPosition() {
     posY = game.screenSize.height - carSize;
     return posY;
-  }
-
-  int getFuelTaken() {
-    if (fuelList != null)
-      return numberFuel;
-    else
-      return 0;
   }
 
   double getWidth() {
@@ -405,7 +407,9 @@ class TME {
     for (int i = numberTruck - truckList.length; i < truckList.length; i++) {
       rectBottomList[k] = Rect.fromLTWH(
           //336
-          posXTruck[k] = speedTruck * j + i * (widthTruck + spacerTruck),
+          posXTruck[k] = game.screenSize.width * 0.5 +
+              speedTruck * j +
+              i * (widthTruck + spacerTruck),
           game.screenSize.height - widthRoad * 0.7,
           widthTruck,
           heightTruck);

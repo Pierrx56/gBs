@@ -184,7 +184,7 @@ class UIState extends State<UI> {
   }
 
   Widget menu(
-      BuildContext context, AppLanguage appLanguage, SwimGame game, User user) {
+      BuildContext context, AppLanguage appLanguage, SwimGame game, User user, String message) {
 
     CommonGamesUI commonGamesUI = CommonGamesUI();
 
@@ -212,7 +212,7 @@ class UIState extends State<UI> {
             ),
             pauseButton(context, appLanguage, game, user),
             restartButton(context, appLanguage, user, game),
-            commonGamesUI.closeButton(context, appLanguage, user, game.getScore(), game, ID_SWIMMER_ACTIVITY, game.getStarValue(), game.getStarLevel()),
+            commonGamesUI.closeButton(context, appLanguage, user, game.getScore(), game, ID_SWIMMER_ACTIVITY, game.getStarValue(), game.getStarLevel(), message),
           ],
         ),
       ),

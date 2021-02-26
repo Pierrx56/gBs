@@ -9,6 +9,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
+import 'package:gbsalternative/CarGame/Car.dart';
 import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
@@ -32,7 +33,6 @@ class UIState extends State<UI> {
   CommonGamesUI commonGamesUI = new CommonGamesUI();
 
   int numberFuel;
-
 
   void initState() {
     numberFuel = 0;
@@ -209,7 +209,7 @@ class UIState extends State<UI> {
                 width: game.changeSize
                     ? game.screenSize.height * 0.21
                     : game.screenSize.height * 0.2,
-                color: Colors.black54,
+                color: splashIconColor,
               ),
               Spacer(),
               AnimatedContainer(
@@ -221,7 +221,7 @@ class UIState extends State<UI> {
                 width: game.changeSize
                     ? game.screenSize.height * 0.21
                     : game.screenSize.height * 0.2,
-                color: Colors.black54,
+                color: splashIconColor,
               ),
             ],
           )),
@@ -270,8 +270,15 @@ class UIState extends State<UI> {
     );
   }
 
-  void saveAndExit(BuildContext context, AppLanguage appLanguage, User user,
-      int score, CarGame game, double starValue, int starLevel) async {
+  void saveAndExit(
+      BuildContext context,
+      AppLanguage appLanguage,
+      User user,
+      int score,
+      CarGame game,
+      double starValue,
+      int starLevel,
+      String message) async {
     DatabaseHelper db = new DatabaseHelper();
     //Date au format FR
     String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
@@ -330,30 +337,53 @@ class UIState extends State<UI> {
             starLevel: starLevel));
       }
     }
-    Navigator.pushReplacement(
-      context,
+
+    if (message == "fromRestart") {
+      print(message);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              MainTitle(
+                appLanguage: appLanguage,
+                userIn: user,
+                messageIn: "0",
+              ),
+        ),
+      );
+    }
+    else
+      Navigator.pop(context);
+    /*,
       MaterialPageRoute(
           builder: (context) => LoadPage(
                 appLanguage: appLanguage,
                 user: user,
                 messageIn: "0",
                 page: mainTitle,
-              )
-          /*MainTitle(
+              )*/
+    /*MainTitle(
                         appLanguage: appLanguage,
                         userIn: user,
                         messageIn: 0,
                       )*/
-          /*      MainTitle(
+    /*      MainTitle(
                   userIn: user,
                   appLanguage: appLanguage,
-                     )*/
+                     )
           ),
-    );
+    );*/
   }
 
-  Widget closeButton(BuildContext context, AppLanguage appLanguage, User user,
-      int score, CarGame game, double starValue, int starLevel) {
+  Widget closeButton(
+      BuildContext context,
+      AppLanguage appLanguage,
+      User user,
+      int score,
+      CarGame game,
+      double starValue,
+      int starLevel,
+      String message) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -363,8 +393,8 @@ class UIState extends State<UI> {
           onPressed: () async {
             //Get date etc
             //db.getScore(user.userId);
-            saveAndExit(
-                context, appLanguage, user, score, game, starValue, starLevel);
+            saveAndExit(context, appLanguage, user, score, game, starValue,
+                starLevel, message);
           },
           child: Text(
             AppLocalizations.of(context).translate('quitter'),
@@ -381,18 +411,26 @@ class UIState extends State<UI> {
       padding: const EdgeInsets.all(10.0),
       child: Container(
         height: game.screenSize.height * 0.2,
-        width: game.screenSize.width / 3,
+        width: game.screenSize.width * 0.3,
         child: RaisedButton(
           onPressed: () async {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => LoadPage(
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Car(
+                  appLanguage: appLanguage,
+                  user: user,
+                  level: game.getStarLevel().toString(),
+                  message: "fromRestart",
+                ),
+                /*LoadPage(
                           messageIn: "0",
                           appLanguage: appLanguage,
                           page: car,
                           user: user,
-                        )));
+                        )*/
+              ),
+            );
           },
           child: Text(
             (AppLocalizations.of(context).translate('restart')),
@@ -403,8 +441,8 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget menu(
-      BuildContext context, AppLanguage appLanguage, CarGame game, User user) {
+  Widget menu(BuildContext context, AppLanguage appLanguage, CarGame game,
+      User user, String message) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -430,7 +468,7 @@ class UIState extends State<UI> {
             commonGamesUI.pauseButton(context, appLanguage, game, user),
             restartButton(context, appLanguage, game, user),
             closeButton(context, appLanguage, user, game.getScore(), game,
-                game.getStarValue(), game.getStarLevel()),
+                game.getStarValue(), game.getStarLevel(), message),
           ],
         ),
       ),

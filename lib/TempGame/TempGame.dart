@@ -884,6 +884,10 @@ class TempGame extends Game {
     return coins;
   }
 
+  int getScore() {
+    return coins;
+  }
+
   int getJumpCounter() {
     return jumpCounter;
   }

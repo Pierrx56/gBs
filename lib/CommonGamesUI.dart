@@ -12,9 +12,11 @@ import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
-import 'package:gbsalternative/Plane/PlaneGame.dart';
-import 'package:gbsalternative/Swimmer/SwimGame.dart';
-import 'package:gbsalternative/TempGame/TempGame.dart';
+import 'package:gbsalternative/MainTitle.dart';
+import 'package:gbsalternative/CarGame/Car.dart';
+import 'package:gbsalternative/Plane/Plane.dart';
+import 'package:gbsalternative/Swimmer/Swimmer.dart';
+import 'package:gbsalternative/TempGame/Temp.dart';
 import 'package:intl/intl.dart';
 
 class CommonGamesUI {
@@ -73,10 +75,10 @@ class CommonGamesUI {
           color: !game.pauseGame ? Colors.transparent : Colors.grey[300],
           onPressed: !game.getGameOver()
               ? game.getConnectionState()
-              ? () async {
-            game.pauseGame = !game.pauseGame;
-          }
-              : null
+                  ? () async {
+                      game.pauseGame = !game.pauseGame;
+                    }
+                  : null
               : null,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -87,14 +89,14 @@ class CommonGamesUI {
               ),
               !game.pauseGame
                   ? Text(
-                "",
-                //(AppLocalizations.of(context).translate('menu')),
-                style: textStyle,
-              )
+                      "",
+                      //(AppLocalizations.of(context).translate('menu')),
+                      style: textStyle,
+                    )
                   : Text(
-                (AppLocalizations.of(context).translate('play')),
-                style: textStyle,
-              ),
+                      (AppLocalizations.of(context).translate('play')),
+                      style: textStyle,
+                    ),
             ],
           ),
         ),
@@ -115,10 +117,10 @@ class CommonGamesUI {
           color: Colors.transparent,
           onPressed: !game.getGameOver()
               ? game.getConnectionState()
-              ? () async {
-            game.pauseGame = !game.pauseGame;
-          }
-              : null
+                  ? () async {
+                      game.pauseGame = !game.pauseGame;
+                    }
+                  : null
               : null,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -129,14 +131,14 @@ class CommonGamesUI {
               ),
               !game.pauseGame
                   ? Text(
-                "",
-                //(AppLocalizations.of(context).translate('menu')),
-                style: textStyle,
-              )
+                      "",
+                      //(AppLocalizations.of(context).translate('menu')),
+                      style: textStyle,
+                    )
                   : Text(
-                (AppLocalizations.of(context).translate('play')),
-                style: textStyle,
-              ),
+                      (AppLocalizations.of(context).translate('play')),
+                      style: textStyle,
+                    ),
             ],
           ),
         ),
@@ -144,16 +146,23 @@ class CommonGamesUI {
     );
   }
 
-
-  Widget endScreen(BuildContext context, AppLanguage appLanguage, var game,
-      int idGame, User user, double starValue, int level, int score) {
+  Widget endScreen(
+      BuildContext context,
+      AppLanguage appLanguage,
+      var game,
+      int idGame,
+      User user,
+      double starValue,
+      int level,
+      int score,
+      String message) {
     int tempLevel = (level ~/ 10).toInt();
 
     List<String> nameGame = [
-      AppLocalizations.of(context).translate('avion'),
-      AppLocalizations.of(context).translate('voiture'),
-      AppLocalizations.of(context).translate('nageur'),
-      AppLocalizations.of(context).translate('temp')
+      AppLocalizations.of(context).translate('swimmer'),
+      AppLocalizations.of(context).translate('plane'),
+      AppLocalizations.of(context).translate('temp'),
+      AppLocalizations.of(context).translate('car'),
     ];
 
     return Padding(
@@ -300,8 +309,8 @@ class CommonGamesUI {
               child: GestureDetector(
                 onTap: () {
                   //TODO Call save and exit function
-                  redirection(context, appLanguage, user, score, game,
-                      idGame, starValue, level);
+                  redirection(context, appLanguage, user, score, game, idGame,
+                      starValue, level, message);
                 },
                 child: Container(
                   width: game.screenSize.width * 0.25,
@@ -336,8 +345,16 @@ class CommonGamesUI {
     );
   }
 
-  void redirection(BuildContext context, AppLanguage appLanguage, User user,
-      int score, var game, int idGame, double starValue, int starLevel) {
+  void redirection(
+      BuildContext context,
+      AppLanguage appLanguage,
+      User user,
+      int score,
+      var game,
+      int idGame,
+      double starValue,
+      int starLevel,
+      String message) {
     if (idGame == ID_CAR_ACTIVITY) {
       //TODO Update coin value
       if (user.userMode == AppLocalizations.of(context).translate('familial') &&
@@ -351,9 +368,8 @@ class CommonGamesUI {
         game.setStarValue(starValue = 0.0);
       }
       saveAndExit(context, appLanguage, user, score, game, ID_CAR_ACTIVITY,
-          starValue, starLevel);
-    }
-    else if (idGame == ID_PLANE_ACTIVITY) {
+          starValue, starLevel, message);
+    } else if (idGame == ID_PLANE_ACTIVITY) {
       //TODO Update coin value
       if (user.userMode == AppLocalizations.of(context).translate('familial') &&
           score > 2) {
@@ -366,7 +382,7 @@ class CommonGamesUI {
         game.setStarValue(starValue = 0.0);
       }
       saveAndExit(context, appLanguage, user, score, game, ID_PLANE_ACTIVITY,
-          starValue, starLevel);
+          starValue, starLevel, message);
     } else if (idGame == ID_SWIMMER_ACTIVITY) {
       //S'il fait plus de 180m alors demi-étoile
       if (user.userMode == AppLocalizations.of(context).translate('familial') &&
@@ -382,27 +398,34 @@ class CommonGamesUI {
         game.setStarValue(starValue = 0.0);
 
       saveAndExit(context, appLanguage, user, score, game, ID_SWIMMER_ACTIVITY,
-          starValue, starLevel);
-    }    else if (idGame == ID_TEMP_ACTIVITY) {
+          starValue, starLevel, message);
+    } else if (idGame == ID_TEMP_ACTIVITY) {
       //TODO Update coin value
       if (user.userMode == AppLocalizations.of(context).translate('familial') &&
           score > 2) {
         game.setStarValue(starValue = 0.5);
       } else if (user.userMode ==
-          AppLocalizations.of(context).translate('sportif') &&
+              AppLocalizations.of(context).translate('sportif') &&
           score > 2) {
         game.setStarValue(starValue = 0.5);
       } else {
         game.setStarValue(starValue = 0.0);
       }
       saveAndExit(context, appLanguage, user, score, game, ID_TEMP_ACTIVITY,
-          starValue, starLevel);
+          starValue, starLevel, message);
     }
-
   }
 
-  void saveAndExit(BuildContext context, AppLanguage appLanguage, User user,
-      int score, var game, int idGame, double starValue, int starLevel) async {
+  void saveAndExit(
+      BuildContext context,
+      AppLanguage appLanguage,
+      User user,
+      int score,
+      var game,
+      int idGame,
+      double starValue,
+      int starLevel,
+      String message) async {
     //Date au format FR
     String date = new DateFormat('dd-MM-yyyy').format(new DateTime.now());
 
@@ -466,7 +489,7 @@ class CommonGamesUI {
             starLevel: starLevel));
       }
     }
-    Navigator.pushReplacement(
+    /*Navigator.pushReplacement(
       context,
       MaterialPageRoute(
           builder: (context) => LoadPage(
@@ -475,11 +498,34 @@ class CommonGamesUI {
                 messageIn: "0",
                 page: mainTitle,
               )),
-    );
+    );*/
+
+    if (message == "fromRestart") {
+      print(message);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainTitle(
+            appLanguage: appLanguage,
+            userIn: user,
+            messageIn: "0",
+          ),
+        ),
+      );
+    } else
+      Navigator.pop(context);
   }
 
-  Widget closeButton(BuildContext context, AppLanguage appLanguage, User user,
-      int score, var game, int idGame, double starValue, int starLevel) {
+  Widget closeButton(
+      BuildContext context,
+      AppLanguage appLanguage,
+      User user,
+      int score,
+      var game,
+      int idGame,
+      double starValue,
+      int starLevel,
+      String message) {
     DatabaseHelper db = new DatabaseHelper();
 
     return Padding(
@@ -491,8 +537,9 @@ class CommonGamesUI {
           onPressed: () async {
             //db.getScore(user.userId);
 
+            print(message);
             saveAndExit(context, appLanguage, user, score, game, idGame,
-                starValue, starLevel);
+                starValue, starLevel, message);
           },
           child: Text(
             AppLocalizations.of(context).translate('quitter'),
@@ -502,4 +549,109 @@ class CommonGamesUI {
       ),
     );
   }
+
+  Widget restartButton(BuildContext context, AppLanguage appLanguage,
+      int idGame, var game, User user) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        height: game.screenSize.height * 0.2,
+        width: game.screenSize.width * 0.3,
+        child: RaisedButton(
+          onPressed: () async {
+            if (idGame == ID_CAR_ACTIVITY) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Car(
+                    appLanguage: appLanguage,
+                    user: user,
+                    level: game.getStarLevel().toString(),
+                    message: "fromRestart",
+                  ),
+                ),
+              );
+            } else if (idGame == ID_PLANE_ACTIVITY) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Plane(
+                    appLanguage: appLanguage,
+                    user: user,
+                    level: game.getStarLevel().toString(),
+                    message: "fromRestart",
+                  ),
+                ),
+              );
+            } else if (idGame == ID_SWIMMER_ACTIVITY) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Swimmer(
+                    appLanguage: appLanguage,
+                    user: user,
+                    level: game.getStarLevel().toString(),
+                    message: "fromRestart",
+                  ),
+                ),
+              );
+            } else if (idGame == ID_TEMP_ACTIVITY) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Temp(
+                    appLanguage: appLanguage,
+                    user: user,
+                    level: game.getStarLevel().toString(),
+                    message: "fromRestart",
+                  ),
+                ),
+              );
+            }
+          },
+          child: Text(
+            (AppLocalizations.of(context).translate('restart')),
+            style: textStyle,
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  Widget menu(BuildContext context, AppLanguage appLanguage, var game,
+      User user, int idGame, String message) {
+    CommonGamesUI commonGamesUI = new CommonGamesUI();
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        alignment: Alignment.topCenter,
+        decoration: new BoxDecoration(
+            color: Colors.blue.withAlpha(150),
+            //new Color.fromRGBO(255, 0, 0, 0.0),
+            borderRadius: new BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+                bottomLeft: const Radius.circular(20.0),
+                bottomRight: const Radius.circular(20.0))),
+        width: game.screenSize.width / 3,
+        height: game.screenSize.height * 0.9,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              "MENU",
+              style: textStyle,
+            ),
+            commonGamesUI.pauseButton(context, appLanguage, game, user),
+            commonGamesUI.restartButton(context, appLanguage, idGame, game, user),
+            commonGamesUI.closeButton(context, appLanguage, user, game.getScore(), game, idGame,
+                game.getStarValue(), game.getStarLevel(), message),
+          ],
+        ),
+      ),
+    );
+  }
+
 }

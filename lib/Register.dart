@@ -9,6 +9,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gbsalternative/Login.dart';
+import 'package:gbsalternative/MaxPush.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -250,8 +252,14 @@ class _Register extends State<Register> {
   }
 
   next() {
-    if (currentStep + 1 != steps.length)
-      goTo(currentStep + 1);
+    if (currentStep + 1 != steps.length) {
+      if(currentStep == 0 && name.text == "")
+        isEmpty = true;
+      else{
+        goTo(currentStep + 1);
+        isEmpty = false;
+      }
+    }
     else
       setState(() => complete = true);
     //if (currentStep == 2 || currentStep == 3) myFocusNode.requestFocus();
@@ -406,11 +414,8 @@ class _Register extends State<Register> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => LoadPage(
+              builder: (context) => Login(
                 appLanguage: appLanguage,
-                page: login,
-                user: null,
-                messageIn: "0",
               ),
             ),
           );
@@ -910,11 +915,10 @@ class _Register extends State<Register> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LoadPage(
+                          builder: (context) => MaxPush(
                             appLanguage: appLanguage,
                             user: user,
-                            page: firstPush,
-                            messageIn: "fromRegister",
+                             inputMessage: "fromRegister",
                           ),
                         ),
                       );
@@ -943,21 +947,20 @@ class _Register extends State<Register> {
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) => LoadPage(
-                    user: null,
+              builder: (context) => Login(
                     appLanguage: appLanguage,
-                    messageIn: "0",
-                    page: login,
                   )));
     }
 
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
+        backgroundColor: backgroundColor,
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context).translate('inscription')),
-          backgroundColor: Colors.blue,
+          elevation: 0.0,
+          title: AutoSizeText(AppLocalizations.of(context).translate('inscription'), style: textStyleBG,),
+          backgroundColor: backgroundColor,
           key: _formKey,
           actions: <Widget>[
             Container(
@@ -967,7 +970,7 @@ class _Register extends State<Register> {
                 children: <Widget>[
                   Spacer(),
                   Text("$currentStep/${steps.length - 1}",
-                      style: textStyleW // TextStyle(fontSize: 20),
+                      style: textStyleBG // TextStyle(fontSize: 20),
                       ),
                   Padding(
                     padding: EdgeInsets.all(20),
@@ -977,7 +980,7 @@ class _Register extends State<Register> {
                     currentStep: currentStep,
                     fallbackLength: screenSize.width / 2,
                     selectedColor: Colors.lightGreenAccent,
-                    unselectedColor: Colors.white38,
+                    unselectedColor: iconColor,
                     roundedEdges: Radius.circular(10),
                     padding: 0.00001,
                     size: 15,

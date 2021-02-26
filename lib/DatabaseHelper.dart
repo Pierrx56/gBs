@@ -466,6 +466,8 @@ class DatabaseHelper {
       // Pass the User's id as a whereArg to prevent SQL injection.
       whereArgs: [id],
     ); // Remove the User from the Database.
+
+    print("user deleted");
   }
 
   // A method that retrieves all the users from the users table.

@@ -34,13 +34,13 @@ String btData;
 List<_Message> messages = List<_Message>();
 
 class ManageProfile extends StatefulWidget {
-  final User curUser;
+  final User user;
   final AppLanguage appLanguage;
 
-  ManageProfile({@required this.curUser, @required this.appLanguage});
+  ManageProfile({@required this.user, @required this.appLanguage});
 
   @override
-  _ManageProfile createState() => _ManageProfile(curUser, appLanguage);
+  _ManageProfile createState() => _ManageProfile(user, appLanguage);
 }
 
 class _ManageProfile extends State<ManageProfile> {
@@ -69,7 +69,7 @@ class _ManageProfile extends State<ManageProfile> {
   double result;
   double tempResult;
   String recording;
-
+  bool isDeleted;
   Size screenSize;
 
   String _pathSaved;
@@ -83,7 +83,6 @@ class _ManageProfile extends State<ManageProfile> {
   String selection;
   int days = 0;
 
-
   String initialPush;
 
   Color colorButton = Colors.black;
@@ -95,10 +94,10 @@ class _ManageProfile extends State<ManageProfile> {
     btData = "0.0";
     name.text = '';
     hasChangedState = false;
+    isDeleted = false;
     days = int.parse(user.userNotifEvent);
 
-    if(days == null)
-      days = 0;
+    if (days == null) days = 0;
 
     timer = Timer.periodic(
         Duration(milliseconds: 500), (Timer t) => hasChangedThread());
@@ -222,7 +221,7 @@ class _ManageProfile extends State<ManageProfile> {
     _pathSaved = user.userPic;
 
     //Redirection vers l'écran d'accueil
-    Future.delayed(const Duration(milliseconds: 2000), () {
+    /*Future.delayed(const Duration(milliseconds: 2000), () {
       Navigator.pushReplacement(
         this.context,
         MaterialPageRoute(
@@ -233,10 +232,10 @@ class _ManageProfile extends State<ManageProfile> {
               page: mainTitle),
         ),
       );
-    });
+    });*/
   }
 
-  final _formKey = GlobalKey<FormState>();
+  //final _formKey = GlobalKey<FormState>();
 
   Widget manageCard(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
@@ -255,311 +254,287 @@ class _ManageProfile extends State<ManageProfile> {
 
     selection = notifs[days];
 
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(10),
-            child: Padding(
-              padding: const EdgeInsets.all(30.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  //Notifications
-                  Column(
-                    children: <Widget>[
-                      new DropdownButton<String>(
-                        items: notifs.map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Container(
-                              width: 200.0,
-                              child: Text(value),
+    //key: _formKey,
+    return Column(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.all(10),
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                //Notifications
+                Column(
+                  children: <Widget>[
+                    new DropdownButton<String>(
+                      items: notifs.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Container(
+                            width: 200.0,
+                            child: Text(value),
+                          ),
+                        );
+                      }).toList(),
+                      hint: Text(selection),
+                      onChanged: (String value) {
+                        selection = value;
+                        for (int i = 0; i < notifs.length - 1; i++) {
+                          if (selection == notifs[i]) {
+                            days = i;
+                            break;
+                          } else
+                            days = 0;
+                        }
+                        setState(() {});
+                      },
+                    )
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Column(
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Text(
+                              AppLocalizations.of(context)
+                                  .translate('familial'),
+                              style: textStyle,
                             ),
-                          );
-                        }).toList(),
-                        hint: Text(selection),
-                        onChanged: (String value) {
-                          selection = value;
-                          for (int i = 0; i < notifs.length - 1; i++) {
-                            if (selection == notifs[i]) {
-                              days = i;
-                              break;
-                            } else
-                              days = 0;
-                          }
-                          setState(() {});
-                        },
-                      )
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Column(
-                        children: <Widget>[
-                          Row(
+                            Switch(
+                              value: isSwitched,
+                              onChanged: (value) {
+                                _updateSwitch(value);
+                                isSwitched = value;
+                                if (isSwitched)
+                                  _userMode = AppLocalizations.of(context)
+                                      .translate('sportif');
+                                else
+                                  _userMode = AppLocalizations.of(context)
+                                      .translate('familial');
+                              },
+                              activeTrackColor: Colors.lightGreenAccent,
+                              activeColor: Colors.green,
+                            ),
+                            Text(
+                              AppLocalizations.of(context).translate('sportif'),
+                              style: textStyle,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(50, 0, 0, 0),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                TextFormField(
+                  controller: name,
+                  decoration: InputDecoration(
+                      labelText:
+                          AppLocalizations.of(context).translate('prenom') +
+                              ": " +
+                              user.userName,
+                      hasFloatingPlaceholder: true),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    //showImage(),
+                    //Image(image: AssetImage(_path)),
+                    Center(
+                        child: Image.file(File(_pathSaved),
+                            height: screenSize.height * 0.3,
+                            width: screenSize.height * 0.3)),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        RaisedButton(
+                          child: Row(
                             children: <Widget>[
-                              Text(
-                                AppLocalizations.of(context)
-                                    .translate('familial'),
-                                style: textStyle,
-                              ),
-                              Switch(
-                                value: isSwitched,
-                                onChanged: (value) {
-                                  _updateSwitch(value);
-                                  isSwitched = value;
-                                  if (isSwitched)
-                                    _userMode = AppLocalizations.of(context)
-                                        .translate('sportif');
-                                  else
-                                    _userMode = AppLocalizations.of(context)
-                                        .translate('familial');
-                                },
-                                activeTrackColor: Colors.lightGreenAccent,
-                                activeColor: Colors.green,
-                              ),
-                              Text(
-                                AppLocalizations.of(context)
-                                    .translate('sportif'),
-                                style: textStyle,
-                              ),
+                              Icon(Icons.image),
+                              Text(" " +
+                                  AppLocalizations.of(context)
+                                      .translate('select_image')),
                             ],
                           ),
-                        ],
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(50, 0, 0, 0),
-                      ),
-                      /*hasChangedState
-                          ? Icon(
-                              Icons.warning,
-                              color: Colors.red,
-                              size: screenSize.height / 4,
-                            )
-                          : Container(),
-                      hasChangedState
-                          ? Flexible(
-                              child: Container(
-                                height: screenSize.height / 4,
-                                width: screenSize.width / 2,
-                                child: Stack(
-                                  children: <Widget>[
-                                    AutoSizeText(
-                                      AppLocalizations.of(context)
-                                          .translate('enregistrer_avert'),
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                      maxLines: 5,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                          : Container(),*/
-                    ],
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  TextFormField(
-                    controller: name,
-                    decoration: InputDecoration(
-                        labelText:
-                            AppLocalizations.of(context).translate('prenom') +
-                                ": " +
-                                user.userName,
-                        hasFloatingPlaceholder: true),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      //showImage(),
-                      //Image(image: AssetImage(_path)),
-                      Center(
-                          child: Image.file(File(_pathSaved),
-                              height: screenSize.height * 0.3,
-                              width: screenSize.height * 0.3)),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          RaisedButton(
-                            child: Row(
-                              children: <Widget>[
-                                Icon(Icons.image),
-                                Text(" " +
-                                    AppLocalizations.of(context)
-                                        .translate('select_image')),
-                              ],
-                            ),
-                            onPressed: () {
-                              pickImage(ImageSource.gallery);
-                            },
-                            textColor: colorButton,
+                          onPressed: () {
+                            pickImage(ImageSource.gallery);
+                          },
+                          textColor: colorButton,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(10),
+                        ),
+                        RaisedButton(
+                          child: Row(
+                            children: <Widget>[
+                              Icon(Icons.camera_alt),
+                              Text(" " +
+                                  AppLocalizations.of(context)
+                                      .translate('prendre_photo')),
+                            ],
                           ),
-                          Padding(
-                            padding: EdgeInsets.all(10),
-                          ),
-                          RaisedButton(
-                            child: Row(
-                              children: <Widget>[
-                                Icon(Icons.camera_alt),
-                                Text(" " +
-                                    AppLocalizations.of(context)
-                                        .translate('prendre_photo')),
-                              ],
-                            ),
-                            onPressed: () {
-                              pickImage(ImageSource.camera);
-                            },
-                            textColor: colorButton,
-                          ),
-                        ],
-                      ),
+                          onPressed: () {
+                            pickImage(ImageSource.camera);
+                          },
+                          textColor: colorButton,
+                        ),
+                      ],
+                    ),
 /*                        RaisedButton(
-                        child: Text(AppLocalizations.of(context)
-                            .translate('ajust_poussee')),
-                        onPressed: () {
-                          if (isConnected) {
-                            setState(() {
-                              pousseeDialog();
-                            });
-                          } else {
-                            show(
-                                "Connexion au gBs en cours, réessayez dans quelques instants");
-                          }
-                        },
-                        textColor: colorButton,
-                      ),*/
-                      SizedBox(
-                        height: 20,
-                      ),
-                      FlatButton(
-                        child: Text(AppLocalizations.of(context)
-                            .translate('enregistrer')),
-                        color: Colors.blue,
-                        textColor: Colors.white,
-                        padding: EdgeInsets.only(
-                            left: 38, right: 38, top: 15, bottom: 15),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5)),
-                        onPressed: () {
-                          updateUser();
-                        },
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 15, bottom: 15),
-                      ),
-                      RaisedButton(
-                        onPressed: () {
-                          if (hasChangedState)
+                      child: Text(AppLocalizations.of(context)
+                          .translate('ajust_poussee')),
+                      onPressed: () {
+                        if (isConnected) {
+                          setState(() {
                             pousseeDialog();
-                          else
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoadPage(
-                                    user: user,
-                                    appLanguage: appLanguage,
-                                    messageIn: "",
-                                    page: mainTitle),
-                              ),
-                            );
-                        },
-                        child: Text(temp != null
-                            ? AppLocalizations.of(this.context)
-                                .translate('retour')
-                            : "Retourlol"),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 15, bottom: 15),
-                      ),
-                      FlatButton(
-                        child: Text(AppLocalizations.of(context)
-                            .translate('supprimer')),
-                        color: Colors.red,
-                        textColor: Colors.white,
-                        padding: EdgeInsets.only(
-                            left: 38, right: 38, top: 15, bottom: 15),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5)),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              // return object of type Dialog
-                              return AlertDialog(
-                                title: new Text(
-                                    AppLocalizations.of(this.context)
-                                        .translate('confirm_suppr')),
-                                content: new Text(
-                                    AppLocalizations.of(this.context)
-                                        .translate('info_suppr')),
-                                actions: <Widget>[
-                                  // usually buttons at the bottom of the dialog
-                                  Padding(
-                                    padding: EdgeInsets.all(12.0),
-                                  ),
-                                  new FlatButton(
-                                    child: new Text(
-                                        AppLocalizations.of(this.context)
-                                            .translate('annuler')),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                  new FlatButton(
-                                    child: new Text(
-                                        AppLocalizations.of(this.context)
-                                            .translate('supprimer')),
-                                    onPressed: () {
-
-                                      Navigator.of(context).pop();
-                                      btManage.disconnect("origin");
-                                      print("ID à SUPPR:" +
-                                          user.userId.toString());
-                                      NotificationManager notificationManager = new NotificationManager();
-                                      notificationManager.init(user);
-                                      notificationManager.cancelNotification();
-                                      db.deleteUser(user.userId);
-
-
-                                      //dispose();
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => LoadPage(
-                                                    appLanguage: appLanguage,
-                                                    page: login,
-                                                    user: null,
-                                                    messageIn: "0",
-                                                  )));
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
+                          });
+                        } else {
+                          show(
+                              "Connexion au gBs en cours, réessayez dans quelques instants");
+                        }
+                      },
+                      textColor: colorButton,
+                    ),*/
+                    SizedBox(
+                      height: 20,
+                    ),
+                    FlatButton(
+                      child: Text(AppLocalizations.of(context)
+                          .translate('enregistrer')),
+                      color: Colors.blue,
+                      textColor: Colors.white,
+                      padding: EdgeInsets.only(
+                          left: 38, right: 38, top: 15, bottom: 15),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
+                      onPressed: () {
+                        updateUser();
+                      },
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 15, bottom: 15),
+                    ),
+                    RaisedButton(
+                      onPressed: () {
+                        if (hasChangedState)
+                          pousseeDialog();
+                        else {
+                          //Navigator.pop(context);
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MainTitle(
+                                  userIn: user,
+                                  appLanguage: appLanguage,
+                                  messageIn: ""),
+                            ),
                           );
-                        },
-                      )
-                    ],
-                  )
-                ],
-              ),
+                        }
+                      },
+                      child: Text(temp != null
+                          ? AppLocalizations.of(this.context)
+                              .translate('retour')
+                          : "Retourlol"),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 15, bottom: 15),
+                    ),
+                    FlatButton(
+                      child: Text(
+                          AppLocalizations.of(context).translate('supprimer')),
+                      color: Colors.red,
+                      textColor: Colors.white,
+                      padding: EdgeInsets.only(
+                          left: 38, right: 38, top: 15, bottom: 15),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            // return object of type Dialog
+                            return AlertDialog(
+                              title: new Text(AppLocalizations.of(this.context)
+                                  .translate('confirm_suppr')),
+                              content: new Text(
+                                  AppLocalizations.of(this.context)
+                                      .translate('info_suppr')),
+                              actions: <Widget>[
+                                // usually buttons at the bottom of the dialog
+                                Padding(
+                                  padding: EdgeInsets.all(12.0),
+                                ),
+                                new FlatButton(
+                                  child: new Text(
+                                      AppLocalizations.of(this.context)
+                                          .translate('annuler')),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                new FlatButton(
+                                  child: new Text(
+                                      AppLocalizations.of(this.context)
+                                          .translate('supprimer')),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    btManage.disconnect("origin");
+                                    print(
+                                        "ID à SUPPR:" + user.userId.toString());
+                                    NotificationManager notificationManager =
+                                        new NotificationManager();
+                                    notificationManager.init(user);
+                                    notificationManager.cancelNotification();
+                                    db.deleteUser(user.userId);
+                                    isDeleted = true;
+                                    //dispose();
+                                    if (isDeleted) {
+                                      //Delay to avoid display bugs
+                                      Timer(Duration(milliseconds: 300), () {
+                                        Navigator.pushReplacement(
+                                            this.context,
+                                            MaterialPageRoute(
+                                                builder: (context) => Login(
+                                                      appLanguage: appLanguage,
+                                                    ))
+                                            /*LoadPage(
+                                      appLanguage: appLanguage,
+                                      page: login,
+                                      user: null,
+                                      messageIn: "0",
+                                    ))*/
+                                            );
+                                      });
+                                    }
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    )
+                  ],
+                )
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -591,11 +566,11 @@ class _ManageProfile extends State<ManageProfile> {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => LoadPage(
-                                      user: user,
-                                      appLanguage: appLanguage,
-                                      messageIn: "",
-                                      page: mainTitle),
+                                  builder: (context) => MainTitle(
+                                    userIn: user,
+                                    appLanguage: appLanguage,
+                                    messageIn: "",
+                                  ),
                                 ),
                               );
                             },
@@ -736,7 +711,16 @@ class _ManageProfile extends State<ManageProfile> {
                               child: Text(recording)),
                           RaisedButton(
                             onPressed: () {
-                              Navigator.pop(context);
+                              //Navigator.pop(context);
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MainTitle(
+                                      userIn: user,
+                                      appLanguage: appLanguage,
+                                      messageIn: ""),
+                                ),
+                              );
                             },
                             child: Text(temp != null
                                 ? AppLocalizations.of(this.context)
@@ -772,72 +756,59 @@ class _ManageProfile extends State<ManageProfile> {
         isSwitched = false;
     }
 
-    return Scaffold(
-      resizeToAvoidBottomPadding: true,
-      key: _scaffoldKey,
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        title: Text(AppLocalizations.of(context).translate('modification')),
-        backgroundColor: Colors.blue,
-        leading: new IconButton(
-          icon: new Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => LoadPage(
-                appLanguage: appLanguage,
-                page: mainTitle,
-                user: user,
-                messageIn: "",
-              ),
+    return WillPopScope(
+      onWillPop: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainTitle(
+              appLanguage: appLanguage,
+              userIn: user,
+              messageIn: "",
             ),
           ),
-        ),
-      ),
-      body: Stack(
-        children: <Widget>[
-          SingleChildScrollView(
-            child: Stack(
-              children: <Widget>[
-                manageCard(context),
-              ],
-            ),
+        );
+        return;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomPadding: true,
+        key: _scaffoldKey,
+        backgroundColor: backgroundColor,
+        appBar: AppBar(
+          automaticallyImplyLeading: true,
+          title: Text(
+            AppLocalizations.of(context).translate('modification'),
+            style: textStyleBG,
           ),
-          /*Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: AnimatedContainer(
-                height: hasChangedState ? screenSize.height * 0.1 : 0.0,
-                width: screenSize.width,
-                duration: Duration(seconds: 1),
-                curve: Curves.fastOutSlowIn,
-                color: Colors.blue,
-                child: Center(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          height: screenSize.height * 0.09,
-                          child: RaisedButton(
-                            child: Text(AppLocalizations.of(context)
-                                .translate('enregistrer')),
-                            onPressed: () {
-                              updateUser();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+          backgroundColor: backgroundColor,
+          elevation: 0.0,
+          /*leading: new IconButton(
+            icon: new Icon(Icons.arrow_back, color: iconColor),
+            onPressed: () => Navigator.pop(context),
+            /*Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoadPage(
+                  appLanguage: appLanguage,
+                  page: mainTitle,
+                  user: user,
+                  messageIn: "",
                 ),
               ),
-            ),
+            ),*/
           ),*/
-        ],
+        ),
+        body: Stack(
+          children: <Widget>[
+            SingleChildScrollView(
+              child: Stack(
+                children: <Widget>[
+                  manageCard(this.context),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

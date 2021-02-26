@@ -8,6 +8,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
+import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/LoadPage.dart';
@@ -354,7 +355,8 @@ class UIState extends State<UI> {
   }
 
   Widget menu(BuildContext context, AppLanguage appLanguage, PlaneGame game,
-      User user) {
+      User user, int idGame, String message) {
+    CommonGamesUI commonGamesUI = new CommonGamesUI();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -377,10 +379,10 @@ class UIState extends State<UI> {
               "MENU",
               style: textStyle,
             ),
-            pauseButton(context, appLanguage, game, user),
-            restartButton(context, appLanguage, game, user),
-            closeButton(context, appLanguage, user, game.getScore(), game,
-                game.getStarValue(), game.getStarLevel()),
+            commonGamesUI.pauseButton(context, appLanguage, game, user),
+            commonGamesUI.restartButton(context, appLanguage, idGame, game, user),
+            commonGamesUI.closeButton(context, appLanguage, user, game.getScore(), game, idGame,
+                game.getStarValue(), game.getStarLevel(), message),
           ],
         ),
       ),

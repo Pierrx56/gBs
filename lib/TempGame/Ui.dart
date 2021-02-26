@@ -409,7 +409,7 @@ class UIState extends State<UI> {
   }
 
   Widget menu(
-      BuildContext context, AppLanguage appLanguage, TempGame game, User user, int level) {
+      BuildContext context, AppLanguage appLanguage, TempGame game, User user, int level, String message) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -434,7 +434,7 @@ class UIState extends State<UI> {
             ),
             commonGamesUI.pauseButton(context, appLanguage, game, user),
             restartButton(context, appLanguage, user, game, level),
-            commonGamesUI.closeButton(context, appLanguage, user, game.getCoins(), game, ID_TEMP_ACTIVITY, game.getStarValue(), game.getStarLevel()),
+            commonGamesUI.closeButton(context, appLanguage, user, game.getCoins(), game, ID_TEMP_ACTIVITY, game.getStarValue(), game.getStarLevel(), message),
           ],
         ),
       ),

@@ -15,6 +15,7 @@ import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Plane/PlaneGame.dart';
+import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/main.dart';
 
 import 'Ui.dart';
@@ -35,16 +36,18 @@ class Plane extends StatefulWidget {
   final User user;
   final AppLanguage appLanguage;
   final String level;
+  final String message;
 
-  Plane(
-      {Key key,
-      @required this.user,
-      @required this.appLanguage,
-      @required this.level})
-      : super(key: key);
+  Plane({
+    Key key,
+    @required this.user,
+    @required this.appLanguage,
+    @required this.level,
+    @required this.message,
+  }) : super(key: key);
 
   @override
-  _Plane createState() => new _Plane(user, appLanguage, level);
+  _Plane createState() => new _Plane(user, appLanguage, level, message);
 }
 
 class _Plane extends State<Plane> with TickerProviderStateMixin {
@@ -53,6 +56,8 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
 
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
+
+  CommonGamesUI commonGamesUI = new CommonGamesUI();
 
   String timeRemaining;
   Timer timer;
@@ -66,13 +71,15 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
   int score;
   double starValue;
   int level;
+  String message;
 
   ConfettiController _controllerTopCenter;
 
-  _Plane(User _user, AppLanguage _appLanguage, String _level) {
+  _Plane(User _user, AppLanguage _appLanguage, String _level, String _message) {
     user = _user;
     appLanguage = _appLanguage;
     level = int.parse(_level);
+    message = _message;
   }
 
   @override
@@ -117,7 +124,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     //TODO Ajust values
     //On double la vitesse des ballon et la vitesse de remontée/redescente de l'avion
     //Le temps passe de 2 min à 3 min
-    if (user.userMode ==  AppLocalizations.of(context).translate('sportif')) {
+    if (user.userMode == AppLocalizations.of(context).translate('sportif')) {
       timeRemaining = "3:00";
       seconds = 180;
       game.difficulte = 6.0;
@@ -352,15 +359,8 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                             ),
                                       RaisedButton(
                                         onPressed: () {
-                                          Navigator.pushReplacement(
+                                          Navigator.pop(
                                             context,
-                                            MaterialPageRoute(
-                                                builder: (context) => LoadPage(
-                                                      appLanguage: appLanguage,
-                                                      user: user,
-                                                      messageIn: "0",
-                                                      page: mainTitle,
-                                                    )),
                                           );
                                         },
                                         child: Text(AppLocalizations.of(context)
@@ -397,14 +397,14 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                               padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                               child: game == null
                                   ? Container()
-                                  : gameUI.state.pauseButton(
+                                  : commonGamesUI.pauseButton(
                                       context, appLanguage, game, user),
                             )
                           : !gameOver
                               ? Container(
                                   alignment: Alignment.topLeft,
-                                  child: gameUI.state
-                                      .menu(context, appLanguage, game, user))
+                                  child: commonGamesUI
+                                      .menu(context, appLanguage, game, user, ID_PLANE_ACTIVITY, message))
                               : Container(
                                   alignment: Alignment.topCenter,
                                   height: screenSize.height,
@@ -412,12 +412,16 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                     children: <Widget>[
                                       Align(
                                         alignment: Alignment.center,
-                                        child: gameUI.state.endScreen(
+                                        child: commonGamesUI.endScreen(
                                             context,
                                             appLanguage,
                                             game,
+                                            ID_PLANE_ACTIVITY,
                                             user,
-                                            _controllerTopCenter),
+                                            starValue,
+                                            level,
+                                            score,
+                                            message),
                                       ),
                                       //TOP CENTER - shoot down
                                       Align(
