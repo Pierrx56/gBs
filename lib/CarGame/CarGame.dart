@@ -451,6 +451,9 @@ class CarGame extends Game {
           //Bas
           if (tempPos >= screenSize.height * 0.7) {
             plane.y = tempPos;
+            posMid = false;
+            posMin = true;
+            posMax = false;
           }
           //Milieu
           else if (getData() > double.parse(user.userInitialPush) * 0.5 &&
@@ -458,10 +461,11 @@ class CarGame extends Game {
               tempPos <= screenSize.height * 0.4 &&
               tempPos >= screenSize.height * 0.35) {
             posMid = true;
+            posMin = false;
             posMax = false;
             plane.y = tempPos;
 
-            print("mid");
+            //print("mid");
           }
           //Haut
           else if (getData() > double.parse(user.userInitialPush) * 1.5 &&
@@ -470,8 +474,9 @@ class CarGame extends Game {
             //tempPos = 0.0;
             plane.y = tempPos;
             posMid = false;
+            posMin = false;
             posMax = true;
-            print("max");
+            //print("max");
             //tempPos = -size / 2;
             //plane.y = tempPos;
           }
@@ -484,12 +489,10 @@ class CarGame extends Game {
             if (plane.y == 0.0) {
               plane.y = tempPos;
             }
-            posMin = true;
             posMid = false;
+            posMin = false;
             posMax = false;
           }
-          //component = new Component(dimensions);
-          //add(component);
         }
 
         if (!pauseGame) {

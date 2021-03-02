@@ -46,6 +46,8 @@ class BluetoothManager {
   Timer timer;
   String macAddress;
   String data;
+  double previousVoltage = 0.0;
+  double previousValue = 0.0;
 
   //Initializing database
   DatabaseHelper db = new DatabaseHelper();
@@ -60,9 +62,7 @@ class BluetoothManager {
     bool paired = false;
     if (Platform.isAndroid) {
       try {
-        paired =
-            await sensorChannel.invokeMethod('locationPermission');
-
+        paired = await sensorChannel.invokeMethod('locationPermission');
       } on PlatformException {}
       return paired;
     }
@@ -77,7 +77,7 @@ class BluetoothManager {
       _bluetoothState = await FlutterBluetoothSerial.instance.state;
 
       //If location permission is not accepted, spam to accept
-      if(!await locationPermission()){
+      if (!await locationPermission()) {
         enableBluetooth();
       }
       // If the bluetooth is off, then turn it on first
@@ -175,36 +175,103 @@ class BluetoothManager {
       if (!isRunning) {
         timer.cancel();
       } else
-        data = await getData();
+        data = await getStringFromBluetooth();
+      //data = await getData();
     });
+  }
+
+  Future<String> getStringFromBluetooth() async {
+    String result = "null";
+    try {
+      result = await sensorChannel.invokeMethod('getData');
+      data = '$result';
+    } on PlatformException {
+      data = 'Failed to get data from device.';
+    }
+    return data;
   }
 
   //Fonction qui récupère les données du capteur de force
   //Converti ces données en Kg
+  //TODO UPDATE IOS SWIFT FUNCTIONS
   Future<String> getData() async {
-    String result = "null";
-    String data = "null";
+    List<String> result = [];
+    double value = 0.0;
 
     double delta = 102.0;
     double coefKg = 0.45359237;
 
+    /*
     try {
       //TODO Résoudre bug: 2 appareils connectés au même tel, on recoit les valeurs des 2 capteurs
+      //Cancel toute recherche dans login ?
+
+
       result = await sensorChannel.invokeMethod('getData');
       data = 'Data: $result';
     } on PlatformException {
       data = 'Failed to get data from device.';
-    }
+    }*/
+
+    data = await getStringFromBluetooth();
+
+    result = data.split(";");
 
     double convVoltToLbs = (921 - delta) / 100;
 
+    try {
+      result = data.split(";");
+
+      value = double.parse(result[0]);
+
+      //Sécurité valeur volt au lieu de capteur pression
+      if (value > 1500) value = previousValue;
+
+      previousValue = value;
+    } catch (error) {
+      value = previousVoltage;
+    }
+
     double tempResult = double.parse(
-            ((double.parse(result) - delta) / (convVoltToLbs * coefKg))
+            ((value - delta) / (convVoltToLbs * coefKg))
                 .toStringAsExponential(1))
         .abs();
 
     //print("Résultat: $tempResult");
     return tempResult.toString();
+  }
+
+  //Fonction qui récupère le voltage des piles en valeur analogique
+  //Converti ces données en V
+  //Volt max: ~4.81 V réel soit ~4.38V sur l'appli
+  //Volt min: ~3.17V réel soit ~2.84V sur l'appli
+  Future<double> getVoltage() async {
+    List<String> result = [];
+    double reference = 4.4;
+    double voltage = 3.5;
+
+    data = await getStringFromBluetooth();
+
+    //print(data);
+    try {
+      result = data.split(";");
+      // Receiving voltage in mV
+      voltage = double.parse(result[1]) / 1000;
+    } catch (error) {
+      voltage = previousVoltage;
+    }
+
+    //voltage min /reference -> 0.64 donc conversion en pourcentage pour la jauge
+    double percent = ((voltage / reference) - 0.64) / 0.36;
+
+    if (percent < 0.0) percent = previousVoltage;
+
+    if (percent > 1.0) percent = 1.0;
+
+    previousVoltage = percent;
+
+    //print("Résultat: $tempResult");
+    return percent;
   }
 
   // Method to show a Snackbar,

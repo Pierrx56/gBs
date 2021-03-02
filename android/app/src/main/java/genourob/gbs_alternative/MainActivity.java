@@ -77,6 +77,7 @@ public class MainActivity extends FlutterActivity {
     String macAdress = "";
 
     public String value = "1.0";
+    public String voltageValue = "4.0";
 
     boolean isConnected = false;
     boolean isScanning = false;
@@ -194,6 +195,16 @@ public class MainActivity extends FlutterActivity {
                                 //result.error("UNAVAILABLE", "No data available.", null);
                             }
                         }
+                        if (call.method.equals("getVolt")) {
+                            String data = getVoltageValue(); //getData();
+
+                            if (data != "") {
+                                result.success(data);
+                            } else {
+                                result.success("ça ne marche pas");
+                                //result.error("UNAVAILABLE", "No data available.", null);
+                            }
+                        }
                         if (call.method.equals("getMacAddress")) {
                             String mac = getMacAddress();
 
@@ -253,10 +264,10 @@ public class MainActivity extends FlutterActivity {
                         int resourceId = MainActivity.this.getResources().getIdentifier((String) call.arguments, "drawable", MainActivity.this.getPackageName());
                         result.success(resourceToUriString(MainActivity.this.getApplicationContext(), resourceId));
                     }
-                    if("getAlarmUri".equals(call.method)) {
+                    if ("getAlarmUri".equals(call.method)) {
                         result.success(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM).toString());
                     }
-                    if("getTimeZoneName".equals(call.method)) {
+                    if ("getTimeZoneName".equals(call.method)) {
                         result.success(TimeZone.getDefault().getID());
                     }
                 }
@@ -308,7 +319,7 @@ public class MainActivity extends FlutterActivity {
                     btScanner = btAdapter.getBluetoothLeScanner();
                 isScanning = true;
                 btScanner.startScan(leScanCallback);
-                if(isConnected)
+                if (isConnected)
                     stopScanning();
             }
         });
@@ -400,13 +411,24 @@ public class MainActivity extends FlutterActivity {
         }
     }
 
+    public void setVoltageValue(String _value) {
+        voltageValue = _value;
+    }
+
+    public String getVoltageValue() {
+        if (voltageValue == null)
+            voltageValue = "4.0";
+
+        return voltageValue;
+    }
+
     public void setValue(String _value) {
         value = _value;
     }
 
     public String getValue() {
         if (value == null)
-            value = "1.0";
+            value = "1.0:1.0";
 
         return value;
     }
@@ -455,21 +477,20 @@ public class MainActivity extends FlutterActivity {
         System.out.println(isConnected);
 
         if (mBluetoothDevice == null && !isConnected || !mBluetoothDevice.getAddress().contains(macAdress)) {
-            if(!isScanning) {
+            if (!isScanning) {
                 System.out.println("start scanning");
                 startScanning();
             }
             //mBluetoothDevice = mac;
         } else {
-            if(isScanning)
+            if (isScanning)
                 stopScanning();
 
             mBluetoothGatt = mBluetoothDevice.connectGatt(this, false, btleGattCallback);
 
             if (mBluetoothGatt.connect()) {
                 isConnected = true;
-            }
-            else
+            } else
                 connect(mac);
         }
         if (isConnected)
@@ -490,8 +511,33 @@ public class MainActivity extends FlutterActivity {
                 public void run() {
                     byte[] value = characteristic.getValue();
                     String v = new String(value);
-                    //VALEURS DU CAPTEUR ICI
+
                     setValue(v);
+                    /*
+                    String[] values;
+                    try {
+                        values = v.split(";");
+                    }
+                    catch(NumberFormatException e){
+                        values = null;
+                    }
+
+                    //VALEURS DU CAPTEUR ICI
+                    //Valeur du voltage
+                    try {
+                        setValue(values[0]);
+                    }
+                    catch(NumberFormatException e){
+                        setVoltageValue("4.0");
+                    }
+                    //Valeur du voltage
+                    try {
+                        setVoltageValue(values[1]);
+                    }
+                    catch(NumberFormatException e){
+                        setVoltageValue("4.0");
+                    }
+                    */
                     //peripheralTextView.append("Valeur du capteur: " + v + "\n");
                 }
             });
@@ -632,7 +678,6 @@ public class MainActivity extends FlutterActivity {
 
         mBluetoothGatt.disconnect();
         mBluetoothGatt.close();
-
 
 
     }

@@ -716,8 +716,7 @@ class _MaxPush extends State<MaxPush> {
                                                                   1) ||
                                                       inputMessage == "fromMain"
                                                   ? () {
-                                                      if (user.userInitialPush ==
-                                                          "0.0")
+                                                      if (!isCorrect)
                                                         ;
                                                       else {
                                                         if (inputMessage !=

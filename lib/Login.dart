@@ -88,6 +88,7 @@ class _Login extends State<Login> {
     var appLanguage = Provider.of<AppLanguage>(context);
 
     var languages = [
+      //Français
       FlatButton.icon(
         icon: ClipRRect(
           borderRadius: BorderRadius.circular(8.0),
@@ -111,6 +112,7 @@ class _Login extends State<Login> {
           appLanguage.changeLanguage(Locale("fr"));
         },
       ),
+      //English
       FlatButton.icon(
         icon: Image(
           image: new AssetImage("assets/flags/en.png"),

@@ -413,20 +413,20 @@ class TempGame extends Game {
                     tabFloor[getCurrentFloor()].getFlagPosition()) {
               isPushable = true;
             }
-          }
-          //If the player walks on coins, make coins disappear
-          if (manageFloors.j + temp.x + grassSize >=
-                  tabBottomFloor[getCurrentFloor()].getCoinsPosition() &&
-              blockOne) {
-            tabBottomFloor[getFloor() - 1].setOpacityC0(opacity -= 0.1);
-            tabBottomFloor[getFloor() - 1].setOpacityC1(opacity -= 0.1);
-            tabBottomFloor[getFloor() - 1].setOpacityC2(opacity -= 0.1);
-          } else if (manageFloors.j + temp.x + grassSize >=
-                  tabFloor[getCurrentFloor()].getCoinsPosition() &&
-              !blockOne) {
-            tabFloor[getFloor() - 1].setOpacityC0(opacity -= 0.1);
-            tabFloor[getFloor() - 1].setOpacityC1(opacity -= 0.1);
-            tabFloor[getFloor() - 1].setOpacityC2(opacity -= 0.1);
+            //If the player walks on coins, make coins disappear
+            if (manageFloors.j + temp.x + grassSize >=
+                    tabBottomFloor[getCurrentFloor()].getCoinsPosition() &&
+                blockOne) {
+              tabBottomFloor[getFloor() - 1].setOpacityC0(opacity -= 0.1);
+              tabBottomFloor[getFloor() - 1].setOpacityC1(opacity -= 0.1);
+              tabBottomFloor[getFloor() - 1].setOpacityC2(opacity -= 0.1);
+            } else if (manageFloors.j + temp.x + grassSize >=
+                    tabFloor[getCurrentFloor()].getCoinsPosition() &&
+                !blockOne) {
+              tabFloor[getFloor() - 1].setOpacityC0(opacity -= 0.1);
+              tabFloor[getFloor() - 1].setOpacityC1(opacity -= 0.1);
+              tabFloor[getFloor() - 1].setOpacityC2(opacity -= 0.1);
+            }
           }
 
           //Si il a poussé pendant 6 secondes et qu'il n'a pas déjà sauté
@@ -579,9 +579,11 @@ class TempGame extends Game {
 
         if (blockOne) {
           //Déplacement des blocs pour pouvoir re-sauter
-          manageFloors.j =
-              tabFloor[getFloor()].grassXOffset[tabFloor.length - 1].toInt()
-                  .toInt() - (grassSize * 3).toInt();
+          manageFloors.j = tabFloor[getFloor()]
+                  .grassXOffset[tabFloor.length - 1]
+                  .toInt()
+                  .toInt() -
+              (grassSize * 3).toInt();
           tabBottomFloor[0].setOpacity(opacity = 1);
           tabBottomFloor[1].setOpacity(opacity = 1);
           tabBottomFloor[2].setOpacity(opacity = 1);
@@ -600,8 +602,9 @@ class TempGame extends Game {
         if (!blockOne) {
           //Déplacement des blocs pour pouvoir re-sauter
           manageFloors.j = tabBottomFloor[getFloor()]
-              .grassXOffset[tabBottomFloor.length - 1]
-              .toInt() - (grassSize * 3).toInt();
+                  .grassXOffset[tabBottomFloor.length - 1]
+                  .toInt() -
+              (grassSize * 3).toInt();
           tabFloor[0].setOpacity(opacity = 1);
           tabFloor[1].setOpacity(opacity = 1);
           tabFloor[2].setOpacity(opacity = 1);

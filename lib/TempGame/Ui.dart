@@ -32,7 +32,6 @@ class UIState extends State<UI> {
 
   CommonGamesUI commonGamesUI = CommonGamesUI();
 
-
   void initState() {
     super.initState();
     //WidgetsBinding.instance.addObserver(this);
@@ -169,6 +168,18 @@ class UIState extends State<UI> {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                      (game.screenSize.width * 0.5), 0, 0, 0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Image.asset(
+                      "assets/images/temp/click.gif",
+                      height: 125.0,
+                      width: 125.0,
+                    ),
+                  ),
+                ),
               ],
             )
           : game.phaseTuto == 2
@@ -225,6 +236,18 @@ class UIState extends State<UI> {
                         ),
                       ),
                     ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                          (game.screenSize.width * 0.5), 0, 0, 0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Image.asset(
+                          "assets/images/temp/click.gif",
+                          height: 125.0,
+                          width: 125.0,
+                        ),
+                      ),
+                    ),
                   ],
                 )
               : game.phaseTuto == 3
@@ -273,6 +296,18 @@ class UIState extends State<UI> {
                                   ),
                                 ],
                               ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                              0, 0, (game.screenSize.width * 0.2), 0),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Image.asset(
+                              "assets/images/temp/click.gif",
+                              height: 125.0,
+                              width: 125.0,
                             ),
                           ),
                         ),
@@ -332,6 +367,18 @@ class UIState extends State<UI> {
                                 ),
                               ),
                             ),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                  0, 0, (game.screenSize.width * 0.2), 0),
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Image.asset(
+                                  "assets/images/temp/click.gif",
+                                  height: 125.0,
+                                  width: 125.0,
+                                ),
+                              ),
+                            ),
                           ],
                         )
                       : Container(),
@@ -380,8 +427,8 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget restartButton(
-      BuildContext context, AppLanguage appLanguage, User user, TempGame game, int level) {
+  Widget restartButton(BuildContext context, AppLanguage appLanguage, User user,
+      TempGame game, int level) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -408,8 +455,8 @@ class UIState extends State<UI> {
     );
   }
 
-  Widget menu(
-      BuildContext context, AppLanguage appLanguage, TempGame game, User user, int level, String message) {
+  Widget menu(BuildContext context, AppLanguage appLanguage, TempGame game,
+      User user, int level, String message) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -434,12 +481,22 @@ class UIState extends State<UI> {
             ),
             commonGamesUI.pauseButton(context, appLanguage, game, user),
             restartButton(context, appLanguage, user, game, level),
-            commonGamesUI.closeButton(context, appLanguage, user, game.getCoins(), game, ID_TEMP_ACTIVITY, game.getStarValue(), game.getStarLevel(), message),
+            commonGamesUI.closeButton(
+                context,
+                appLanguage,
+                user,
+                game.getCoins(),
+                game,
+                ID_TEMP_ACTIVITY,
+                game.getStarValue(),
+                game.getStarLevel(),
+                message),
           ],
         ),
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return null;

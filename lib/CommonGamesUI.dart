@@ -158,11 +158,12 @@ class CommonGamesUI {
       String message) {
     int tempLevel = (level ~/ 10).toInt();
 
+    //Check DatabaseHelp.dart for name game order
     List<String> nameGame = [
-      AppLocalizations.of(context).translate('swimmer'),
-      AppLocalizations.of(context).translate('plane'),
+      AppLocalizations.of(context).translate('nageur'),
+      AppLocalizations.of(context).translate('avion'),
       AppLocalizations.of(context).translate('temp'),
-      AppLocalizations.of(context).translate('car'),
+      AppLocalizations.of(context).translate('voiture'),
     ];
 
     return Padding(

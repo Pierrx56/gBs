@@ -52,12 +52,18 @@ class _MainTitle extends State<MainTitle> {
   AppLanguage appLanguage;
   User user;
   String message;
+  double voltage;
   bool isConnected;
+  bool hasAlerted;
   bool isInformed;
   Timer timerConnexion;
   bool hasChanged;
 
+  double heightBattery = 0.0;
+  double widthBattery = 0.0;
+
   DatabaseHelper db = new DatabaseHelper();
+  NotificationManager notificationManager = new NotificationManager();
   List<Scores> data_swim;
   List<Scores> data_plane;
 
@@ -96,8 +102,13 @@ class _MainTitle extends State<MainTitle> {
     visible_swim = true;
     visible_plane = true;
     hasChanged = false;
+    hasAlerted = false;
     colorCard_swim = Colors.white;
     colorCard_plane = Colors.white;
+    voltage = 3.5;
+
+    heightBattery = 0.0;
+    widthBattery = 0.0;
 
     //Obtention des scores
     //Swimmer
@@ -109,7 +120,6 @@ class _MainTitle extends State<MainTitle> {
 
     //Gestion des notifications
     //initialise une notification pour le/les jours suivants
-    NotificationManager notificationManager = new NotificationManager();
     notificationManager.init(user);
     notificationManager.setNotificationAlert();
 
@@ -145,6 +155,17 @@ class _MainTitle extends State<MainTitle> {
     timerConnexion = new Timer.periodic(Duration(milliseconds: 1000),
         (timerConnexion) async {
       isConnected = await btManage.getStatus();
+      if (isConnected) {
+        voltage = await btManage.getVoltage();
+
+        //Alert battery under 15%
+        if (voltage < 0.15 && !hasAlerted) {
+          notificationManager.alertBattery();
+          hasAlerted = true;
+        }
+      } else
+        voltage = 0.5;
+
       if (mounted) setState(() {});
     });
   }
@@ -350,8 +371,76 @@ class _MainTitle extends State<MainTitle> {
                 //Spacer -> each container -> 0.1 and divider = 16.0
                 Container(
                   height: screenSize.height * 0.1,
-                  alignment: Alignment.center,
-                  //child: Text(user.userHeightBottom),
+                  padding:
+                      EdgeInsets.fromLTRB(screenSize.width * 0.05, 0, 0, 0),
+                  child: isConnected
+                      ? Stack(
+                          children: <Widget>[
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 300),
+                                height: heightBattery,
+                                width: widthBattery * voltage,
+                                //child: Text(voltage.toString()),
+                                decoration: BoxDecoration(
+                                  color: voltage > 0.50
+                                      ? Colors.green
+                                      : voltage > 0.25
+                                          ? Colors.orange
+                                          : Colors.red,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          3.0) //         <--- border radius here
+                                      ),
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                height: heightBattery =
+                                    screenSize.height * 0.05,
+                                width: widthBattery = screenSize.width * 0.1,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 2.0,
+                                  ),
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          3.0) //         <--- border radius here
+                                      ),
+                                ),
+                                child: Text(
+                                  (voltage * 100).toStringAsFixed(0) + "%",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                  widthBattery - screenSize.height * 0.005,
+                                  0,
+                                  0,
+                                  0),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  height: screenSize.width * 0.01,
+                                  width: screenSize.height * 0.01,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            3.0) //         <--- border radius here
+                                        ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Container(),
                 ),
                 //BT
                 Container(
@@ -711,6 +800,7 @@ class _MainTitle extends State<MainTitle> {
                     ),
                   ),
                 ),
+                //Select stat
                 SizedBox(
                   width: widthCard = (screenSize.width / numberOfCard) - 7,
                   height: heightCard = screenSize.width / numberOfCard,

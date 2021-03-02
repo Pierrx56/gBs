@@ -75,6 +75,7 @@ class NotificationManager {
 
   Future<void> _scheduleNotification() async {
     var temp = _nextInstanceForNotif();
+    //TODO translate
     if(temp != null)
     await flutterLocalNotificationsPlugin.zonedSchedule(
         user.userId,
@@ -122,6 +123,31 @@ class NotificationManager {
     print("Scheduled");
 
     return scheduledDate;
+  }
+
+  Future<void> alertBattery() async {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, now.hour, now.minute, now.second);
+    scheduledDate = scheduledDate.add(const Duration(seconds: 5));
+
+    //TODO translate
+    if(scheduledDate != null)
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+          user.userId,
+          "Battery alert !",
+          "Hey ${user.userName}, replace your batteries soon !",
+          scheduledDate,
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+                'battery notification channel id',
+                'Spineo Home battery notification',
+                'Notification to remind you to replace batteries'),
+            iOS: IOSNotificationDetails(),
+          ),
+          androidAllowWhileIdle: true,
+          uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time);
   }
 
   Future<void> cancelNotification() async {
