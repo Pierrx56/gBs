@@ -63,12 +63,8 @@ class _Temp extends State<Temp> {
   String recording;
   Timer timer;
   Timer _timer;
-  Timer timerHeight;
-  Timer timerPush;
   int _start = 5;
   Timer timerThread;
-  Timer timerPosition;
-  Timer timerSign;
   Timer timerConnexion;
   bool start;
   double push;
@@ -76,16 +72,17 @@ class _Temp extends State<Temp> {
   CommonGamesUI commonGamesUI;
   int coins;
   int jumpCounter;
+  int previousJumpCounter;
   double starValue;
   int level;
   String message;
   int cinq = 5;
   double totalPush = 0.0;
+  double determineJump = 0.0;
   int k = 0;
 
   //Si raté 0, sinon étage 1, 2 ou 3
   int jumpToFloor = 1;
-  int previousFloor = 1;
 
   _Temp(User _user, AppLanguage _appLanguage, String _level, String _message) {
     user = _user;
@@ -116,11 +113,7 @@ class _Temp extends State<Temp> {
     timerConnexion?.cancel();
     timer?.cancel();
     _timer?.cancel();
-    timerHeight?.cancel();
-    timerPush?.cancel();
     timerThread?.cancel();
-    timerSign?.cancel();
-    timerPosition?.cancel();
 
     super.dispose();
   }
@@ -138,6 +131,8 @@ class _Temp extends State<Temp> {
     TapGestureRecognizer tapper = TapGestureRecognizer();
 
     tapper.onTapDown = game.onTapDown;
+
+    previousJumpCounter = game.getJumpCounter();
 
     refreshScore();
     mainThread();
@@ -170,13 +165,14 @@ class _Temp extends State<Temp> {
   testConnect() async {
     isConnected = await btManage.getStatus();
     if (!isConnected) {
-      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
-          (timerConnexion) async {
+      timerConnexion =
+          new Timer.periodic(Duration(milliseconds: 1500), (timer) async {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
         isConnected = await btManage.getStatus();
 
         if (isConnected) {
           timerConnexion.cancel();
+          timer.cancel();
           launchGame();
         }
       });
@@ -189,14 +185,14 @@ class _Temp extends State<Temp> {
 
   mainThread() async {
     timerThread =
-        new Timer.periodic(Duration(milliseconds: 500), (timerThread) async {
-      //TODO Changer pour mettre à 10
+        new Timer.periodic(Duration(milliseconds: 500), (timer) async {
       //Condition de victoire
-      if (game.getJumpCounter() >= 5) {
+      if (game.getJumpCounter() >= 10) {
         game.endGame = true;
         game.gameOver = true;
         game.pauseGame = true;
         timerThread.cancel();
+        timer.cancel();
       }
 
       if (game.isTooHigh) {
@@ -264,18 +260,21 @@ class _Temp extends State<Temp> {
     double tempPush = getData();
 
     //Si le joueur a dépassé le drapeau ou qu'il attend au bout de la plateforme
-    if ((game.isWaiting || game.isPushable) && !game.launchTuto) {
+    //ou si le joueur n'est pas tombé dans le vide
+    if ((game.isWaiting || game.isPushable) &&
+        !game.launchTuto &&
+        game.previousFloor != 0) {
       //push = 0.99;
       if (double.parse(user.userInitialPush) < tempPush &&
           push > 0.0 &&
-          cinq == 5) {
+          cinq == 5 &&
+          !game.pauseGame) {
         game.setPushState(true);
 
-        print(cinq);
         cinq--;
 
         //Récupère les données du capteur toutes les 200ms
-        timerPush = new Timer.periodic(
+        Timer.periodic(
           Duration(milliseconds: 200),
           (Timer timer) {
             totalPush += getData();
@@ -286,24 +285,26 @@ class _Temp extends State<Temp> {
           },
         );
         //Compteur de 5 secs
-        timerHeight = new Timer.periodic(
+        Timer.periodic(
           Duration(seconds: 1),
           (Timer timer) {
-            if (push >= 1 / 5)
-              push -= 1 / 5;
-            else
-              push = 0.0;
+            if (!game.pauseGame) {
+              if (push >= 1 / 5)
+                push -= 1 / 5;
+              else
+                push = 0.0;
 
-            if (cinq < 1) {
-              //push = 0.0;
-              timer.cancel();
-            } else {
-              cinq--;
+              if (cinq < 1) {
+                //push = 0.0;
+                timer.cancel();
+              } else {
+                cinq--;
+              }
             }
           },
         );
-      } else {
-        double determineJump = totalPush / k;
+      } else if (!game.pauseGame && game.isPushable) {
+        determineJump = totalPush / k;
 
         //if (jumpToFloor != 0) previousFloor = jumpToFloor;
 
@@ -313,20 +314,21 @@ class _Temp extends State<Temp> {
         if (determineJump >= double.parse(user.userInitialPush) &&
             determineJump < double.parse(user.userInitialPush) * 1.2) {
           if (jumpToFloor == -1 || jumpToFloor == 0) jumpToFloor = 1;
-          previousFloor = jumpToFloor;
+          //previousFloor = jumpToFloor;
           jumpToFloor = 1;
         }
         if (determineJump >= double.parse(user.userInitialPush) * 1.2 &&
             determineJump < double.parse(user.userInitialPush) * 1.4) {
           if (jumpToFloor == -1 || jumpToFloor == 0) jumpToFloor = 2;
-          previousFloor = jumpToFloor;
+          //previousFloor = jumpToFloor;
           jumpToFloor = 2;
         }
         if (determineJump >= double.parse(user.userInitialPush) * 1.4) {
           if (jumpToFloor == -1 || jumpToFloor == 0) jumpToFloor = 3;
-          previousFloor = jumpToFloor;
+          //previousFloor = jumpToFloor;
           jumpToFloor = 3;
         }
+
         //print(determineJump);
       }
     } else {
@@ -335,6 +337,13 @@ class _Temp extends State<Temp> {
       k = 0;
       totalPush = 0;
       game.setPushState(false);
+      determineJump = 0.0;
+
+      //Lorsqu'il a sauté, on sauvegarde l'ancienne plateforme dans le cas où il loupe son prochain saut
+      if (previousJumpCounter != jumpCounter && jumpToFloor != 0) {
+        game.previousFloor = jumpToFloor;
+        previousJumpCounter = jumpCounter;
+      }
     }
     //On retourne un pourcentage
     return push;
@@ -342,8 +351,8 @@ class _Temp extends State<Temp> {
 
   void setFloor() {
     print("JumpToFloor: $jumpToFloor");
-    print("PreviousFloor: $previousFloor");
-    jumpToFloor = previousFloor;
+    print("PreviousFloor: ${game.previousFloor}");
+    jumpToFloor = game.previousFloor;
   }
 
   int getFloor() {
@@ -356,323 +365,331 @@ class _Temp extends State<Temp> {
 
   @override
   Widget build(BuildContext context) {
-    //UI gameUI = UI();
-    //gameUI.state.game = game;
 
     Size screenSize = MediaQuery.of(context).size;
 
-    return Material(
-        child: ColorFiltered(
-      colorFilter: game != null
-          ? game.getColorFilter()
-          : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          game == null || double.parse(user.userInitialPush) == 0
-              ? Center(
-                  child: Container(
-                      width: screenSize.width,
-                      height: screenSize.height,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: ExactAssetImage(
-                              "assets/images/temp/background.png"),
-                          fit: BoxFit.cover,
+    return WillPopScope(
+      onWillPop: (){
+        game.pauseGame = ! game.pauseGame;
+        return;
+      },
+      child: Material(
+          child: ColorFiltered(
+        colorFilter: game != null
+            ? game.getColorFilter()
+            : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
+        child: Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            game == null || double.parse(user.userInitialPush) == 0
+                ? Center(
+                    child: Container(
+                        width: screenSize.width,
+                        height: screenSize.height,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: ExactAssetImage(
+                                "assets/images/temp/background.png"),
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
-                        child: Stack(
-                          children: <Widget>[
-                            Center(
-                              child: Container(
-                                width: screenSize.width / 2,
-                                height: screenSize.height / 2,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Color.fromRGBO(255, 255, 255, 0.7),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    CircularProgressIndicator(),
-                                    double.parse(user.userInitialPush) == 0
-                                        ? AutoSizeText(AppLocalizations.of(
-                                                context)
-                                            .translate('premiere_poussee_sw'))
-                                        : AutoSizeText(
-                                            AppLocalizations.of(context)
-                                                .translate('verif_alim'),
-                                            minFontSize: 15,
-                                            maxLines: 3,
-                                            style: TextStyle(fontSize: 25),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                    RaisedButton(
-                                      onPressed: () {
-                                        Navigator.pop(
-                                          context,
-                                          /*
-                                          MaterialPageRoute(
-                                              builder: (context) => LoadPage(
-                                                    appLanguage: appLanguage,
-                                                    user: user,
-                                                    messageIn: "0",
-                                                    page: mainTitle,
-                                                  )),*/
-                                        );
-                                      },
-                                      child: Text(AppLocalizations.of(context)
-                                          .translate('retour')),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-                )
-              : game.widget,
-
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                game != null
-                    ? !game.pauseGame &&
-                            !game.getGameOver() &&
-                            game.getConnectionState()
-                        ? Align(
-                            alignment: Alignment.topRight,
-                            child: Container(
-                              height: screenSize.height,
-                              alignment: Alignment.topRight,
-                              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                              child: game != null
-                                  ? commonGamesUI.pauseButton(
-                                      context, appLanguage, game, user)
-                                  : Container(),
-                            ),
-                          )
-                        : !game.isTooHigh && !game.getEndGame()
-                            ? Align(
-                                alignment: Alignment.topRight,
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+                          child: Stack(
+                            children: <Widget>[
+                              Center(
                                 child: Container(
-                                    alignment: Alignment.topRight,
-                                    child: commonGamesUI.menu(context,
-                                        appLanguage, game, user, ID_TEMP_ACTIVITY, message)),
-                              )
-                            : Container()
-                //TODO Endscreen
-                    : Container(),
-              ],
-            ),
-          ),
-          //Display coins and life
-          game != null && !game.getGameOver()
-              ? game.getConnectionState()
-                  ? Container(
-                      alignment: Alignment.topLeft,
-                      padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-                      child: game == null
-                          ? Container()
-                          : gameUI.state.displayCoin(coins.toString(), game),
-                    )
-                  : Container()
-              : Container(),
-          //Display tuto
-          game != null && !game.getGameOver()
-              ? game.getConnectionState()
-                  ? game.isPushable && game.coins == 0 && game.launchTuto
-                      ? Container(
-                          alignment: Alignment(-0.5, 0.5),
-                          padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-                          child: game == null
-                              ? Container()
-                              : gameUI.state.displayTuto(
-                                  context, appLanguage, game, user),
-                        )
-                      : Container()
-                  : Container()
-              : Container(),
-          //Consigne
-          game != null
-              ? game.isWaiting &&
-                          !game.getGameOver() &&
-                          game.coins == 0 &&
-                          !game.pauseGame ||
-                      game.life < 2 && game.isWaiting && !game.pauseGame ||
-                      game.coins == 0 &&
-                          game.isPushable &&
-                          !game.launchTuto &&
-                          !game.pauseGame
-                  ? !game.getGameOver()
-                      ? game.getConnectionState()
-                          ? Container(
-                              alignment: Alignment.topCenter,
-                              padding: EdgeInsets.fromLTRB(
-                                  screenSize.height / 8 + 40, 20, 20, 20),
-                              child: Container(
-                                width: screenSize.width / 2,
-                                height: screenSize.height / 3,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Color.fromRGBO(255, 255, 255, 0.7),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Padding(
-                                      padding: EdgeInsets.all(5),
-                                      child: Container(
-                                        height: screenSize.height / 3.5,
-                                        child: AutoSizeText(
-                                          AppLocalizations.of(context)
-                                              .translate('remplir_jauge'),
-                                          minFontSize: 20,
-                                          maxLines: 3,
-                                          style: TextStyle(fontSize: 35),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                          : Container()
-                      : Container()
-                  : Container()
-              : Container(),
-          //Display jauge à remplir
-          game != null
-              ? (game.isWaiting || game.isPushable)
-                  ? !game.getGameOver()
-                      ? game.getConnectionState()
-                          ? Container(
-                              alignment: Alignment.centerLeft,
-                              padding: EdgeInsets.all(20),
-                              child: Container(
-                                width: screenSize.height / 8,
-                                height: screenSize.width / 4,
-                                padding: EdgeInsets.all(5),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.white,
-                                ),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: AnimatedContainer(
-                                    //child: Text(jumpToFloor.toString(), textAlign: TextAlign.center, style: textStyle,),
-                                    duration: Duration(seconds: 1),
-                                    width: screenSize.height / 8,
-                                    height: (screenSize.width / 4) * getPush(),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.blue[300],
-                                    ),
+                                  width: screenSize.width / 2,
+                                  height: screenSize.height / 2,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Color.fromRGBO(255, 255, 255, 0.7),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      CircularProgressIndicator(),
+                                      double.parse(user.userInitialPush) == 0
+                                          ? AutoSizeText(AppLocalizations.of(
+                                                  context)
+                                              .translate('premiere_poussee_sw'))
+                                          : AutoSizeText(
+                                              AppLocalizations.of(context)
+                                                  .translate('verif_alim'),
+                                              minFontSize: 15,
+                                              maxLines: 3,
+                                              style: TextStyle(fontSize: 25),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                      RaisedButton(
+                                        onPressed: () {
+                                          Navigator.pop(
+                                            context,
+                                            /*
+                                            MaterialPageRoute(
+                                                builder: (context) => LoadPage(
+                                                      appLanguage: appLanguage,
+                                                      user: user,
+                                                      messageIn: "0",
+                                                      page: mainTitle,
+                                                    )),*/
+                                          );
+                                        },
+                                        child: Text(AppLocalizations.of(context)
+                                            .translate('retour')),
+                                      )
+                                    ],
                                   ),
                                 ),
                               ),
+                            ],
+                          ),
+                        )),
+                  )
+                : game.widget,
+
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  game != null
+                      ? !game.pauseGame &&
+                              !game.getGameOver() &&
+                              game.getConnectionState()
+                          ? Align(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                height: screenSize.height,
+                                alignment: Alignment.topRight,
+                                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                child: game != null
+                                    ? commonGamesUI.pauseButton(
+                                        context, appLanguage, game, user)
+                                    : Container(),
+                              ),
                             )
-                          : Container()
-                      : Container()
-                  : Container()
-              : Container(),
-          //Display message Game Over
-          Container(
-            alignment: Alignment.topCenter,
-            child: game != null
-                ? game.getGameOver() && !game.isTooHigh && !game.getEndGame()
-                    ? Row(
-                        children: <Widget>[
-                          gameUI.state.displayMessage(
-                              AppLocalizations.of(context)
-                                  .translate('game_over'),
-                              game,
-                              Colors.blueAccent),
-                        ],
-                      )
-                    : Container()
-                : Container(),
-          ),
-          //Display message Fin du jeu (pas GameOver)
-          Container(
-            alignment: Alignment.topCenter,
-            child: game != null
-                ? game.getEndGame() && !game.isTooHigh
-                    //? game.pauseGame
-                    ? Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          commonGamesUI.endScreen(
-                              context,
-                              appLanguage,
-                              game,
-                              ID_TEMP_ACTIVITY,
-                              user,
-                              starValue,
-                              level,
-                              coins,
-                              message),
-                          //gameUI.state.endScreen(context, appLanguage, game, user, level),
-                        ],
-                      )
-                    : Container()
-                : Container(),
-          ),
-          //Display message toise trop basse
-          Container(
-            alignment: Alignment.topCenter,
-            child: game != null
-                ? game.isTooHigh
-                    ? Row(
-                        children: <Widget>[
-                          gameUI.state.displayMessage(
-                              AppLocalizations.of(context)
-                                  .translate('reajuster_toise'),
-                              game,
-                              Colors.redAccent),
-                        ],
-                      )
-                    : Container()
-                : Container(),
-          ),
-          //Display message Lost connexion
-          Container(
-            alignment: Alignment.topCenter,
-            child: game != null
-                ? !game.getConnectionState()
-                    ? Row(
-                        children: <Widget>[
-                          gameUI.state.displayMessage(
-                              AppLocalizations.of(context)
-                                  .translate('connexion_perdue'),
-                              game,
-                              Colors.redAccent),
-                        ],
-                      )
-                    : Container()
-                : Container(),
-          ),
-        ],
-      ),
-    )
-
-        /*Positioned.fill(
-
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTapDown: game.onTapDown,
-                child: game.widget,
+                          : !game.isTooHigh && !game.getEndGame()
+                              ? Align(
+                                  alignment: Alignment.topRight,
+                                  child: Container(
+                                      alignment: Alignment.topRight,
+                                      child: commonGamesUI.menu(
+                                          context,
+                                          appLanguage,
+                                          game,
+                                          user,
+                                          ID_TEMP_ACTIVITY,
+                                          message)),
+                                )
+                              : Container()
+                      : Container(),
+                ],
               ),
-            ),*/
-        );
+            ),
+            //Display coins and life
+            game != null && !game.getGameOver()
+                ? game.getConnectionState()
+                    ? Container(
+                        alignment: Alignment.topLeft,
+                        padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
+                        child: game == null
+                            ? Container()
+                            : gameUI.state.displayCoin(coins.toString(), game),
+                      )
+                    : Container()
+                : Container(),
+            //Display tuto
+            game != null && !game.getGameOver()
+                ? game.getConnectionState()
+                    ? game.isPushable && game.coins == 0 && game.launchTuto
+                        ? Container(
+                            alignment: Alignment(-0.5, 0.5),
+                            padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
+                            child: game == null
+                                ? Container()
+                                : gameUI.state.displayTuto(
+                                    context, appLanguage, game, user),
+                          )
+                        : Container()
+                    : Container()
+                : Container(),
+            //Consigne
+            game != null
+                ? game.isWaiting &&
+                            !game.getGameOver() &&
+                            game.coins == 0 &&
+                            !game.pauseGame ||
+                        game.life < 2 && game.isWaiting && !game.pauseGame ||
+                        game.coins == 0 &&
+                            game.isPushable &&
+                            !game.launchTuto &&
+                            !game.pauseGame
+                    ? !game.getGameOver()
+                        ? game.getConnectionState()
+                            ? Container(
+                                alignment: Alignment.topCenter,
+                                padding: EdgeInsets.fromLTRB(
+                                    20, screenSize.height*0.1, 20, 20),
+                                child: Container(
+                                  width: screenSize.width *0.5,
+                                  height: screenSize.height / 3,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    //color: Color.fromRGBO(255, 255, 255, 0.7),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Padding(
+                                        padding: EdgeInsets.all(5),
+                                        child: Container(
+                                          height: screenSize.height / 3.5,
+                                          child: AutoSizeText(
+                                            AppLocalizations.of(context)
+                                                .translate('remplir_jauge'),
+                                            minFontSize: 15,
+                                            maxLines: 3,
+                                            style: TextStyle(fontSize: 35, color: Colors.pink, fontWeight: FontWeight.bold,),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : Container()
+                        : Container()
+                    : Container()
+                : Container(),
+            //Display jauge à remplir
+            game != null
+                ? (game.isWaiting || game.isPushable)
+                    ? !game.getGameOver()
+                        ? game.getConnectionState()
+                            ? Container(
+                                alignment: Alignment.centerLeft,
+                                padding: EdgeInsets.all(20),
+                                child: Container(
+                                  width: screenSize.height / 8,
+                                  height: screenSize.width / 4,
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.white,
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: AnimatedContainer(
+                                      //child: Text(jumpToFloor.toString(), textAlign: TextAlign.center, style: textStyle,),
+                                      duration: Duration(seconds: 1),
+                                      width: screenSize.height / 8,
+                                      height: (screenSize.width / 4) * getPush(),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.blue[300],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Container()
+                        : Container()
+                    : Container()
+                : Container(),
+            //Display message Game Over
+            Container(
+              alignment: Alignment.topCenter,
+              child: game != null
+                  ? game.getGameOver() && !game.isTooHigh && !game.getEndGame()
+                      ? Row(
+                          children: <Widget>[
+                            gameUI.state.displayMessage(
+                                AppLocalizations.of(context)
+                                    .translate('game_over'),
+                                game,
+                                Colors.blueAccent),
+                          ],
+                        )
+                      : Container()
+                  : Container(),
+            ),
+            //Display message Fin du jeu (pas GameOver)
+            Container(
+              alignment: Alignment.topCenter,
+              child: game != null
+                  ? game.getEndGame() && !game.isTooHigh
+                      //? game.pauseGame
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            commonGamesUI.endScreen(
+                                context,
+                                appLanguage,
+                                game,
+                                ID_TEMP_ACTIVITY,
+                                user,
+                                starValue,
+                                level,
+                                coins,
+                                message),
+                            //gameUI.state.endScreen(context, appLanguage, game, user, level),
+                          ],
+                        )
+                      : Container()
+                  : Container(),
+            ),
+            //Display message toise trop basse
+            Container(
+              alignment: Alignment.topCenter,
+              child: game != null
+                  ? game.isTooHigh
+                      ? Row(
+                          children: <Widget>[
+                            gameUI.state.displayMessage(
+                                AppLocalizations.of(context)
+                                    .translate('reajuster_toise'),
+                                game,
+                                Colors.redAccent),
+                          ],
+                        )
+                      : Container()
+                  : Container(),
+            ),
+            //Display message Lost connexion
+            Container(
+              alignment: Alignment.topCenter,
+              child: game != null
+                  ? !game.getConnectionState()
+                      ? Row(
+                          children: <Widget>[
+                            gameUI.state.displayMessage(
+                                AppLocalizations.of(context)
+                                    .translate('connexion_perdue'),
+                                game,
+                                Colors.redAccent),
+                          ],
+                        )
+                      : Container()
+                  : Container(),
+            ),
+          ],
+        ),
+      )
+
+          /*Positioned.fill(
+
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTapDown: game.onTapDown,
+                  child: game.widget,
+                ),
+              ),*/
+          ),
+    );
   }
 }

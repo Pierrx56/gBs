@@ -217,28 +217,33 @@ class BluetoothManager {
 
     result = data.split(";");
 
-    double convVoltToLbs = (921 - delta) / 100;
+    //2 valeurs dans tableau, taille conforme avec force + voltage
+    if(result.length == 2) {
+      double convVoltToLbs = (921 - delta) / 100;
 
-    try {
-      result = data.split(";");
+      try {
+        value = double.parse(result[0]);
 
-      value = double.parse(result[0]);
+        //Sécurité valeur volt au lieu de capteur pression
+        if (value > 1000) {
+          value = 230;
+        }
 
-      //Sécurité valeur volt au lieu de capteur pression
-      if (value > 1500) value = previousValue;
+      } catch (error) {
+        value = previousVoltage;
+      }
 
-      previousValue = value;
-    } catch (error) {
-      value = previousVoltage;
+      double tempResult = double.parse(
+          ((value - delta) / (convVoltToLbs * coefKg))
+              .toStringAsExponential(1))
+          .abs();
+
+      previousValue = tempResult;
+      //print("Résultat: $tempResult");
+      return tempResult.toString();
     }
-
-    double tempResult = double.parse(
-            ((value - delta) / (convVoltToLbs * coefKg))
-                .toStringAsExponential(1))
-        .abs();
-
-    //print("Résultat: $tempResult");
-    return tempResult.toString();
+    else
+      return previousValue.toString();
   }
 
   //Fonction qui récupère le voltage des piles en valeur analogique
@@ -261,33 +266,29 @@ class BluetoothManager {
       voltage = previousVoltage;
     }
 
-    //voltage min /reference -> 0.64 donc conversion en pourcentage pour la jauge
-    double percent = ((voltage / reference) - 0.64) / 0.36;
+    //2 valeurs dans tableau, taille conforme avec force + voltage
+    if(result.length == 2) {
+      //voltage min /reference -> 0.64 donc conversion en pourcentage pour la jauge
+      double percent = ((voltage / reference) - 0.64) / 0.36;
 
-    if (percent < 0.0) percent = previousVoltage;
+      if (percent < 0.0) percent = previousVoltage;
 
-    if (percent > 1.0) percent = 1.0;
+      if (percent > 1.0) percent = 1.0;
 
-    previousVoltage = percent;
+      previousVoltage = percent;
 
-    //print("Résultat: $tempResult");
-    return percent;
+      //print("Résultat: $tempResult");
+      return percent;
+    }
+    else
+      return previousVoltage;
   }
 
-  // Method to show a Snackbar,
-  // taking message as the text
-  Future show(
-    String message, {
-    Duration duration: const Duration(seconds: 3),
-  }) async {
-    await new Future.delayed(new Duration(milliseconds: 100));
-    _scaffoldKey.currentState.showSnackBar(
-      new SnackBar(
-        content: new Text(
-          message,
-        ),
-        duration: duration,
-      ),
-    );
-  }
 }
+
+///8 + 6h30 + 6h50 + 2:15 + 1h30 + 3:30 + 4:30 + 7:20 + 45 = 2470 minutes
+/// = 41:10
+/// = 41,16 heures
+/// 247 séances
+/// 3 séances/semaine = 82 semaines = 1,58 ans
+///

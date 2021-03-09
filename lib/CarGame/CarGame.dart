@@ -24,7 +24,7 @@ class CarGame extends Game {
   TME tme;
   POLICE police;
   List<String> launchExercise = ["csi", "cmv", "repos", "tme"];
-  SpriteComponent plane;
+  SpriteComponent car;
   double tileSize;
   bool redFilter;
   bool start;
@@ -50,6 +50,8 @@ class CarGame extends Game {
   int TMELimit = 2;
   int waitLimit = 12;
   int randomNumber;
+  int index;
+  List<int> randomActivity = [];
 
   int previousActivity = 0;
 
@@ -68,6 +70,8 @@ class CarGame extends Game {
   double posX = 0;
   int i = 0;
   double difficulte = 3.0;
+  double secondWayDifficulty = 0.0;
+  double thirdWayDifficulty = 0.0;
 
   double sizeW;
   double sizeH;
@@ -130,6 +134,47 @@ class CarGame extends Game {
     //3: wait
     previousActivity = 3;
 
+    //TODO change for athletic mode
+    secondWayDifficulty = double.parse(user.userInitialPush) * 0.5;
+    thirdWayDifficulty = double.parse(user.userInitialPush) * 1.0;
+
+    //Generate a "random" series of number that correspond to exercizes
+    for (int i = 0; i < CMVLimit + CSILimit + TMELimit + waitLimit; i++) {
+      Random random = new Random();
+      randomNumber = random.nextInt(3); // from 0 upto 2 included
+
+      if (randomNumber != previousActivity) {
+        //Add wait between activities
+        if (randomActivity.length == 0) randomActivity.add(3);
+
+        if (randomActivity[randomActivity.length - 1] != 3)
+          randomActivity.add(3);
+
+        if (CMVLimit > CMVCounter && randomNumber == 0) {
+          randomActivity.add(randomNumber);
+          CMVCounter++;
+        }
+        if (CSILimit > CSICounter && randomNumber == 1) {
+          randomActivity.add(randomNumber);
+          CSICounter++;
+        }
+        if (TMELimit > TMECounter && randomNumber == 2) {
+          randomActivity.add(randomNumber);
+          TMECounter++;
+        }
+        previousActivity = randomNumber;
+      } else
+        i--;
+    }
+    //reset counter
+    CMVCounter = 0;
+    CSICounter = 0;
+    TMECounter = 0;
+    waitCounter = 0;
+
+    print(randomActivity);
+    index = 0;
+
     posYBottomLine = staightRoad.getYBottomPosition();
     staightRoad.setCarSize(sizeH);
   }
@@ -158,64 +203,57 @@ class CarGame extends Game {
                 canvas, pauseGame, reset, hasCrash, hasCrashSecondWay);
           }
 
-          //Select randomly activity
+          //Select activity
           if (!isDoingExercice) {
-            Random random = new Random();
-            randomNumber = random.nextInt(4); // from 0 upto 3 included
-            if (previousActivity != randomNumber || !isWaiting) {
-              if (!isWaiting) {
+            //randomNumber = 1;
+            switch (randomActivity[index]) {
+              //CMV
+              case 0:
+                if (CMVLimit > CMVCounter) {
+                  previousActivity = randomNumber;
+                  isDoingExercice = true;
+                  isWaiting = false;
+                  cmv = new CMV(this);
+                  totalCounterActivity++;
+                  index++;
+                  CMVCounter++;
+                }
+                break;
+              //CSI
+              case 1:
+                if (CSILimit > CSICounter) {
+                  previousActivity = randomNumber;
+                  isDoingExercice = true;
+                  isWaiting = false;
+                  csi = new CSI(this);
+                  totalCounterActivity++;
+                  index++;
+                  CSICounter++;
+                }
+                break;
+              //TME
+              case 2:
+                if (TMELimit > TMECounter) {
+                  previousActivity = randomNumber;
+                  isDoingExercice = true;
+                  isWaiting = false;
+                  tme = new TME(this);
+                  totalCounterActivity++;
+                  index++;
+                  TMECounter++;
+                }
+                break;
+              //Wait
+              case 3:
+                //previousActivity = randomNumber;
                 isWaiting = true;
-                randomNumber = 3;
-              }
-              randomNumber = 1;
-              switch (randomNumber) {
-                //CMV
-                case 0:
-                  if (CMVLimit > CMVCounter) {
-                    previousActivity = randomNumber;
-                    isDoingExercice = true;
-                    isWaiting = false;
-                    cmv = new CMV(this);
-                    totalCounterActivity++;
-                    CMVCounter++;
-                  }
-                  break;
-                //CSI
-                case 1:
-                  if (CSILimit > CSICounter) {
-                    previousActivity = randomNumber;
-                    isDoingExercice = true;
-                    isWaiting = false;
-                    csi = CSI(this);
-                    totalCounterActivity++;
-                    CSICounter++;
-                  }
-                  break;
-                //TME
-                case 2:
-                  if (TMELimit > TMECounter) {
-                    previousActivity = randomNumber;
-                    isDoingExercice = true;
-                    isWaiting = false;
-                    tme = new TME(this);
-                    totalCounterActivity++;
-                    TMECounter++;
-                  }
-                  break;
-                //Wait
-                case 3:
-                  if (waitLimit > waitCounter) {
-                    switchSize(game);
-                    previousActivity = randomNumber;
-                    isDoingExercice = true;
-                    startPause(true);
-                    waitCounter++;
-                  }
-
-                  break;
-                default:
-                  break;
-              }
+                isDoingExercice = true;
+                startPause(true);
+                index++;
+                waitCounter++;
+                break;
+              default:
+                break;
             }
           }
 
@@ -240,14 +278,14 @@ class CarGame extends Game {
           reset = false;
           canvas.restore();
           //Nageur
-          if (plane != null) {
-            plane.render(canvas);
+          if (car != null) {
+            car.render(canvas);
 
             //game.screenSize.height * (1 - balloonPosition);
-            posY = screenSize.height - plane.y - plane.height / 2;
-            //print("PosY Plane: $posY");
+            posY = screenSize.height - car.y - car.height / 2;
+            //print("PosY car: $posY");
 
-            posX = screenSize.width / 2.5 - plane.width / 2;
+            posX = screenSize.width / 2.5 - car.width / 2;
 /*
             print(j * speedCars -
                 screenSize.width / 2 +
@@ -255,10 +293,10 @@ class CarGame extends Game {
             print(2 * (cmv.getXPosition(2) + cmv.getWidth() * 0.5) +
                 cmv.getWidth() / 2);*/
 
-            //HitBox CMV
+            //HitBox CMV : trucks and cars
             if (cmv != null) {
               //First way
-              if (posY + plane.height * 0.5 <
+              if (posY + car.height * 0.5 <
                   screenSize.height * 0.7 - cmv.getHeight()) {
                 //Hitbox trucks
                 if (j * speedTruck -
@@ -268,7 +306,8 @@ class CarGame extends Game {
                     j * speedTruck - screenSize.width / 2 <
                         cmv.getXPosition(cmv.truckList.length - 1) +
                             cmv.getWidth() * 0.62) {
-                  life--;
+                  //Empêche d'enlever 2 vies
+                  if (!hasCrash) life--;
                   hasCrash = true;
                   //print("crashed");
                   //TODO stop timer game
@@ -294,9 +333,8 @@ class CarGame extends Game {
                     j * speedTruck - screenSize.width / 2 <
                         cmv.getXPosition(cmv.truckList.length - 1) +
                             cmv.getWidth() * 0.62) {
-                  life--;
+                  if (!hasCrashSecondWay) life--;
                   hasCrashSecondWay = true;
-                  //print("crashed");
                   //TODO stop timer game
                   Timer(Duration(seconds: 2), () {
                     hasCrashSecondWay = false;
@@ -321,60 +359,56 @@ class CarGame extends Game {
               }
             }
 
-            //HitBox CSI
+            //HitBox CSI : Fuels
             if (csi != null) {
-              //TODO a refaire pour voie 2 et 3
-
-              //Hitbox fuel
-              for (int i = 0; i < csi.fuelList.length; i++) {
-                /*  print(j - screenSize.width / 2);
-
-                  print(csi.getXPosition(0) - 2 * csi.getWidth());
-
-                  print(csi.getXPosition(0) - 1 * csi.getWidth());*/
-
-                //bottom Fuel
-                if (posMid /*&& fuelIsDown*/) {
+              if (csi.fuelList != null) {
+                //Hitbox fuel
+                for (int i = 0; i < csi.fuelList.length; i++) {
                   if (j - screenSize.width / 2 >
                           csi.getXPosition(i) - 2 * csi.getWidth() &&
                       j - screenSize.width / 2 <
-                          csi.getXPosition(i) - 1 * csi.getWidth()) {
-                    if (!hasSetXFuel) {
-                      csi.setPosXFuel();
-                      hasSetXFuel = true;
+                          csi.getXPosition(i)) {
+                    //bottom Fuel
+                    if (posMid &&
+                        csi.getYPosition(i) >
+                            game.screenSize.height * 0.1 /*&& fuelIsDown*/) {
+                      if (!hasSetXFuel) {
+                        csi.removeFuel(i);
+                        hasSetXFuel = true;
+                        //Avoid multiple adding score
+                        Timer(Duration(milliseconds: 600), () {
+                          hasSetXFuel = false;
+                          csi.hasHadScore = false;
+                        });
+                      }
                     }
-                    print("Fuel bottom +1");
-                  } else {
-                    //fuelIsDown = !fuelIsDown;
-                    hasSetXFuel = false;
+                    //Top Fuel
+                    else if (posMax &&
+                        csi.getYPosition(i) <
+                            game.screenSize.height * 0.4 /*&& !fuelIsDown*/) {
+                      if (!hasSetXFuel) {
+                        csi.removeFuel(i);
+                        hasSetXFuel = true;
+                        //Avoid multiple adding score
+                        Timer(Duration(milliseconds: 600), () {
+                          hasSetXFuel = false;
+                          csi.hasHadScore = false;
+                        });
+                      }
+                    }
+                  } else if (j - screenSize.width - csi.getWidth() >
+                      csi.getXPosition(csi.fuelList.length - 1) -
+                          2 * csi.getWidth()) {
+                    csi = null;
+                    isDoingExercice = false;
                   }
-                }
-                //Top Fuel
-                else if (posMax /*&& !fuelIsDown*/) {
-                  if (j - screenSize.width / 2 >
-                          csi.getXPosition(i) - 2 * csi.getWidth() &&
-                      j - screenSize.width / 2 <
-                          csi.getXPosition(i) - 1 * csi.getWidth()) {
-                    if (!hasSetXFuel) {
-                      csi.setPosXFuel();
-                      hasSetXFuel = true;
-                    }
-                    print("Fuel TOP +1");
-                  } else
-                    hasSetXFuel = false;
-                } else if (j - screenSize.width - csi.getWidth() >
-                    csi.getXPosition(csi.fuelList.length - 1) -
-                        2 * csi.getWidth()) {
-                  csi = null;
-                  isDoingExercice = false;
-                  fuelIsDown = true;
                 }
               }
             }
 
-            //HitBox TME
+            //HitBox TME : Trucks
             if (tme != null) {
-              if (posY + plane.height * 0.5 <
+              if (posY + car.height * 0.5 <
                   screenSize.height - widthRoad * 0.7 - tme.getHeight()) {
                 //Hitbox Camion
                 if (j * speedTruck -
@@ -384,7 +418,7 @@ class CarGame extends Game {
                     j * speedTruck - screenSize.width / 2 <
                         tme.getXPosition(tme.truckList.length - 1) +
                             tme.getWidth() * 0.9) {
-                  life--;
+                  if (!hasCrash) life--;
                   hasCrash = true;
                   //TODO stop timer game
                   Timer(Duration(seconds: 2), () {
@@ -434,60 +468,60 @@ class CarGame extends Game {
 
           Sprite sprite = Sprite("car/green_car.png");
 
-          plane = SpriteComponent.fromSprite(
+          car = SpriteComponent.fromSprite(
               sizeW, sizeH, sprite); // width, height, sprite
 
           if (!isInit) {
             //Centrage du bonhomme en ordonnées
-            posY = screenSize.height - plane.height - 50;
-            plane.y = posY;
+            posY = screenSize.height - car.height - 50;
+            car.y = posY;
             isInit = true;
           }
 
           //Centrage de l'avion en abscisses
-          plane.x = screenSize.width / 2.5 - plane.width / 2;
+          car.x = screenSize.width / 2.5 - car.width / 2;
           //Définition des bords haut et bas de l'écran
 
           //Bas
           if (tempPos >= screenSize.height * 0.7) {
-            plane.y = tempPos;
+            car.y = tempPos;
             posMid = false;
             posMin = true;
             posMax = false;
           }
           //Milieu
-          else if (getData() > double.parse(user.userInitialPush) * 0.5 &&
+          else if (getData() > secondWayDifficulty &&
               !posMid &&
               tempPos <= screenSize.height * 0.4 &&
-              tempPos >= screenSize.height * 0.35) {
+              tempPos >= screenSize.height * 0.38) {
             posMid = true;
             posMin = false;
             posMax = false;
-            plane.y = tempPos;
+            car.y = tempPos;
 
             //print("mid");
           }
           //Haut
-          else if (getData() > double.parse(user.userInitialPush) * 1.5 &&
+          else if (getData() > thirdWayDifficulty &&
               tempPos <= screenSize.height * 0.1 &&
               tempPos >= screenSize.height * 0.05) {
             //tempPos = 0.0;
-            plane.y = tempPos;
+            car.y = tempPos;
             posMid = false;
             posMin = false;
             posMax = true;
             //print("max");
             //tempPos = -size / 2;
-            //plane.y = tempPos;
+            //car.y = tempPos;
           }
-          //Sinon on fait descendre l'avion
+          //Sinon on fait descendre la voiture
           else if (!posMid && !posMax) {
-            plane.y += tempPos;
-            tempPos = plane.y + difficulte * 3.0;
-            if (pauseGame) tempPos = plane.y;
+            car.y += tempPos;
+            tempPos = car.y + difficulte * 3.0;
+            if (pauseGame) tempPos = car.y;
           } else {
-            if (plane.y == 0.0) {
-              plane.y = tempPos;
+            if (car.y == 0.0) {
+              car.y = tempPos;
             }
             posMid = false;
             posMin = false;
@@ -497,30 +531,30 @@ class CarGame extends Game {
 
         if (!pauseGame) {
           //getData = données reçues par le Bluetooth
-          //Montée de l'avion dans la 3 eme voie
-          if (getData() > double.parse(user.userInitialPush) * 1.5 &&
+          //Montée de la voiture dans la 3 eme voie
+          if (getData() > thirdWayDifficulty &&
               !posMax &&
-              plane != null) {
+              car != null) {
             //tempPos >= screenSize.height / 2 - sizeH / 2) {
-            //print(plane.y);
-            plane.y -= difficulte;
-            tempPos = plane.y;
+            //print(car.y);
+            car.y -= difficulte;
+            tempPos = car.y;
             inTouch = false;
           }
-          //Montée de l'avion 2nd voie
-          else if (getData() > double.parse(user.userInitialPush) &&
-              plane != null &&
+          //Montée de la voiture 2nd voie
+          else if (getData() > secondWayDifficulty &&
+              car != null &&
               !posMid &&
               tempPos >= screenSize.height / 2 - sizeH / 2) {
-            plane.y -= difficulte;
-            tempPos = plane.y;
+            car.y -= difficulte;
+            tempPos = car.y;
             inTouch = false;
           }
 
           if (inTouch) {
-            //print(plane.y);
-            //plane.y -= 20.0;
-            tempPos = plane.y;
+            //print(car.y);
+            //car.y -= 20.0;
+            tempPos = car.y;
             inTouch = false;
           }
         }
@@ -606,21 +640,16 @@ class CarGame extends Game {
         (Timer timer) {
           if (_start < 1) {
             timer.cancel();
+            isWaiting = false;
             doingBreak = false;
             isDoingExercice = false;
           } else if (pauseGame)
             ;
-          else
+          else {
             _start = _start - 1;
+          }
         },
       );
     }
-  }
-
-  void switchSize(CarGame game) async {
-    Timer.periodic(Duration(milliseconds: 750), (timer) {
-      changeSize = !changeSize;
-      if (game.previousActivity != 3) timer.cancel();
-    });
   }
 }

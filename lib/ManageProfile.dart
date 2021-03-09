@@ -311,11 +311,11 @@ class _ManageProfile extends State<ManageProfile> {
                                 _updateSwitch(value);
                                 isSwitched = value;
                                 if (isSwitched)
-                                  _userMode = AppLocalizations.of(context)
-                                      .translate('sportif');
+                                  _userMode = "1"; //AppLocalizations.of(context).translate('sportif');
+                                  //_userMode = AppLocalizations.of(context).translate('sportif');
                                 else
-                                  _userMode = AppLocalizations.of(context)
-                                      .translate('familial');
+                                  _userMode = "0";
+                                  //_userMode = AppLocalizations.of(context).translate('familial');
                               },
                               activeTrackColor: Colors.lightGreenAccent,
                               activeColor: Colors.green,
@@ -749,8 +749,7 @@ class _ManageProfile extends State<ManageProfile> {
 
     if (_userMode == null) {
       _userMode = user.userMode;
-      if (user.userMode ==
-          AppLocalizations.of(this.context).translate('sportif')) {
+      if (user.userMode == "1") {
         isSwitched = true;
       } else
         isSwitched = false;

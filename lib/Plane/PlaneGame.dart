@@ -149,9 +149,6 @@ class PlaneGame extends Game {
               isDown = !isDown;
               bottomBalloon = BottomBalloon(this);
               //Rentre une fois dans la timer
-              if (!start) {
-                startTimer(start = true);
-              }
             }
             //HitBox ballon haut
             else if (posY >=
@@ -168,12 +165,8 @@ class PlaneGame extends Game {
               reset = true;
               isDown = !isDown;
               topBalloon = TopBalloon(this);
-              if (!start) {
-                startTimer(start = true);
-              }
             } else {
               setColorFilter(false);
-              startTimer(start = false);
             }
           }
         }
@@ -335,35 +328,4 @@ class PlaneGame extends Game {
     return position;
   }
 
-  void startTimer(bool boolean) async {
-    Timer _timer;
-    double _start = 5.0;
-
-    if (!boolean) {
-      _start = 5.0;
-      start = false;
-    } else {
-      const time = const Duration(milliseconds: 500);
-      _timer = new Timer.periodic(
-        time,
-        (Timer timer) {
-          // S'il ressort de la zone avant le timer, on reset le timer
-          if (!start) {
-            timer.cancel();
-            return;
-          }
-          if (_start < 0.5) {
-            //TODO Display menu ?
-            setColorFilter(true);
-            timer.cancel();
-            gameOver = true;
-          } else {
-            setColorFilter(!redFilter);
-            _start = _start - 0.5;
-            print(_start);
-          }
-        },
-      );
-    }
-  }
 }

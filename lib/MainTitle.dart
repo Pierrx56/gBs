@@ -105,7 +105,7 @@ class _MainTitle extends State<MainTitle> {
     hasAlerted = false;
     colorCard_swim = Colors.white;
     colorCard_plane = Colors.white;
-    voltage = 3.5;
+    voltage = 0.0;
 
     heightBattery = 0.0;
     widthBattery = 0.0;
@@ -158,34 +158,18 @@ class _MainTitle extends State<MainTitle> {
       if (isConnected) {
         voltage = await btManage.getVoltage();
 
+        //if (voltage == 0.0) voltage = 0.5;
+
         //Alert battery under 15%
         if (voltage < 0.15 && !hasAlerted) {
           notificationManager.alertBattery();
           hasAlerted = true;
         }
-      } else
-        voltage = 0.5;
+      } //else
+        //voltage = 0.5;
 
       if (mounted) setState(() {});
     });
-  }
-
-  testConnect() async {
-    isConnected = await btManage.getStatus();
-    if (!isConnected) {
-      timerConnexion = new Timer.periodic(
-        Duration(milliseconds: 3000),
-        (timerConnexion) async {
-          btManage.connect(user.userMacAddress, user.userSerialNumber);
-
-          isConnected = await btManage.getStatus();
-          if (isConnected) {
-            print("Status: $isConnected");
-            timerConnexion.cancel();
-          }
-        },
-      );
-    }
   }
 
   void updateUser(User _user) {
@@ -252,53 +236,63 @@ class _MainTitle extends State<MainTitle> {
           backgroundColor: backgroundColor,
           elevation: 0.0,
           actions: <Widget>[
-            Image.asset(
-              "assets/spineo.png",
-              width: screenSize.width * 0.20,
-            ),
-            Container(
-              width: screenSize.width * 0.40,
-              alignment: Alignment.centerRight,
-              child: FlatButton.icon(
-                icon: Icon(
-                  Icons.power_settings_new,
-                  color: iconColor,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: screenSize.width * 0.40,
                 ),
-                label: temp != null
-                    ? Text(
-                        AppLocalizations.of(context).translate('deconnexion'),
-                        style: TextStyle(
-                          color: iconColor,
-                        ),
-                      )
-                    : Text("Check Language file (en/fr.json)"),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                Container(
+                  width: screenSize.width * 0.20,
+                  child: Image.asset(
+                    "assets/spineo.png",
+                  ),
                 ),
-                splashColor: Colors.blue,
-                onPressed: () {
-                  btManage.disconnect("");
+                Container(
+                  width: screenSize.width * 0.40,
+                  alignment: Alignment.centerRight,
+                  child: FlatButton.icon(
+                    icon: Icon(
+                      Icons.power_settings_new,
+                      color: iconColor,
+                    ),
+                    label: temp != null
+                        ? Text(
+                            AppLocalizations.of(context)
+                                .translate('deconnexion'),
+                            style: TextStyle(
+                              color: iconColor,
+                            ),
+                          )
+                        : Text("Check Language file (en/fr.json)"),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    splashColor: splashIconColor,
+                    onPressed: () {
+                      btManage.disconnect("");
 
-                  if (message == "fromRegister") {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Login(
-                          appLanguage: appLanguage,
-                        ),
-                      ),
-                      (Route<dynamic> route) => route is Login,
-                    );
-                  } else
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Login(
-                            appLanguage: appLanguage,
+                      if (message == "fromRegister") {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Login(
+                              appLanguage: appLanguage,
+                            ),
                           ),
-                        ),
-                        (Route<dynamic> route) => route is Login);
-                  /*Navigator.pushReplacement(
+                          (Route<dynamic> route) => route is Login,
+                        );
+                      } else
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Login(
+                                appLanguage: appLanguage,
+                              ),
+                            ),
+                            (Route<dynamic> route) => route is Login);
+                      /*Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => Login(
@@ -307,7 +301,7 @@ class _MainTitle extends State<MainTitle> {
                       ),
                     );*/
 
-                  /*
+                      /*
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -317,8 +311,10 @@ class _MainTitle extends State<MainTitle> {
                                 messageIn: "deconnexion",
                                 page: login,
                               )));*/
-                },
-              ),
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -373,7 +369,7 @@ class _MainTitle extends State<MainTitle> {
                   height: screenSize.height * 0.1,
                   padding:
                       EdgeInsets.fromLTRB(screenSize.width * 0.05, 0, 0, 0),
-                  child: isConnected
+                  child: voltage != 0.0 && isConnected
                       ? Stack(
                           children: <Widget>[
                             Align(

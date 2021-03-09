@@ -531,6 +531,8 @@ class ManageFloors {
   bool hasChanged;
   Paint opacity; // = Paint()..color = Colors.white.withOpacity(opacity);
   int j;
+  int walkTillVoid;
+  double jumpOffset = 0.0;
 
   ManageFloors(this.game) {
     grassSize = game.screenSize.width * 0.1;
@@ -551,153 +553,91 @@ class ManageFloors {
         offset = game.tempPosX.toInt();
         posFloorY = 0;
         j = 0;
+        walkTillVoid = 0;
         isInit = true;
-        isTheFirstPlatform = false;
+        isTheFirstPlatform = true;
       }
 
       //Ne pas faire avancer les blocs pendant qu'il pousse
-      if (game.isWaiting && game.getPush() > 0.0 && !pause) {
+      if ((game.isWaiting) && game.getPush() > 0.0 && !pause) {
         j -= screenSpeed;
       }
 
-      //Marche jusquau premier vide
-      // if (j <= 5.5 * (-grassSize) && !game.hasJumped) {
-      if (j >=
-              game.tabBottomFloor[0]
-                      .grassXOffset[game.tabBottomFloor[0].getLength() - 1] -
-                  offset &&
-          !game.hasJumped &&
-          !isTheFirstPlatform) {
-        j -= screenSpeed;
-        //isMoving = false;
-        if (!hasChanged) {
-          //Waiting
-          game.setPlayerState(2);
-          hasChanged = true;
+      //S'il dépasse le drapeau, on marche jusqu'au bout de la dernière herbe
+      if (game.isPushable && !game.isAtEdge) {
+        if (!pause) walkTillVoid += screenSpeed;
+
+        if (!isTheFirstPlatform)
+          jumpOffset = grassSize;
+        else
+          jumpOffset = grassSize * 0.5;
+
+
+        if (game.tabBottomFloor[game.getCurrentFloor()].getFlagPosition() +
+                    walkTillVoid >
+                game.tabBottomFloor[game.getCurrentFloor()].getGrassXOffset()[
+                        game.tabBottomFloor[0].getLength() - 1] +
+                    jumpOffset &&
+            !game.hasJumped &&
+            !blockOne) {
+          game.isAtEdge = true;
+          j -= screenSpeed;
+          //isMoving = false;
+          if (!hasChanged) {
+            //Waiting
+            game.setPlayerState(2);
+            hasChanged = true;
+          }
+        } else if (game.tabFloor[game.getCurrentFloor()].getFlagPosition() +
+                    walkTillVoid >
+                game.tabFloor[game.getCurrentFloor()]
+                        .getGrassXOffset()[game.tabFloor[0].getLength() - 1] +
+                    jumpOffset &&
+            !game.hasJumped &&
+            blockOne) {
+          game.isAtEdge = true;
+          j -= screenSpeed;
+          //isMoving = false;
+          if (!hasChanged) {
+            //Waiting
+            game.setPlayerState(2);
+            hasChanged = true;
+          }
         }
-        //while(!game.hasJumped);
-
-      }
-      //Premier vide à sauter
-      else if (j >=
-              game.tabBottomFloor[0]
-                      .grassXOffset[game.tabBottomFloor[0].getLength() - 1] -
-                  offset -
-                  grassSize / 2 &&
-          j <= game.tabFloor[0].grassXOffset[0] - offset - grassSize / 2 &&
-          game.hasJumped &&
-          !isTheFirstPlatform) {
-        jump();
-      }
-
-      //print(game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1]
-      //    .grassXOffset[game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].getLength() - 1] -
-      //    offset -
-      //    grassSize / 2);
-      //print(game.tabBottomFloor[game.getFloor() == -1 || game.getFloor() == 0 ? 0 : game.getFloor() - 1].getGrassXOffset());
-      //print("j: $j");
-
-      //Marche jusqu'au bout de la plateforme
-      if (j ==
-              game
-                      .tabBottomFloor[game.getFloor() == -1 ||
-                              game.getFloor() == -1 ||
-                              game.getFloor() == 0
-                          ? 0
-                          : game.getFloor() - 1]
-                      .grassXOffset[game.tabBottomFloor[
-                              game.getFloor() == -1 || game.getFloor() == 0
-                                  ? 0
-                                  : game.getFloor() - 1]
-                          .getLength() -
-                      1] -
-                  offset &&
-          !game.hasJumped &&
-          !blockOne) {
-        j -= screenSpeed;
-        //isMoving = false;
-        if (!hasChanged) {
-          //Waiting
-          game.setPlayerState(2);
-          hasChanged = true;
-        }
-      }
-      //Marche jusqu'au bout de l'autre plateforme
-      else if (j ==
-              game
-                      .tabFloor[game.getFloor() == -1 || game.getFloor() == 0
-                          ? 0
-                          : game.getFloor() - 1]
-                      .grassXOffset[game.tabFloor[
-                              game.getFloor() == -1 || game.getFloor() == 0
-                                  ? 0
-                                  : game.getFloor() - 1]
-                          .getLength() -
-                      1] -
-                  offset &&
-          !game.hasJumped &&
-          blockOne) {
-        j -= screenSpeed;
-
-        //isMoving = false;
-        if (!hasChanged) {
-          //Waiting
-          game.setPlayerState(2);
-          hasChanged = true;
-        }
+      } else {
+        //if (!pause) j -= screenSpeed;
+        walkTillVoid = 0;
       }
 
       //Vide à sauter
-      else if (j >=
-              game
-                      .tabBottomFloor[
-                          game.getFloor() == -1 || game.getFloor() == 0
-                              ? 0
-                              : game.getFloor() - 1]
-                      .grassXOffset[game.tabBottomFloor[
-                              game.getFloor() == -1 || game.getFloor() == 0
-                                  ? 0
-                                  : game.getFloor() - 1]
-                          .getLength() -
-                      1] -
+      if (j >=
+              game.tabBottomFloor[game.getPreviousFloor()].grassXOffset[
+                      game.tabBottomFloor[game.getPreviousFloor()].getLength() -
+                          1] -
                   offset -
                   grassSize / 2 &&
           j <=
-              game
-                      .tabFloor[game.getFloor() == -1 || game.getFloor() == 0
-                          ? 0
-                          : game.getFloor() - 1]
-                      .grassXOffset[0] -
+              game.tabFloor[game.getCurrentFloor()].grassXOffset[0] -
                   offset -
                   grassSize / 2 &&
           game.hasJumped &&
           !blockOne) {
+        game.isAtEdge = false;
         jump();
         //blockOne = true;
       } else if (j >=
-              game
-                      .tabFloor[game.getFloor() == -1 || game.getFloor() == 0
-                          ? 0
-                          : game.getFloor() - 1]
-                      .grassXOffset[game.tabBottomFloor[
-                              game.getFloor() == -1 || game.getFloor() == 0
-                                  ? 0
-                                  : game.getFloor() - 1]
-                          .getLength() -
-                      1] -
+              game.tabFloor[game.getPreviousFloor()].grassXOffset[
+                      game.tabBottomFloor[game.getPreviousFloor()].getLength() -
+                          1] -
                   offset -
                   grassSize / 2 &&
           j <=
-              game
-                      .tabBottomFloor[
-                          game.getFloor() == -1 || game.getFloor() == 0
-                              ? 0
-                              : game.getFloor() - 1]
-                      .grassXOffset[0] -
+              game.tabBottomFloor[game.getCurrentFloor()].grassXOffset[0] -
                   offset -
                   grassSize / 2 &&
           game.hasJumped &&
           blockOne) {
+        game.isAtEdge = false;
         jump();
         //blockOne = false;
       }
@@ -714,20 +654,13 @@ class ManageFloors {
         blockOne = true;
 
         //Placement des plateformes en fonction de la plateforme précédente
-        List<double> temps = game.tabFloor[
-                game.getFloor() == -1 || game.getFloor() == 0
-                    ? 0
-                    : game.getFloor() - 1]
-            .getGrassXOffset();
+        List<double> temps =
+            game.tabFloor[game.getCurrentFloor()].getGrassXOffset();
         firstFloorY = game.floorPosition[1];
         grassYOffset = firstFloorY;
-        game.tabBottomFloor[0].setGrassXOffset(temps[game.tabFloor[
-                        game.getFloor() == -1 || game.getFloor() == 0
-                            ? 0
-                            : game.getFloor() - 1]
-                    .getLength() -
-                1] +
-            3 * grassSize);
+        game.tabBottomFloor[0].setGrassXOffset(
+            temps[game.tabFloor[game.getCurrentFloor()].getLength() - 1] +
+                3 * grassSize);
         game.tabBottomFloor[0].setOpacityC0(1);
         game.tabBottomFloor[0].setOpacityC1(0);
         game.tabBottomFloor[0].setOpacityC2(0);
@@ -760,11 +693,8 @@ class ManageFloors {
         game.isOutOfScreen = false;
         blockOne = false;
 
-        List<double> temps = game.tabBottomFloor[
-                game.getFloor() == -1 || game.getFloor() == 0
-                    ? 0
-                    : game.getFloor() - 1]
-            .getGrassXOffset();
+        List<double> temps =
+            game.tabBottomFloor[game.getCurrentFloor()].getGrassXOffset();
 
         firstFloorY = game.floorPosition[1];
         grassYOffset1 = firstFloorY;
@@ -824,7 +754,7 @@ class ManageFloors {
   void update(double t) {}
 }
 
-//Classe qui gère le déplacement horizontal des plateformes
+//Classe qui gère le déplacement horizontal du panneau
 class ManageSign {
   final TempGame game;
   Sprite sign;
@@ -885,8 +815,7 @@ class ManageSign {
   void update(double t) {}
 }
 
-//Classe qui gère le déplacement horizontal des plateformes
-//TODO Not use yet
+//Classe qui gère le déplacement vertical du drapeau
 class ManageFlag {
   final TempGame game;
   Sprite flag;

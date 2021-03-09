@@ -73,7 +73,8 @@ class _Swimmer extends State<Swimmer> {
   int level;
   String message;
 
-  _Swimmer(User _user, AppLanguage _appLanguage, String _level, String _message) {
+  _Swimmer(
+      User _user, AppLanguage _appLanguage, String _level, String _message) {
     user = _user;
     appLanguage = _appLanguage;
     level = int.parse(_level);
@@ -161,40 +162,37 @@ class _Swimmer extends State<Swimmer> {
   }
 
   void launchGame() {
-    if (user.userMode == AppLocalizations.of(context).translate('sportif')) {
+    if (user.userMode == "1") {
       timeRemaining = "3:00";
       seconds = 180;
     } else {
       timeRemaining = "2:00";
-      seconds = 10;
+      seconds = 120;
     }
     initSwimmer();
   }
 
   mainThread() async {
-    timerThread = new Timer.periodic(Duration(milliseconds: 1000),
-        (timerConnexion) async {
+    const oneSec = const Duration(seconds: 1);
+    timerThread = new Timer.periodic(oneSec, (Timer timer) {
       if (game.isTooHigh) {
-        const oneSec = const Duration(seconds: 1);
-        _timer = new Timer.periodic(oneSec, (Timer timer) {
-          if (_start < 1) {
-            timer.cancel();
-            //Redirection vers le menu
-            Navigator.pushReplacement(
-              this.context,
-              MaterialPageRoute(
-                builder: (context) => LoadPage(
-                  appLanguage: appLanguage,
-                  user: user,
-                  messageIn: "0",
-                  page: mainTitle,
-                ),
+        if (_start < 1) {
+          timer.cancel();
+          //Redirection vers le menu
+          Navigator.pushReplacement(
+            this.context,
+            MaterialPageRoute(
+              builder: (context) => LoadPage(
+                appLanguage: appLanguage,
+                user: user,
+                messageIn: "0",
+                page: mainTitle,
               ),
-            );
-          } else {
-            _start = _start - 1;
-          }
-        });
+            ),
+          );
+        } else {
+          _start = _start - 1;
+        }
       }
     });
   }
@@ -274,237 +272,247 @@ class _Swimmer extends State<Swimmer> {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
 
-    return Material(
-        child: ColorFiltered(
-      colorFilter: game != null
-          ? game.getColorFilter()
-          : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
-      child: Stack(
-        children: <Widget>[
-          game == null || double.parse(user.userInitialPush) == 0
-              ? Center(
-                  child: Container(
-                      width: screenSize.width,
-                      height: screenSize.height,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: ExactAssetImage(
-                              "assets/images/swimmer/background.png"),
-                          fit: BoxFit.cover,
+
+    //TODO WILLPOPONSCOPE implementation pour pause quahd appuie retour
+
+    return WillPopScope(
+      onWillPop: (){
+        game.pauseGame = ! game.pauseGame;
+        return;
+      },
+      child: Material(
+          child: ColorFiltered(
+        colorFilter: game != null
+            ? game.getColorFilter()
+            : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
+        child: Stack(
+          children: <Widget>[
+            game == null || double.parse(user.userInitialPush) == 0
+                ? Center(
+                    child: Container(
+                        width: screenSize.width,
+                        height: screenSize.height,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: ExactAssetImage(
+                                "assets/images/swimmer/background.png"),
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
-                        child: Stack(
-                          children: <Widget>[
-                            Center(
-                              child: Container(
-                                width: screenSize.width / 2,
-                                height: screenSize.height / 2,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Color.fromRGBO(255, 255, 255, 0.7),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    CircularProgressIndicator(),
-                                    double.parse(user.userInitialPush) == 0
-                                        ? AutoSizeText(AppLocalizations.of(
-                                                context)
-                                            .translate('premiere_poussee_sw'))
-                                        : AutoSizeText(
-                                            AppLocalizations.of(context)
-                                                .translate('verif_alim'),
-                                            minFontSize: 15,
-                                            maxLines: 3,
-                                            style: TextStyle(fontSize: 25),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                    RaisedButton(
-                                      onPressed: () {
-                                        Navigator.pop(
-                                          context,/*
-                                          MaterialPageRoute(
-                                              builder: (context) => LoadPage(
-                                                    appLanguage: appLanguage,
-                                                    user: user,
-                                                    messageIn: "0",
-                                                    page: mainTitle,
-                                                  )),*/
-                                        );
-                                      },
-                                      child: Text(AppLocalizations.of(context)
-                                          .translate('retour')),
-                                    )
-                                  ],
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+                          child: Stack(
+                            children: <Widget>[
+                              Center(
+                                child: Container(
+                                  width: screenSize.width / 2,
+                                  height: screenSize.height / 2,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Color.fromRGBO(255, 255, 255, 0.7),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      CircularProgressIndicator(),
+                                      double.parse(user.userInitialPush) == 0
+                                          ? AutoSizeText(AppLocalizations.of(
+                                                  context)
+                                              .translate('premiere_poussee_sw'))
+                                          : AutoSizeText(
+                                              AppLocalizations.of(context)
+                                                  .translate('verif_alim'),
+                                              minFontSize: 15,
+                                              maxLines: 3,
+                                              style: TextStyle(fontSize: 25),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                      RaisedButton(
+                                        onPressed: () {
+                                          Navigator.pop(
+                                            context, /*
+                                            MaterialPageRoute(
+                                                builder: (context) => LoadPage(
+                                                      appLanguage: appLanguage,
+                                                      user: user,
+                                                      messageIn: "0",
+                                                      page: mainTitle,
+                                                    )),*/
+                                          );
+                                        },
+                                        child: Text(AppLocalizations.of(context)
+                                            .translate('retour')),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      )),
-                )
-              : game.widget,
+                            ],
+                          ),
+                        )),
+                  )
+                : game.widget,
 
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
 /*                Container(
-                    alignment: Alignment.topLeft,
-                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    child: game == null
-                        ? Container()
-                        : gameUI.state.closeButton(
-                        context, appLanguage, user, game.getScore()),
-                  ),*/
-                game != null
-                    ? !game.pauseGame &&
-                            !game.getGameOver() &&
-                            game.getConnectionState()
-                        ? Container(
-                            alignment: Alignment.topRight,
-                            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                            child: game == null
-                                ? Container()
-                                : commonGamesUI.pauseButton(
-                                    context, appLanguage, game, user),
-                          )
-                        : !endGame
-                            ? Container(
-                                alignment: Alignment.topRight,
-                                child: commonGamesUI
-                                    .menu(context, appLanguage, game, user, ID_SWIMMER_ACTIVITY ,message))
-                            : Container(
-                                alignment: Alignment.topCenter,
-                                child: commonGamesUI.endScreen(
-                                    context,
-                                    appLanguage,
-                                    game,
-                                    ID_SWIMMER_ACTIVITY,
-                                    user,
-                                    starValue,
-                                    level,
-                                    score, message))
-                    : Container(),
+                      alignment: Alignment.topLeft,
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: game == null
+                          ? Container()
+                          : gameUI.state.closeButton(
+                          context, appLanguage, user, game.getScore()),
+                    ),*/
+                  game != null
+                      ? !game.pauseGame &&
+                              !game.getGameOver() &&
+                              game.getConnectionState()
+                          ? Container(
+                              alignment: Alignment.topRight,
+                              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                              child: game == null
+                                  ? Container()
+                                  : commonGamesUI.pauseButton(
+                                      context, appLanguage, game, user),
+                            )
+                          : !endGame
+                              ? Container(
+                                  alignment: Alignment.topRight,
+                                  child: commonGamesUI.menu(context, appLanguage,
+                                      game, user, ID_SWIMMER_ACTIVITY, message))
+                              : Container(
+                                  alignment: Alignment.topCenter,
+                                  child: commonGamesUI.endScreen(
+                                      context,
+                                      appLanguage,
+                                      game,
+                                      ID_SWIMMER_ACTIVITY,
+                                      user,
+                                      starValue,
+                                      level,
+                                      score,
+                                      message))
+                      : Container(),
 
-                /*              Container(
-                    alignment: Alignment.topLeft,
-                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    child: game == null
-                        ? Container()
-                        : gameUI.state.restartButton(context, appLanguage, user),
-                  ),
+                  /*              Container(
+                      alignment: Alignment.topLeft,
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: game == null
+                          ? Container()
+                          : gameUI.state.restartButton(context, appLanguage, user),
+                    ),
 */
-              ],
-            ),
-          ),
-          //Display message pour afficher score et les secondes
-          Container(
-            alignment: Alignment.bottomLeft,
-            padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-            child: game != null && !endGame
-                ? gameUI.state.displayScore(
-                    context, appLanguage, score.toString(), timeRemaining, game)
-                : Container(),
-          ),
-          //Display message pour relancher
-          Container(
-            alignment: Alignment.bottomCenter,
-            child: game != null
-                ? game.getColorFilterBool() &&
-                        game.getPosition() &&
-                        !game.getGameOver() &&
-                        !game.getPauseStatus() &&
-                        !game.isTooHigh
-                    ? gameUI.state.displayMessage(
-                        AppLocalizations.of(context).translate('relacher'),
-                        game,
-                        Colors.redAccent)
-                    : Container()
-                : Container(),
-          ),
-          //Display message pour pousser
-          Container(
-            alignment: Alignment.topCenter,
-            child: game != null
-                ? game.getColorFilterBool() &&
-                        !game.getPosition() &&
-                        !game.getGameOver() &&
-                        !game.getPauseStatus() &&
-                        !game.isTooHigh
-                    ? gameUI.state.displayMessage(
-                        AppLocalizations.of(context).translate('pousser'),
-                        game,
-                        Colors.redAccent)
-                    : Container()
-                : Container(),
-          ),
-          //Display message Game Over
-          Container(
-            alignment: Alignment.topCenter,
-            child: game != null
-                ? game.getGameOver() && !game.isTooHigh
-                    ? Row(
-                        children: <Widget>[
-                          gameUI.state.displayMessage(
-                              AppLocalizations.of(context)
-                                  .translate('game_over'),
-                              game,
-                              Colors.blueAccent),
-                        ],
-                      )
-                    : Container()
-                : Container(),
-          ),
-          //Display message toise trop basse
-          Container(
-            alignment: Alignment.topCenter,
-            child: game != null
-                ? game.isTooHigh
-                    ? Row(
-                        children: <Widget>[
-                          gameUI.state.displayMessage(
-                              AppLocalizations.of(context)
-                                  .translate('reajuster_toise'),
-                              game,
-                              Colors.redAccent),
-                        ],
-                      )
-                    : Container()
-                : Container(),
-          ),
-          //Display message Lost connexion
-          Container(
-            alignment: Alignment.topCenter,
-            child: game != null
-                ? !game.getConnectionState()
-                    ? Row(
-                        children: <Widget>[
-                          gameUI.state.displayMessage(
-                              AppLocalizations.of(context)
-                                  .translate('connexion_perdue'),
-                              game,
-                              Colors.redAccent),
-                        ],
-                      )
-                    : Container()
-                : Container(),
-          ),
-        ],
-      ),
-    )
-
-        /*Positioned.fill(
-
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTapDown: game.onTapDown,
-                child: game.widget,
+                ],
               ),
-            ),*/
-        );
+            ),
+            //Display message pour afficher score et les secondes
+            Container(
+              alignment: Alignment.bottomLeft,
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
+              child: game != null && !endGame
+                  ? gameUI.state.displayScore(
+                      context, appLanguage, score.toString(), timeRemaining, game)
+                  : Container(),
+            ),
+            //Display message pour relancher
+            Container(
+              alignment: Alignment.bottomCenter,
+              child: game != null
+                  ? game.getColorFilterBool() &&
+                          game.getPosition() &&
+                          !game.getGameOver() &&
+                          !game.getPauseStatus() &&
+                          !game.isTooHigh
+                      ? gameUI.state.displayMessage(
+                          AppLocalizations.of(context).translate('relacher'),
+                          game,
+                          Colors.redAccent)
+                      : Container()
+                  : Container(),
+            ),
+            //Display message pour pousser
+            Container(
+              alignment: Alignment.topCenter,
+              child: game != null
+                  ? game.getColorFilterBool() &&
+                          !game.getPosition() &&
+                          !game.getGameOver() &&
+                          !game.getPauseStatus() &&
+                          !game.isTooHigh
+                      ? gameUI.state.displayMessage(
+                          AppLocalizations.of(context).translate('pousser'),
+                          game,
+                          Colors.redAccent)
+                      : Container()
+                  : Container(),
+            ),
+            //Display message Game Over
+            Container(
+              alignment: Alignment.topCenter,
+              child: game != null
+                  ? game.getGameOver() && !game.isTooHigh
+                      ? Row(
+                          children: <Widget>[
+                            gameUI.state.displayMessage(
+                                AppLocalizations.of(context)
+                                    .translate('game_over'),
+                                game,
+                                Colors.blueAccent),
+                          ],
+                        )
+                      : Container()
+                  : Container(),
+            ),
+            //Display message toise trop basse
+            Container(
+              alignment: Alignment.topCenter,
+              child: game != null
+                  ? game.isTooHigh
+                      ? Row(
+                          children: <Widget>[
+                            gameUI.state.displayMessage(
+                                AppLocalizations.of(context)
+                                    .translate('reajuster_toise'),
+                                game,
+                                Colors.redAccent),
+                          ],
+                        )
+                      : Container()
+                  : Container(),
+            ),
+            //Display message Lost connexion
+            Container(
+              alignment: Alignment.topCenter,
+              child: game != null
+                  ? !game.getConnectionState()
+                      ? Row(
+                          children: <Widget>[
+                            gameUI.state.displayMessage(
+                                AppLocalizations.of(context)
+                                    .translate('connexion_perdue'),
+                                game,
+                                Colors.redAccent),
+                          ],
+                        )
+                      : Container()
+                  : Container(),
+            ),
+          ],
+        ),
+      )
+
+          /*Positioned.fill(
+
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTapDown: game.onTapDown,
+                  child: game.widget,
+                ),
+              ),*/
+          ),
+    );
   }
 }

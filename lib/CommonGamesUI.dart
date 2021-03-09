@@ -190,7 +190,7 @@ class CommonGamesUI {
                         bottomLeft: const Radius.circular(10.0),
                         bottomRight: const Radius.circular(10.0))),
                 child: Text(
-                  "${nameGame[idGame]} - Level ${tempLevel / 10}",
+                  "${nameGame[idGame]} - ${AppLocalizations.of(context).translate('niveau')} ${tempLevel / 10}",
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -297,9 +297,11 @@ class CommonGamesUI {
                           bottomLeft: const Radius.circular(10.0),
                           bottomRight: const Radius.circular(10.0))),
                   child: game.getStarValue() >= 0.5
-                      ? Text("Amazing !", style: TextStyle(color: Colors.white))
+                      ? Text(
+                          AppLocalizations.of(context).translate('fin_reussie'),
+                          style: TextStyle(color: Colors.white))
                       : Text(
-                          "Essaie encore !",
+                          AppLocalizations.of(context).translate('fin_ratee'),
                           style: TextStyle(color: Colors.white),
                         ),
                 ),
@@ -309,7 +311,6 @@ class CommonGamesUI {
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
                 onTap: () {
-                  //TODO Call save and exit function
                   redirection(context, appLanguage, user, score, game, idGame,
                       starValue, level, message);
                 },
@@ -334,7 +335,7 @@ class CommonGamesUI {
                         )
                       ]),
                   child: Text(
-                    "Validate",
+                    AppLocalizations.of(context).translate('quitter'),
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
@@ -358,12 +359,9 @@ class CommonGamesUI {
       String message) {
     if (idGame == ID_CAR_ACTIVITY) {
       //TODO Update coin value
-      if (user.userMode == AppLocalizations.of(context).translate('familial') &&
-          score > 2) {
+      if (user.userMode == "0" && score > 2) {
         game.setStarValue(starValue = 0.5);
-      } else if (user.userMode ==
-              AppLocalizations.of(context).translate('sportif') &&
-          score > 2) {
+      } else if (user.userMode == "1" && score > 2) {
         game.setStarValue(starValue = 0.5);
       } else {
         game.setStarValue(starValue = 0.0);
@@ -372,12 +370,9 @@ class CommonGamesUI {
           starValue, starLevel, message);
     } else if (idGame == ID_PLANE_ACTIVITY) {
       //TODO Update coin value
-      if (user.userMode == AppLocalizations.of(context).translate('familial') &&
-          score > 2) {
+      if (user.userMode == "0" && score > 2) {
         game.setStarValue(starValue = 0.5);
-      } else if (user.userMode ==
-              AppLocalizations.of(context).translate('sportif') &&
-          score > 2) {
+      } else if (user.userMode == "1" && score > 2) {
         game.setStarValue(starValue = 0.5);
       } else {
         game.setStarValue(starValue = 0.0);
@@ -386,14 +381,11 @@ class CommonGamesUI {
           starValue, starLevel, message);
     } else if (idGame == ID_SWIMMER_ACTIVITY) {
       //S'il fait plus de 180m alors demi-étoile
-      if (user.userMode == AppLocalizations.of(context).translate('familial') &&
-          score > 180) {
+      if (user.userMode == "0" && score > 180) {
         game.setStarValue(starValue = 0.5);
       }
       //TODO Mode sportif pour le nageur
-      else if (user.userMode ==
-              AppLocalizations.of(context).translate('sportif') &&
-          score > 240)
+      else if (user.userMode == "1" && score > 240)
         game.setStarValue(starValue = 0.5);
       else
         game.setStarValue(starValue = 0.0);
@@ -402,12 +394,9 @@ class CommonGamesUI {
           starValue, starLevel, message);
     } else if (idGame == ID_TEMP_ACTIVITY) {
       //TODO Update coin value
-      if (user.userMode == AppLocalizations.of(context).translate('familial') &&
-          score > 2) {
+      if (user.userMode == "0" && score > 2) {
         game.setStarValue(starValue = 0.5);
-      } else if (user.userMode ==
-              AppLocalizations.of(context).translate('sportif') &&
-          score > 2) {
+      } else if (user.userMode == "1" && score > 2) {
         game.setStarValue(starValue = 0.5);
       } else {
         game.setStarValue(starValue = 0.0);
@@ -452,7 +441,6 @@ class CommonGamesUI {
       db.addScore(newScore);
       db.addStar(newStar);
     } else if (score != 0) {
-      print("here2");
       //Check si un score a déjà été enregister le même jour et s'il est plus grand ou pas
       for (int i = 0; i < everyScores.length; i++) {
         //On remplace la valeur dans la bdd
@@ -479,7 +467,6 @@ class CommonGamesUI {
       }
       //Sinon on enregistre si la dernière date enregistrée est différente du jour
       if (everyScores[everyScores.length - 1].date != date) {
-        print("here3");
         db.addScore(newScore);
         starValue += tempStar.starValue;
         db.updateStar(Star(
@@ -619,7 +606,6 @@ class CommonGamesUI {
     );
   }
 
-
   Widget menu(BuildContext context, AppLanguage appLanguage, var game,
       User user, int idGame, String message) {
     CommonGamesUI commonGamesUI = new CommonGamesUI();
@@ -646,13 +632,21 @@ class CommonGamesUI {
               style: textStyle,
             ),
             commonGamesUI.pauseButton(context, appLanguage, game, user),
-            commonGamesUI.restartButton(context, appLanguage, idGame, game, user),
-            commonGamesUI.closeButton(context, appLanguage, user, game.getScore(), game, idGame,
-                game.getStarValue(), game.getStarLevel(), message),
+            commonGamesUI.restartButton(
+                context, appLanguage, idGame, game, user),
+            commonGamesUI.closeButton(
+                context,
+                appLanguage,
+                user,
+                game.getScore(),
+                game,
+                idGame,
+                game.getStarValue(),
+                game.getStarLevel(),
+                message),
           ],
         ),
       ),
     );
   }
-
 }

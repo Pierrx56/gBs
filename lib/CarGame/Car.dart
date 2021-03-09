@@ -62,6 +62,8 @@ class _Car extends State<Car> with TickerProviderStateMixin {
   String timeRemaining;
   Timer timer;
   Timer _timer;
+  Timer timerRedirection;
+  Timer pauseTimer;
   int _start = 3;
   bool start;
   bool gameOver;
@@ -106,7 +108,9 @@ class _Car extends State<Car> with TickerProviderStateMixin {
     timerConnexion?.cancel();
     timer?.cancel();
     _timer?.cancel();
+    timerRedirection?.cancel();
     _controllerTopCenter?.dispose();
+    pauseTimer?.cancel();
     super.dispose();
   }
 
@@ -127,15 +131,14 @@ class _Car extends State<Car> with TickerProviderStateMixin {
     //TODO Ajust values
     //On double la vitesse des ballon et la vitesse de remontée/redescente de l'avion
     //Le temps passe de 2 min à 3 min
-    if (user.userMode == AppLocalizations.of(context).translate('sportif')) {
+    if (user.userMode == "1") {
       timeRemaining = "3:00";
       seconds = 180;
       game.difficulte = 6.0;
       game.setRoadSpeed(6);
     } else {
       timeRemaining = "2:00";
-      //TODO Remettre 120
-      seconds = 360;
+      seconds = 120;
       game.difficulte = 3.0;
       game.setRoadSpeed(6);
     }
@@ -186,13 +189,6 @@ class _Car extends State<Car> with TickerProviderStateMixin {
     initPlane();
   }
 
-  // Method to disconnect bluetooth
-  void _disconnect() async {
-    btManage.disconnect("plane");
-    isConnected = false;
-    print('Device disconnected');
-  }
-
   void setData() async {
     var temp = await btManage.getStatus();
     if (!temp)
@@ -215,19 +211,23 @@ class _Car extends State<Car> with TickerProviderStateMixin {
   }
 
   refreshScore() async {
+    int temporaire = 0;
     timer = new Timer.periodic(Duration(milliseconds: 300), (timer) {
+      temporaire++;
       if (this.mounted) {
         if (game != null) {
           setState(() {
             score = game.getScore();
           });
+          //TRoute les 900ms, change la taille de pause
+          if(game.isWaiting && temporaire%3 == 0 && !game.pauseGame)
+            switchSize();
         }
       }
     });
   }
 
   void startTimer(bool boolean) async {
-    Timer _timer;
     int _start = seconds;
     const int delay = 1;
 
@@ -269,21 +269,19 @@ class _Car extends State<Car> with TickerProviderStateMixin {
 
   void redirection() {
     const oneSec = const Duration(seconds: 1);
-    _timer = new Timer.periodic(
+    timerRedirection = new Timer.periodic(
       oneSec,
       (Timer timer) => mounted
           ? setState(
               () {
                 if (_start < 1) {
                   //TODO Update value
-                  if (user.userMode ==
-                          AppLocalizations.of(context).translate('familial') &&
+                  if (user.userMode =="0" &&
                       score > 15) {
                     setState(() {
                       game.setStarValue(starValue = 0.5);
                     });
-                  } else if (user.userMode ==
-                          AppLocalizations.of(context).translate('sportif') &&
+                  } else if (user.userMode =="1" &&
                       score > 50) {
                     setState(() {
                       game.setStarValue(starValue = 0.5);
@@ -295,8 +293,8 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                   }
 
                   timer.cancel();
-                  gameUI.state.saveAndExit(context, appLanguage, user, score,
-                      game, starValue, level, message);
+                  commonGamesUI.saveAndExit(context, appLanguage, user, score,
+                      game, ID_CAR_ACTIVITY ,starValue, level, message);
                 } else {
                   _start = _start - 1;
                 }
@@ -306,12 +304,20 @@ class _Car extends State<Car> with TickerProviderStateMixin {
     );
   }
 
+  void switchSize() async {
+      game.changeSize = !game.changeSize;
+      print("e");
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
 
     return WillPopScope(
       onWillPop: () {
+        game.pauseGame = ! game.pauseGame;
+        return;
+        /*
         if (message == "fromRestart") {
           Navigator.pushReplacement(
             context,
@@ -327,6 +333,8 @@ class _Car extends State<Car> with TickerProviderStateMixin {
           Navigator.pop(context);
 
         return;
+
+         */
       },
       child: Material(
         child: ColorFiltered(
@@ -497,7 +505,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                                 alignment: Alignment.center,
                                 height: game.screenSize.height,
                                 padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-                                child: game.previousActivity == 3
+                                child: game.isWaiting
                                     ? gameUI.state.waitingScreen(game)
                                     : Container(),
                               )
@@ -515,7 +523,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                 ),
               ),
               //Display message afficher le score et les secondes
-              game != null
+/*              game != null
                   ? !game.getGameOver() && game.getConnectionState()
                       ? Container(
                           alignment: Alignment.centerRight,
@@ -526,7 +534,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                                   score.toString(), game, timeRemaining),
                         )
                       : Container()
-                  : Container(),
+                  : Container(),*/
               //Display message Game Over
               Container(
                 alignment: Alignment.centerRight,

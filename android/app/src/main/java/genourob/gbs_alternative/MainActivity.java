@@ -672,6 +672,7 @@ public class MainActivity extends FlutterActivity {
         /*
         stopScanning();*/
 
+        stopScanning();
         if (btAdapter == null || mBluetoothGatt == null) {
             return;
         }

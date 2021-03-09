@@ -313,9 +313,25 @@ class UIState extends State<UI> {
                         ),
                       ],
                     )
-                  : game.phaseTuto == 5
+                  : game.phaseTuto == 4
                       ? Stack(
                           children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                  (game.screenSize.width * 0.20),
+                                  (game.screenSize.width * 0.075),
+                                  0,
+                                  0),
+                              child: Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    "+${game.expampleFloor}",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.bold),
+                                  )),
+                            ),
                             Padding(
                               padding: EdgeInsets.fromLTRB(
                                   (game.screenSize.width * 0.25),
@@ -385,6 +401,7 @@ class UIState extends State<UI> {
     );
   }
 
+
   Widget displayMessage(String message, TempGame game, Color color) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
@@ -421,76 +438,6 @@ class UIState extends State<UI> {
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget restartButton(BuildContext context, AppLanguage appLanguage, User user,
-      TempGame game, int level) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Container(
-        height: game.screenSize.height * 0.2,
-        width: game.screenSize.width / 3,
-        child: RaisedButton(
-          onPressed: () async {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => LoadPage(
-                          messageIn: level.toString(),
-                          appLanguage: appLanguage,
-                          page: temp,
-                          user: user,
-                        )));
-          },
-          child: Text(
-            (AppLocalizations.of(context).translate('restart')),
-            style: textStyle,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget menu(BuildContext context, AppLanguage appLanguage, TempGame game,
-      User user, int level, String message) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Container(
-        alignment: Alignment.topCenter,
-        decoration: new BoxDecoration(
-            color: Colors.blue.withAlpha(150),
-            //new Color.fromRGBO(255, 0, 0, 0.0),
-            borderRadius: new BorderRadius.only(
-                topLeft: const Radius.circular(20.0),
-                topRight: const Radius.circular(20.0),
-                bottomLeft: const Radius.circular(20.0),
-                bottomRight: const Radius.circular(20.0))),
-        width: game.screenSize.width * 0.3,
-        height: game.screenSize.height * 0.9,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              "MENU",
-              style: textStyle,
-            ),
-            commonGamesUI.pauseButton(context, appLanguage, game, user),
-            restartButton(context, appLanguage, user, game, level),
-            commonGamesUI.closeButton(
-                context,
-                appLanguage,
-                user,
-                game.getCoins(),
-                game,
-                ID_TEMP_ACTIVITY,
-                game.getStarValue(),
-                game.getStarLevel(),
-                message),
           ],
         ),
       ),

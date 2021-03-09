@@ -19,13 +19,15 @@ String spriteRedTruck = "car/red_truck.png";
 String spritePolice = "car/police_car.png";
 String spriteBrownTruck = "car/brown_truck.png";
 String spriteGreenCar = "car/green_car.png";
+String spriteRedCar = "car/red_car.png";
+String spriteBrownCar = "car/brown_car.png";
 String leftUpRoad = "car/turn_left_to_up.png";
 String leftDownRoad = "car/turn_left_to_down.png";
 String upRightRoad = "car/turn_up_to_right.png";
 
-int straightRoad = 100;
+int straightRoad = 150;
 int numberCars = 3;
-int numberFuel = 2;
+int numberFuel = 4;
 int numberTruck = 10;
 int numberPolice = 1;
 
@@ -56,7 +58,8 @@ class StraightRoad {
         Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height);
   }
 
-  void render(Canvas c, bool pause, bool reset, bool hasCrash, bool hasCrashSecondWay) {
+  void render(
+      Canvas c, bool pause, bool reset, bool hasCrash, bool hasCrashSecondWay) {
     if (reset) j = 10;
 
     c.translate(posX = game.screenSize.width - widthRoad - j.toDouble(), 0);
@@ -68,18 +71,24 @@ class StraightRoad {
       j -= 2 * roadSpeed;
       //Collision TME
       if ((game.tempPos >= game.screenSize.height * 0.4)) {
-        game.tempPos = game.plane.y;
-        game.plane.y -= game.difficulte;
-      } else
+        game.tempPos = game.car.y;
+        game.car.y -= game.difficulte;
+      } else {
         game.posMid = true;
-    }    else if (hasCrashSecondWay) {
+        game.posMin = false;
+        game.posMax = false;
+      }
+    } else if (hasCrashSecondWay) {
       j -= 2 * roadSpeed;
       //Collision CMV
       if ((game.tempPos >= game.screenSize.height * 0.1)) {
-        game.tempPos = game.plane.y;
-        game.plane.y -= game.difficulte;
-      } else
+        game.tempPos = game.car.y;
+        game.car.y -= game.difficulte;
+      } else {
+        game.posMid = false;
+        game.posMin = false;
         game.posMax = true;
+      }
     } else
       j += roadSpeed;
 
@@ -139,13 +148,15 @@ class CMV {
     heightTruck = game.screenSize.width * 0.12;
 
     widthCar = game.screenSize.width * 0.22;
-    heightCar = widthCar*0.5;
+    heightCar = widthCar * 0.5;
 
     for (int l = 0; l < numberCars; l++) {
       if (l == 0)
         truckList.add(new Sprite(spriteRedTruck));
+      else if (l == 1)
+        truckList.add(new Sprite(spriteBrownCar));
       else
-        truckList.add(new Sprite(spriteGreenCar));
+        truckList.add(new Sprite(spriteRedCar));
 
       posXTruck.add(0.0);
       rectBottomList.add(
@@ -157,14 +168,14 @@ class CMV {
     int k = 0;
     for (int i = numberCars - truckList.length; i < truckList.length; i++) {
       rectBottomList[k] = Rect.fromLTWH(
-          //336
-          posXTruck[k] = game.screenSize.width * 0.5 +
-              speedTruck * j +
-              i * (widthTruck + spacerTruck),
-          k == 0 ? game.screenSize.height * 0.7 : game.screenSize.height * 0.4,
-          k == 0 ? widthTruck : widthCar,
-          k == 0 ? heightTruck : heightCar,
-          );
+        //336
+        posXTruck[k] = game.screenSize.width * 0.5 +
+            speedTruck * j +
+            i * (widthTruck + spacerTruck),
+        k == 0 ? game.screenSize.height * 0.7 : game.screenSize.height * 0.4,
+        k == 0 ? widthTruck : widthCar,
+        k == 0 ? heightTruck : heightCar,
+      );
 
       k++;
     }
@@ -234,6 +245,7 @@ class CSI {
   int numberCSI = 0;
   bool hasPassedMid = false;
   bool hasPassedMax = false;
+  bool hasHadScore = false;
 
   CSI(this.game) {
     var rng = new Random();
@@ -244,6 +256,7 @@ class CSI {
     numberCSI = 0;
     hasPassedMid = false;
     hasPassedMax = false;
+    hasHadScore = false;
 
     widthRoad = 150; //bottomBalloon.image.width;
 
@@ -293,12 +306,57 @@ class CSI {
     carSize = size * 1.5;
   }
 
-  void setPosXFuel() {
+  void removeFuel(int fuelToRemove) {
     game.fuelIsDown = !game.fuelIsDown;
     numberCSI++;
 
-    //If player has every fuels, reset datas
-    /*if (numberCSI == 2) {
+    List<double> tempPosX = posXFuel;
+    List<double> tempPosY = posYFuel;
+
+    int offset = posXFuel.length;
+
+    for (int i = 0; i < offset; i++) {
+      posXFuel[i] = tempPosX[i];
+      posYFuel[i] = tempPosY[i];
+
+      if (i == fuelToRemove && !hasHadScore){
+        posYFuel[i] = game.screenSize.width * 2;
+        game.score++;
+        hasHadScore = true;
+      }
+    }
+
+    for (int i = 0; i < offset; i++) {
+      rectBottomList[i] = Rect.fromLTWH(
+          //336
+          posXFuel[i],
+          posYFuel[i],
+          widthFuel,
+          heightFuel);
+    }
+
+/*
+    if (game.posMid && !hasPassedMid) {
+      hasPassedMid = true;
+      game.score++;
+      int offset = posXFuel.length - 1;
+
+      for (int i = 0; i < offset; i++) {
+        posXFuel[i] = tempPosX[(i + 1)];
+        posYFuel[i] = tempPosY[(i + 1)];
+      }
+
+      for (int i = 0; i < offset; i++) {
+        rectBottomList[i] = Rect.fromLTWH(
+            //336
+            posXFuel[i],
+            posYFuel[i],
+            widthFuel,
+            heightFuel);
+      }
+    }
+    else if (game.posMax && !hasPassedMax) {
+      hasPassedMax = true;
       game.score++;
       for (int i = 0; i < rectBottomList.length; i++) {
         rectBottomList[i] = Rect.fromLTWH(
@@ -312,46 +370,8 @@ class CSI {
       game.isDoingExercice = false;
       game.fuelIsDown = true;
       //game.csi = null;
-    } else {*/
-      List<double> tempPosX = posXFuel;
-      List<double> tempPosY = posYFuel;
 
-      if(game.posMid && !hasPassedMid) {
-        hasPassedMid = true;
-        game.score++;
-        int offset = posXFuel.length - 1;
-
-        for (int i = 0; i < offset; i++) {
-          posXFuel[i] = tempPosX[(i + 1)];
-          posYFuel[i] = tempPosY[(i + 1)];
-        }
-
-        for (int i = 0; i < offset; i++) {
-          rectBottomList[i] = Rect.fromLTWH(
-            //336
-              posXFuel[i],
-              posYFuel[i],
-              widthFuel,
-              heightFuel);
-        }
-      }else if(game.posMax && !hasPassedMax){
-        hasPassedMax = true;
-        game.score++;
-          for (int i = 0; i < rectBottomList.length; i++) {
-            rectBottomList[i] = Rect.fromLTWH(
-              //336
-                posXFuel[i],
-                game.screenSize.height * 1.4,
-                widthFuel,
-                heightFuel);
-          }
-          numberCSI = 0;
-          game.isDoingExercice = false;
-          game.fuelIsDown = true;
-          //game.csi = null;
-
-      }
-
+    }*/
   }
 
   double getYBottomPosition() {
@@ -374,6 +394,10 @@ class CSI {
 
   double getXPosition(int k) {
     return posXFuel[k];
+  }
+
+  double getYPosition(int k) {
+    return posYFuel[k];
   }
 
   void update(double t) {}

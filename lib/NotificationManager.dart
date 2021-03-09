@@ -131,7 +131,7 @@ class NotificationManager {
     scheduledDate = scheduledDate.add(const Duration(seconds: 5));
 
     //TODO translate
-    if(scheduledDate != null)
+    if(scheduledDate != null){
       await flutterLocalNotificationsPlugin.zonedSchedule(
           user.userId,
           "Battery alert !",
@@ -148,11 +148,11 @@ class NotificationManager {
           uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
           matchDateTimeComponents: DateTimeComponents.time);
+      print("Has alterted battery low.");
+    }
   }
 
   Future<void> cancelNotification() async {
     await flutterLocalNotificationsPlugin.cancel(user.userId);
   }
-
-
 }

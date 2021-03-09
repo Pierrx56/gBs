@@ -782,7 +782,7 @@ class _SelectGame extends State<SelectGame> {
                                                 .translate('info_avion')
                                                 .replaceAll(
                                                     "XX",
-                                                    user.userMode == AppLocalizations.of(this.context).translate('sportif')
+                                                    user.userMode == "1"
                                                         ? "3"
                                                         : "2")
                                         : idGame == ID_SWIMMER_ACTIVITY

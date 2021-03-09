@@ -9,7 +9,7 @@ class Background {
   Rect bgRect;
 
   double j = 0;
-  double backgroundSpeed = 0.1;
+  double backgroundSpeed = 0.5;
 
   Background(this.game) {
     bgSprite = Sprite('plane/background.png');

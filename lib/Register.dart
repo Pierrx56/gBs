@@ -253,14 +253,13 @@ class _Register extends State<Register> {
 
   next() {
     if (currentStep + 1 != steps.length) {
-      if(currentStep == 0 && name.text == "")
+      if (currentStep == 0 && name.text == "")
         isEmpty = true;
-      else{
+      else {
         goTo(currentStep + 1);
         isEmpty = false;
       }
-    }
-    else
+    } else
       setState(() => complete = true);
     //if (currentStep == 2 || currentStep == 3) myFocusNode.requestFocus();
   }
@@ -323,8 +322,7 @@ class _Register extends State<Register> {
           if (_userMode == "") {
             isEmpty = true;
             show(AppLocalizations.of(context).translate('erreur_mode'));
-          }
-          else
+          } else
             isEmpty = false;
         }
         /*else if (currentStep == 1) {
@@ -362,7 +360,7 @@ class _Register extends State<Register> {
             nameNode.requestFocus();
           } else if (currentStep == 1) {
             //if (_userMode == "")
-              //_userMode = AppLocalizations.of(context).translate('familial');
+            //_userMode = AppLocalizations.of(context).translate('familial');
           } else if (currentStep == 3) {
             serialNode.requestFocus();
 
@@ -433,9 +431,7 @@ class _Register extends State<Register> {
         title: Text(AppLocalizations.of(context).translate('prenom')),
         isActive: currentStep > 0,
         state: currentStep > 0 ? StepState.complete : StepState.disabled,
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
+        content: Row(
           children: <Widget>[
             Align(
               alignment: Alignment.centerLeft,
@@ -479,14 +475,14 @@ class _Register extends State<Register> {
             Row(
               children: <Widget>[
                 Container(
-                  width: screenSize.width/3,
-                  height: screenSize.height/2.5,
+                  width: screenSize.width / 3,
+                  height: screenSize.height / 2.5,
                   child: Column(
                     children: <Widget>[
                       RadioListTile<String>(
-                        title:
-                            Text(AppLocalizations.of(context).translate('sportif')),
-                        value: AppLocalizations.of(context).translate('sportif'),
+                        title: Text(
+                            AppLocalizations.of(context).translate('sportif')),
+                        value: "1",
                         groupValue: _userMode,
                         onChanged: (String value) {
                           setState(() {
@@ -505,19 +501,19 @@ class _Register extends State<Register> {
                 Spacer(),
                 Container(
                   width: 5,
-                  height: screenSize.height/2.5,
+                  height: screenSize.height / 2.5,
                   color: Colors.black54,
                 ),
                 Spacer(),
                 Container(
-                  width: screenSize.width/3,
-                  height: screenSize.height/2.5,
+                  width: screenSize.width / 3,
+                  height: screenSize.height / 2.5,
                   child: Column(
                     children: <Widget>[
                       RadioListTile<String>(
-                        title:
-                            Text(AppLocalizations.of(context).translate('familial')),
-                        value: AppLocalizations.of(context).translate('familial'),
+                        title: Text(
+                            AppLocalizations.of(context).translate('familial')),
+                        value: "0",
                         groupValue: _userMode,
                         onChanged: (String value) {
                           setState(() {
@@ -526,7 +522,8 @@ class _Register extends State<Register> {
                         },
                       ),
                       AutoSizeText(
-                        AppLocalizations.of(context).translate('mode_familiale'),
+                        AppLocalizations.of(context)
+                            .translate('mode_familiale'),
                         maxLines: 3,
                         minFontSize: 20,
                       )
@@ -777,12 +774,16 @@ class _Register extends State<Register> {
                     )
                   : Container(),
             ),
-            Row(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(10),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                height: 30,
+                width: 30,
+                decoration: BoxDecoration(
+                  color: !isConnected ? Colors.red : Colors.green,
+                  shape: BoxShape.circle,
                 ),
-              ],
+              ),
             ),
           ],
         ),
@@ -855,7 +856,11 @@ class _Register extends State<Register> {
                           child: Text(
                             AppLocalizations.of(context).translate('mode') +
                                 ": " +
-                                _userMode,
+                                (_userMode == "0"
+                                    ? AppLocalizations.of(context)
+                                        .translate('familial')
+                                    : AppLocalizations.of(context)
+                                        .translate('sportif')),
                             style: textStyle,
                           ),
                         ),
@@ -918,7 +923,7 @@ class _Register extends State<Register> {
                           builder: (context) => MaxPush(
                             appLanguage: appLanguage,
                             user: user,
-                             inputMessage: "fromRegister",
+                            inputMessage: "fromRegister",
                           ),
                         ),
                       );
@@ -959,7 +964,10 @@ class _Register extends State<Register> {
         key: _scaffoldKey,
         appBar: AppBar(
           elevation: 0.0,
-          title: AutoSizeText(AppLocalizations.of(context).translate('inscription'), style: textStyleBG,),
+          title: AutoSizeText(
+            AppLocalizations.of(context).translate('inscription'),
+            style: textStyleBG,
+          ),
           backgroundColor: backgroundColor,
           key: _formKey,
           actions: <Widget>[
@@ -997,7 +1005,7 @@ class _Register extends State<Register> {
                     ),
                     onPressed: () {
                       name.text = "Jean";
-                      _userMode = "Sportif";
+                      _userMode = "1";
                       macAddress = "78:DB:2F:BF:3B:03";
                       serialNumber.text = "1230997P";
                       //result = 6.31;

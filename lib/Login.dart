@@ -73,13 +73,15 @@ class _Login extends State<Login> {
     //userList = await db.userList();
     setState(() {});
 
+    //Cancel every bluetooth research
+    bluetoothManager.disconnect("fromLogin");
+
     //Demander l'autorisation à la localisation pour le bluetooth
     if (!await bluetoothManager.locationPermission()) {
       //init();
     }
   }
 
-  //TODO Cancel every bluetooth research
 
   @override
   Widget build(BuildContext context) {
@@ -171,9 +173,14 @@ class _Login extends State<Login> {
               },
             ),*/
 
-          Image.asset(
-            "assets/spineo.png",
+          Container(
+            width: screenSize.width * 0.40,
+          ),
+          Container(
             width: screenSize.width * 0.20,
+            child: Image.asset(
+              "assets/spineo.png",
+            ),
           ),
           Container(
             width: screenSize.width * 0.40,
@@ -269,16 +276,15 @@ class _Login extends State<Login> {
               ),
               //Spacer -> each container -> 0.1 and divider = 16.0
               Container(
-                height: screenSize.height * 0.1 + 16.0,
+                height: screenSize.height * 0.1,
               ),
               Container(
                 height: screenSize.height * 0.1,
                 child: Align(
-                  alignment: Alignment.bottomRight,
+                  alignment: Alignment.center,
                   child: RaisedButton(
                     child: Text("Add user"),
-                    onPressed: () {
-
+                    onPressed: () async {
                       List<String> name = [
                         "René Coty",
                         "Charles de Gaulle",
@@ -304,18 +310,17 @@ class _Login extends State<Login> {
                         userLastLogin: "2021-02-24 15:18:54.051196Z",
                         userMacAddress: "78:DB:2F:BF:3B:03",
                         userSerialNumber: "gBs1230997P",
-                        userMode: "Athletic",
+                        userMode: "1",
                         userName: name[random.nextInt(name.length - 1)],
                         userPic:
                             "/data/user/0/genourob.gbs/app_flutter/default.png",
                       ));
-                      setState(() {
-
-                      });
+                      setState(() {});
                     },
                   ),
                 ),
               ),
+              Divider(),
               //FAQ
               Container(
                 height: screenSize.height * 0.1,
@@ -373,10 +378,12 @@ class _Login extends State<Login> {
                 ),
               ),
               Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  AutoSizeText("About Spineo Home"),
+                  AutoSizeText("Spineo Home"),
                   AutoSizeText(
-                    "© 2021 Genourob.  All rights reserved.",
+                    "© 2021 Genourob\n All rights reserved.",
                   ),
                 ],
               ),
@@ -534,8 +541,7 @@ class _Login extends State<Login> {
                     color: backgroundColor,
                     alignment: Alignment.center,
                     child: Text(
-                      AppLocalizations.of(context)
-                          .translate('chargement')))
+                        AppLocalizations.of(context).translate('chargement')))
               ],
             );
           }
