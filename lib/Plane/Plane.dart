@@ -157,8 +157,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
       if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
         connect();
-      }
-      if (isConnected) {
+      }else {
         launchGame();
         return;
       }
@@ -303,7 +302,8 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
 
     return WillPopScope(
       onWillPop: (){
-        game.pauseGame = ! game.pauseGame;
+        if(!gameOver)
+          game.pauseGame = ! game.pauseGame;
         return;
       },
       child: Material(
@@ -460,7 +460,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
               ),
               //Display message afficher le score et les secondes
               game != null
-                  ? !game.getGameOver() && game.getConnectionState()
+                  ? !game.getGameOver() && game.getConnectionState() && !game.pauseGame
                       ? Container(
                           alignment: Alignment.centerRight,
                           padding: EdgeInsets.fromLTRB(10, 10, 10, 25),

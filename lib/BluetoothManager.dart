@@ -4,17 +4,15 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gbsalternative/AppLanguage.dart';
-import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
-import 'package:gbsalternative/LoadPage.dart';
-import 'dart:math' as math;
+import 'package:location/location.dart' as loc;
+import 'package:location_platform_interface/location_platform_interface.dart';
+
 
 /*
 * Classe pour gérer la connexion bluetooth
@@ -39,9 +37,8 @@ class BluetoothManager {
       MethodChannel('samples.flutter.io/sensor');
 
   //Déclaration de variables
-  String _pairedDevices = 'No devices paired';
-  String _connectDevices;
   bool isConnected = false;
+  bool isActivated = false;
   bool isRunning = true;
   Timer timer;
   String macAddress;
@@ -55,9 +52,7 @@ class BluetoothManager {
   // Initializing the Bluetooth connexion state to be unknown
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
 
-  // Initializing a global key, as it would help us in showing a SnackBar later
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+  //Why location permission ? https://stackoverflow.com/questions/41716452/why-location-permission-are-required-for-ble-scan-in-android-marshmallow-onwards/41717433
   Future<bool> locationPermission() async {
     bool paired = false;
     if (Platform.isAndroid) {
@@ -69,8 +64,63 @@ class BluetoothManager {
     return true;
   }
 
+  Future<bool> activateLocation() async {
+
+    loc.Location location = new loc.Location();//explicit reference to the Location class
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+
+    try {
+      _serviceEnabled = await location.serviceEnabled();
+
+      if (!_serviceEnabled) {
+        _serviceEnabled = await location.requestService();
+        if (!_serviceEnabled) {
+          return false;
+        }
+      }
+
+      _permissionGranted = await location.hasPermission();
+      if (_permissionGranted == PermissionStatus.denied) {
+        _permissionGranted = await location.requestPermission();
+        if (_permissionGranted != PermissionStatus.granted) {
+          return false;
+        }
+      }
+
+
+    } on PlatformException catch (e) {
+      if (e.code == 'PERMISSION_DENIED') {
+        //error = 'Permission denied';
+      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
+        //error = 'Permission denied - please ask the user to enable it from the app settings';
+      }
+
+      print(_serviceEnabled);
+      print(_permissionGranted);
+      print(e.code);
+
+      location = null;
+    }
+
+    return true;
+  }
+
+
   // Request Bluetooth permission from the user
   Future<bool> enableBluetooth() async {
+
+    //Ask location enable if not connected 10 seconds after mainTitle
+    Timer(Duration(seconds: 10), () async {
+      //If user get back to login page, user = null
+      if(!isConnected && user != null) {
+        isActivated = await activateLocation();
+        if(isActivated)
+          connect(user.userMacAddress, user.userSerialNumber);
+      }
+    });
+
+
     //On utilise la librairie flutter_bluetooth_serial pour détecter l'état du bluetoothh
     if (Platform.isAndroid) {
       // Retrieving the current Bluetooth state
@@ -83,8 +133,10 @@ class BluetoothManager {
       // If the bluetooth is off, then turn it on first
       if (_bluetoothState == BluetoothState.STATE_OFF) {
         await FlutterBluetoothSerial.instance.requestEnable();
+
         return true;
       }
+
       return false;
     }
     //On utilise aucune librairie, aucune compatible à àce jour
@@ -99,6 +151,8 @@ class BluetoothManager {
         return false;
       }
     }
+    else
+      return false;
   }
 
   //Fonction pour récupérer l'adresse mac de l'appareil bluetooth
@@ -125,6 +179,7 @@ class BluetoothManager {
   //Fonction qui récupère le status de connexion
   //Retourne true ou false
   Future<bool> getStatus() async {
+    //TODO send "WU" wake up to bluno beetle
     isConnected = await sensorChannel.invokeMethod('getStatus');
     return isConnected;
   }
@@ -138,17 +193,14 @@ class BluetoothManager {
 
   //Fonction pour se connecter au gBs
   Future<bool> connect(String macAddress, String serialNumber) async {
-    String connectStatus;
-    bool result;
     try {
       //Origin = adresse mac
       //TODO modifier la fonction sous mac swift
       sensorChannel.invokeMethod('connect,$serialNumber,$macAddress');
-      result = await sensorChannel.invokeMethod('getStatus');
-      connectStatus = 'Connection status: $result.';
+      await sensorChannel.invokeMethod('getStatus');
       isConnected = true;
     } on PlatformException {
-      connectStatus = 'Connection status: Failed';
+      print('Connection status: Failed');
     }
 
     return isConnected;
@@ -218,7 +270,7 @@ class BluetoothManager {
     result = data.split(";");
 
     //2 valeurs dans tableau, taille conforme avec force + voltage
-    if(result.length == 2) {
+    if (result.length == 2) {
       double convVoltToLbs = (921 - delta) / 100;
 
       try {
@@ -228,21 +280,19 @@ class BluetoothManager {
         if (value > 1000) {
           value = 230;
         }
-
       } catch (error) {
         value = previousVoltage;
       }
 
       double tempResult = double.parse(
-          ((value - delta) / (convVoltToLbs * coefKg))
-              .toStringAsExponential(1))
+              ((value - delta) / (convVoltToLbs * coefKg))
+                  .toStringAsExponential(1))
           .abs();
 
       previousValue = tempResult;
       //print("Résultat: $tempResult");
       return tempResult.toString();
-    }
-    else
+    } else
       return previousValue.toString();
   }
 
@@ -267,7 +317,7 @@ class BluetoothManager {
     }
 
     //2 valeurs dans tableau, taille conforme avec force + voltage
-    if(result.length == 2) {
+    if (result.length == 2) {
       //voltage min /reference -> 0.64 donc conversion en pourcentage pour la jauge
       double percent = ((voltage / reference) - 0.64) / 0.36;
 
@@ -279,11 +329,28 @@ class BluetoothManager {
 
       //print("Résultat: $tempResult");
       return percent;
-    }
-    else
+    } else
       return previousVoltage;
   }
 
+  Future<void> sendData(String data) async {
+    bool status = false;
+    try {
+      //Origin = adresse mac
+      //TODO implementer la fonction sous mac swift
+      if (isConnected)
+        status = await sensorChannel.invokeMethod('sendData,$data');
+
+      //Retry if failed to send
+      if (!status) {
+        Timer(Duration(seconds: 1), () async {
+          sendData(data);
+        });
+      }
+    } on PlatformException {
+      status = false;
+    }
+  }
 }
 
 ///8 + 6h30 + 6h50 + 2:15 + 1h30 + 3:30 + 4:30 + 7:20 + 45 = 2470 minutes

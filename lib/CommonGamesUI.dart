@@ -28,7 +28,7 @@ class CommonGamesUI {
   }
 
   //Retourne un widget de 5 etoiles en lignes
-  Widget numberOfStars(int idGame, int level, User user) {
+  Widget numberOfStars(int idGame, int level, double starValue, User user) {
     return FutureBuilder(
         future: getStar(idGame, level, user),
         builder: (context, AsyncSnapshot<Star> snapshot) {
@@ -42,6 +42,7 @@ class CommonGamesUI {
           } else {
             getStar(idGame, level, user);
             double stars = snapshot.data.starValue;
+            stars += starValue;
 
             for (int i = 0; i < 5; i++) {
               if (stars - 1.0 >= 0.0) {
@@ -221,7 +222,7 @@ class CommonGamesUI {
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
                       0, game.screenSize.height * 0.05, 0, 0),
-                  child: numberOfStars(idGame, level, user),
+                  child: numberOfStars(idGame, level, starValue, user),
                 ),
                 /*
                 AutoSizeText(
@@ -248,35 +249,101 @@ class CommonGamesUI {
                         topRight: const Radius.circular(10.0),
                         bottomLeft: const Radius.circular(10.0),
                         bottomRight: const Radius.circular(10.0))),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                      child: Image.asset(
-                        'assets/images/temp/coin1.png',
-                        width: game.screenSize.height * 0.1,
-                        height: game.screenSize.height * 0.1,
-                      ),
-                    ),
-                    AutoSizeText(
-                      idGame == ID_CAR_ACTIVITY
-                          ? "$score km"
-                          : idGame == ID_PLANE_ACTIVITY
-                              ? "$score ${AppLocalizations.of(context).translate('ballons')}"
-                              : idGame == ID_SWIMMER_ACTIVITY
-                                  ? "$score m"
-                                  : idGame == ID_TEMP_ACTIVITY
-                                      ? "$score/30"
-                                      : "",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20),
-                    ),
-                  ],
-                ),
+                child: idGame == ID_CAR_ACTIVITY
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                            child: Image.asset(
+                              'assets/images/car/fuel.png',
+                              width: game.screenSize.height * 0.1,
+                              height: game.screenSize.height * 0.1,
+                            ),
+                          ),
+                          AutoSizeText(
+                            score > 1
+                                ? "$score ${AppLocalizations.of(context).translate('bidon')}s"
+                                : "$score ${AppLocalizations.of(context).translate('bidon')}",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20),
+                          ),
+                        ],
+                      )
+                    : idGame == ID_PLANE_ACTIVITY
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                child: Image.asset(
+                                  'assets/images/plane/balloon-green.png',
+                                  width: game.screenSize.height * 0.1,
+                                  height: game.screenSize.height * 0.1,
+                                ),
+                              ),
+                              AutoSizeText(
+                                score > 1
+                                    ? "$score ${AppLocalizations.of(context).translate('ballons')}s"
+                                    : "$score ${AppLocalizations.of(context).translate('ballons')}",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20),
+                              ),
+                            ],
+                          )
+                        : idGame == ID_SWIMMER_ACTIVITY
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                    child: Image.asset(
+                                      'assets/images/swimmer/bouee.png',
+                                      width: game.screenSize.height * 0.1,
+                                      height: game.screenSize.height * 0.1,
+                                    ),
+                                  ),
+                                  AutoSizeText(
+                                    "$score m",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20),
+                                  ),
+                                ],
+                              )
+                            : idGame == ID_TEMP_ACTIVITY
+                                ? Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                        child: Image.asset(
+                                          'assets/images/temp/coin1.png',
+                                          width: game.screenSize.height * 0.1,
+                                          height: game.screenSize.height * 0.1,
+                                        ),
+                                      ),
+                                      AutoSizeText(
+                                        "$score/30",
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20),
+                                      ),
+                                    ],
+                                  )
+                                : Text("Not implemented in commonGamesUI"),
               ),
             ),
             Align(
@@ -489,7 +556,31 @@ class CommonGamesUI {
     );*/
 
     if (message == "fromRestart") {
-      print(message);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainTitle(
+            appLanguage: appLanguage,
+            userIn: user,
+            messageIn: "0",
+          ),
+        ),
+        (Route<dynamic> route) => route is MainTitle,
+      );
+    } else
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainTitle(
+            appLanguage: appLanguage,
+            userIn: user,
+            messageIn: "0",
+          ),
+        ),
+        (Route<dynamic> route) => route is MainTitle,
+      );
+
+    /*
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -500,8 +591,8 @@ class CommonGamesUI {
           ),
         ),
       );
-    } else
-      Navigator.pop(context);
+      */
+    //Navigator.pop(context);
   }
 
   Widget closeButton(
@@ -521,7 +612,9 @@ class CommonGamesUI {
       child: Container(
         height: game.screenSize.height * 0.2,
         width: game.screenSize.width / 3,
-        child: RaisedButton(
+        child: ElevatedButton(
+          style: ButtonStyle(
+          ),
           onPressed: () async {
             //db.getScore(user.userId);
 

@@ -67,6 +67,7 @@ class _LoadPage extends State<LoadPage> {
   final User user;
   final String messageIn;
   final List<Scores> scores;
+  final String message = "";
 
   _LoadPage({this.appLanguage, this.page, this.user, this.messageIn, this.scores});
 
@@ -96,19 +97,19 @@ class _LoadPage extends State<LoadPage> {
               GlobalWidgetsLocalizations.delegate,
             ],
             home:
-            page == car ? Car(user: user, appLanguage: appLanguage, level: messageIn):
+            page == car ? Car(user: user, appLanguage: appLanguage, level: messageIn, message: message):
             page == detailsCharts ? DetailsCharts(appLanguage: appLanguage, scores: scores, user: user, messageIn: messageIn,):
             page == faq ? FAQ(user: user, inputMessage: messageIn, appLanguage: appLanguage):
             page == firstPush ? MaxPush(user: user, inputMessage: messageIn, appLanguage: appLanguage):
-            page == login ? Login(appLanguage: appLanguage):
+            page == login ? Login(appLanguage: appLanguage, message: messageIn):
             page == mainTitle ? MainTitle(userIn: user, messageIn: messageIn, appLanguage: appLanguage,):
             page == manageProfile ? ManageProfile(user: user, appLanguage: appLanguage):
-            page == plane ? Plane(user: user, appLanguage: appLanguage, level: messageIn):
+            page == plane ? Plane(user: user, appLanguage: appLanguage, level: messageIn, message: message):
             page == register ? Register(appLanguage: appLanguage):
             page == selectGame ? SelectGame(appLanguage: appLanguage, user: user, inputMessage: messageIn):
             page == selectStatistic ? SelectStatistic(appLanguage: appLanguage, user: user, inputMessage: messageIn):
-            page == swimmer ? Swimmer(user: user, appLanguage: appLanguage, level: messageIn):
-            page == temp ? Temp(user: user, appLanguage: appLanguage, level: messageIn): Container()
+            page == swimmer ? Swimmer(user: user, appLanguage: appLanguage, level: messageIn, message: message):
+            page == temp ? Temp(user: user, appLanguage: appLanguage, level: messageIn, message: message): Container()
         );
       }),
     );

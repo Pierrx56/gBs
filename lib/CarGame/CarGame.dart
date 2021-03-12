@@ -29,6 +29,7 @@ class CarGame extends Game {
   bool redFilter;
   bool start;
   bool gameOver;
+  bool endOfGame;
   bool isConnected;
   bool isInit;
   bool doingBreak;
@@ -115,6 +116,7 @@ class CarGame extends Game {
     posMid = false;
     posMin = true;
     gameOver = false;
+    endOfGame = false;
     isConnected = true;
     start = false;
     redFilter = false;
@@ -134,7 +136,7 @@ class CarGame extends Game {
     //3: wait
     previousActivity = 3;
 
-    //TODO change for athletic mode
+    //TODO change/implement for athletic mode
     secondWayDifficulty = double.parse(user.userInitialPush) * 0.5;
     thirdWayDifficulty = double.parse(user.userInitialPush) * 1.0;
 
@@ -206,54 +208,82 @@ class CarGame extends Game {
           //Select activity
           if (!isDoingExercice) {
             //randomNumber = 1;
-            switch (randomActivity[index]) {
+
+            //End of the game
+            //if(index > CMVLimit + CSILimit + TMELimit + waitLimit)
+            if(index > 2)
+            {
+
+              //score = 16;
+
+              //TODO Update value
+              //Family
+              if (user.userMode =="0" &&
+                  score > 15) {
+                  game.setStarValue(starValue = 0.5);
+
+              }
+              //Athletic
+              else if (user.userMode =="1" &&
+                  score > 50) {
+                  game.setStarValue(starValue = 0.5);
+              } else {
+                  game.setStarValue(starValue = 0.0);
+              }
+
+              pauseGame = true;
+              endOfGame = true;
+            }
+            else {
+              switch (randomActivity[index]) {
               //CMV
-              case 0:
-                if (CMVLimit > CMVCounter) {
-                  previousActivity = randomNumber;
-                  isDoingExercice = true;
-                  isWaiting = false;
-                  cmv = new CMV(this);
-                  totalCounterActivity++;
-                  index++;
-                  CMVCounter++;
-                }
-                break;
+                case 0:
+                  if (CMVLimit > CMVCounter) {
+                    previousActivity = randomNumber;
+                    isDoingExercice = true;
+                    isWaiting = false;
+                    cmv = new CMV(this);
+                    totalCounterActivity++;
+                    index++;
+                    CMVCounter++;
+                  }
+                  break;
               //CSI
-              case 1:
-                if (CSILimit > CSICounter) {
-                  previousActivity = randomNumber;
-                  isDoingExercice = true;
-                  isWaiting = false;
-                  csi = new CSI(this);
-                  totalCounterActivity++;
-                  index++;
-                  CSICounter++;
-                }
-                break;
+                case 1:
+                  if (CSILimit > CSICounter) {
+                    previousActivity = randomNumber;
+                    isDoingExercice = true;
+                    isWaiting = false;
+                    csi = new CSI(this);
+                    totalCounterActivity++;
+                    index++;
+                    CSICounter++;
+                  }
+                  break;
               //TME
-              case 2:
-                if (TMELimit > TMECounter) {
-                  previousActivity = randomNumber;
-                  isDoingExercice = true;
-                  isWaiting = false;
-                  tme = new TME(this);
-                  totalCounterActivity++;
-                  index++;
-                  TMECounter++;
-                }
-                break;
+                case 2:
+                  if (TMELimit > TMECounter) {
+                    previousActivity = randomNumber;
+                    isDoingExercice = true;
+                    isWaiting = false;
+                    tme = new TME(this);
+                    totalCounterActivity++;
+                    index++;
+                    TMECounter++;
+                  }
+                  break;
               //Wait
-              case 3:
+                case 3:
                 //previousActivity = randomNumber;
-                isWaiting = true;
-                isDoingExercice = true;
-                startPause(true);
-                index++;
-                waitCounter++;
-                break;
-              default:
-                break;
+                  isWaiting = true;
+                  isDoingExercice = true;
+                  startPause(true);
+                  index++;
+                  waitCounter++;
+                  break;
+                default:
+                  break;
+              }
             }
           }
 

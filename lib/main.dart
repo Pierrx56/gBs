@@ -25,7 +25,7 @@ void main() async {
       '/Login': (BuildContext context) => new LoadPage(
             appLanguage: appLanguage,
             page: login,
-            messageIn: "0",
+            messageIn: "fromMain",
             user: null,
           ),
     },

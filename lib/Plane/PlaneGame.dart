@@ -67,6 +67,9 @@ class PlaneGame extends Game {
     topBalloon = TopBalloon(this);
     gameUI = UI();
 
+    //Plane's size
+    size = screenSize.width*0.2;
+
 
     position = false;
     posMax = false;

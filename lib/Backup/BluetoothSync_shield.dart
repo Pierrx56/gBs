@@ -15,7 +15,6 @@ import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
 
 import '../DatabaseHelper.dart';
-import 'Register_bk.dart';
 
 class _Message {
   int whom;

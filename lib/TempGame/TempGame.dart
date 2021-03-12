@@ -221,7 +221,8 @@ class TempGame extends Game {
     life = 3;
     randomNumber = 0;
     increment = 0;
-    size = 75.0;
+    //Player's size
+    size = screenSize.width*0.12;
     pos = 0;
     i = 0;
     state = 1;
@@ -347,6 +348,9 @@ class TempGame extends Game {
             }
             state = 2;
           }
+
+          //640
+          //360
 
           creationTimer = 0.0;
 

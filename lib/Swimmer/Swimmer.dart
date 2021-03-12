@@ -167,7 +167,7 @@ class _Swimmer extends State<Swimmer> {
       seconds = 180;
     } else {
       timeRemaining = "2:00";
-      seconds = 120;
+      seconds = 10;
     }
     initSwimmer();
   }
@@ -272,12 +272,10 @@ class _Swimmer extends State<Swimmer> {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
 
-
-    //TODO WILLPOPONSCOPE implementation pour pause quahd appuie retour
-
     return WillPopScope(
       onWillPop: (){
-        game.pauseGame = ! game.pauseGame;
+        if(!endGame)
+          game.pauseGame = ! game.pauseGame;
         return;
       },
       child: Material(

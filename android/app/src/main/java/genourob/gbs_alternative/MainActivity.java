@@ -20,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.media.RingtoneManager;
 import android.os.AsyncTask;
+import android.provider.Settings;
 import android.util.Log;
 
 import java.util.*;
@@ -40,8 +41,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import io.flutter.embedding.android.FlutterActivity;
@@ -70,7 +73,7 @@ public class MainActivity extends FlutterActivity {
             "com.example.bluetooth.le.EXTRA_DATA";
 
     private final static int REQUEST_ENABLE_BT = 1;
-    private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+    private static final int PERMISSION_REQUEST_FINE_LOCATION = 1;
 
     String TAG = "BluetoothClass";
     String NAME_DEVICE = "";
@@ -90,6 +93,7 @@ public class MainActivity extends FlutterActivity {
     BluetoothGatt mBluetoothGatt;
     BluetoothLeScanner btScanner;
     BluetoothAdapter btAdapter;
+
 
     private static String resourceToUriString(Context context, int resId) {
         return
@@ -244,6 +248,22 @@ public class MainActivity extends FlutterActivity {
                         }
                         if (call.method.equals("locationPermission")) {
                             boolean status = locationPermision();
+
+                            if (status) {
+                                result.success(status);
+                            } else {
+                                result.success(status);
+                                //result.error("UNAVAILABLE", "Can not connect", null);
+                            }
+                        }
+                        if (call.method.contains("sendData")) {
+
+                            String[] serial = call.method.split(",");
+
+                            boolean status = false;
+
+                            if (serial.length > 1)
+                                status = send(serial[1].getBytes());
 
                             if (status) {
                                 result.success(status);
@@ -441,7 +461,8 @@ public class MainActivity extends FlutterActivity {
 
         // Make sure we have access coarse location enabled, if not, prompt the user to enable it
         if (VERSION.SDK_INT >= VERSION_CODES.M) {
-            if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 /*
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("This app needs location access");
@@ -454,14 +475,16 @@ public class MainActivity extends FlutterActivity {
                     }
                 });
 */
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_FINE_LOCATION);
 
-                if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
                     return false;
-                else
+                else {
                     return true;
+                }
 //                builder.show();
-            } else
+            }
+            else
                 return true;
         }
         return false;
@@ -493,12 +516,38 @@ public class MainActivity extends FlutterActivity {
             } else
                 connect(mac);
         }
-        if (isConnected)
+        if (isConnected) {
             return "Connected";
-        else {
+        } else {
             //connect();
             return "Disconnected";
         }
+    }
+
+
+    public boolean send(byte[] data) {
+
+        BluetoothGattService mBluetoothGattService = mBluetoothGatt.getService(serviceUUID);
+
+        if (mBluetoothGatt == null || mBluetoothGattService == null) {
+            if(mBluetoothGattService == null)
+                Log.w(TAG, "mBluetoothGattService not initialized");
+            if(mBluetoothGatt == null)
+                Log.w(TAG, "BluetoothGatt not initialized");
+            return false;
+        }
+
+        BluetoothGattCharacteristic characteristic =
+                mBluetoothGattService.getCharacteristic(characteristicUUID);
+
+        if (characteristic == null) {
+            Log.w(TAG, "Send characteristic not found");
+            return false;
+        }
+
+        characteristic.setValue(data);
+        characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        return mBluetoothGatt.writeCharacteristic(characteristic);
     }
 
     // Device connect call back

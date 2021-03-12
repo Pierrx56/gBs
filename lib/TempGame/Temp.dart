@@ -370,7 +370,8 @@ class _Temp extends State<Temp> {
 
     return WillPopScope(
       onWillPop: (){
-        game.pauseGame = ! game.pauseGame;
+        if(!game.endGame)
+          game.pauseGame = ! game.pauseGame;
         return;
       },
       child: Material(

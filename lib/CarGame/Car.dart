@@ -159,8 +159,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
       if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
         connect();
-      }
-      if (isConnected) {
+      } else {
         launchGame();
         return;
       }
@@ -194,7 +193,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
     if (!temp)
       btData = "-1.0";
     else
-      btData = await btManage.getData();
+        btData = await btManage.getData();
   }
 
   double getData() {
@@ -220,7 +219,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
             score = game.getScore();
           });
           //TRoute les 900ms, change la taille de pause
-          if(game.isWaiting && temporaire%3 == 0 && !game.pauseGame)
+          if (game.isWaiting && temporaire % 3 == 0 && !game.pauseGame)
             switchSize();
         }
       }
@@ -276,13 +275,11 @@ class _Car extends State<Car> with TickerProviderStateMixin {
               () {
                 if (_start < 1) {
                   //TODO Update value
-                  if (user.userMode =="0" &&
-                      score > 15) {
+                  if (user.userMode == "0" && score > 15) {
                     setState(() {
                       game.setStarValue(starValue = 0.5);
                     });
-                  } else if (user.userMode =="1" &&
-                      score > 50) {
+                  } else if (user.userMode == "1" && score > 50) {
                     setState(() {
                       game.setStarValue(starValue = 0.5);
                     });
@@ -294,7 +291,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
 
                   timer.cancel();
                   commonGamesUI.saveAndExit(context, appLanguage, user, score,
-                      game, ID_CAR_ACTIVITY ,starValue, level, message);
+                      game, ID_CAR_ACTIVITY, starValue, level, message);
                 } else {
                   _start = _start - 1;
                 }
@@ -305,8 +302,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
   }
 
   void switchSize() async {
-      game.changeSize = !game.changeSize;
-      print("e");
+    game.changeSize = !game.changeSize;
   }
 
   @override
@@ -315,7 +311,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
 
     return WillPopScope(
       onWillPop: () {
-        game.pauseGame = ! game.pauseGame;
+        if (!game.endOfGame) game.pauseGame = !game.pauseGame;
         return;
         /*
         if (message == "fromRestart") {
@@ -439,12 +435,17 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                                     : commonGamesUI.pauseDebugButton(
                                         context, appLanguage, game, user),
                               )
-                            : !gameOver
+                            : !game.endOfGame
                                 ? Container(
                                     alignment: Alignment.topRight,
                                     //alignment: Alignment.topLeft,
-                                    child: commonGamesUI.menu(context,
-                                        appLanguage, game, user, ID_CAR_ACTIVITY, message))
+                                    child: commonGamesUI.menu(
+                                        context,
+                                        appLanguage,
+                                        game,
+                                        user,
+                                        ID_CAR_ACTIVITY,
+                                        message))
                                 : Container(
                                     alignment: Alignment.topCenter,
                                     height: screenSize.height,

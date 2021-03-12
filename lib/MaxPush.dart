@@ -210,6 +210,7 @@ class _MaxPush extends State<MaxPush> {
           MaterialPageRoute(
               builder: (context) => Login(
                     appLanguage: appLanguage,
+                    message: "",
                   )));
     else
       Navigator.pop(context);
@@ -319,12 +320,27 @@ class _MaxPush extends State<MaxPush> {
             child: AppBar(
               elevation: 0.0,
               //title: Text(AppLocalization.of(context).heyWorld),
-              title: AutoSizeText(
-                AppLocalizations.of(context).translate('poussee_max'),
-                style: textStyleBG,
-              ),
               backgroundColor: backgroundColor,
-              actions: <Widget>[],
+              actions: <Widget>[
+                Container(
+                  width: (screenSize.width) * 0.1,
+                  decoration: BoxDecoration(
+                      color: splashIconColor.withAlpha(50),
+                      shape: BoxShape.circle),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Icon(Icons.keyboard_arrow_left,
+                        size: 20.0, color: iconColor),
+                  ),
+                ),
+                AutoSizeText(
+                  AppLocalizations.of(context).translate('poussee_max'),
+                  style: textStyleBG,
+                ),
+                Spacer(),
+              ],
             ),
           ),
           body: SingleChildScrollView(
@@ -772,7 +788,8 @@ class _MaxPush extends State<MaxPush> {
                                                             updatedUser);
                                                       }
                                                       if (inputMessage ==
-                                                          "fromMain") {/*
+                                                          "fromMain") {
+                                                        /*
                                                         MainTitle(
                                                           appLanguage:
                                                               appLanguage,
@@ -782,8 +799,7 @@ class _MaxPush extends State<MaxPush> {
                                                             .createState()
                                                             .updateUser(
                                                                 updatedUser);*/
-                                                        Navigator
-                                                            .push(
+                                                        Navigator.push(
                                                           context,
                                                           MaterialPageRoute(
                                                             builder:
@@ -793,8 +809,7 @@ class _MaxPush extends State<MaxPush> {
                                                                   appLanguage,
                                                               userIn:
                                                                   updatedUser,
-                                                              messageIn:
-                                                                  "",
+                                                              messageIn: "",
                                                             ),
                                                           ),
                                                         );

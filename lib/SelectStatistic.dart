@@ -383,27 +383,32 @@ class _SelectStatistic extends State<SelectStatistic> {
             backgroundColor: backgroundColor,
             elevation: 0.0,
             actions: <Widget>[
-              Padding(
-                padding: EdgeInsets.all(10),
-              ),
               Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.fromLTRB(5, 0,0,0),
                 width: (screenSize.width) * 0.1,
-                decoration: BoxDecoration(
-                    color: splashIconColor.withAlpha(50), shape: BoxShape.circle),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child:
-                      Icon(Icons.keyboard_arrow_left, size: 50, color: iconColor),
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: splashIconColor.withAlpha(50), shape: BoxShape.circle),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child:
+                        Icon(Icons.keyboard_arrow_left, size: 20.0, color: iconColor),
+                  ),
                 ),
               ),
-              Spacer(),
-              Text(
-                AppLocalizations.of(context).translate('statistiques'),
-                style: textStyleBG,
+              Container(
+                alignment: Alignment.center,
+                width: (screenSize.width) * 0.8,
+                child: Text(
+                  AppLocalizations.of(context).translate('statistiques'),
+                  style: textStyleBG,
+                ),
               ),
-              Spacer(),
+              Container(
+                width: (screenSize.width) * 0.1,)
             ],
           ),
         ),

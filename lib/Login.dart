@@ -15,6 +15,7 @@ import 'package:gbsalternative/FAQ.dart';
 import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Register.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'DatabaseHelper.dart';
@@ -37,11 +38,12 @@ Color splashIconColor = Colors.black54;
 
 class Login extends StatefulWidget {
   final AppLanguage appLanguage;
+  final String message;
 
-  Login({@required this.appLanguage});
+  Login({@required this.appLanguage, @required this.message});
 
   @override
-  _Login createState() => _Login(appLanguage);
+  _Login createState() => _Login(appLanguage, message);
 }
 
 class _Login extends State<Login> {
@@ -51,11 +53,13 @@ class _Login extends State<Login> {
   File imageFile;
   AppLanguage appLanguage;
   List<User> userList = [];
+  String message;
   int size = 0;
 
   //Constructeur
-  _Login(AppLanguage _appLanguage) {
+  _Login(AppLanguage _appLanguage, String _message) {
     appLanguage = _appLanguage;
+    message = _message;
   }
 
   @override
@@ -73,15 +77,15 @@ class _Login extends State<Login> {
     //userList = await db.userList();
     setState(() {});
 
-    //Cancel every bluetooth research
-    bluetoothManager.disconnect("fromLogin");
-
+    if (message != "fromMain" && message != "fromRegister") {
+      //Cancel every bluetooth research
+      bluetoothManager.disconnect("fromLogin");
+    }
     //Demander l'autorisation à la localisation pour le bluetooth
     if (!await bluetoothManager.locationPermission()) {
       //init();
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -282,7 +286,10 @@ class _Login extends State<Login> {
                 height: screenSize.height * 0.1,
                 child: Align(
                   alignment: Alignment.center,
-                  child: RaisedButton(
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.black45),
+                    ),
                     child: Text("Add user"),
                     onPressed: () async {
                       List<String> name = [
@@ -301,6 +308,14 @@ class _Login extends State<Login> {
                       ];
                       Random random = new Random();
 
+                      var data = await rootBundle.load("assets/default.png");
+                      final buffer = data.buffer;
+                      String dir =
+                          (await getApplicationDocumentsDirectory()).path;
+                      File tempFile = await new File("$dir/default.png")
+                          .writeAsBytes(buffer.asUint8List(
+                              data.offsetInBytes, data.lengthInBytes));
+
                       db.addUser(User(
                         userHeightBottom: "15",
                         userHeightTop: "19",
@@ -312,9 +327,9 @@ class _Login extends State<Login> {
                         userSerialNumber: "gBs1230997P",
                         userMode: "1",
                         userName: name[random.nextInt(name.length - 1)],
-                        userPic:
-                            "/data/user/0/genourob.gbs/app_flutter/default.png",
+                        userPic: tempFile.path,
                       ));
+
                       setState(() {});
                     },
                   ),

@@ -7,6 +7,7 @@ import 'dart:ui';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gbsalternative/Login.dart';
@@ -18,7 +19,6 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -125,6 +125,7 @@ class _Register extends State<Register> {
     _pathSaved = "assets/default.png";
     nameNode = FocusNode();
     serialNode = FocusNode();
+
     tempHautMin = 0;
     tempHautMax = 0;
 
@@ -276,6 +277,7 @@ class _Register extends State<Register> {
 
   void _updateSwitch(bool value) => setState(() => isSwitched = value);
 
+
   @override
   Widget build(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
@@ -414,6 +416,7 @@ class _Register extends State<Register> {
             MaterialPageRoute(
               builder: (context) => Login(
                 appLanguage: appLanguage,
+                message: "fromRegister",
               ),
             ),
           );
@@ -954,6 +957,7 @@ class _Register extends State<Register> {
           MaterialPageRoute(
               builder: (context) => Login(
                     appLanguage: appLanguage,
+                message: "fromRegister",
                   )));
     }
 

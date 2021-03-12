@@ -91,6 +91,9 @@ class SwimGame extends Game {
     topLine = TopLine(this);
     gameUI = UI();
 
+    //Swimmer's size
+    size = screenSize.width*0.4;
+
     isTooHigh = false;
     counterHigh = 0;
     isTopPosition = false;

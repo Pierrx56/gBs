@@ -314,12 +314,11 @@ class _SelectGame extends State<SelectGame> {
                                 width: widthCard,
                                 height: heightCard * 0.25,
                                 decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(20))),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
                                     Icon(
                                       Icons.info_outline,
@@ -651,12 +650,11 @@ class _SelectGame extends State<SelectGame> {
                                 width: widthCard,
                                 height: heightCard * 0.25,
                                 decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(20))),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
                                     Icon(
                                       Icons.info_outline,
@@ -795,7 +793,9 @@ class _SelectGame extends State<SelectGame> {
                                                 AppLocalizations.of(this.context)
                                                     .translate('info_nageur')
                                             : idGame == ID_TEMP_ACTIVITY
-                                                ? AppLocalizations.of(this.context).translate('type_activite') +
+                                                ? AppLocalizations.of(this.context)
+                                                        .translate(
+                                                            'type_activite') +
                                                     " " +
                                                     AppLocalizations.of(this.context)
                                                         .translate(
@@ -998,39 +998,32 @@ class _SelectGame extends State<SelectGame> {
             //title: Text(AppLocalizations.of(context).translate('activites')),
             backgroundColor: backgroundColor,
             elevation: 0.0,
-            flexibleSpace: Container(
-              height: screenSize.height,
-              //color: Colors.red,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.all(10),
+            actions: <Widget>[
+              Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.fromLTRB(5, 0,0,0),
+                width: (screenSize.width) * 0.2,
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: splashIconColor.withAlpha(50),
+                      shape: BoxShape.circle),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Icon(Icons.keyboard_arrow_left,
+                        size: 20.0, color: iconColor),
                   ),
-                  Container(
-                    width: (screenSize.width) *0.1,
-                    decoration: BoxDecoration(
-                        color: splashIconColor.withAlpha(50), shape: BoxShape.circle),
-                    child: GestureDetector(
-                      onTap: (){
-                        Navigator.pop(context);
-                      },
-                      child: Icon(Icons.keyboard_arrow_left,
-                          size: 50, color: iconColor),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(10),
-                  ),
-                  /*Container(
+                ),
+              ),
+              /*Container(
                       width: (screenSize.width) / 4,
                       child: Text(
                         AppLocalizations.of(context).translate('activites'),
                         style: textStyleBG,
                         textAlign: TextAlign.left,
                       )),*/
-                  /*Container(
+              /*Container(
                     width: 30,
                     child: RaisedButton(
                       onPressed: () async {
@@ -1047,31 +1040,27 @@ class _SelectGame extends State<SelectGame> {
                       child: Text("Add Stars"),
                     ),
                   ),*/
-                  Spacer(),
-                  Text(
-                    "Hmin: " +
-                        user.userHeightBottom +
-                        " | Hmax:  " +
-                        user.userHeightTop,
-                    textAlign: TextAlign.center,
-                    style: textStyleBG,
-                  ),
-                  Spacer(),
-                  Container(
-                    width: (screenSize.width) *0.25,
-                    child: Text(
-                      "Level 1." + level.toString(),
-                      style: textStyleBG,
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(10),
-                  ),
-                ],
+              Container(
+                alignment: Alignment.center,
+                width: (screenSize.width) * 0.6,
+                child: AutoSizeText(
+                  "Hmin: " +
+                      user.userHeightBottom +
+                      " | Hmax:  " +
+                      user.userHeightTop,
+                  textAlign: TextAlign.center,
+                  style: textStyleBG,
+                ),
               ),
-            ),
-            actions: <Widget>[],
+              Container(
+                width: (screenSize.width) * 0.2,
+                child: AutoSizeText(
+                  "Level 1." + level.toString(),
+                  style: textStyleBG,
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ],
           ),
         ),
         body: Container(
@@ -1118,7 +1107,8 @@ class _SelectGame extends State<SelectGame> {
                                     Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         //Level 1.1
                                         swimmerGame(1),
@@ -1128,7 +1118,8 @@ class _SelectGame extends State<SelectGame> {
                                     Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         //Level 1.1
                                         tempGame(1),
@@ -1148,7 +1139,8 @@ class _SelectGame extends State<SelectGame> {
                                     Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         //Level 1.2
                                         swimmerGame(2),
@@ -1158,7 +1150,8 @@ class _SelectGame extends State<SelectGame> {
                                     Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         //Level 1.2
                                         tempGame(2),
@@ -1177,26 +1170,28 @@ class _SelectGame extends State<SelectGame> {
                         child: Column(
                           children: <Widget>[
                             GestureDetector(
-                            onTap: () {
-                              if (level > 1) _moveLeft();
-                              print("gauche");
-                            },
-                            child: Container(
-                              width: screenSize.width * 0.15,
-                              // / numberOfCard / 1.2,
-                              //height: screenSize.height * 0.4,
-                              height: screenSize.height,
-                              //color: Colors.red,
-                              child: Padding(
-                                padding: EdgeInsets.fromLTRB(0, 0, 0, screenSize.height * 0.15),
-                                child: Icon(
-                                  Icons.keyboard_arrow_left,
-                                  size: 100,
-                                  color: level == 1 ? Colors.grey : Colors.black,
+                              onTap: () {
+                                if (level > 1) _moveLeft();
+                                print("gauche");
+                              },
+                              child: Container(
+                                width: screenSize.width * 0.15,
+                                // / numberOfCard / 1.2,
+                                //height: screenSize.height * 0.4,
+                                height: screenSize.height,
+                                //color: Colors.red,
+                                child: Padding(
+                                  padding: EdgeInsets.fromLTRB(
+                                      0, 0, 0, screenSize.height * 0.15),
+                                  child: Icon(
+                                    Icons.keyboard_arrow_left,
+                                    size: 100,
+                                    color:
+                                        level == 1 ? Colors.grey : Colors.black,
+                                  ),
                                 ),
                               ),
                             ),
-                              ),
                           ],
                         ),
                       ),
@@ -1215,11 +1210,13 @@ class _SelectGame extends State<SelectGame> {
                                 height: screenSize.height,
                                 //color: Colors.brown,
                                 child: Padding(
-                                  padding: EdgeInsets.fromLTRB(0, 0, 0, screenSize.height * 0.15),
+                                  padding: EdgeInsets.fromLTRB(
+                                      0, 0, 0, screenSize.height * 0.15),
                                   child: Icon(
                                     Icons.keyboard_arrow_right,
                                     size: 100,
-                                    color: level == 2 ? Colors.grey : Colors.black,
+                                    color:
+                                        level == 2 ? Colors.grey : Colors.black,
                                   ),
                                 ),
                               ),

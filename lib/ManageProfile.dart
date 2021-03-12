@@ -510,6 +510,7 @@ class _ManageProfile extends State<ManageProfile> {
                                             MaterialPageRoute(
                                                 builder: (context) => Login(
                                                       appLanguage: appLanguage,
+                                                  message: "",
                                                     ))
                                             /*LoadPage(
                                       appLanguage: appLanguage,
@@ -770,7 +771,6 @@ class _ManageProfile extends State<ManageProfile> {
         return;
       },
       child: Scaffold(
-        resizeToAvoidBottomPadding: true,
         key: _scaffoldKey,
         backgroundColor: backgroundColor,
         appBar: AppBar(

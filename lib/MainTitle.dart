@@ -54,6 +54,7 @@ class _MainTitle extends State<MainTitle> {
   String message;
   double voltage;
   bool isConnected;
+  bool isWakedUp;
   bool hasAlerted;
   bool isInformed;
   Timer timerConnexion;
@@ -78,8 +79,7 @@ class _MainTitle extends State<MainTitle> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const Color orangeColor = Colors.orange; //Colors.amber[800];
 
-  BluetoothManager btManage =
-      new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
+  BluetoothManager btManage;
 
   _MainTitle(AppLanguage _appLanguage, User userIn, String messageIn) {
     appLanguage = _appLanguage;
@@ -103,9 +103,13 @@ class _MainTitle extends State<MainTitle> {
     visible_plane = true;
     hasChanged = false;
     hasAlerted = false;
+    isWakedUp = false;
+    isConnected = false;
     colorCard_swim = Colors.white;
     colorCard_plane = Colors.white;
     voltage = 0.0;
+    btManage =
+        new BluetoothManager(user: user, inputMessage: null, appLanguage: null);
 
     heightBattery = 0.0;
     widthBattery = 0.0;
@@ -132,6 +136,9 @@ class _MainTitle extends State<MainTitle> {
   @override
   void dispose() {
     timerConnexion?.cancel();
+    isWakedUp = false;
+    btManage.user = null;
+
     //btManage.disconnect("");
 
     super.dispose();
@@ -156,17 +163,38 @@ class _MainTitle extends State<MainTitle> {
         (timerConnexion) async {
       isConnected = await btManage.getStatus();
       if (isConnected) {
-        voltage = await btManage.getVoltage();
-
-        //if (voltage == 0.0) voltage = 0.5;
-
-        //Alert battery under 15%
-        if (voltage < 0.15 && !hasAlerted) {
-          notificationManager.alertBattery();
-          hasAlerted = true;
+        if (!isWakedUp) {
+          btManage.sendData("WU");
+          isWakedUp = true;
         }
-      } //else
-        //voltage = 0.5;
+
+        //Delay voltage get to avoid alert battery
+        if (voltage == 0.0) {
+          Timer(Duration(seconds: 2), () async {
+            voltage = await btManage.getVoltage();
+
+            //if (voltage == 0.0) voltage = 0.5;
+
+            //Alert battery under 15%
+            if (voltage < 0.15 && !hasAlerted) {
+              notificationManager.alertBattery();
+              hasAlerted = true;
+            }
+          });
+        } else {
+          voltage = await btManage.getVoltage();
+
+          //if (voltage == 0.0) voltage = 0.5;
+
+          //Alert battery under 15%
+          if (voltage < 0.15 && !hasAlerted) {
+            notificationManager.alertBattery();
+            hasAlerted = true;
+          }
+        }
+      }
+      //else
+      //voltage = 0.5;
 
       if (mounted) setState(() {});
     });
@@ -209,20 +237,21 @@ class _MainTitle extends State<MainTitle> {
         btManage.disconnect("");
         if (message == "fromRegister") {
           Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Login(
-                appLanguage: appLanguage,
+              context,
+              MaterialPageRoute(
+                builder: (context) => Login(
+                  appLanguage: appLanguage,
+                  message: "",
+                ),
               ),
-            ),
-            (Route<dynamic> route) => route is Login,
-          );
+              (Route<dynamic> route) => route is Login);
         } else
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
                 builder: (context) => Login(
                   appLanguage: appLanguage,
+                  message: "",
                 ),
               ),
               (Route<dynamic> route) => route is Login);
@@ -252,7 +281,7 @@ class _MainTitle extends State<MainTitle> {
                 Container(
                   width: screenSize.width * 0.40,
                   alignment: Alignment.centerRight,
-                  child: FlatButton.icon(
+                  child: TextButton.icon(
                     icon: Icon(
                       Icons.power_settings_new,
                       color: iconColor,
@@ -266,10 +295,7 @@ class _MainTitle extends State<MainTitle> {
                             ),
                           )
                         : Text("Check Language file (en/fr.json)"),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    splashColor: splashIconColor,
+
                     onPressed: () {
                       btManage.disconnect("");
 
@@ -279,6 +305,7 @@ class _MainTitle extends State<MainTitle> {
                           MaterialPageRoute(
                             builder: (context) => Login(
                               appLanguage: appLanguage,
+                              message: "",
                             ),
                           ),
                           (Route<dynamic> route) => route is Login,
@@ -289,6 +316,7 @@ class _MainTitle extends State<MainTitle> {
                             MaterialPageRoute(
                               builder: (context) => Login(
                                 appLanguage: appLanguage,
+                                message: "",
                               ),
                             ),
                             (Route<dynamic> route) => route is Login);
@@ -365,13 +393,36 @@ class _MainTitle extends State<MainTitle> {
                   ),
                 ),
                 //Spacer -> each container -> 0.1 and divider = 16.0
+                //Battery
                 Container(
                   height: screenSize.height * 0.1,
                   padding:
                       EdgeInsets.fromLTRB(screenSize.width * 0.05, 0, 0, 0),
-                  child: voltage != 0.0 && isConnected
+                  child: /*voltage != 0.0 &&*/ isConnected
                       ? Stack(
                           children: <Widget>[
+                            //Battery plus
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                  widthBattery - screenSize.height * 0.005,
+                                  0,
+                                  0,
+                                  0),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  height: screenSize.width * 0.01,
+                                  width: screenSize.height * 0.01,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            3.0) //         <--- border radius here
+                                        ),
+                                  ),
+                                ),
+                              ),
+                            ),
                             Align(
                               alignment: Alignment.centerLeft,
                               child: AnimatedContainer(
@@ -395,6 +446,7 @@ class _MainTitle extends State<MainTitle> {
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Container(
+                                alignment: Alignment.center,
                                 height: heightBattery =
                                     screenSize.height * 0.05,
                                 width: widthBattery = screenSize.width * 0.1,
@@ -407,31 +459,18 @@ class _MainTitle extends State<MainTitle> {
                                           3.0) //         <--- border radius here
                                       ),
                                 ),
-                                child: Text(
-                                  (voltage * 100).toStringAsFixed(0) + "%",
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(
-                                  widthBattery - screenSize.height * 0.005,
-                                  0,
-                                  0,
-                                  0),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  height: screenSize.width * 0.01,
-                                  width: screenSize.height * 0.01,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(
-                                            3.0) //         <--- border radius here
-                                        ),
-                                  ),
-                                ),
+                                child: voltage != 0.0
+                                    ? AutoSizeText(
+                                        (voltage * 100).toStringAsFixed(0) +
+                                            "%",
+                                        textAlign: TextAlign.center,
+                                        style: textStyle,
+                                      )
+                                    : Container(
+                                        alignment: Alignment.center,
+                                        height: screenSize.height * 0.025,
+                                        width: screenSize.height * 0.025,
+                                        child: CircularProgressIndicator()),
                               ),
                             ),
                           ],
@@ -442,21 +481,22 @@ class _MainTitle extends State<MainTitle> {
                 Container(
                   alignment: Alignment.centerLeft,
                   height: screenSize.height * 0.1,
-                  child: FlatButton.icon(
+                  child: TextButton.icon(
                     icon: Icon(
                       Icons.bluetooth,
                       color: isConnected ? Colors.green : Colors.red,
+                      size: screenSize.height * 0.06,
                     ),
                     label: AutoSizeText(
-                      "Status",
+                      isConnected
+                          ? AppLocalizations.of(context)
+                              .translate('status_connecte')
+                          : AppLocalizations.of(context)
+                              .translate('status_deconnecte'),
                       style: TextStyle(
                         color: isConnected ? Colors.green : Colors.red,
                       ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    splashColor: splashIconColor,
                     onPressed: () {},
                   ),
                 ),
@@ -465,10 +505,11 @@ class _MainTitle extends State<MainTitle> {
                 Container(
                   alignment: Alignment.centerLeft,
                   height: screenSize.height * 0.1,
-                  child: FlatButton.icon(
+                  child: TextButton.icon(
                     icon: Icon(
                       Icons.question_answer,
                       color: iconColor,
+                      size: screenSize.height * 0.06,
                     ),
                     label: AutoSizeText(
                       "FAQ",
@@ -476,10 +517,6 @@ class _MainTitle extends State<MainTitle> {
                         color: iconColor,
                       ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    splashColor: splashIconColor,
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -503,19 +540,16 @@ class _MainTitle extends State<MainTitle> {
                 Container(
                   alignment: Alignment.centerLeft,
                   height: screenSize.height * 0.1,
-                  child: FlatButton.icon(
+                  child: TextButton.icon(
                     icon: Icon(
                       Icons.settings,
                       color: iconColor,
+                      size: screenSize.height * 0.06,
                     ),
                     label: AutoSizeText(
                       AppLocalizations.of(context).translate('reglages'),
                       style: TextStyle(color: iconColor),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    splashColor: splashIconColor,
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
@@ -532,10 +566,11 @@ class _MainTitle extends State<MainTitle> {
                 Container(
                   alignment: Alignment.centerLeft,
                   height: screenSize.height * 0.1,
-                  child: FlatButton.icon(
+                  child: TextButton.icon(
                     icon: Icon(
                       Icons.power_settings_new,
                       color: iconColor,
+                      size: screenSize.height * 0.06,
                     ),
                     label: temp != null
                         ? Text(
@@ -546,10 +581,6 @@ class _MainTitle extends State<MainTitle> {
                             ),
                           )
                         : Text("Check Language file (en/fr.json)"),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    splashColor: Colors.blue,
                     onPressed: () {
                       btManage.disconnect("");
 
@@ -559,6 +590,7 @@ class _MainTitle extends State<MainTitle> {
                           MaterialPageRoute(
                             builder: (context) => Login(
                               appLanguage: appLanguage,
+                              message: "",
                             ),
                           ),
                           (Route<dynamic> route) => route is Login,
@@ -569,6 +601,7 @@ class _MainTitle extends State<MainTitle> {
                             MaterialPageRoute(
                               builder: (context) => Login(
                                 appLanguage: appLanguage,
+                                message: "",
                               ),
                             ),
                             (Route<dynamic> route) => route is Login);

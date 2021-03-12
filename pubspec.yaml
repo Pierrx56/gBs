@@ -13,6 +13,8 @@ description: A new Flutter application.
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 version: 1.0.0+1
 
+#FLutter 1.17
+
 environment:
   sdk: ">=2.6.0 <3.0.0"
 
@@ -23,26 +25,24 @@ dependencies:
     sdk: flutter
 
   auto_size_text: ^2.1.0
-  charts_flutter: ^0.9.0
+  charts_flutter: ^0.10.0
   confetti: ^0.5.4+1
-  flame: ^0.21.0
+  flame: ^0.29.3
   flutter_bluetooth_serial: ^0.2.2
   flutter_launcher_icons: ^0.7.5
   flutter_linkify: ^3.1.3
-  flutter_local_notifications: ^3.0.2
+  flutter_local_notifications: ^4.0.1+2
   flutter_rounded_progress_bar: ^0.1.2
-  http: ^0.12.2
   image_picker: ^0.6.5+3
-  intl: ^0.16.1
-  intl_translation: ^0.17.1
+  intl: ^0.17.0
+  location: ^3.2.4
   numberpicker: ^1.2.1
   provider: ^4.1.2
-  qr_code_scanner: ^0.3.5
   rxdart: ^0.25.0
   sensors: ^0.4.2+6
-  shared_preferences: ^0.5.7+3
+  shared_preferences: ^0.5.12+4
   step_progress_indicator: ^0.2.3+6
-  url_launcher: ^5.4.11
+  url_launcher: ^6.0.2
 
 
 
