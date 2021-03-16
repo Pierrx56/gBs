@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:confetti/confetti.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -72,8 +73,15 @@ class CommonGamesUI {
         width: game.pauseGame
             ? game.screenSize.width * 0.3
             : game.screenSize.height * 0.2,
-        child: FlatButton(
-          color: !game.pauseGame ? Colors.transparent : Colors.grey[300],
+        child: ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: !game.pauseGame
+                ? MaterialStateProperty.all<Color>(Colors.transparent)
+                : MaterialStateProperty.all<Color>(Colors.grey[350]),
+            elevation: !game.pauseGame
+                ? MaterialStateProperty.all<double>(0.0)
+                : MaterialStateProperty.all<double>(3.0),
+          ),
           onPressed: !game.getGameOver()
               ? game.getConnectionState()
                   ? () async {
@@ -87,6 +95,7 @@ class CommonGamesUI {
             children: <Widget>[
               Icon(
                 !game.pauseGame ? Icons.pause : Icons.play_arrow,
+                color: Colors.black,
               ),
               !game.pauseGame
                   ? Text(
@@ -147,6 +156,32 @@ class CommonGamesUI {
     );
   }
 
+  /// A custom Path to paint stars.
+  Path drawStar(Size size) {
+    // Method to convert degree to radians
+    double degToRad(double deg) => deg * (math.pi / 180.0);
+
+    const numberOfPoints = 5;
+    final halfWidth = size.width / 2;
+    final externalRadius = halfWidth;
+    final internalRadius = halfWidth / 2.5;
+    final degreesPerStep = degToRad(360 / numberOfPoints);
+    final halfDegreesPerStep = degreesPerStep / 2;
+    final path = Path();
+    final fullAngle = degToRad(360);
+    path.moveTo(size.width, halfWidth);
+
+    for (double step = 0; step < fullAngle; step += degreesPerStep) {
+      path.lineTo(halfWidth + externalRadius * math.cos(step),
+          halfWidth + externalRadius * math.sin(step));
+      path.lineTo(
+          halfWidth + internalRadius * math.cos(step + halfDegreesPerStep),
+          halfWidth + internalRadius * math.sin(step + halfDegreesPerStep));
+    }
+    path.close();
+    return path;
+  }
+
   Widget endScreen(
       BuildContext context,
       AppLanguage appLanguage,
@@ -159,6 +194,12 @@ class CommonGamesUI {
       String message) {
     int tempLevel = (level ~/ 10).toInt();
 
+    starValue = setStarValue(context, appLanguage, user, score, game, idGame,
+        starValue, level, message);
+
+    ConfettiController _controllerTopCenter =
+        ConfettiController(duration: const Duration(seconds: 1));
+
     //Check DatabaseHelp.dart for name game order
     List<String> nameGame = [
       AppLocalizations.of(context).translate('nageur'),
@@ -166,6 +207,8 @@ class CommonGamesUI {
       AppLocalizations.of(context).translate('temp'),
       AppLocalizations.of(context).translate('voiture'),
     ];
+
+    if (starValue >= 0.5) _controllerTopCenter.play();
 
     return Padding(
       padding: const EdgeInsets.all(10.0),
@@ -378,7 +421,9 @@ class CommonGamesUI {
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
                 onTap: () {
-                  redirection(context, appLanguage, user, score, game, idGame,
+                  setStarValue(context, appLanguage, user, score, game, idGame,
+                      starValue, level, message);
+                  saveAndExit(context, appLanguage, user, score, game, idGame,
                       starValue, level, message);
                 },
                 child: Container(
@@ -408,13 +453,37 @@ class CommonGamesUI {
                 ),
               ),
             ),
+            game.getStarValue() >= 0.5
+                ? Align(
+                    alignment: Alignment.center,
+                    child: ConfettiWidget(
+                      confettiController: _controllerTopCenter,
+                      blastDirectionality: BlastDirectionality.explosive,
+                      // don't specify a direction, blast randomly
+                      numberOfParticles: 25,
+                      // number of particles to emit
+                      colors: [
+                        /*
+                  Colors.green,
+                  Colors.blue,
+                  Colors.pink,
+                  Colors.orange,
+                  Colors.purple,*/
+                        Colors.yellow[700],
+                      ],
+                      // manually specify the colors to be used
+                      createParticlePath:
+                          drawStar, // define a custom shape/path.
+                    ),
+                  )
+                : Container(),
           ],
         ),
       ),
     );
   }
 
-  void redirection(
+  double setStarValue(
       BuildContext context,
       AppLanguage appLanguage,
       User user,
@@ -433,8 +502,7 @@ class CommonGamesUI {
       } else {
         game.setStarValue(starValue = 0.0);
       }
-      saveAndExit(context, appLanguage, user, score, game, ID_CAR_ACTIVITY,
-          starValue, starLevel, message);
+      //saveAndExit(context, appLanguage, user, score, game, ID_CAR_ACTIVITY,starValue, starLevel, message);
     } else if (idGame == ID_PLANE_ACTIVITY) {
       //TODO Update coin value
       if (user.userMode == "0" && score > 2) {
@@ -444,8 +512,7 @@ class CommonGamesUI {
       } else {
         game.setStarValue(starValue = 0.0);
       }
-      saveAndExit(context, appLanguage, user, score, game, ID_PLANE_ACTIVITY,
-          starValue, starLevel, message);
+      //saveAndExit(context, appLanguage, user, score, game, ID_PLANE_ACTIVITY,starValue, starLevel, message);
     } else if (idGame == ID_SWIMMER_ACTIVITY) {
       //S'il fait plus de 180m alors demi-étoile
       if (user.userMode == "0" && score > 180) {
@@ -457,8 +524,7 @@ class CommonGamesUI {
       else
         game.setStarValue(starValue = 0.0);
 
-      saveAndExit(context, appLanguage, user, score, game, ID_SWIMMER_ACTIVITY,
-          starValue, starLevel, message);
+      //saveAndExit(context, appLanguage, user, score, game, ID_SWIMMER_ACTIVITY,starValue, starLevel, message);
     } else if (idGame == ID_TEMP_ACTIVITY) {
       //TODO Update coin value
       if (user.userMode == "0" && score > 2) {
@@ -468,9 +534,10 @@ class CommonGamesUI {
       } else {
         game.setStarValue(starValue = 0.0);
       }
-      saveAndExit(context, appLanguage, user, score, game, ID_TEMP_ACTIVITY,
-          starValue, starLevel, message);
+      //saveAndExit(context, appLanguage, user, score, game, ID_TEMP_ACTIVITY,starValue, starLevel, message);
     }
+
+    return starValue;
   }
 
   void saveAndExit(
@@ -556,7 +623,7 @@ class CommonGamesUI {
     );*/
 
     if (message == "fromRestart") {
-      Navigator.pushAndRemoveUntil(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => MainTitle(
@@ -565,10 +632,10 @@ class CommonGamesUI {
             messageIn: "0",
           ),
         ),
-        (Route<dynamic> route) => route is MainTitle,
+        //(Route<dynamic> route) => route is MainTitle,
       );
     } else
-      Navigator.pushAndRemoveUntil(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => MainTitle(
@@ -577,7 +644,7 @@ class CommonGamesUI {
             messageIn: "0",
           ),
         ),
-        (Route<dynamic> route) => route is MainTitle,
+        //  (Route<dynamic> route) => route is MainTitle,
       );
 
     /*
@@ -614,6 +681,7 @@ class CommonGamesUI {
         width: game.screenSize.width / 3,
         child: ElevatedButton(
           style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
           ),
           onPressed: () async {
             //db.getScore(user.userId);
@@ -638,56 +706,59 @@ class CommonGamesUI {
       child: Container(
         height: game.screenSize.height * 0.2,
         width: game.screenSize.width * 0.3,
-        child: RaisedButton(
+        child: ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
           onPressed: () async {
             if (idGame == ID_CAR_ACTIVITY) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Car(
-                    appLanguage: appLanguage,
-                    user: user,
-                    level: game.getStarLevel().toString(),
-                    message: "fromRestart",
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => new Car(
+                      appLanguage: appLanguage,
+                      user: user,
+                      level: game.getStarLevel().toString(),
+                      message: "fromRestart",
+                    ),
                   ),
-                ),
-              );
+                  (Route<dynamic> route) => route is Car);
             } else if (idGame == ID_PLANE_ACTIVITY) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Plane(
-                    appLanguage: appLanguage,
-                    user: user,
-                    level: game.getStarLevel().toString(),
-                    message: "fromRestart",
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => new Plane(
+                      appLanguage: appLanguage,
+                      user: user,
+                      level: game.getStarLevel().toString(),
+                      message: "fromRestart",
+                    ),
                   ),
-                ),
-              );
+                  (Route<dynamic> route) => route is Plane);
             } else if (idGame == ID_SWIMMER_ACTIVITY) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Swimmer(
-                    appLanguage: appLanguage,
-                    user: user,
-                    level: game.getStarLevel().toString(),
-                    message: "fromRestart",
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => new Swimmer(
+                      appLanguage: appLanguage,
+                      user: user,
+                      level: game.getStarLevel().toString(),
+                      message: "fromRestart",
+                    ),
                   ),
-                ),
-              );
+                  (Route<dynamic> route) => route is Swimmer);
             } else if (idGame == ID_TEMP_ACTIVITY) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Temp(
-                    appLanguage: appLanguage,
-                    user: user,
-                    level: game.getStarLevel().toString(),
-                    message: "fromRestart",
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => new Temp(
+                      appLanguage: appLanguage,
+                      user: user,
+                      level: game.getStarLevel().toString(),
+                      message: "fromRestart",
+                    ),
                   ),
-                ),
-              );
+                  (Route<dynamic> route) => route is Temp);
             }
           },
           child: Text(

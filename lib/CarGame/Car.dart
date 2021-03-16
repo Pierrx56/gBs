@@ -111,6 +111,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
     timerRedirection?.cancel();
     _controllerTopCenter?.dispose();
     pauseTimer?.cancel();
+    game.timerPause?.cancel();
     super.dispose();
   }
 
@@ -167,23 +168,6 @@ class _Car extends State<Car> with TickerProviderStateMixin {
     }
   }
 
-  testConnect() async {
-    isConnected = await btManage.getStatus();
-    if (!isConnected) {
-      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
-          (timerConnexion) async {
-        btManage.connect(user.userMacAddress, user.userSerialNumber);
-        isConnected = await btManage.getStatus();
-        if (isConnected) {
-          print("isConnected: $isConnected");
-          timerConnexion.cancel();
-          launchGame();
-          //refreshScore();
-        }
-      });
-    }
-  }
-
   void launchGame() {
     initPlane();
   }
@@ -193,7 +177,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
     if (!temp)
       btData = "-1.0";
     else
-        btData = await btManage.getData();
+      btData = await btManage.getData();
   }
 
   double getData() {
@@ -218,7 +202,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
           setState(() {
             score = game.getScore();
           });
-          //TRoute les 900ms, change la taille de pause
+          //Toutes les 900ms, change la taille de pause
           if (game.isWaiting && temporaire % 3 == 0 && !game.pauseGame)
             switchSize();
         }
@@ -243,10 +227,10 @@ class _Car extends State<Car> with TickerProviderStateMixin {
           if (_start < delay) {
             game.pauseGame = true;
             gameOver = true;
-            timer.cancel();
+            _timer.cancel();
             redirection();
           } else if (!game.getConnectionState())
-            timer.cancel();
+            _timer.cancel();
           else if (game.pauseGame || game.hasCrash) {
             timeRemaining = convertDuration(Duration(seconds: _start));
           } else {
@@ -268,35 +252,37 @@ class _Car extends State<Car> with TickerProviderStateMixin {
 
   void redirection() {
     const oneSec = const Duration(seconds: 1);
-    timerRedirection = new Timer.periodic(
+    timerRedirection = new Timer(
       oneSec,
-      (Timer timer) => mounted
-          ? setState(
-              () {
-                if (_start < 1) {
-                  //TODO Update value
-                  if (user.userMode == "0" && score > 15) {
-                    setState(() {
-                      game.setStarValue(starValue = 0.5);
-                    });
-                  } else if (user.userMode == "1" && score > 50) {
-                    setState(() {
-                      game.setStarValue(starValue = 0.5);
-                    });
-                  } else {
-                    setState(() {
-                      game.setStarValue(starValue = 0.0);
-                    });
-                  }
+      mounted
+          ? {
+              setState(
+                () {
+                  if (_start < 1) {
+                    //TODO Update value
+                    if (user.userMode == "0" && score > 15) {
+                      setState(() {
+                        game.setStarValue(starValue = 0.5);
+                      });
+                    } else if (user.userMode == "1" && score > 50) {
+                      setState(() {
+                        game.setStarValue(starValue = 0.5);
+                      });
+                    } else {
+                      setState(() {
+                        game.setStarValue(starValue = 0.0);
+                      });
+                    }
 
-                  timer.cancel();
-                  commonGamesUI.saveAndExit(context, appLanguage, user, score,
-                      game, ID_CAR_ACTIVITY, starValue, level, message);
-                } else {
-                  _start = _start - 1;
-                }
-              },
-            )
+                    timerRedirection.cancel();
+                    commonGamesUI.saveAndExit(context, appLanguage, user, score,
+                        game, ID_CAR_ACTIVITY, starValue, level, message);
+                  } else {
+                    _start = _start - 1;
+                  }
+                },
+              )
+            }
           : start = start,
     );
   }
@@ -383,7 +369,12 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                                                 style: TextStyle(fontSize: 25),
                                                 textAlign: TextAlign.center,
                                               ),
-                                        RaisedButton(
+                                        ElevatedButton(
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all<
+                                                    Color>(Colors.grey[350]),
+                                          ),
                                           onPressed: () {
                                             Navigator.pop(context);
                                             /*Navigator.pushReplacement(
@@ -466,7 +457,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                                         ),
                                         //TOP CENTER - shoot down
                                         Align(
-                                          alignment: Alignment.topCenter,
+                                          alignment: Alignment.center,
                                           child: ConfettiWidget(
                                             confettiController:
                                                 _controllerTopCenter,

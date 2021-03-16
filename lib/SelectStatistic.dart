@@ -13,8 +13,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
-import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';

@@ -13,8 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
-import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
@@ -533,7 +531,12 @@ class _MaxPush extends State<MaxPush> {
                                           : Container(),
                                       Container(
                                         width: screenSize.width * 0.3,
-                                        child: RaisedButton(
+                                        child: ElevatedButton(
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all<
+                                                    Color>(Colors.grey[350]),
+                                          ),
                                           //child: Text("Démarrer l'enregistrement."),
                                           onPressed: !isTryingConnect &&
                                                   !isTooHigh &&
@@ -725,7 +728,13 @@ class _MaxPush extends State<MaxPush> {
                                       inputMessage == "fromMain" ||
                                               (inputMessage == "fromRegister" &&
                                                   isCorrect)
-                                          ? RaisedButton(
+                                          ? ElevatedButton(
+                                              style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStateProperty.all<
+                                                            Color>(
+                                                        Colors.grey[350]),
+                                              ),
                                               onPressed: bottomSelection != 0 &&
                                                           (topSelection != 0 ||
                                                               topSelection !=

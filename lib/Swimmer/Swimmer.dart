@@ -102,6 +102,7 @@ class _Swimmer extends State<Swimmer> {
     timer?.cancel();
     _timer?.cancel();
     timerThread?.cancel();
+    game.timerSwimmer?.cancel();
     super.dispose();
   }
 
@@ -141,23 +142,6 @@ class _Swimmer extends State<Swimmer> {
         return;
       }
       //testConnect();
-    }
-  }
-
-  testConnect() async {
-    isConnected = await btManage.getStatus();
-    if (!isConnected) {
-      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
-          (timerConnexion) async {
-        btManage.connect(user.userMacAddress, user.userSerialNumber);
-        isConnected = await btManage.getStatus();
-
-        if (isConnected) {
-          timerConnexion.cancel();
-          launchGame();
-          //refreshScore();
-        }
-      });
     }
   }
 
@@ -246,9 +230,9 @@ class _Swimmer extends State<Swimmer> {
             //TODO Display menu ?
             game.pauseGame = true;
             endGame = true;
-            timer.cancel();
+            _timer.cancel();
           } else if (!game.getConnectionState())
-            timer.cancel();
+            _timer.cancel();
           else if (game.pauseGame || game.getGameOver()) {
             timeRemaining = convertDuration(Duration(seconds: _start));
           } else {
@@ -326,7 +310,10 @@ class _Swimmer extends State<Swimmer> {
                                               style: TextStyle(fontSize: 25),
                                               textAlign: TextAlign.center,
                                             ),
-                                      RaisedButton(
+                                      ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                                         onPressed: () {
                                           Navigator.pop(
                                             context, /*

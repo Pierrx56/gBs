@@ -157,7 +157,10 @@ class _DetailsCharts extends State<DetailsCharts> {
                     textAlign: TextAlign.center,
                   )
                       : Container(),
-                  RaisedButton(
+                  ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                     child: Text(
                       AppLocalizations.of(context).translate('retour'),
                       style: textStyle,
@@ -183,7 +186,10 @@ class _DetailsCharts extends State<DetailsCharts> {
                       );*/
                     },
                   ),
-                  /*RaisedButton(
+                  /*ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                     child: Text(
                       "Refresh",
                       style: textStyle,

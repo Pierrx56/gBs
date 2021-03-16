@@ -87,6 +87,8 @@ class CarGame extends Game {
   UI gameUI;
   AppLanguage appLanguage;
 
+  Timer timerPause;
+
   CarGame(this.getData, User _user, AppLanguage _appLanguage) {
     user = _user;
     appLanguage = _appLanguage;
@@ -210,8 +212,8 @@ class CarGame extends Game {
             //randomNumber = 1;
 
             //End of the game
-            //if(index > CMVLimit + CSILimit + TMELimit + waitLimit)
-            if(index > 2)
+            if(index > CMVLimit + CSILimit + TMELimit + waitLimit)
+            //if(index > 0)
             {
 
               //score = 16;
@@ -225,7 +227,7 @@ class CarGame extends Game {
               }
               //Athletic
               else if (user.userMode =="1" &&
-                  score > 50) {
+                  score > 30) {
                   game.setStarValue(starValue = 0.5);
               } else {
                   game.setStarValue(starValue = 0.0);
@@ -665,11 +667,11 @@ class CarGame extends Game {
       start = false;
     } else {
       const time = const Duration(seconds: 1);
-      new Timer.periodic(
+      timerPause = new Timer.periodic(
         time,
         (Timer timer) {
           if (_start < 1) {
-            timer.cancel();
+            timerPause .cancel();
             isWaiting = false;
             doingBreak = false;
             isDoingExercice = false;

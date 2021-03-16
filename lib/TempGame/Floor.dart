@@ -751,7 +751,9 @@ class ManageFloors {
     hasChanged = false;
   }
 
-  void update(double t) {}
+  void update(double t) {
+
+  }
 }
 
 //Classe qui gère le déplacement horizontal du panneau
@@ -805,8 +807,9 @@ class ManageSign {
 
       sign.renderRect(c, rectSign);
       config.render(
-          c, "${game.jumpCounter}/10", Position(posXSign + 10, posYSign + 10));
+          c, "${game.jumpCounter}/10", Position(posXSign + signWidth * 0.1, posYSign + signHeight*0.1));
 
+      //128
       // restore original state
       //c.restore();
     }

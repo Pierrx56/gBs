@@ -27,7 +27,10 @@
                                   : DrawCharts(data: data_swim),
                               Align(
                                 alignment: Alignment.bottomCenter,
-                                child: RaisedButton(
+                                child: ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                                   child: temp != null
                                       ? Text(
                                           AppLocalizations.of(context)
@@ -119,7 +122,10 @@
                                               Align(
                                                 alignment:
                                                     Alignment.bottomCenter,
-                                                child: RaisedButton(
+                                                child: ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                                                   child: temp != null
                                                       ? Text(
                                                           AppLocalizations.of(
@@ -243,7 +249,10 @@
                                   : DrawCharts(data: data_plane),
                               Align(
                                 alignment: Alignment.bottomCenter,
-                                child: RaisedButton(
+                                child: ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                                   child: temp != null
                                       ? Text(
                                           AppLocalizations.of(context)
@@ -335,7 +344,10 @@
                                               Align(
                                                 alignment:
                                                     Alignment.bottomCenter,
-                                                child: RaisedButton(
+                                                child: ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                                                   child: temp != null
                                                       ? Text(
                                                           AppLocalizations.of(

@@ -59,6 +59,8 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
 
   CommonGamesUI commonGamesUI = new CommonGamesUI();
 
+  int i = 0;
+
   String timeRemaining;
   Timer timer;
   Timer _timer;
@@ -88,6 +90,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     if (user.userInitialPush != "0.0") {
       score = 0;
       starValue = 0.0;
+      i = 0;
 
       _controllerTopCenter =
           ConfettiController(duration: const Duration(seconds: 10));
@@ -118,7 +121,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     game.setStarLevel(level);
     gameUI = new UI();
     refreshScore();
-    Util flameUtil = Util();
+    Util flameUtil = new Util();
     flameUtil.fullScreen();
 
     //TODO Ajust values
@@ -157,28 +160,11 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
       if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
         connect();
-      }else {
+      } else {
         launchGame();
         return;
       }
       //testConnect();
-    }
-  }
-
-  testConnect() async {
-    isConnected = await btManage.getStatus();
-    if (!isConnected) {
-      timerConnexion = new Timer.periodic(Duration(milliseconds: 1500),
-          (timerConnexion) async {
-        btManage.connect(user.userMacAddress, user.userSerialNumber);
-        isConnected = await btManage.getStatus();
-        if (isConnected) {
-          print("isConnected: $isConnected");
-          timerConnexion.cancel();
-          launchGame();
-          //refreshScore();
-        }
-      });
     }
   }
 
@@ -234,10 +220,10 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
           if (_start < delay) {
             game.pauseGame = true;
             gameOver = true;
-            timer.cancel();
+            _timer.cancel();
             redirection();
           } else if (!game.getConnectionState()) {
-            timer.cancel();
+            _timer.cancel();
           } else if (game.pauseGame) {
             timeRemaining = convertDuration(Duration(seconds: _start));
           } else {
@@ -259,21 +245,19 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
 
   void redirection() {
     const oneSec = const Duration(seconds: 1);
-    Timer.periodic(
+    Timer(
       oneSec,
-      (Timer timer) => mounted
+      mounted
           ? {
               setState(
                 () {
                   if (_start < 1) {
                     //TODO Update value
-                    if (user.userMode =="0" &&
-                        score > 15) {
+                    if (user.userMode == "0" && score > 15) {
                       setState(() {
                         game.setStarValue(starValue = 0.5);
                       });
-                    } else if (user.userMode =="1" &&
-                        score > 50) {
+                    } else if (user.userMode == "1" && score > 50) {
                       setState(() {
                         game.setStarValue(starValue = 0.5);
                       });
@@ -301,9 +285,8 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     Size screenSize = MediaQuery.of(context).size;
 
     return WillPopScope(
-      onWillPop: (){
-        if(!gameOver)
-          game.pauseGame = ! game.pauseGame;
+      onWillPop: () {
+        if (!gameOver) game.pauseGame = !game.pauseGame;
         return;
       },
       child: Material(
@@ -340,13 +323,15 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         CircularProgressIndicator(),
                                         double.parse(user.userInitialPush) == 0
-                                            ? AutoSizeText(AppLocalizations.of(
-                                                    context)
-                                                .translate('premiere_poussee_sw'))
+                                            ? AutoSizeText(
+                                                AppLocalizations.of(context)
+                                                    .translate(
+                                                        'premiere_poussee_sw'))
                                             : AutoSizeText(
                                                 AppLocalizations.of(context)
                                                     .translate('verif_alim'),
@@ -355,14 +340,20 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                                 style: TextStyle(fontSize: 25),
                                                 textAlign: TextAlign.center,
                                               ),
-                                        RaisedButton(
+                                        ElevatedButton(
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all<
+                                                    Color>(Colors.grey[350]),
+                                          ),
                                           onPressed: () {
                                             Navigator.pop(
                                               context,
                                             );
                                           },
-                                          child: Text(AppLocalizations.of(context)
-                                              .translate('retour')),
+                                          child: Text(
+                                              AppLocalizations.of(context)
+                                                  .translate('retour')),
                                         )
                                       ],
                                     ),
@@ -460,7 +451,9 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
               ),
               //Display message afficher le score et les secondes
               game != null
-                  ? !game.getGameOver() && game.getConnectionState() && !game.pauseGame
+                  ? !game.getGameOver() &&
+                          game.getConnectionState() &&
+                          !game.pauseGame
                       ? Container(
                           alignment: Alignment.centerRight,
                           padding: EdgeInsets.fromLTRB(10, 10, 10, 25),

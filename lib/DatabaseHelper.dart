@@ -46,8 +46,6 @@ const int ID_CAR_ACTIVITY = 3;
 //https://dbdiagram.io/d/5f2c6c6808c7880b65c5621a
 
 
-//TODO CHANGE SPORITF TO 1
-
 final String CREATE_TABLE_ACTIVITY = "CREATE TABLE " +
     TABLE_ACTIVITY +
     "(" +

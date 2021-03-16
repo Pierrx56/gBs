@@ -7,8 +7,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
-import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
@@ -50,8 +48,6 @@ class _ManageProfile extends State<ManageProfile> {
   bool isConnected = false;
   AppLanguage appLanguage;
 
-  BluetoothManager btManage =
-      new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
   // Initializing a global key, as it would help us in showing a SnackBar later
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -62,8 +58,6 @@ class _ManageProfile extends State<ManageProfile> {
   static double _reset = 10.0;
   int i = 100;
   List<double> average = new List(10 * _reset.toInt());
-  RoundedProgressBarStyle colorProgressBar = RoundedProgressBarStyle(
-      colorProgress: Colors.blueAccent, colorProgressDark: Colors.blue);
   double delta = 102.0;
   double coefProgressBar = 2.0;
   double result;
@@ -172,19 +166,6 @@ class _ManageProfile extends State<ManageProfile> {
     //var fileName = basename(imageFile.path);
     //final File localImage = await imageFile.copy('$path/$fileName');
     return _pathSaved = newImage.path;
-  }
-
-  void setData() async {
-    btData = await btManage.getData();
-  }
-
-  double getData() {
-    setData();
-
-    if (btData != null)
-      return double.parse(btData);
-    else
-      return 2.0;
   }
 
   void _updateSwitch(bool value) => setState(() => isSwitched = value);
@@ -311,11 +292,12 @@ class _ManageProfile extends State<ManageProfile> {
                                 _updateSwitch(value);
                                 isSwitched = value;
                                 if (isSwitched)
-                                  _userMode = "1"; //AppLocalizations.of(context).translate('sportif');
-                                  //_userMode = AppLocalizations.of(context).translate('sportif');
+                                  _userMode =
+                                      "1"; //AppLocalizations.of(context).translate('sportif');
+                                //_userMode = AppLocalizations.of(context).translate('sportif');
                                 else
                                   _userMode = "0";
-                                  //_userMode = AppLocalizations.of(context).translate('familial');
+                                //_userMode = AppLocalizations.of(context).translate('familial');
                               },
                               activeTrackColor: Colors.lightGreenAccent,
                               activeColor: Colors.green,
@@ -361,40 +343,49 @@ class _ManageProfile extends State<ManageProfile> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        RaisedButton(
+                        ElevatedButton(
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.grey[350]),
+                          ),
                           child: Row(
                             children: <Widget>[
-                              Icon(Icons.image),
+                              Icon(Icons.image, color: Colors.black),
                               Text(" " +
                                   AppLocalizations.of(context)
-                                      .translate('select_image')),
+                                      .translate('select_image'), style: TextStyle(color: Colors.black),),
                             ],
                           ),
                           onPressed: () {
                             pickImage(ImageSource.gallery);
                           },
-                          textColor: colorButton,
                         ),
                         Padding(
                           padding: EdgeInsets.all(10),
                         ),
-                        RaisedButton(
+                        ElevatedButton(
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.grey[350]),
+                          ),
                           child: Row(
                             children: <Widget>[
-                              Icon(Icons.camera_alt),
+                              Icon(Icons.camera_alt, color: Colors.black),
                               Text(" " +
                                   AppLocalizations.of(context)
-                                      .translate('prendre_photo')),
+                                      .translate('prendre_photo'), style: TextStyle(color: Colors.black),),
                             ],
                           ),
                           onPressed: () {
                             pickImage(ImageSource.camera);
                           },
-                          textColor: colorButton,
                         ),
                       ],
                     ),
-/*                        RaisedButton(
+/*                        ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                       child: Text(AppLocalizations.of(context)
                           .translate('ajust_poussee')),
                       onPressed: () {
@@ -428,7 +419,11 @@ class _ManageProfile extends State<ManageProfile> {
                     Padding(
                       padding: EdgeInsets.only(top: 15, bottom: 15),
                     ),
-                    RaisedButton(
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.grey[350]),
+                      ),
                       onPressed: () {
                         if (hasChangedState)
                           pousseeDialog();
@@ -448,7 +443,7 @@ class _ManageProfile extends State<ManageProfile> {
                       child: Text(temp != null
                           ? AppLocalizations.of(this.context)
                               .translate('retour')
-                          : "Retourlol"),
+                          : "Retourlol", style: TextStyle(color: Colors.black),),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 15, bottom: 15),
@@ -492,7 +487,6 @@ class _ManageProfile extends State<ManageProfile> {
                                           .translate('supprimer')),
                                   onPressed: () {
                                     Navigator.of(context).pop();
-                                    btManage.disconnect("origin");
                                     print(
                                         "ID à SUPPR:" + user.userId.toString());
                                     NotificationManager notificationManager =
@@ -510,7 +504,7 @@ class _ManageProfile extends State<ManageProfile> {
                                             MaterialPageRoute(
                                                 builder: (context) => Login(
                                                       appLanguage: appLanguage,
-                                                  message: "",
+                                                      message: "",
                                                     ))
                                             /*LoadPage(
                                       appLanguage: appLanguage,
@@ -562,7 +556,11 @@ class _ManageProfile extends State<ManageProfile> {
                           : "Check en/fr.json file"),
                       Row(
                         children: <Widget>[
-                          RaisedButton(
+                          ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.grey[350]),
+                            ),
                             onPressed: () {
                               Navigator.pushReplacement(
                                 context,
@@ -581,13 +579,16 @@ class _ManageProfile extends State<ManageProfile> {
                                 : "Check en/fr.json file"),
                           ),
                           Spacer(),
-                          RaisedButton(
+                          ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.grey[350]),
+                            ),
                             //child: Text("Démarrer l'enregistrement."),
                             onPressed: () async {
                               Navigator.pop(context);
                               updateUser();
                             },
-                            textColor: colorMesureButton,
                             child: Text(temp != null
                                 ? AppLocalizations.of(this.context)
                                     .translate('enregistrer')
@@ -599,141 +600,6 @@ class _ManageProfile extends State<ManageProfile> {
                   ),
                   width: 300.0,
                 ),
-              ),
-            );
-          });
-        });
-  }
-
-  void pousseeDialog2() async {
-    //appLanguage = AppLanguage();
-    //await appLanguage.fetchLocale();
-
-    showDialog(
-        context: this.context,
-        builder: (BuildContext context) {
-          var temp = AppLocalizations.of(this.context);
-          return StatefulBuilder(builder: (context, setState) {
-            return AlertDialog(
-              title: Text(temp != null
-                  ? AppLocalizations.of(this.context).translate('mesure')
-                  : "Check en/fr.json file"),
-              content: Row(
-                children: <Widget>[
-                  SingleChildScrollView(
-                    child: Container(
-                      child: Column(
-                        children: <Widget>[
-                          Text(temp != null
-                              ? AppLocalizations.of(this.context)
-                                  .translate('explications_mesure')
-                              : "Check en/fr.json file"),
-                          RoundedProgressBar(
-                            percent: (double.parse(btData)) >= 0
-                                ? (double.parse(btData))
-                                : 0.0,
-                            style: double.parse(btData) > 100.0
-                                ? colorProgressBar = RoundedProgressBarStyle(
-                                    colorProgress: Colors.redAccent,
-                                    colorProgressDark: Colors.red)
-                                : colorProgressBar = RoundedProgressBarStyle(
-                                    colorProgress: Colors.blueAccent,
-                                    colorProgressDark: Colors.blue),
-                            childCenter: Text(
-                              (double.parse(btData)).toString(),
-                            ),
-                          ),
-                          RaisedButton(
-                              //child: Text("Démarrer l'enregistrement."),
-                              onPressed: recording !=
-                                      AppLocalizations.of(this.context)
-                                          .translate('status_mesure_bon')
-                                  ? () async {
-                                      colorMesureButton = Colors.black;
-                                      const oneSec =
-                                          const Duration(milliseconds: 100);
-                                      new Timer.periodic(
-                                        oneSec,
-                                        (Timer timer) => setState(
-                                          () {
-                                            if (_start < 0.1) {
-                                              timer.cancel();
-                                              _start = _reset;
-                                              result = double.parse(
-                                                  (average.reduce(
-                                                              (a, b) => a + b) /
-                                                          average.length)
-                                                      .toStringAsFixed(2));
-
-                                              i = 100;
-                                              if (result <= 50.0 ||
-                                                  result >= 100.0) {
-                                                //Mesure pas bonne, réajuster la toise
-                                                setState(() {
-                                                  recording = temp != null
-                                                      ? AppLocalizations.of(
-                                                              this.context)
-                                                          .translate(
-                                                              'status_mesure_mauvais')
-                                                      : "Check en/fr.json file";
-                                                  colorMesureButton =
-                                                      Colors.red;
-                                                });
-                                              } else
-                                                setState(
-                                                  () {
-                                                    colorMesureButton =
-                                                        Colors.green;
-                                                    initialPush =
-                                                        result.toString();
-                                                    recording = temp != null
-                                                        ? AppLocalizations.of(
-                                                                this.context)
-                                                            .translate(
-                                                                'status_mesure_bon')
-                                                        : "Check en/fr.json file";
-                                                  },
-                                                );
-                                            } else {
-                                              recording =
-                                                  _start.toStringAsFixed(1);
-                                              getData();
-                                              _start = _start - 0.1;
-                                              i--;
-                                              average[i] = double.parse(btData);
-                                            }
-                                          },
-                                        ),
-                                      );
-                                      //_showDialog();
-                                    }
-                                  : null,
-                              textColor: colorMesureButton,
-                              child: Text(recording)),
-                          RaisedButton(
-                            onPressed: () {
-                              //Navigator.pop(context);
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MainTitle(
-                                      userIn: user,
-                                      appLanguage: appLanguage,
-                                      messageIn: ""),
-                                ),
-                              );
-                            },
-                            child: Text(temp != null
-                                ? AppLocalizations.of(this.context)
-                                    .translate('retour')
-                                : "Check en/fr.json file"),
-                          )
-                        ],
-                      ),
-                      width: 300.0,
-                    ),
-                  ),
-                ],
               ),
             );
           });

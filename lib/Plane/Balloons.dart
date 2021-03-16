@@ -3,8 +3,6 @@ import 'dart:ui';
 import 'package:flame/sprite.dart';
 import 'package:gbsalternative/Plane/PlaneGame.dart';
 
-class WaterLine {}
-
 double balloonPosition = 0.1;
 double posX = 0;
 double posY = 0;

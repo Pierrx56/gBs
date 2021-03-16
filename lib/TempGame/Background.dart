@@ -22,9 +22,8 @@ class Background {
 
 
 
-    c.translate(game.screenSize.width / 2, game.screenSize.height);
-    c.translate(
-        -game.screenSize.width / 2, -game.screenSize.height);
+    //c.translate(game.screenSize.width / 2, game.screenSize.height);
+    //c.translate(-game.screenSize.width / 2, -game.screenSize.height);
 
     if (j >= game.screenSize.width) j = 0;
 

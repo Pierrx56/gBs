@@ -9,8 +9,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/util.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
-import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
@@ -61,10 +59,11 @@ class _Temp extends State<Temp> {
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
   String recording;
-  Timer timer;
   Timer _timer;
   int _start = 5;
   Timer timerThread;
+  Timer timerProgressBar;
+  Timer timerProgressBar2;
   Timer timerConnexion;
   bool start;
   double push;
@@ -111,9 +110,13 @@ class _Temp extends State<Temp> {
   @override
   void dispose() {
     timerConnexion?.cancel();
-    timer?.cancel();
     _timer?.cancel();
     timerThread?.cancel();
+    timerProgressBar?.cancel();
+    timerProgressBar2?.cancel();
+    game.tempTimer?.cancel();
+    game.timerPosition?.cancel();
+    game.timerTuto?.cancel();
 
     super.dispose();
   }
@@ -135,7 +138,6 @@ class _Temp extends State<Temp> {
     previousJumpCounter = game.getJumpCounter();
 
     refreshScore();
-    mainThread();
     //setSignPosition();
     //runApp(game.widget);
     flameUtil.addGestureRecognizer(tapper);
@@ -162,64 +164,6 @@ class _Temp extends State<Temp> {
     initTemp();
   }
 
-  testConnect() async {
-    isConnected = await btManage.getStatus();
-    if (!isConnected) {
-      timerConnexion =
-          new Timer.periodic(Duration(milliseconds: 1500), (timer) async {
-        btManage.connect(user.userMacAddress, user.userSerialNumber);
-        isConnected = await btManage.getStatus();
-
-        if (isConnected) {
-          timerConnexion.cancel();
-          timer.cancel();
-          launchGame();
-        }
-      });
-    }
-/*    if (isConnected) {
-      initSwimmer();
-      //refreshScore();
-    }*/
-  }
-
-  mainThread() async {
-    timerThread =
-        new Timer.periodic(Duration(milliseconds: 500), (timer) async {
-      //Condition de victoire
-      if (game.getJumpCounter() >= 10) {
-        game.endGame = true;
-        game.gameOver = true;
-        game.pauseGame = true;
-        timerThread.cancel();
-        timer.cancel();
-      }
-
-      if (game.isTooHigh) {
-        const oneSec = const Duration(seconds: 1);
-        _timer = new Timer.periodic(oneSec, (Timer timer) {
-          if (_start < 1) {
-            timer.cancel();
-            //Redirection vers le menu
-            Navigator.pushReplacement(
-              this.context,
-              MaterialPageRoute(
-                builder: (context) => LoadPage(
-                  appLanguage: appLanguage,
-                  user: user,
-                  messageIn: "0",
-                  page: mainTitle,
-                ),
-              ),
-            );
-          } else {
-            _start = _start - 1;
-          }
-        });
-      }
-    });
-  }
-
   void setData() async {
     var temp = await btManage.getStatus();
     if (!temp)
@@ -242,7 +186,16 @@ class _Temp extends State<Temp> {
   }
 
   refreshScore() async {
-    timer = new Timer.periodic(Duration(milliseconds: 300), (timer) {
+    timerThread =
+        new Timer.periodic(Duration(milliseconds: 300), (Timer timer) {
+      //Condition de victoire
+      if (game.getJumpCounter() >= 10) {
+        game.endGame = true;
+        game.gameOver = true;
+        game.pauseGame = true;
+        timerThread.cancel();
+      }
+
       if (mounted) {
         if (game != null) {
           setState(() {
@@ -274,18 +227,18 @@ class _Temp extends State<Temp> {
         cinq--;
 
         //Récupère les données du capteur toutes les 200ms
-        Timer.periodic(
+        timerProgressBar = Timer.periodic(
           Duration(milliseconds: 200),
           (Timer timer) {
             totalPush += getData();
             k++;
             if (cinq < 1) {
-              timer.cancel();
+              timerProgressBar.cancel();
             }
           },
         );
         //Compteur de 5 secs
-        Timer.periodic(
+        timerProgressBar2 = Timer.periodic(
           Duration(seconds: 1),
           (Timer timer) {
             if (!game.pauseGame) {
@@ -296,7 +249,7 @@ class _Temp extends State<Temp> {
 
               if (cinq < 1) {
                 //push = 0.0;
-                timer.cancel();
+                timerProgressBar2.cancel();
               } else {
                 cinq--;
               }
@@ -365,13 +318,11 @@ class _Temp extends State<Temp> {
 
   @override
   Widget build(BuildContext context) {
-
     Size screenSize = MediaQuery.of(context).size;
 
     return WillPopScope(
-      onWillPop: (){
-        if(!game.endGame)
-          game.pauseGame = ! game.pauseGame;
+      onWillPop: () {
+        if (!game.endGame) game.pauseGame = !game.pauseGame;
         return;
       },
       child: Material(
@@ -407,7 +358,8 @@ class _Temp extends State<Temp> {
                                     color: Color.fromRGBO(255, 255, 255, 0.7),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       CircularProgressIndicator(),
@@ -423,7 +375,12 @@ class _Temp extends State<Temp> {
                                               style: TextStyle(fontSize: 25),
                                               textAlign: TextAlign.center,
                                             ),
-                                      RaisedButton(
+                                      ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Colors.grey[350]),
+                                        ),
                                         onPressed: () {
                                           Navigator.pop(
                                             context,
@@ -455,6 +412,7 @@ class _Temp extends State<Temp> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
+                  //Menu
                   game != null
                       ? !game.pauseGame &&
                               !game.getGameOver() &&
@@ -471,7 +429,7 @@ class _Temp extends State<Temp> {
                                     : Container(),
                               ),
                             )
-                          : !game.isTooHigh && !game.getEndGame()
+                          : !game.getEndGame() && !game.getGameOver()
                               ? Align(
                                   alignment: Alignment.topRight,
                                   child: Container(
@@ -532,16 +490,17 @@ class _Temp extends State<Temp> {
                             ? Container(
                                 alignment: Alignment.topCenter,
                                 padding: EdgeInsets.fromLTRB(
-                                    20, screenSize.height*0.1, 20, 20),
+                                    20, screenSize.height * 0.1, 20, 20),
                                 child: Container(
-                                  width: screenSize.width *0.5,
+                                  width: screenSize.width * 0.5,
                                   height: screenSize.height / 3,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     //color: Color.fromRGBO(255, 255, 255, 0.7),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       Padding(
@@ -553,7 +512,11 @@ class _Temp extends State<Temp> {
                                                 .translate('remplir_jauge'),
                                             minFontSize: 15,
                                             maxLines: 3,
-                                            style: TextStyle(fontSize: 35, color: Colors.pink, fontWeight: FontWeight.bold,),
+                                            style: TextStyle(
+                                              fontSize: 35,
+                                              color: Colors.pink,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                             textAlign: TextAlign.center,
                                           ),
                                         ),
@@ -588,7 +551,8 @@ class _Temp extends State<Temp> {
                                       //child: Text(jumpToFloor.toString(), textAlign: TextAlign.center, style: textStyle,),
                                       duration: Duration(seconds: 1),
                                       width: screenSize.height / 8,
-                                      height: (screenSize.width / 4) * getPush(),
+                                      height:
+                                          (screenSize.width / 4) * getPush(),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
                                         color: Colors.blue[300],
@@ -605,14 +569,27 @@ class _Temp extends State<Temp> {
             Container(
               alignment: Alignment.topCenter,
               child: game != null
-                  ? game.getGameOver() && !game.isTooHigh && !game.getEndGame()
+                  ? game.getGameOver() && !game.getEndGame()
                       ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            gameUI.state.displayMessage(
+                            commonGamesUI.endScreen(
+                                context,
+                                appLanguage,
+                                game,
+                                ID_TEMP_ACTIVITY,
+                                user,
+                                starValue,
+                                level,
+                                coins,
+                                message),
+
+                            /*gameUI.state.displayMessage(
                                 AppLocalizations.of(context)
                                     .translate('game_over'),
                                 game,
-                                Colors.blueAccent),
+                                Colors.blueAccent),*/
                           ],
                         )
                       : Container()
@@ -622,7 +599,7 @@ class _Temp extends State<Temp> {
             Container(
               alignment: Alignment.topCenter,
               child: game != null
-                  ? game.getEndGame() && !game.isTooHigh
+                  ? game.getEndGame()
                       //? game.pauseGame
                       ? Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -639,23 +616,6 @@ class _Temp extends State<Temp> {
                                 coins,
                                 message),
                             //gameUI.state.endScreen(context, appLanguage, game, user, level),
-                          ],
-                        )
-                      : Container()
-                  : Container(),
-            ),
-            //Display message toise trop basse
-            Container(
-              alignment: Alignment.topCenter,
-              child: game != null
-                  ? game.isTooHigh
-                      ? Row(
-                          children: <Widget>[
-                            gameUI.state.displayMessage(
-                                AppLocalizations.of(context)
-                                    .translate('reajuster_toise'),
-                                game,
-                                Colors.redAccent),
                           ],
                         )
                       : Container()

@@ -77,6 +77,7 @@ class SwimGame extends Game {
   bool isTopPosition;
   UI gameUI;
   AppLanguage appLanguage;
+  Timer timerSwimmer;
 
   SwimGame(this.getData, User _user, AppLanguage _appLanguage) {
     user = _user;
@@ -358,19 +359,19 @@ class SwimGame extends Game {
       start = false;
     } else {
       const time = const Duration(milliseconds: 500);
-      Timer.periodic(
+      timerSwimmer = Timer.periodic(
         time,
-        (Timer timer) {
+        (Timer _timer) {
           // S'il ressort de la zone avant le timer, on reset le timer
           if (!start) {
-            timer.cancel();
+            timerSwimmer.cancel();
             return;
           }
           if (isConnected) {
             if (_start < 0.5) {
               //TODO Display menu ?
               setColorFilter(true);
-              timer.cancel();
+              timerSwimmer.cancel();
               gameOver = true;
             } else if(!pauseGame){
               setColorFilter(!redFilter);
@@ -379,7 +380,7 @@ class SwimGame extends Game {
             }
           } else {
             setColorFilter(false);
-            timer.cancel();
+            timerSwimmer.cancel();
           }
         },
       );

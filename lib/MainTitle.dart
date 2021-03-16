@@ -114,14 +114,6 @@ class _MainTitle extends State<MainTitle> {
     heightBattery = 0.0;
     widthBattery = 0.0;
 
-    //Obtention des scores
-    //Swimmer
-    getScores(user.userId, ID_SWIMMER_ACTIVITY);
-    //Plane
-    getScores(user.userId, ID_PLANE_ACTIVITY);
-    //Temp
-    getScores(user.userId, ID_TEMP_ACTIVITY);
-
     //Gestion des notifications
     //initialise une notification pour le/les jours suivants
     notificationManager.init(user);
@@ -200,31 +192,6 @@ class _MainTitle extends State<MainTitle> {
     });
   }
 
-  void updateUser(User _user) {
-    user = _user;
-  }
-
-  void getScores(int userId, int activityId) async {
-    //Nageur
-    if (activityId == ID_SWIMMER_ACTIVITY) {
-      data_swim = await db.getScore(userId, activityId);
-      if (data_swim == null) {
-        getScores(userId, activityId);
-      } else {
-        if (mounted) setState(() {});
-      }
-    }
-    //Plane
-    else if (activityId == ID_PLANE_ACTIVITY) {
-      data_plane = await db.getScore(userId, activityId);
-      if (data_plane == null) {
-        getScores(userId, activityId);
-      } else {
-        if (mounted) setState(() {});
-      }
-    }
-  }
-
   Widget menu() {
     Size screenSize = MediaQuery.of(this.context).size;
     int numberOfCard = 3;
@@ -295,7 +262,6 @@ class _MainTitle extends State<MainTitle> {
                             ),
                           )
                         : Text("Check Language file (en/fr.json)"),
-
                     onPressed: () {
                       btManage.disconnect("");
 
@@ -397,14 +363,14 @@ class _MainTitle extends State<MainTitle> {
                 Container(
                   height: screenSize.height * 0.1,
                   padding:
-                      EdgeInsets.fromLTRB(screenSize.width * 0.05, 0, 0, 0),
+                      EdgeInsets.fromLTRB(screenSize.width * 0.05, 0.0, 0.0, 0.0),
                   child: /*voltage != 0.0 &&*/ isConnected
                       ? Stack(
                           children: <Widget>[
                             //Battery plus
                             Padding(
                               padding: EdgeInsets.fromLTRB(
-                                  widthBattery - screenSize.height * 0.005,
+                                  screenSize.width * 0.1 - screenSize.height * 0.005,
                                   0,
                                   0,
                                   0),
@@ -481,23 +447,44 @@ class _MainTitle extends State<MainTitle> {
                 Container(
                   alignment: Alignment.centerLeft,
                   height: screenSize.height * 0.1,
-                  child: TextButton.icon(
-                    icon: Icon(
-                      Icons.bluetooth,
-                      color: isConnected ? Colors.green : Colors.red,
-                      size: screenSize.height * 0.06,
-                    ),
-                    label: AutoSizeText(
-                      isConnected
-                          ? AppLocalizations.of(context)
-                              .translate('status_connecte')
-                          : AppLocalizations.of(context)
-                              .translate('status_deconnecte'),
-                      style: TextStyle(
+                  child: Row(
+                    children: [
+                      Padding(padding: EdgeInsets.fromLTRB(5, 0, 0, 0)),
+                      Icon(
+                        Icons.bluetooth,
                         color: isConnected ? Colors.green : Colors.red,
+                        size: screenSize.height * 0.06,
                       ),
-                    ),
-                    onPressed: () {},
+                      AutoSizeText(
+                        isConnected
+                            ? AppLocalizations.of(context)
+                                .translate('status_connecte')
+                            : AppLocalizations.of(context)
+                                .translate('status_deconnecte'),
+                        style: TextStyle(
+                          color: isConnected ? Colors.green : Colors.red,
+                        ),
+                      ),
+                      /*
+                      TextButton.icon(
+                        icon: Icon(
+                          Icons.bluetooth,
+                          color: isConnected ? Colors.green : Colors.red,
+                          size: screenSize.height * 0.06,
+                        ),
+                        label: AutoSizeText(
+                          isConnected
+                              ? AppLocalizations.of(context)
+                                  .translate('status_connecte')
+                              : AppLocalizations.of(context)
+                                  .translate('status_deconnecte'),
+                          style: TextStyle(
+                            color: isConnected ? Colors.green : Colors.red,
+                          ),
+                        ),
+                        onPressed: () {},
+                      ),*/
+                    ],
                   ),
                 ),
                 Divider(),
@@ -888,53 +875,6 @@ class _MainTitle extends State<MainTitle> {
 
   @override
   Widget build(BuildContext context) {
-    //Size screenSize = MediaQuery.of(context).size;
-
-    Future<void> _onItemTapped(int index) async {
-      user = await db.getUser(user.userId);
-      if (mounted)
-        setState(() {
-          _selectedIndex = index;
-
-          menuPage = menu();
-
-          settingsPage = ManageProfile(appLanguage: appLanguage, user: user);
-/*          settingsPage = LoadPage(
-            appLanguage: appLanguage,
-            user: user,
-            page: manageProfile,
-            messageIn: "0",
-          );*/
-          /*if (user.userInitialPush == "0.0")
-          firstPush = LoadPage(
-            appLanguage: appLanguage,
-            user: user,
-            page: "firstPush",
-            messageIn: "0",
-          );
-        else*/
-          /*
-        bluetoothPage = BluetoothManager(
-            user: user,
-            inputMessage: "0",
-            appLanguage: appLanguage); */
-        });
-    }
-
-    int temp = int.tryParse(message);
-
-    if (temp != null) {
-      if (temp != defaultIndex) {
-        _selectedIndex = temp;
-        //message = defaultIndex.toString();
-      }
-    }
-
-    List<Widget> _widgetOptions = <Widget>[
-      menuPage = menu(),
-      settingsPage,
-    ];
-
     return menu();
   }
 

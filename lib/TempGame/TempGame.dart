@@ -46,12 +46,11 @@ class TempGame extends Game {
   double tileSize;
   bool redFilter;
   bool start;
-  bool gameOver;
+  bool gameOver = false;
   bool endGame = false;
-  bool isConnected;
+  bool isConnected = false;
   bool launchTuto = false;
   int counterHigh;
-  bool isTooHigh;
   bool isInit;
   int phaseTuto = 1;
 
@@ -70,7 +69,7 @@ class TempGame extends Game {
   int previousFloor = 1;
 
   bool hasJumpedInVoid;
-  int life;
+  int life = 3;
   double opacity = 1;
   int increment;
   bool pauseGame = false;
@@ -147,6 +146,7 @@ class TempGame extends Game {
   List<double> floorPosition = [];
   Timer tempTimer;
   Timer timerPosition;
+  Timer timerTuto;
   bool isOutOfScreen;
 
   TempGame(this.getData, this.getPush, this.getFloor, this.setFloor, User _user,
@@ -215,7 +215,16 @@ class TempGame extends Game {
     sign = new ManageSign(this);
     gameUI = UI();
     expampleFloor = 0;
-    getTutoFloors(this);
+
+    // Initializing database
+    DatabaseHelper db = new DatabaseHelper();
+    List<Scores> dataTemp =
+    await db.getScore(user.userId, ID_TEMP_ACTIVITY);
+
+    if(dataTemp.isEmpty) {
+      launchTuto = true;
+      getTutoFloors(this);
+    }
 
     previousFloor = 1;
     life = 3;
@@ -231,7 +240,6 @@ class TempGame extends Game {
     scoreTimer = 0.0;
     creationTimer = 0.0;
     jumpCounter = 0;
-    isTooHigh = false;
     counterHigh = 0;
     phaseTuto = 1;
     isTopPosition = false;
@@ -254,6 +262,7 @@ class TempGame extends Game {
     isJumping = false;
   }
 
+  @override
   void render(Canvas canvas) {
     Rect bgRect = Rect.fromLTWH(0, 0, screenSize.width, screenSize.height);
     Paint bgPaint = Paint();
@@ -296,9 +305,13 @@ class TempGame extends Game {
     }
   }
 
+  @override
   void update(double t) async {
     creationTimer += t;
     scoreTimer += t;
+
+   //if(temp != null)
+   //  temp.update(t);
 
     if (!gameOver) {
       if (getData() != -1.0)
@@ -349,6 +362,15 @@ class TempGame extends Game {
             state = 2;
           }
 
+          //S7 EDGE
+          //640
+          //360
+
+          //ACHOS 116 NEON
+          //1368
+          //768
+
+          //GRAND PRIME
           //640
           //360
 
@@ -397,12 +419,7 @@ class TempGame extends Game {
         if (!pauseGame) {
           if (temp != null) {
             //Si c'est le premier lancement de l'activité, lancer le tuto
-            // Initializing database
-            DatabaseHelper db = new DatabaseHelper();
-            List<Scores> dataTemp =
-                await db.getScore(user.userId, ID_TEMP_ACTIVITY);
-
-            if (dataTemp.isEmpty && phaseTuto < 5) {
+            if (launchTuto && phaseTuto < 5) {
               launchTuto = true;
             } else {
               launchTuto = false;
@@ -531,7 +548,6 @@ class TempGame extends Game {
         }
       }
     }
-    //super.update(t);
   }
 
   //Assure que ça ne retourne pas un negatif
@@ -985,47 +1001,12 @@ class TempGame extends Game {
   }
 
   void getTutoFloors(TempGame game) async {
-    Timer.periodic(Duration(milliseconds: 500), (timer) {
+    timerTuto = Timer.periodic(Duration(milliseconds: 500), (timer) {
       expampleFloor++;
       expampleFloor = expampleFloor % 4;
 
-      if (game.phaseTuto > 5) timer.cancel();
+      if (game.phaseTuto > 5) timerTuto?.cancel();
     });
   }
 
-  void startTimer(bool isStarted, double _start) async {
-    Timer _timer;
-
-    if (!isStarted && isConnected) {
-      //_start = 5.0;
-      start = false;
-    } else {
-      const time = const Duration(milliseconds: 500);
-      _timer = new Timer.periodic(
-        time,
-        (Timer timer) {
-          // S'il ressort de la zone avant le timer, on reset le timer
-          if (!start) {
-            timer.cancel();
-            return;
-          }
-          if (isConnected) {
-            if (_start < 0.5) {
-              //TODO Display menu ?
-              setColorFilter(true);
-              timer.cancel();
-              gameOver = true;
-            } else if (!pauseGame) {
-              setColorFilter(!redFilter);
-              _start = _start - 0.5;
-              print(_start);
-            }
-          } else {
-            setColorFilter(false);
-            timer.cancel();
-          }
-        },
-      );
-    }
-  }
 }

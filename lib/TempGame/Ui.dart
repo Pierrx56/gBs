@@ -1,20 +1,14 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:gbsalternative/AppLanguage.dart';
-import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
-import 'package:gbsalternative/DrawCharts.dart';
-import 'package:gbsalternative/LoadPage.dart';
-import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/TempGame/TempGame.dart';
-import 'package:intl/intl.dart';
 
 int ACTIVITY_NUMBER = 2;
 

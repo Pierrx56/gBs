@@ -35,7 +35,8 @@ class BluetoothSync extends StatefulWidget {
   });
 
   @override
-  _BluetoothSync createState() => new _BluetoothSync(curUser, inputMessage, appLanguage);
+  _BluetoothSync createState() =>
+      new _BluetoothSync(curUser, inputMessage, appLanguage);
 }
 
 class _BluetoothSync extends State<BluetoothSync> {
@@ -323,10 +324,17 @@ class _BluetoothSync extends State<BluetoothSync> {
                                   value:
                                       _devicesList.isNotEmpty ? _device : null,
                                 ),
-                                RaisedButton(
+                                ElevatedButton(
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            Colors.grey[350]),
+                                  ),
                                   onPressed: _isButtonUnavailable
                                       ? null
-                                      : _connected ? _disconnect : _connect,
+                                      : _connected
+                                          ? _disconnect
+                                          : _connect,
                                   child: Text(
                                       _connected ? 'Déconnexion' : 'Connexion'),
                                 ),
@@ -365,8 +373,11 @@ class _BluetoothSync extends State<BluetoothSync> {
                             ),
                           ),
                           SizedBox(height: 15),
-                          RaisedButton(
-                            elevation: 2,
+                          ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.grey[350]),
+                            ),
                             child: Text("Réglages Bluetooth"),
                             onPressed: () {
                               FlutterBluetoothSerial.instance.openSettings();
@@ -433,8 +444,7 @@ class _BluetoothSync extends State<BluetoothSync> {
       _isButtonUnavailable = false;
     } else {
       if (!isConnected) {
-        await BluetoothConnection.toAddress(_device.address)
-            .then((_connexion) {
+        await BluetoothConnection.toAddress(_device.address).then((_connexion) {
           print('Connected to the device');
           connexion = _connexion;
 
@@ -492,11 +502,10 @@ class _BluetoothSync extends State<BluetoothSync> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => LoadPage(
-                      appLanguage: appLanguage,
-                      page: mainTitle,
+                          appLanguage: appLanguage,
+                          page: mainTitle,
                           user: user,
                           messageIn: "0",
-
                         )));
             show('Vous êtes connecté à gBs');
           }

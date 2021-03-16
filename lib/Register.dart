@@ -614,7 +614,10 @@ class _Register extends State<Register> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                RaisedButton(
+                ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                   child: Row(
                     children: <Widget>[
                       Icon(Icons.image),
@@ -626,12 +629,14 @@ class _Register extends State<Register> {
                   onPressed: () {
                     pickImage(ImageSource.gallery);
                   },
-                  textColor: colorButton,
                 ),
                 Padding(
                   padding: EdgeInsets.all(10),
                 ),
-                RaisedButton(
+                ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                   child: Row(
                     children: <Widget>[
                       Icon(Icons.camera_alt),
@@ -643,7 +648,6 @@ class _Register extends State<Register> {
                   onPressed: () {
                     pickImage(ImageSource.camera);
                   },
-                  textColor: colorButton,
                 ),
               ],
             ),
@@ -674,7 +678,10 @@ class _Register extends State<Register> {
             Container(
               width: screenSize.width * 0.4,
               child: isGoodLength
-                  ? RaisedButton(
+                  ? ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                       child: Text(
                         "2. " + discovering,
                         style: textStyle,

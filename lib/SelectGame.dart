@@ -13,8 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
-import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
@@ -811,7 +809,12 @@ class _SelectGame extends State<SelectGame> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: <Widget>[
-                                  RaisedButton(
+                                  ElevatedButton(
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Colors.grey[350]),
+                                    ),
                                     onPressed: () {
                                       Navigator.pop(context);
                                     },
@@ -825,7 +828,10 @@ class _SelectGame extends State<SelectGame> {
                                   ),
                                   Spacer(),
                                   /*
-                                  RaisedButton(
+                                  ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                                     onPressed: () {
                                       Navigator.pop(context);
                                     },
@@ -838,7 +844,12 @@ class _SelectGame extends State<SelectGame> {
                                     ),
                                   ),
                                   Spacer(),*/
-                                  RaisedButton(
+                                  ElevatedButton(
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Colors.grey[350]),
+                                    ),
                                     onPressed: () {
                                       //Disparition de lu popup
                                       Navigator.pop(context);
@@ -874,61 +885,61 @@ class _SelectGame extends State<SelectGame> {
       case ID_SWIMMER_ACTIVITY:
         {
           Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Swimmer(
-                appLanguage: appLanguage,
-                user: user,
-                level: "${100 + level * 10 + ID_SWIMMER_ACTIVITY}",
-                message: inputMessage,
-              ),
-            ),
-          );
+              context,
+              MaterialPageRoute(
+                builder: (context) => Swimmer(
+                  appLanguage: appLanguage,
+                  user: user,
+                  level: "${100 + level * 10 + ID_SWIMMER_ACTIVITY}",
+                  message: inputMessage,
+                ),
+              ),);
+              //(Route<dynamic> route) => route is Swimmer);
         }
         break;
       case ID_PLANE_ACTIVITY:
         {
           Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Plane(
-                appLanguage: appLanguage,
-                user: user,
-                level: "${100 + level * 10 + ID_PLANE_ACTIVITY}",
-                message: inputMessage,
-              ),
-            ),
-          );
+              context,
+              MaterialPageRoute(
+                builder: (context) => Plane(
+                  appLanguage: appLanguage,
+                  user: user,
+                  level: "${100 + level * 10 + ID_PLANE_ACTIVITY}",
+                  message: inputMessage,
+                ),
+              ),);
+              //(Route<dynamic> route) => route is Plane);
         }
         break;
       case ID_TEMP_ACTIVITY:
         {
           Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Temp(
-                appLanguage: appLanguage,
-                user: user,
-                level: "${100 + level * 10 + ID_TEMP_ACTIVITY}",
-                message: inputMessage,
-              ),
-            ),
-          );
+              context,
+              MaterialPageRoute(
+                builder: (context) => Temp(
+                  appLanguage: appLanguage,
+                  user: user,
+                  level: "${100 + level * 10 + ID_TEMP_ACTIVITY}",
+                  message: inputMessage,
+                ),
+              ),);
+              //(Route<dynamic> route) => route is Temp);
         }
         break;
       case ID_CAR_ACTIVITY:
         {
           Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Car(
-                appLanguage: appLanguage,
-                user: user,
-                level: "${100 + level * 10 + ID_CAR_ACTIVITY}",
-                message: inputMessage,
-              ),
-            ),
-          );
+              context,
+              MaterialPageRoute(
+                builder: (context) => Car(
+                  appLanguage: appLanguage,
+                  user: user,
+                  level: "${100 + level * 10 + ID_CAR_ACTIVITY}",
+                  message: inputMessage,
+                ),
+              ),);
+              //(Route<dynamic> route) => route is Car);
         }
         break;
       default:
@@ -1001,7 +1012,7 @@ class _SelectGame extends State<SelectGame> {
             actions: <Widget>[
               Container(
                 alignment: Alignment.centerLeft,
-                padding: EdgeInsets.fromLTRB(5, 0,0,0),
+                padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
                 width: (screenSize.width) * 0.2,
                 child: Container(
                   decoration: BoxDecoration(
@@ -1025,7 +1036,10 @@ class _SelectGame extends State<SelectGame> {
                       )),*/
               /*Container(
                     width: 30,
-                    child: RaisedButton(
+                    child: ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
+          ),
                       onPressed: () async {
                         //db.addStar(Star(starId: null, activityId: ID_SWIMMER_ACTIVITY, userId: user.userId, starLevel: 100 + level * 10 + ID_SWIMMER_ACTIVITY, starValue: 3.5));
 
@@ -1097,12 +1111,13 @@ class _SelectGame extends State<SelectGame> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
+                              //Level 1.1
                               Container(
                                 //color: Colors.green,
                                 width: screenSize.width,
+                                height: screenSize.height,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Row(
                                       crossAxisAlignment:
@@ -1129,12 +1144,13 @@ class _SelectGame extends State<SelectGame> {
                                   ],
                                 ),
                               ),
+                              //Level 1.2
                               Container(
                                 //color: Colors.blue,
                                 width: screenSize.width,
+                                height: screenSize.height,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Row(
                                       crossAxisAlignment:
