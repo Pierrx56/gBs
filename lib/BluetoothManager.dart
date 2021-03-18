@@ -267,6 +267,8 @@ class BluetoothManager {
 
     data = await getStringFromBluetooth();
 
+    print(data);
+
     result = data.split(";");
 
     //2 valeurs dans tableau, taille conforme avec force + voltage
@@ -307,7 +309,6 @@ class BluetoothManager {
 
     data = await getStringFromBluetooth();
 
-    //print(data);
     try {
       result = data.split(";");
       // Receiving voltage in mV
@@ -358,4 +359,5 @@ class BluetoothManager {
 /// = 41,16 heures
 /// 247 séances
 /// 3 séances/semaine = 82 semaines = 1,58 ans
-///
+
+

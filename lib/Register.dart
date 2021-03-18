@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 
 import 'dart:io';
 import 'dart:typed_data';
@@ -19,20 +20,12 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/QRScan.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-
-class _Message {
-  int whom;
-  String text;
-
-  _Message(this.whom, this.text);
-}
-
-String btData;
-List<_Message> messages = List<_Message>();
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class Register extends StatefulWidget {
   final AppLanguage appLanguage;
@@ -47,6 +40,7 @@ class _Register extends State<Register> {
   DatabaseHelper db = new DatabaseHelper();
 
   User user;
+  String btData;
 
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
@@ -80,6 +74,7 @@ class _Register extends State<Register> {
   ScrollController _controller;
   double posScroll = 0.0;
   bool isFound;
+  bool qrActivated;
   String selection;
 
   //Par défaut: 1 notif par jour
@@ -102,6 +97,8 @@ class _Register extends State<Register> {
   bool isConnected;
   Timer timerConnexion;
   Timer timerNode;
+
+  String qrValue;
 
   String discovering;
   String statusBT;
@@ -131,6 +128,7 @@ class _Register extends State<Register> {
 
     tz.initializeTimeZones();
     isFound = false;
+    qrActivated = false;
     isConnected = false;
     isGoodLength = false;
 
@@ -275,8 +273,88 @@ class _Register extends State<Register> {
     setState(() => currentStep = step);
   }
 
-  void _updateSwitch(bool value) => setState(() => isSwitched = value);
+  Future<void> searchingDevice(BuildContext context) async {
+    //On met isFound à true pour désactiver l'appuie du bouton
+    setState(() {
+      isFound = true;
+    });
 
+    macAddress = await btManage.getDevice(
+      serialNumber.text.toUpperCase().replaceAll(" ", ""),
+    );
+
+    int tempTimer = 0;
+    //Check tant que l'adresse mac est égale à -1 toute les secondes
+    //Si pas trouve au bout de 30 secondes, affiche message d'erreur
+    Timer.periodic(
+      const Duration(seconds: 1),
+      (timer) async {
+        if (macAddress == "0") {
+          macAddress = await btManage.getDevice(
+            serialNumber.text.toUpperCase().replaceAll(" ", ""),
+          );
+        }
+        if (macAddress != "-1") {
+          timer.cancel();
+          //Appareil trouvé
+          setState(
+            () {
+              discovering =
+                  AppLocalizations.of(context).translate('app_trouve');
+              isFound = true;
+              connect();
+
+              Timer.periodic(
+                const Duration(seconds: 1),
+                (timer) {
+                  if (isConnected) {
+                    timer.cancel();
+                    setState(
+                      () {
+                        discovering = AppLocalizations.of(context)
+                            .translate('status_connexion_bon');
+                      },
+                    );
+                  } else {
+                    setState(
+                      () {
+                        discovering = AppLocalizations.of(context)
+                            .translate('connexion_en_cours');
+                      },
+                    );
+                  }
+                },
+              );
+            },
+          );
+        } else if (macAddress == "-1") {
+          if (tempTimer >= 20) {
+            setState(() {
+              show(AppLocalizations.of(context).translate('app_non_trouve'));
+              discovering =
+                  AppLocalizations.of(context).translate('connecter_app');
+            });
+            isFound = false;
+            btManage.disconnect("register");
+            timer.cancel();
+            tempTimer = 0;
+          } else {
+            macAddress = await btManage.getMacAddress();
+            setState(
+              () {
+                discovering =
+                    AppLocalizations.of(context).translate('recherche_app');
+                //isFound = false;
+              },
+            );
+          }
+        }
+        tempTimer++;
+      },
+    );
+  }
+
+  void _updateSwitch(bool value) => setState(() => isSwitched = value);
 
   @override
   Widget build(BuildContext context) {
@@ -615,15 +693,19 @@ class _Register extends State<Register> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 ElevatedButton(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
-          ),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.grey[350]),
+                  ),
                   child: Row(
                     children: <Widget>[
-                      Icon(Icons.image),
-                      Text(" " +
-                          AppLocalizations.of(context)
-                              .translate('select_image')),
+                      Icon(Icons.image, color: Colors.black),
+                      Text(
+                        " " +
+                            AppLocalizations.of(context)
+                                .translate('select_image'),
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ],
                   ),
                   onPressed: () {
@@ -634,15 +716,19 @@ class _Register extends State<Register> {
                   padding: EdgeInsets.all(10),
                 ),
                 ElevatedButton(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
-          ),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.grey[350]),
+                  ),
                   child: Row(
                     children: <Widget>[
-                      Icon(Icons.camera_alt),
-                      Text(" " +
-                          AppLocalizations.of(context)
-                              .translate('prendre_photo')),
+                      Icon(Icons.camera_alt, color: Colors.black),
+                      Text(
+                        " " +
+                            AppLocalizations.of(context)
+                                .translate('prendre_photo'),
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ],
                   ),
                   onPressed: () {
@@ -675,115 +761,56 @@ class _Register extends State<Register> {
                 ),
               ),
             ),
-            Container(
-              width: screenSize.width * 0.4,
-              child: isGoodLength
-                  ? ElevatedButton(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
-          ),
+            Column(
+              children: [
+                !isGoodLength
+                    ? ElevatedButton.icon(
+                        icon: Icon(Icons.camera_alt),
+                        label: AutoSizeText(
+                          !qrActivated
+                              ? AppLocalizations.of(context)
+                                  .translate('scan_qr')
+                              : AppLocalizations.of(context)
+                                  .translate('annuler'),
+                        ),
+                        onPressed: () async {
+                          serialNumber.text = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => QRScan(
+                                      appLanguage: appLanguage,
+                                      message: "",
+                                    )),
+                          );
+                          if(serialNumber.text.length >= 8)
+                            searchingDevice(context);
+                        },
+                      )
+                    : Container(),
+              ],
+            ),
+            isGoodLength
+                ? Container(
+                    width: screenSize.width * 0.4,
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: !isFound
+                            ? MaterialStateProperty.all<Color>(Colors.grey[350])
+                            : MaterialStateProperty.all<Color>(
+                                Colors.grey[600]),
+                      ),
                       child: Text(
                         "2. " + discovering,
                         style: textStyle,
                       ),
-                      onPressed: !isFound && isGoodLength
+                      onPressed: !isFound
                           ? () async {
-                              //On met isFound à true pour désactiver l'appuie du bouton
-                              setState(
-                                () {
-                                  isFound = true;
-                                },
-                              );
-                              macAddress = await btManage.getDevice(
-                                serialNumber.text
-                                    .toUpperCase()
-                                    .replaceAll(" ", ""),
-                              );
-
-                              int tempTimer = 0;
-                              //Check tant que l'adresse mac est égale à -1 toute les secondes
-                              //Si pas trouve au bout de 30 secondes, affiche message d'erreur
-                              Timer.periodic(
-                                const Duration(seconds: 1),
-                                (timer) async {
-                                  if (macAddress == "0") {
-                                    macAddress = await btManage.getDevice(
-                                      serialNumber.text
-                                          .toUpperCase()
-                                          .replaceAll(" ", ""),
-                                    );
-                                  }
-                                  if (macAddress != "-1") {
-                                    timer.cancel();
-                                    //Appareil trouvé
-                                    setState(
-                                      () {
-                                        discovering =
-                                            AppLocalizations.of(context)
-                                                .translate('app_trouve');
-                                        isFound = true;
-                                        connect();
-
-                                        Timer.periodic(
-                                          const Duration(seconds: 1),
-                                          (timer) {
-                                            if (isConnected) {
-                                              timer.cancel();
-                                              setState(
-                                                () {
-                                                  discovering = AppLocalizations
-                                                          .of(context)
-                                                      .translate(
-                                                          'status_connexion_bon');
-                                                },
-                                              );
-                                            } else {
-                                              setState(
-                                                () {
-                                                  discovering = AppLocalizations
-                                                          .of(context)
-                                                      .translate(
-                                                          'connexion_en_cours');
-                                                },
-                                              );
-                                            }
-                                          },
-                                        );
-                                      },
-                                    );
-                                  } else if (macAddress == "-1") {
-                                    if (tempTimer >= 20) {
-                                      setState(() {
-                                        show(AppLocalizations.of(context)
-                                            .translate('app_non_trouve'));
-                                        discovering =
-                                            AppLocalizations.of(context)
-                                                .translate('connecter_app');
-                                      });
-                                      isFound = false;
-                                      timer.cancel();
-                                      tempTimer = 0;
-                                    } else {
-                                      macAddress =
-                                          await btManage.getMacAddress();
-                                      setState(
-                                        () {
-                                          discovering =
-                                              AppLocalizations.of(context)
-                                                  .translate('recherche_app');
-                                          //isFound = false;
-                                        },
-                                      );
-                                    }
-                                  }
-                                  tempTimer++;
-                                },
-                              );
+                              searchingDevice(context);
                             }
                           : null,
-                    )
-                  : Container(),
-            ),
+                    ),
+                  )
+                : Container(),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(
@@ -959,13 +986,26 @@ class _Register extends State<Register> {
     ];
 
     Future<bool> _onBackPressed() {
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      } else {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Login(
+                      appLanguage: appLanguage,
+                      message: "fromRegister",
+                    )),
+            (Route<dynamic> route) => route is Login);
+      }
+      /*
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
               builder: (context) => Login(
                     appLanguage: appLanguage,
-                message: "fromRegister",
-                  )));
+                    message: "fromRegister",
+                  )));*/
     }
 
     return WillPopScope(

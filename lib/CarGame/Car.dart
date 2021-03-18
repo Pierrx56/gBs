@@ -21,16 +21,7 @@ import 'package:gbsalternative/MainTitle.dart';
 import 'Ui.dart';
 
 String btData;
-List<_Message> messages = List<_Message>();
 bool isConnected;
-CarGame game;
-
-class _Message {
-  int whom;
-  String text;
-
-  _Message(this.whom, this.text);
-}
 
 class Car extends StatefulWidget {
   final User user;
@@ -53,6 +44,7 @@ class Car extends StatefulWidget {
 class _Car extends State<Car> with TickerProviderStateMixin {
   User user;
   AppLanguage appLanguage;
+  CarGame game;
 
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
@@ -64,7 +56,6 @@ class _Car extends State<Car> with TickerProviderStateMixin {
   Timer _timer;
   Timer timerRedirection;
   Timer pauseTimer;
-  int _start = 3;
   bool start;
   bool gameOver;
   int seconds;
@@ -112,6 +103,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
     _controllerTopCenter?.dispose();
     pauseTimer?.cancel();
     game.timerPause?.cancel();
+    gameUI?.state?.dispose();
     super.dispose();
   }
 
@@ -210,81 +202,12 @@ class _Car extends State<Car> with TickerProviderStateMixin {
     });
   }
 
-  void startTimer(bool boolean) async {
-    int _start = seconds;
-    const int delay = 1;
-
-    if (!boolean && isConnected) {
-      _start = seconds;
-    } else {
-      const time = const Duration(seconds: delay);
-      _timer = new Timer.periodic(
-        time,
-        (Timer timer) {
-          //FIN DU JEU
-          //if(game.totalCounterActivity > )
-
-          if (_start < delay) {
-            game.pauseGame = true;
-            gameOver = true;
-            _timer.cancel();
-            redirection();
-          } else if (!game.getConnectionState())
-            _timer.cancel();
-          else if (game.pauseGame || game.hasCrash) {
-            timeRemaining = convertDuration(Duration(seconds: _start));
-          } else {
-            _start -= delay;
-            timeRemaining = convertDuration(Duration(seconds: _start));
-          }
-        },
-      );
-    }
-  }
-
   String convertDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     /*${twoDigits(duration.inHours)}:*/
     return "$twoDigitMinutes:$twoDigitSeconds";
-  }
-
-  void redirection() {
-    const oneSec = const Duration(seconds: 1);
-    timerRedirection = new Timer(
-      oneSec,
-      mounted
-          ? {
-              setState(
-                () {
-                  if (_start < 1) {
-                    //TODO Update value
-                    if (user.userMode == "0" && score > 15) {
-                      setState(() {
-                        game.setStarValue(starValue = 0.5);
-                      });
-                    } else if (user.userMode == "1" && score > 50) {
-                      setState(() {
-                        game.setStarValue(starValue = 0.5);
-                      });
-                    } else {
-                      setState(() {
-                        game.setStarValue(starValue = 0.0);
-                      });
-                    }
-
-                    timerRedirection.cancel();
-                    commonGamesUI.saveAndExit(context, appLanguage, user, score,
-                        game, ID_CAR_ACTIVITY, starValue, level, message);
-                  } else {
-                    _start = _start - 1;
-                  }
-                },
-              )
-            }
-          : start = start,
-    );
   }
 
   void switchSize() async {
@@ -426,7 +349,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                                     : commonGamesUI.pauseDebugButton(
                                         context, appLanguage, game, user),
                               )
-                            : !game.endOfGame
+                            : !game.endOfGame && !game.getGameOver()
                                 ? Container(
                                     alignment: Alignment.topRight,
                                     //alignment: Alignment.topLeft,
@@ -454,7 +377,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                                               game.getStarLevel(),
                                               game.score,
                                               message),
-                                        ),
+                                        ), /*
                                         //TOP CENTER - shoot down
                                         Align(
                                           alignment: Alignment.center,
@@ -471,7 +394,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                                             // a lot of particles at once
                                             gravity: 1,
                                           ),
-                                        ),
+                                        ),*/
                                       ],
                                     ))
                         : Container(),
@@ -532,10 +455,19 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                 alignment: Alignment.centerRight,
                 child: game != null
                     ? game.getGameOver()
-                        ? gameUI.state.displayMessage(
-                            AppLocalizations.of(context).translate('game_over'),
-                            game,
-                            Colors.redAccent)
+                        ? Align(
+                            alignment: Alignment.center,
+                            child: commonGamesUI.endScreen(
+                                context,
+                                appLanguage,
+                                game,
+                                ID_CAR_ACTIVITY,
+                                user,
+                                game.getStarValue(),
+                                game.getStarLevel(),
+                                game.score,
+                                message),
+                          )
                         : Container()
                     : Container(),
               ),

@@ -21,16 +21,8 @@ import 'package:gbsalternative/main.dart';
 import 'Ui.dart';
 
 String btData;
-List<_Message> messages = List<_Message>();
 bool isConnected;
-PlaneGame game;
 
-class _Message {
-  int whom;
-  String text;
-
-  _Message(this.whom, this.text);
-}
 
 class Plane extends StatefulWidget {
   final User user;
@@ -53,6 +45,7 @@ class Plane extends StatefulWidget {
 class _Plane extends State<Plane> with TickerProviderStateMixin {
   User user;
   AppLanguage appLanguage;
+  PlaneGame game;
 
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
@@ -110,6 +103,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     timer?.cancel();
     _timer?.cancel();
     _controllerTopCenter?.dispose();
+    gameUI?.state?.dispose();
     super.dispose();
   }
 

@@ -17,7 +17,6 @@ import 'package:gbsalternative/CarGame/Road.dart';
 class CarGame extends Game {
   Size screenSize;
   bool inTouch = false;
-  Background background;
   StraightRoad staightRoad;
   CMV cmv;
   CSI csi;
@@ -97,11 +96,10 @@ class CarGame extends Game {
 
   void initialize() async {
     resize(await Flame.util.initialDimensions());
-    background = Background(this);
     staightRoad = StraightRoad(this);
     //csi = CSI(this);
     //tme = TME(this);
-    police = POLICE(this);
+    //police = POLICE(this);
     gameUI = UI();
 
     //140 / 70
@@ -212,33 +210,28 @@ class CarGame extends Game {
             //randomNumber = 1;
 
             //End of the game
-            if(index > CMVLimit + CSILimit + TMELimit + waitLimit)
+            if (index > CMVLimit + CSILimit + TMELimit + waitLimit)
             //if(index > 0)
             {
-
               //score = 16;
 
               //TODO Update value
               //Family
-              if (user.userMode =="0" &&
-                  score > 15) {
-                  game.setStarValue(starValue = 0.5);
-
+              if (user.userMode == "0" && score > 15) {
+                setStarValue(starValue = 0.5);
               }
               //Athletic
-              else if (user.userMode =="1" &&
-                  score > 30) {
-                  game.setStarValue(starValue = 0.5);
+              else if (user.userMode == "1" && score > 30) {
+                setStarValue(starValue = 0.5);
               } else {
-                  game.setStarValue(starValue = 0.0);
+                setStarValue(starValue = 0.0);
               }
 
               pauseGame = true;
               endOfGame = true;
-            }
-            else {
+            } else {
               switch (randomActivity[index]) {
-              //CMV
+                //CMV
                 case 0:
                   if (CMVLimit > CMVCounter) {
                     previousActivity = randomNumber;
@@ -250,7 +243,7 @@ class CarGame extends Game {
                     CMVCounter++;
                   }
                   break;
-              //CSI
+                //CSI
                 case 1:
                   if (CSILimit > CSICounter) {
                     previousActivity = randomNumber;
@@ -262,7 +255,7 @@ class CarGame extends Game {
                     CSICounter++;
                   }
                   break;
-              //TME
+                //TME
                 case 2:
                   if (TMELimit > TMECounter) {
                     previousActivity = randomNumber;
@@ -274,9 +267,9 @@ class CarGame extends Game {
                     TMECounter++;
                   }
                   break;
-              //Wait
+                //Wait
                 case 3:
-                //previousActivity = randomNumber;
+                  //previousActivity = randomNumber;
                   isWaiting = true;
                   isDoingExercice = true;
                   startPause(true);
@@ -356,7 +349,10 @@ class CarGame extends Game {
                   cmv = null;
                   isDoingExercice = false;
                 }
-              } else if (posMid) {
+              }
+              //else if (posMid) {
+              else if (tempPos <= screenSize.height * 0.4 &&
+                  tempPos >= screenSize.height * 0.2) {
                 //Hitbox Car
                 if (j * speedTruck -
                             screenSize.width / 2 +
@@ -393,17 +389,15 @@ class CarGame extends Game {
 
             //HitBox CSI : Fuels
             if (csi != null) {
-              if (csi.fuelList != null) {
                 //Hitbox fuel
                 for (int i = 0; i < csi.fuelList.length; i++) {
                   if (j - screenSize.width / 2 >
                           csi.getXPosition(i) - 2 * csi.getWidth() &&
-                      j - screenSize.width / 2 <
-                          csi.getXPosition(i)) {
+                      j - screenSize.width / 2 < csi.getXPosition(i)) {
                     //bottom Fuel
                     if (posMid &&
                         csi.getYPosition(i) >
-                            game.screenSize.height * 0.1 /*&& fuelIsDown*/) {
+                            screenSize.height * 0.1 /*&& fuelIsDown*/) {
                       if (!hasSetXFuel) {
                         csi.removeFuel(i);
                         hasSetXFuel = true;
@@ -417,7 +411,7 @@ class CarGame extends Game {
                     //Top Fuel
                     else if (posMax &&
                         csi.getYPosition(i) <
-                            game.screenSize.height * 0.4 /*&& !fuelIsDown*/) {
+                            screenSize.height * 0.4 /*&& !fuelIsDown*/) {
                       if (!hasSetXFuel) {
                         csi.removeFuel(i);
                         hasSetXFuel = true;
@@ -434,7 +428,7 @@ class CarGame extends Game {
                     csi = null;
                     isDoingExercice = false;
                   }
-                }
+
               }
             }
 
@@ -474,6 +468,12 @@ class CarGame extends Game {
                 tme = null;
                 isDoingExercice = false;
               }
+            }
+
+            //Game Over conditions
+            if (life < 1) {
+              pauseGame = true;
+              gameOver = true;
             }
           }
         }
@@ -523,7 +523,7 @@ class CarGame extends Game {
           }
           //Milieu
           else if (getData() > secondWayDifficulty &&
-              !posMid &&
+              //!posMid &&
               tempPos <= screenSize.height * 0.4 &&
               tempPos >= screenSize.height * 0.38) {
             posMid = true;
@@ -535,8 +535,7 @@ class CarGame extends Game {
           }
           //Haut
           else if (getData() > thirdWayDifficulty &&
-              tempPos <= screenSize.height * 0.1 &&
-              tempPos >= screenSize.height * 0.05) {
+              tempPos <= screenSize.height * 0.1) {
             //tempPos = 0.0;
             car.y = tempPos;
             posMid = false;
@@ -564,9 +563,7 @@ class CarGame extends Game {
         if (!pauseGame) {
           //getData = données reçues par le Bluetooth
           //Montée de la voiture dans la 3 eme voie
-          if (getData() > thirdWayDifficulty &&
-              !posMax &&
-              car != null) {
+          if (getData() > thirdWayDifficulty && !posMax && car != null) {
             //tempPos >= screenSize.height / 2 - sizeH / 2) {
             //print(car.y);
             car.y -= difficulte;
@@ -671,7 +668,7 @@ class CarGame extends Game {
         time,
         (Timer timer) {
           if (_start < 1) {
-            timerPause .cancel();
+            timerPause.cancel();
             isWaiting = false;
             doingBreak = false;
             isDoingExercice = false;

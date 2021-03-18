@@ -495,9 +495,9 @@ class CommonGamesUI {
       String message) {
     if (idGame == ID_CAR_ACTIVITY) {
       //TODO Update coin value
-      if (user.userMode == "0" && score > 2) {
+      if (user.userMode == "0" && score > 16) {
         game.setStarValue(starValue = 0.5);
-      } else if (user.userMode == "1" && score > 2) {
+      } else if (user.userMode == "1" && score > 20) {
         game.setStarValue(starValue = 0.5);
       } else {
         game.setStarValue(starValue = 0.0);
@@ -622,6 +622,24 @@ class CommonGamesUI {
               )),
     );*/
 
+
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainTitle(
+            appLanguage: appLanguage,
+            userIn: user,
+            messageIn: "0",
+          ),
+        ),
+        //(Route<dynamic> route) => route is MainTitle,
+      );
+    }
+/*
+
     if (message == "fromRestart") {
       Navigator.pushReplacement(
         context,
@@ -646,6 +664,7 @@ class CommonGamesUI {
         ),
         //  (Route<dynamic> route) => route is MainTitle,
       );
+*/
 
     /*
       Navigator.push(

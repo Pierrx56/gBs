@@ -534,8 +534,9 @@ class _MaxPush extends State<MaxPush> {
                                         child: ElevatedButton(
                                           style: ButtonStyle(
                                             backgroundColor:
-                                                MaterialStateProperty.all<
-                                                    Color>(Colors.grey[350]),
+                                            !isCorrect ? MaterialStateProperty.all<
+                                                    Color>(Colors.grey[350]) : MaterialStateProperty.all<
+                                                Color>(Colors.grey[600]),
                                           ),
                                           //child: Text("Démarrer l'enregistrement."),
                                           onPressed: !isTryingConnect &&
@@ -731,9 +732,15 @@ class _MaxPush extends State<MaxPush> {
                                           ? ElevatedButton(
                                               style: ButtonStyle(
                                                 backgroundColor:
-                                                    MaterialStateProperty.all<
+                                                bottomSelection != 0 &&
+                                                    (topSelection != 0 ||
+                                                        topSelection !=
+                                                            1) ||
+                                                    inputMessage == "fromMain" ? MaterialStateProperty.all<
                                                             Color>(
-                                                        Colors.grey[350]),
+                                                        Colors.grey[350]) : MaterialStateProperty.all<
+                                                            Color>(
+                                                        Colors.grey[600]),
                                               ),
                                               onPressed: bottomSelection != 0 &&
                                                           (topSelection != 0 ||

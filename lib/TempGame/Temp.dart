@@ -22,17 +22,8 @@ import 'Ui.dart';
 
 String btData;
 String _messageBuffer = '';
-List<_Message> messages = List<_Message>();
 BluetoothConnection connexion;
 bool isConnected;
-TempGame game;
-
-class _Message {
-  int whom;
-  String text;
-
-  _Message(this.whom, this.text);
-}
 
 class Temp extends StatefulWidget {
   final User user;
@@ -54,6 +45,7 @@ class Temp extends StatefulWidget {
 class _Temp extends State<Temp> {
   User user;
   AppLanguage appLanguage;
+  TempGame game;
 
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
@@ -117,6 +109,7 @@ class _Temp extends State<Temp> {
     game.tempTimer?.cancel();
     game.timerPosition?.cancel();
     game.timerTuto?.cancel();
+    gameUI?.state?.dispose();
 
     super.dispose();
   }

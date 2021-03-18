@@ -20,17 +20,9 @@ import 'Ui.dart';
 
 String btData;
 String _messageBuffer = '';
-List<_Message> messages = List<_Message>();
 BluetoothConnection connexion;
 bool isConnected;
-SwimGame game;
 
-class _Message {
-  int whom;
-  String text;
-
-  _Message(this.whom, this.text);
-}
 
 class Swimmer extends StatefulWidget {
   final User user;
@@ -53,6 +45,7 @@ class Swimmer extends StatefulWidget {
 class _Swimmer extends State<Swimmer> {
   User user;
   AppLanguage appLanguage;
+  SwimGame game;
 
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
@@ -103,6 +96,7 @@ class _Swimmer extends State<Swimmer> {
     _timer?.cancel();
     timerThread?.cancel();
     game.timerSwimmer?.cancel();
+    gameUI?.state?.dispose();
     super.dispose();
   }
 
@@ -151,7 +145,7 @@ class _Swimmer extends State<Swimmer> {
       seconds = 180;
     } else {
       timeRemaining = "2:00";
-      seconds = 10;
+      seconds = 120;
     }
     initSwimmer();
   }

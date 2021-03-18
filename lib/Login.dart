@@ -77,7 +77,7 @@ class _Login extends State<Login> {
     //userList = await db.userList();
     setState(() {});
 
-    if (message != "fromMain" && message != "fromRegister") {
+    if (message != "fromMain") {
       //Cancel every bluetooth research
       bluetoothManager.disconnect("fromLogin");
     }

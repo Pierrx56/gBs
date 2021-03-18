@@ -274,8 +274,6 @@ class CSI {
           Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height));
     }
 
-    print(fuelList.length);
-
     int k = 0;
     for (int i = numberFuel - fuelList.length; i < fuelList.length; i++) {
       rectBottomList[k] = Rect.fromLTWH(
