@@ -13,7 +13,6 @@ import 'package:gbsalternative/CarGame/Car.dart';
 import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/CarGame/CarGame.dart';
@@ -50,6 +49,8 @@ class UIState extends State<UI> {
   }
 
   Widget displayScore(String message, CarGame game, String timeRemaining) {
+    if(game.screenSize == null)
+      return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -121,6 +122,8 @@ class UIState extends State<UI> {
   }
 
   Widget displayItems(String message, CarGame game) {
+    if(game.screenSize == null)
+      return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -192,6 +195,8 @@ class UIState extends State<UI> {
   }
 
   Widget waitingScreen(CarGame game) {
+    if(game.screenSize == null)
+      return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -228,6 +233,8 @@ class UIState extends State<UI> {
   }
 
   Widget displayMessage(String message, CarGame game, Color color) {
+    if(game.screenSize == null)
+      return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(

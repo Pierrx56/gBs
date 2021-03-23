@@ -11,7 +11,6 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 //import 'package:flutter_blue/flutter_blue.dart' as fb;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gbsalternative/AppLanguage.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
 
 import '../DatabaseHelper.dart';
@@ -498,15 +497,6 @@ class _BluetoothSync extends State<BluetoothSync> {
             //Déconnexion immédiate sinon bug lors de lancement de jeux
             _disconnect();
 
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => LoadPage(
-                          appLanguage: appLanguage,
-                          page: mainTitle,
-                          user: user,
-                          messageIn: "0",
-                        )));
             show('Vous êtes connecté à gBs');
           }
         } else

@@ -1,24 +1,35 @@
 import 'dart:ui';
 
+import 'package:flame/components.dart';
+import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:gbsalternative/CarGame/CarGame.dart';
 
 class Background {
   final CarGame game;
   Sprite bgSprite;
-  Rect bgRect;
+  Vector2 bgSize;
+  Vector2 bgPosition;
 
   double j = 0;
   double backgroundSpeed = 1;
 
+  var image;
+
+  _loadImage() async{
+    image = await Flame.images.load('car/background.png');
+    bgSprite = Sprite(image);
+  }
+
   Background(this.game) {
-    bgSprite = Sprite('car/background.png');
-    bgRect = Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height);
+    _loadImage();
+    bgSize = Vector2( game.screenSize.width, game.screenSize.height);
+    bgPosition = Vector2(0,0);
   }
 
   void render(Canvas c, bool pause) {
     //bgSprite.render(c);
-    bgSprite.renderRect(c, bgRect);
+    bgSprite.render(c,position: bgPosition, size: bgSize);
 
 
 
@@ -35,11 +46,11 @@ class Background {
 
     c.translate(game.screenSize.width - j.toDouble(), 0);
 
-    bgSprite.renderRect(c, bgRect);
+    bgSprite.render(c,position: bgPosition, size: bgSize);
 
     c.translate(-game.screenSize.width, 0);
 
-    bgSprite.renderRect(c, bgRect);
+    bgSprite.render(c,position: bgPosition, size: bgSize);
     // restore original state
     c.restore();
   }

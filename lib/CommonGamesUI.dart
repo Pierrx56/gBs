@@ -11,7 +11,6 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/CarGame/Car.dart';
@@ -66,6 +65,10 @@ class CommonGamesUI {
 
   Widget pauseButton(
       BuildContext context, AppLanguage appLanguage, var game, User user) {
+
+    if(game.screenSize == null)
+      return Container();
+
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -539,7 +542,6 @@ class CommonGamesUI {
 
     return starValue;
   }
-
   void saveAndExit(
       BuildContext context,
       AppLanguage appLanguage,
@@ -638,6 +640,9 @@ class CommonGamesUI {
         //(Route<dynamic> route) => route is MainTitle,
       );
     }
+
+
+
 /*
 
     if (message == "fromRestart") {
@@ -791,7 +796,8 @@ class CommonGamesUI {
 
   Widget menu(BuildContext context, AppLanguage appLanguage, var game,
       User user, int idGame, String message) {
-    CommonGamesUI commonGamesUI = new CommonGamesUI();
+    if(game.screenSize == null)
+      return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -814,10 +820,10 @@ class CommonGamesUI {
               "MENU",
               style: textStyle,
             ),
-            commonGamesUI.pauseButton(context, appLanguage, game, user),
-            commonGamesUI.restartButton(
+            pauseButton(context, appLanguage, game, user),
+            restartButton(
                 context, appLanguage, idGame, game, user),
-            commonGamesUI.closeButton(
+            closeButton(
                 context,
                 appLanguage,
                 user,

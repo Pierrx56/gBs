@@ -1,8 +1,9 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
-import 'package:flame/components/component.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
+import 'package:flame/gestures.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,10 +11,11 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/Plane/Background.dart';
 import 'package:gbsalternative/Plane/Plane.dart';
+import 'package:flame/components.dart';
 import 'package:gbsalternative/Plane/Ui.dart';
 import 'package:gbsalternative/Plane/Balloons.dart';
 
-class PlaneGame extends Game {
+class PlaneGame extends Game with TapDetector {
   Size screenSize;
   bool inTouch = false;
   Background background;
@@ -21,11 +23,11 @@ class PlaneGame extends Game {
   TopBalloon topBalloon;
   bool isDown = false;
   SpriteComponent plane;
-  double tileSize;
   bool redFilter;
   bool start;
-  bool gameOver;
-  bool isConnected;
+  bool gameOver = false;
+  bool isConnected = true;
+  List<ui.Image> image = [];
 
   int score = 0;
   int starLevel = 0;
@@ -41,7 +43,7 @@ class PlaneGame extends Game {
   int i = 0;
   double difficulte = 3.0;
 
-  double size = 130.0;
+  double sizeSprite = 130.0;
   List<String> tab = ['plane/plane1.png', 'plane/plane2.png'];
 
   double Function() getData;
@@ -57,19 +59,37 @@ class PlaneGame extends Game {
   PlaneGame(this.getData, User _user, AppLanguage _appLanguage) {
     user = _user;
     appLanguage = _appLanguage;
+  }
+
+  @override
+  Future<void> onLoad() {
     initialize();
+    // TODO: implement onLoad
+    return super.onLoad();
+  }
+
+  Future<List<ui.Image>> _loadImage() async {
+    List<ui.Image> temp = [];
+
+    for (int i = 0; i < tab.length; i++) {
+      temp.add(await Flame.images.load(tab[i]));
+    }
+
+    return temp;
   }
 
   void initialize() async {
-    resize(await Flame.util.initialDimensions());
+    WidgetsFlutterBinding.ensureInitialized();
+    //resize(await initialDimensions());
+    //onResize(Vector2(screenSize.width, screenSize.height));
+
+    screenSize = size.toSize();
+    image = await _loadImage();
+
     background = Background(this);
     bottomBalloon = BottomBalloon(this);
     topBalloon = TopBalloon(this);
     gameUI = UI();
-
-    //Plane's size
-    size = screenSize.width*0.2;
-
 
     position = false;
     posMax = false;
@@ -86,11 +106,6 @@ class PlaneGame extends Game {
     Paint bgPaint = Paint();
     bgPaint.color = Color(0xff000000);
     canvas.drawRect(bgRect, bgPaint);
-
-    //String btData = _onDataReceiver();
-
-    double screenCenterX = screenSize.width / 2;
-    double screenCenterY = screenSize.height / 2;
 
     if (canvas != null) {
       //Background
@@ -168,6 +183,15 @@ class PlaneGame extends Game {
               reset = true;
               isDown = !isDown;
               topBalloon = TopBalloon(this);
+            } else if (posX >=
+                    ((topBalloon.getXTopPosition() - plane.width / 2) - 3) &&
+                posX <=
+                    ((topBalloon.getXTopPosition() - plane.width / 2) + 3) &&
+                !isDown) {
+              position = isDown;
+              reset = true;
+              isDown = !isDown;
+              bottomBalloon = BottomBalloon(this);
             } else {
               setColorFilter(false);
             }
@@ -201,16 +225,16 @@ class PlaneGame extends Game {
 
           creationTimer = 0.0;
 
-          Sprite sprite = Sprite(planePic);
+          plane = SpriteComponent.fromImage(image[i],
+              size: Vector2(screenSize.width * 0.2,
+                  screenSize.width * 0.2)); // width, height, sprite
 
-          plane = SpriteComponent.fromSprite(
-              size, size, sprite); // width, height, sprite
           //Centrage de l'avion en abscisses
           plane.x = screenSize.width / 2.5 - plane.width / 2;
           //Définition des bords haut et bas de l'écran
 
           //Bas
-          if (tempPos >= screenSize.height - size) {
+          if (tempPos >= screenSize.height - sizeSprite) {
             plane.y = tempPos;
           }
           //Haut
@@ -262,22 +286,6 @@ class PlaneGame extends Game {
     //super.update(t);
   }
 
-  void resize(Size size) {
-    screenSize = size;
-    tileSize = screenSize.width / 9;
-  }
-
-  void onTapDown(TapDownDetails d) {
-    double screenCenterX = screenSize.width / 2;
-    double screenCenterY = screenSize.height / 2;
-    if (d.globalPosition.dx >= screenCenterX - screenSize.width &&
-        d.globalPosition.dx <= screenCenterX + screenSize.width &&
-        d.globalPosition.dy >= screenCenterY - screenSize.height &&
-        d.globalPosition.dy <= screenCenterY + screenSize.height) {
-      inTouch = true;
-    }
-  }
-
   int getScore() {
     return score;
   }
@@ -302,19 +310,8 @@ class PlaneGame extends Game {
     redFilter = boolean;
   }
 
-  void setBalloonSpeed(int speed){
+  void setBalloonSpeed(int speed) {
     balloonSpeed = speed;
-  }
-
-  ColorFilter getColorFilter() {
-    if (redFilter) {
-      return ColorFilter.mode(Colors.redAccent, BlendMode.hue);
-    } else
-      return ColorFilter.mode(Colors.transparent, BlendMode.luminosity);
-  }
-
-  bool getColorFilterBool() {
-    return redFilter;
   }
 
   bool getGameOver() {
@@ -331,4 +328,17 @@ class PlaneGame extends Game {
     return position;
   }
 
+  void onTapDown(TapDownDetails d) {
+    double screenCenterX = screenSize.width / 2;
+    double screenCenterY = screenSize.height / 2;
+
+    if (d.globalPosition.dx >= screenCenterX - screenSize.width &&
+        d.globalPosition.dx <= screenCenterX + screenSize.width &&
+        d.globalPosition.dy >= screenCenterY - screenSize.height &&
+        d.globalPosition.dy <= screenCenterY + screenSize.height) {
+      inTouch = true;
+
+      //inTouch = true;
+    }
+  }
 }

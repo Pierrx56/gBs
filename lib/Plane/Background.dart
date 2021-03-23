@@ -1,24 +1,39 @@
 import 'dart:ui';
 
+import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
+import 'package:flame/flame.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:gbsalternative/Plane/PlaneGame.dart';
 
 class Background {
   final PlaneGame game;
   Sprite bgSprite;
-  Rect bgRect;
+  Vector2 bgSize;
+  Vector2 bgPosition;
 
   double j = 0;
   double backgroundSpeed = 0.5;
 
+  //Image(image: 'plane/background.png',)
+
+  var image;
+
+  _loadImage() async{
+    image = await Flame.images.load('plane/background.png');
+    bgSprite = Sprite(image);
+  }
+
   Background(this.game) {
-    bgSprite = Sprite('plane/background.png');
-    bgRect = Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height);
+    _loadImage();
+    bgSize = Vector2( game.screenSize.width, game.screenSize.height);
+    bgPosition = Vector2(0,0);
   }
 
   void render(Canvas c, bool pause) {
     //bgSprite.render(c);
-    bgSprite.renderRect(c, bgRect);
+
+    bgSprite?.render(c,position: bgPosition, size: bgSize);
 
 
 
@@ -35,11 +50,11 @@ class Background {
 
     c.translate(game.screenSize.width - j.toDouble(), 0);
 
-    bgSprite.renderRect(c, bgRect);
+    bgSprite?.render(c,size: bgSize);
 
     c.translate(-game.screenSize.width, 0);
 
-    bgSprite.renderRect(c, bgRect);
+    bgSprite?.render(c, size: bgSize);
     // restore original state
     c.restore();
   }

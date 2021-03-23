@@ -1,6 +1,7 @@
-import 'dart:async';
+import 'dart:async' as async;
+import 'dart:ui' as ui;
 
-import 'package:flame/components/component.dart';
+import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
@@ -8,7 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Swimmer/Background.dart';
 import 'package:gbsalternative/Swimmer/Ui.dart';
 import 'package:gbsalternative/Swimmer/WaterLines.dart';
@@ -21,12 +21,12 @@ class SwimGame extends Game {
   TopLine topLine;
   SpriteComponent swimmer;
   double tileSize;
-  bool redFilter;
+  bool redFilter = false;
   bool start;
-  bool gameOver;
-  bool isConnected;
+  bool gameOver = false;
+  bool isConnected = false;
   int counterHigh;
-  bool isTooHigh;
+  bool isTooHigh = false;
 
   int score = 0;
   int starLevel = 0;
@@ -41,7 +41,7 @@ class SwimGame extends Game {
   int i = 0;
   double difficulte = 0.50;
 
-  double size = 230.0;
+  double sizeSprite = 230.0;
   List<String> tab = [
     'swimmer/swim0.png',
     'swimmer/swim1.png',
@@ -77,23 +77,29 @@ class SwimGame extends Game {
   bool isTopPosition;
   UI gameUI;
   AppLanguage appLanguage;
-  Timer timerSwimmer;
+  async.Timer timerSwimmer;
 
   SwimGame(this.getData, User _user, AppLanguage _appLanguage) {
     user = _user;
     appLanguage = _appLanguage;
-    initialize();
   }
 
+  @override
+  Future<void> onLoad() {
+    initialize();
+    // TODO: implement onLoad
+    return super.onLoad();
+  }
   void initialize() async {
-    resize(await Flame.util.initialDimensions());
+    WidgetsFlutterBinding.ensureInitialized();
+    screenSize = size.toSize();
     background = Background(this);
     bottomLine = BottomLine(this);
     topLine = TopLine(this);
     gameUI = UI();
 
     //Swimmer's size
-    size = screenSize.width*0.4;
+    sizeSprite = screenSize.width*0.4;
 
     isTooHigh = false;
     counterHigh = 0;
@@ -105,6 +111,13 @@ class SwimGame extends Game {
     redFilter = false;
     posBottomLine = bottomLine.getDownPosition();
     posTopLine = bottomLine.getDownPosition();
+  }
+
+  Future<ui.Image> _loadImage(String image) async {
+    ui.Image temp;
+
+    temp = await Flame.images.load(image);
+    return temp;
   }
 
   void render(Canvas canvas) {
@@ -212,10 +225,9 @@ class SwimGame extends Game {
 
           creationTimer = 0.0;
 
-          Sprite sprite = Sprite(swimmerPic);
 
-          swimmer = SpriteComponent.fromSprite(
-              size, size, sprite); // width, height, sprite
+          swimmer = SpriteComponent.fromImage(await _loadImage(swimmerPic),
+              size: Vector2(sizeSprite, sizeSprite));
 
           //Centrage du nageur en abscisses
           swimmer.x = screenSize.width / 2 - swimmer.width / 2;
@@ -223,13 +235,13 @@ class SwimGame extends Game {
           //Définition des bords haut et bas de l'écran
 
           //Bas
-          if (tempPos >= screenSize.height - (size / 2)) {
+          if (tempPos >= screenSize.height - (sizeSprite / 2)) {
             swimmer.y = tempPos;
           }
           //Haut
-          else if (tempPos <= -(size / 2) &&
+          else if (tempPos <= -(sizeSprite / 2) &&
               getData() > double.parse(user.userInitialPush)) {
-            tempPos = -(size / 2);
+            tempPos = -(sizeSprite / 2);
             swimmer.y = tempPos;
             posMax = true;
           }
@@ -359,9 +371,9 @@ class SwimGame extends Game {
       start = false;
     } else {
       const time = const Duration(milliseconds: 500);
-      timerSwimmer = Timer.periodic(
+      timerSwimmer = async.Timer.periodic(
         time,
-        (Timer _timer) {
+        (async.Timer _timer) {
           // S'il ressort de la zone avant le timer, on reset le timer
           if (!start) {
             timerSwimmer.cancel();

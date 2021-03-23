@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'dart:io';
 import 'dart:typed_data';
@@ -57,7 +56,6 @@ class _Register extends State<Register> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   /* FORM */
-  static String _userMode = "";
   final hauteur_min = new TextEditingController();
   final hauteur_max = new TextEditingController();
   var name = new TextEditingController();
@@ -230,7 +228,7 @@ class _Register extends State<Register> {
     int id = await db.addUser(User(
       userId: null,
       userName: name.text,
-      userMode: _userMode,
+      userMode: "0",
       userPic: _pathSaved,
       userHeightTop: hauteur_max.text,
       userHeightBottom: hauteur_min.text,
@@ -397,30 +395,7 @@ class _Register extends State<Register> {
             isEmpty = true;
           else
             isEmpty = false;
-        }
-        if (currentStep == 1) {
-          if (_userMode == "") {
-            isEmpty = true;
-            show(AppLocalizations.of(context).translate('erreur_mode'));
-          } else
-            isEmpty = false;
-        }
-        /*else if (currentStep == 1) {
-          if (hauteur_min.text == "")
-            isEmpty = true;
-          else
-            isEmpty = false;
         } else if (currentStep == 2) {
-          if (hauteur_max.text == "")
-            isEmpty = true;
-          else
-            isEmpty = false;
-          if (tempHautMax <= tempHautMin)
-            _validate = true;
-          else
-            _validate = false;
-        } */
-        else if (currentStep == 3) {
           //Bouton connexion
           if (!isConnected) {
             show(AppLocalizations.of(context).translate('connect_av'));
@@ -441,7 +416,7 @@ class _Register extends State<Register> {
           } else if (currentStep == 1) {
             //if (_userMode == "")
             //_userMode = AppLocalizations.of(context).translate('familial');
-          } else if (currentStep == 3) {
+          } else if (currentStep == 2) {
             serialNode.requestFocus();
 
             timerNode =
@@ -456,7 +431,7 @@ class _Register extends State<Register> {
                 });
               }
             });
-          } else if (currentStep == 4) {
+          } else if (currentStep == 3) {
             timerNode?.cancel();
           }
 
@@ -545,7 +520,7 @@ class _Register extends State<Register> {
         ),
       ),
       //Mode
-      Step(
+      /*Step(
         title: Text(
           AppLocalizations.of(context).translate('mode'),
         ),
@@ -615,7 +590,7 @@ class _Register extends State<Register> {
             ),
           ],
         ),
-      ),
+      ),*/
       /*
       Step(
         title: Text(
@@ -782,7 +757,7 @@ class _Register extends State<Register> {
                                       message: "",
                                     )),
                           );
-                          if(serialNumber.text.length >= 8)
+                          if (serialNumber.text.length >= 8)
                             searchingDevice(context);
                         },
                       )
@@ -888,7 +863,8 @@ class _Register extends State<Register> {
                             style: textStyle,
                           ),
                         ),
-                        Align(
+                        //Mode
+                        /*Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             AppLocalizations.of(context).translate('mode') +
@@ -900,7 +876,7 @@ class _Register extends State<Register> {
                                         .translate('sportif')),
                             style: textStyle,
                           ),
-                        ),
+                        ),*/
                         Align(
                           alignment: Alignment.bottomLeft,
                           child: Text(
@@ -1056,7 +1032,6 @@ class _Register extends State<Register> {
                     ),
                     onPressed: () {
                       name.text = "Jean";
-                      _userMode = "1";
                       macAddress = "78:DB:2F:BF:3B:03";
                       serialNumber.text = "1230997P";
                       //result = 6.31;
@@ -1088,8 +1063,8 @@ class _Register extends State<Register> {
                           children: <Widget>[
                             currentStep >= 1 ? nextButton : Container(),
                             currentStep >= 1 ? backButton : Container(),
-                            currentStep == 6 ? Container() : Container(),
-                            currentStep == 6 ? Container() : Container(),
+                            currentStep == 5 ? Container() : Container(),
+                            currentStep == 5 ? Container() : Container(),
                           ],
                         ),
                         Padding(

@@ -3,17 +3,18 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flame/flame.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flame/util.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
-import 'package:gbsalternative/LoadPage.dart';
+import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Swimmer/SwimGame.dart';
 
 import 'Ui.dart';
@@ -96,7 +97,6 @@ class _Swimmer extends State<Swimmer> {
     _timer?.cancel();
     timerThread?.cancel();
     game.timerSwimmer?.cancel();
-    gameUI?.state?.dispose();
     super.dispose();
   }
 
@@ -111,15 +111,15 @@ class _Swimmer extends State<Swimmer> {
     mainThread();
     startTimer(true);
     //gameUI.state.game = game;
-    Util flameUtil = Util();
-    flameUtil.fullScreen();
+
+    Flame.device.fullScreen();
 
     TapGestureRecognizer tapper = TapGestureRecognizer();
 
     tapper.onTapDown = game.onTapDown;
 
     //runApp(game.widget);
-    flameUtil.addGestureRecognizer(tapper);
+    //flameUtil.addGestureRecognizer(tapper);
   }
 
   void connect() async {
@@ -160,11 +160,10 @@ class _Swimmer extends State<Swimmer> {
           Navigator.pushReplacement(
             this.context,
             MaterialPageRoute(
-              builder: (context) => LoadPage(
+              builder: (context) => MainTitle(
                 appLanguage: appLanguage,
-                user: user,
+                userIn: user,
                 messageIn: "0",
-                page: mainTitle,
               ),
             ),
           );
@@ -331,7 +330,7 @@ class _Swimmer extends State<Swimmer> {
                           ),
                         )),
                   )
-                : game.widget,
+                : GameWidget(game: game),
 
             SingleChildScrollView(
               child: Column(

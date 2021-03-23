@@ -1,4 +1,6 @@
 import 'dart:ui';
+import 'package:flame/components.dart';
+import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:gbsalternative/Swimmer/SwimGame.dart';
 
@@ -11,15 +13,21 @@ int balloonSpeed = 2;
 class BottomLine {
   final SwimGame game;
   Sprite bottomLine;
-  Rect rectBottom;
+  Vector2 posWater;
+  Vector2 sizeWater;
+
+  void _loadImage() async {
+      bottomLine = new Sprite(await Flame.images.load('swimmer/down_line.png'));
+  }
 
   BottomLine(this.game) {
-    bottomLine = Sprite('swimmer/down_line.png');
+    _loadImage();
     //width: 500
     //height: 300
 
-    rectBottom = Rect.fromLTWH(
-        0, 0, game.screenSize.width, game.screenSize.height * 0.05);
+    posWater = Vector2(0, 0);
+    sizeWater = Vector2(game.screenSize.width, game.screenSize.height* 0.05);
+
   }
 
   void render(Canvas c, bool pause) {
@@ -35,11 +43,11 @@ class BottomLine {
 
     c.translate(game.screenSize.width - j.toDouble(), 0);
 
-    bottomLine.renderRect(c, rectBottom);
+    bottomLine.render(c, position: posWater, size: sizeWater );
 
     c.translate(-game.screenSize.width, 0);
 
-    bottomLine.renderRect(c, rectBottom);
+    bottomLine.render(c, position: posWater, size: sizeWater );
     // restore original state
     c.restore();
   }
@@ -55,13 +63,20 @@ class TopLine {
   final SwimGame game;
   Sprite topLine;
   Rect rectTop;
+  Vector2 posWater;
+  Vector2 sizeWater;
+
+  void _loadImage() async {
+    topLine = new Sprite(await Flame.images.load('swimmer/up_line.png'));
+  }
+
 
   TopLine(this.game) {
-    topLine = Sprite('swimmer/up_line.png');
+    _loadImage();
     //width: 500
     //height: 300
-    rectTop = Rect.fromLTWH(
-        0, 0, game.screenSize.width, game.screenSize.height * 0.05);
+    posWater = Vector2(0, 0);
+    sizeWater = Vector2(game.screenSize.width, game.screenSize.height* 0.05);
   }
 
   void render(Canvas c) {
@@ -75,11 +90,11 @@ class TopLine {
     c.translate(game.screenSize.width - j.toDouble(), 0);
     j += balloonSpeed;
 
-    topLine.renderRect(c, rectTop);
+    topLine.render(c, position: posWater, size: sizeWater);
 
     c.translate(-game.screenSize.width, 0);
 
-    topLine.renderRect(c, rectTop);
+    topLine.render(c, position: posWater, size: sizeWater);
 
     // restore original state
     c.restore();

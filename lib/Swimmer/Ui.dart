@@ -10,7 +10,6 @@ import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/Swimmer/SwimGame.dart';
 import 'package:intl/intl.dart';
@@ -42,6 +41,8 @@ class UIState extends State<UI> {
 
   Widget displayScore(BuildContext context, AppLanguage appLanguage,
       String score, String timeRemaining, SwimGame game) {
+    if(game.screenSize == null)
+      return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -73,6 +74,8 @@ class UIState extends State<UI> {
   }
 
   Widget displayMessage(String message, SwimGame game, Color color) {
+    if(game.screenSize == null)
+      return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(

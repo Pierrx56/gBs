@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/NotificationManager.dart';
@@ -21,15 +20,7 @@ import 'DatabaseHelper.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-class _Message {
-  int whom;
-  String text;
-
-  _Message(this.whom, this.text);
-}
-
 String btData;
-List<_Message> messages = List<_Message>();
 
 class ManageProfile extends StatefulWidget {
   final User user;
@@ -48,16 +39,12 @@ class _ManageProfile extends State<ManageProfile> {
   bool isConnected = false;
   AppLanguage appLanguage;
 
-
   // Initializing a global key, as it would help us in showing a SnackBar later
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   Color colorMesureButton = Colors.black;
   Timer timerConnexion;
-  double _start = 10.0;
-  static double _reset = 10.0;
   int i = 100;
-  List<double> average = new List(10 * _reset.toInt());
   double delta = 102.0;
   double coefProgressBar = 2.0;
   double result;
@@ -70,7 +57,6 @@ class _ManageProfile extends State<ManageProfile> {
   File imageFile;
   Timer timer;
 
-  String _userMode;
   bool isSwitched = false;
   bool hasChangedState;
 
@@ -102,6 +88,7 @@ class _ManageProfile extends State<ManageProfile> {
   @override
   void dispose() {
     timer?.cancel();
+    timerConnexion?.cancel();
     super.dispose();
   }
 
@@ -124,15 +111,8 @@ class _ManageProfile extends State<ManageProfile> {
           hasChangedState = true;
         });
     }
-    if (_userMode != user.userMode) {
-      if (mounted)
-        setState(() {
-          hasChangedState = true;
-        });
-    }
     if (name.text == '' &&
-        _pathSaved == user.userPic &&
-        _userMode == user.userMode) {
+        _pathSaved == user.userPic) {
       if (mounted)
         setState(() {
           hasChangedState = false;
@@ -173,7 +153,6 @@ class _ManageProfile extends State<ManageProfile> {
   void updateUser() {
     if (name.text == '') name.text = user.userName;
     if (_pathSaved == '') _pathSaved = user.userPic;
-    if (_userMode == null) _userMode = user.userMode;
     if (initialPush == null) initialPush = user.userInitialPush;
 
     String macAddress = user.userMacAddress;
@@ -182,7 +161,7 @@ class _ManageProfile extends State<ManageProfile> {
     db.updateUser(user = User(
       userId: user.userId,
       userName: name.text,
-      userMode: _userMode,
+      userMode: "0",
       userPic: _pathSaved,
       userHeightTop: user.userHeightTop,
       userHeightBottom: user.userHeightBottom,
@@ -198,7 +177,6 @@ class _ManageProfile extends State<ManageProfile> {
     //Réinitialisation des champs pour virer le message enregister
     name.text = '';
     hasChangedState = false;
-    _userMode = user.userMode;
     _pathSaved = user.userPic;
 
     //Redirection vers l'écran d'accueil
@@ -220,6 +198,8 @@ class _ManageProfile extends State<ManageProfile> {
 
   Widget manageCard(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
+
+    var temp = AppLocalizations.of(this.context);
 
     if (_pathSaved == null) _pathSaved = user.userPic;
 
@@ -273,7 +253,8 @@ class _ManageProfile extends State<ManageProfile> {
                     )
                   ],
                 ),
-                Row(
+                //Mode
+                /*Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -314,7 +295,7 @@ class _ManageProfile extends State<ManageProfile> {
                       padding: EdgeInsets.fromLTRB(50, 0, 0, 0),
                     ),
                   ],
-                ),
+                ),*/
                 SizedBox(
                   height: 15,
                 ),
@@ -610,17 +591,18 @@ class _ManageProfile extends State<ManageProfile> {
   Widget build(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
 
+
     if (recording == null)
       recording =
           AppLocalizations.of(context).translate('demarrer_enregistrement');
 
-    if (_userMode == null) {
+/*    if (_userMode == null) {
       _userMode = user.userMode;
       if (user.userMode == "1") {
         isSwitched = true;
       } else
         isSwitched = false;
-    }
+    }*/
 
     return WillPopScope(
       onWillPop: () {

@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:flame/flame.dart';
+import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
 import 'package:gbsalternative/Plane/PlaneGame.dart';
 
@@ -16,6 +18,16 @@ class BottomBalloon {
   final PlaneGame game;
   Sprite bottomBalloon;
   Rect rectBottom;
+  Vector2 rectSize;
+  Vector2 rectPosition;
+
+
+  var image;
+
+  _loadImage(String index) async{
+    image = await Flame.images.load(index);
+    bottomBalloon = new Sprite(image);
+  }
 
   BottomBalloon(this.game) {
 
@@ -24,13 +36,18 @@ class BottomBalloon {
     //int number = rng.nextInt(balloonArray.length);
     int number = 0;
 
-    bottomBalloon = new Sprite(balloonArray[number]);
+    _loadImage(balloonArray[number]);
+
     widthBalloon = 30;//bottomBalloon.image.width;
+
+    rectSize = Vector2( game.screenSize.width*0.05, game.screenSize.height * 0.2);
+    rectPosition = Vector2(0,0);
+
 
     //width: 500
     //height: 300
-    rectBottom = Rect.fromLTWH(
-        0, 0, game.screenSize.width*0.05, game.screenSize.height * 0.2);
+    //rectBottom = Rect.fromLTWH(0, 0, game.screenSize.width*0.05, game.screenSize.height * 0.2);
+
   }
 
   void render(Canvas c, bool pause, bool reset) {
@@ -48,7 +65,8 @@ class BottomBalloon {
       //Génération de ballon de couleur aléatoire
       //int number = rng.nextInt(balloonArray.length);
       int number = 0;
-      bottomBalloon = new Sprite(balloonArray[number]);
+      _loadImage(balloonArray[number]);
+      bottomBalloon = new Sprite(image);
     }
     c.translate(posX = game.screenSize.width - widthBalloon - j.toDouble(), 0);
     j += balloonSpeed;
@@ -56,11 +74,11 @@ class BottomBalloon {
     if(pause)
       j -= balloonSpeed;
 
-    bottomBalloon.renderRect(c, rectBottom);
+    bottomBalloon.render(c, size: rectSize, position: rectPosition);
 
     c.translate(-game.screenSize.width - widthBalloon, 0);
 
-    bottomBalloon.renderRect(c, rectBottom);
+    bottomBalloon.render(c, size: rectSize, position: rectPosition);
 
     // restore original state
     c.restore();
@@ -82,6 +100,16 @@ class TopBalloon {
   final PlaneGame game;
   Sprite topBalloon;
   Rect rectTop;
+  Vector2 rectSize;
+  Vector2 rectPosition;
+
+
+  var image;
+
+  _loadImage(String index) async{
+    image = await Flame.images.load(index);
+    topBalloon = new Sprite(image);
+  }
 
   TopBalloon(this.game) {
 
@@ -90,7 +118,7 @@ class TopBalloon {
     //int number = rng.nextInt(balloonArray.length);
     int number = 0;
 
-    topBalloon = new Sprite(balloonArray[number]);
+    _loadImage(balloonArray[number]);
 
     widthBalloon = 30;//topBalloon.image.width;
     //width: 500
@@ -98,6 +126,9 @@ class TopBalloon {
 
     rectTop = Rect.fromLTWH(
         0, 0, game.screenSize.width*0.05, game.screenSize.height * 0.2);
+    
+    rectSize = Vector2( game.screenSize.width*0.05, game.screenSize.height * 0.2);
+    rectPosition = Vector2(0,0);
   }
 
   void render(Canvas c, bool pause, bool reset) {
@@ -115,7 +146,8 @@ class TopBalloon {
       //Génération de ballon de couleur aléatoire
       //int number = rng.nextInt(balloonArray.length);
       int number = 0;
-      topBalloon = new Sprite(balloonArray[number]);
+      _loadImage(balloonArray[number]);
+      topBalloon = new Sprite(image);
     }
 
     j += balloonSpeed;
@@ -125,11 +157,11 @@ class TopBalloon {
 
     c.translate( posX = game.screenSize.width - widthBalloon - j.toDouble(), 0);
 
-    topBalloon.renderRect(c, rectTop);
+    topBalloon.render(c, size: rectSize, position: rectPosition);
 
     c.translate(-game.screenSize.width, 0);
 
-    topBalloon.renderRect(c, rectTop);
+    topBalloon.render(c, size: rectSize, position: rectPosition);
     // restore original state
     c.restore();
   }

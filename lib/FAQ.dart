@@ -9,7 +9,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:url_launcher/url_launcher.dart';

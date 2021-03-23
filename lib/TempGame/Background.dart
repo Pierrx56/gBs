@@ -1,24 +1,35 @@
 import 'dart:ui';
 
+import 'package:flame/components.dart';
+import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:gbsalternative/TempGame/TempGame.dart';
 
 class Background {
   final TempGame game;
   Sprite bgSprite;
-  Rect bgRect;
+  Vector2 bgSize;
+  Vector2 bgPosition;
 
   double j = 0;
   double backgroundSpeed = 0.1;
 
+  var image;
+
+  _loadImage() async{
+    image = await Flame.images.load('temp/background.png');
+    bgSprite = Sprite(image);
+  }
+
   Background(this.game) {
-    bgSprite = Sprite('temp/background.png');
-    bgRect = Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height);
+    _loadImage();
+    bgSize = Vector2( game.screenSize.width, game.screenSize.height);
+    bgPosition = Vector2(0,0);
   }
 
   void render(Canvas c, bool pause) {
     //bgSprite.render(c);
-    bgSprite.renderRect(c, bgRect);
+    bgSprite?.render(c,position: bgPosition, size: bgSize);
 
 
 
@@ -34,37 +45,14 @@ class Background {
 
     c.translate(game.screenSize.width - j.toDouble(), 0);
 
-    bgSprite.renderRect(c, bgRect);
+    bgSprite?.render(c,position: bgPosition, size: bgSize);
 
     c.translate(-game.screenSize.width, 0);
 
-    bgSprite.renderRect(c, bgRect);
+    bgSprite?.render(c,position: bgPosition, size: bgSize);
     // restore original state
     c.restore();
   }
 
   void update(double t) {}
-}
-
-
-class Close {
-  final TempGame game;
-  Sprite spriteClose;
-  Rect RectClose;
-  bool inTouch;
-
-  Close(this.game) {
-    spriteClose = Sprite('swimmer/close.png');
-    //width: 500
-    //height: 300
-    RectClose = Rect.fromLTWH(
-        0, 0, game.screenSize.height * 0.1, game.screenSize.height * 0.1);
-  }
-
-  void render(Canvas c) {
-    spriteClose.renderRect(c, RectClose);
-  }
-
-  void update(double t) {}
-
 }

@@ -267,7 +267,7 @@ class BluetoothManager {
 
     data = await getStringFromBluetooth();
 
-    print(data);
+    //print(data);
 
     result = data.split(";");
 

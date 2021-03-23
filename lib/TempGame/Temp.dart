@@ -4,17 +4,18 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flame/flame.dart';
+import 'package:flame/game.dart';
+import 'package:flame/gestures.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flame/util.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/TempGame/TempGame.dart';
 
@@ -42,7 +43,7 @@ class Temp extends StatefulWidget {
   _Temp createState() => new _Temp(user, appLanguage, level, message);
 }
 
-class _Temp extends State<Temp> {
+class _Temp extends State<Temp> with TickerProviderStateMixin {
   User user;
   AppLanguage appLanguage;
   TempGame game;
@@ -86,8 +87,8 @@ class _Temp extends State<Temp> {
   void initState() {
     //myGame = GameWrapper(game);
     if (user.userInitialPush != "0.0") {
-      gameUI = UI();
-      commonGamesUI = CommonGamesUI();
+      gameUI = new UI();
+      commonGamesUI = new CommonGamesUI();
       coins = 0;
       isConnected = false;
       start = false;
@@ -109,7 +110,6 @@ class _Temp extends State<Temp> {
     game.tempTimer?.cancel();
     game.timerPosition?.cancel();
     game.timerTuto?.cancel();
-    gameUI?.state?.dispose();
 
     super.dispose();
   }
@@ -119,21 +119,21 @@ class _Temp extends State<Temp> {
 
     game = TempGame(getData, getPush, getFloor, setFloor, user, appLanguage);
 
+
     //gameUI.state.game = game;
-    Util flameUtil = Util();
-    flameUtil.fullScreen();
+    Flame.device.fullScreen();
     game.setStarLevel(level);
+
+    previousJumpCounter = game.getJumpCounter();
+
+    refreshScore();
 
     TapGestureRecognizer tapper = TapGestureRecognizer();
 
     tapper.onTapDown = game.onTapDown;
 
-    previousJumpCounter = game.getJumpCounter();
-
-    refreshScore();
     //setSignPosition();
     //runApp(game.widget);
-    flameUtil.addGestureRecognizer(tapper);
   }
 
   void connect() async {
@@ -146,15 +146,11 @@ class _Temp extends State<Temp> {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
         connect();
       } else {
-        launchGame();
+        initTemp();
         return;
       }
       //testConnect();
     }
-  }
-
-  void launchGame() {
-    initTemp();
   }
 
   void setData() async {
@@ -324,7 +320,6 @@ class _Temp extends State<Temp> {
             ? game.getColorFilter()
             : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
         child: Stack(
-          alignment: Alignment.center,
           children: <Widget>[
             game == null || double.parse(user.userInitialPush) == 0
                 ? Center(
@@ -398,12 +393,11 @@ class _Temp extends State<Temp> {
                           ),
                         )),
                   )
-                : game.widget,
+                : GameWidget(game: game),
 
             SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   //Menu
                   game != null
@@ -413,7 +407,6 @@ class _Temp extends State<Temp> {
                           ? Align(
                               alignment: Alignment.topRight,
                               child: Container(
-                                height: screenSize.height,
                                 alignment: Alignment.topRight,
                                 padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                                 child: game != null

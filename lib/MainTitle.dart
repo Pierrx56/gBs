@@ -5,21 +5,17 @@ import 'dart:math' as math;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/FAQ.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/ManageProfile.dart';
 import 'package:gbsalternative/MaxPush.dart';
 import 'package:gbsalternative/NotificationManager.dart';
 import 'package:gbsalternative/SelectGame.dart';
 import 'package:gbsalternative/SelectStatistic.dart';
-import 'package:rxdart/subjects.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'DatabaseHelper.dart';
@@ -162,8 +158,9 @@ class _MainTitle extends State<MainTitle> {
 
         //Delay voltage get to avoid alert battery
         if (voltage == 0.0) {
+          voltage = await btManage.getVoltage();
+
           Timer(Duration(seconds: 2), () async {
-            voltage = await btManage.getVoltage();
 
             //if (voltage == 0.0) voltage = 0.5;
 
@@ -313,14 +310,14 @@ class _MainTitle extends State<MainTitle> {
           ],
         ),
         drawer: Container(
-          width: screenSize.width * 0.2,
+          width: screenSize.width * 0.25,
           child: Drawer(
             child: ListView(
               // Important: Remove any padding from the ListView.
               padding: EdgeInsets.zero,
               children: <Widget>[
                 Container(
-                  height: screenSize.width * 0.2,
+                  height: screenSize.height * 0.3,
                   child: DrawerHeader(
                     padding: EdgeInsets.zero,
                     child: Padding(
@@ -346,6 +343,7 @@ class _MainTitle extends State<MainTitle> {
                                 .translate('bonjour') +*/
                                     user.userName,
                                     style: textStyle,
+                                    maxLines: 2,
                                   )
                                 : AutoSizeText(
                                     "Check Language file (en/fr.json)"),
@@ -362,15 +360,16 @@ class _MainTitle extends State<MainTitle> {
                 //Battery
                 Container(
                   height: screenSize.height * 0.1,
-                  padding:
-                      EdgeInsets.fromLTRB(screenSize.width * 0.05, 0.0, 0.0, 0.0),
+                  padding: EdgeInsets.fromLTRB(
+                      screenSize.width * 0.05, 0.0, 0.0, 0.0),
                   child: /*voltage != 0.0 &&*/ isConnected
                       ? Stack(
                           children: <Widget>[
                             //Battery plus
                             Padding(
                               padding: EdgeInsets.fromLTRB(
-                                  screenSize.width * 0.1 - screenSize.height * 0.005,
+                                  screenSize.width * 0.1 -
+                                      screenSize.height * 0.005,
                                   0,
                                   0,
                                   0),
@@ -549,8 +548,21 @@ class _MainTitle extends State<MainTitle> {
                   ),
                 ),
                 Divider(),
+                //Version
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    AutoSizeText(
+                      "Spineo Home - V.$softwareVersion",
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    AutoSizeText("© 2021 Genourob\n All rights reserved.",
+                        style: TextStyle(fontSize: 13)),
+                  ],
+                ),
                 //Log Out
-                Container(
+                /*Container(
                   alignment: Alignment.centerLeft,
                   height: screenSize.height * 0.1,
                   child: TextButton.icon(
@@ -594,7 +606,7 @@ class _MainTitle extends State<MainTitle> {
                             (Route<dynamic> route) => route is Login);
                     },
                   ),
-                ),
+                ),*/
               ],
             ),
           ),

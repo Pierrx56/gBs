@@ -167,10 +167,15 @@ class UIState extends State<UI> {
                       (game.screenSize.width * 0.5), 0, 0, 0),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Image.asset(
-                      "assets/images/temp/click.gif",
-                      height: 125.0,
-                      width: 125.0,
+                    child: GestureDetector(
+                      onTap: (){
+                        game.phaseTuto++;
+                      },
+                      child: Image.asset(
+                        "assets/images/temp/click.gif",
+                        height: 125.0,
+                        width: 125.0,
+                      ),
                     ),
                   ),
                 ),
@@ -235,10 +240,15 @@ class UIState extends State<UI> {
                           (game.screenSize.width * 0.5), 0, 0, 0),
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: Image.asset(
-                          "assets/images/temp/click.gif",
-                          height: 125.0,
-                          width: 125.0,
+                        child: GestureDetector(
+                          onTap: (){
+                            game.phaseTuto++;
+                          },
+                          child: Image.asset(
+                            "assets/images/temp/click.gif",
+                            height: 125.0,
+                            width: 125.0,
+                          ),
                         ),
                       ),
                     ),
@@ -298,10 +308,15 @@ class UIState extends State<UI> {
                               0, 0, (game.screenSize.width * 0.2), 0),
                           child: Align(
                             alignment: Alignment.centerRight,
-                            child: Image.asset(
-                              "assets/images/temp/click.gif",
-                              height: 125.0,
-                              width: 125.0,
+                            child: GestureDetector(
+                              onTap: (){
+                                game.phaseTuto++;
+                              },
+                              child: Image.asset(
+                                "assets/images/temp/click.gif",
+                                height: 125.0,
+                                width: 125.0,
+                              ),
                             ),
                           ),
                         ),
@@ -382,10 +397,15 @@ class UIState extends State<UI> {
                                   0, 0, (game.screenSize.width * 0.2), 0),
                               child: Align(
                                 alignment: Alignment.centerRight,
-                                child: Image.asset(
-                                  "assets/images/temp/click.gif",
-                                  height: 125.0,
-                                  width: 125.0,
+                                child: GestureDetector(
+                                  onTap: (){
+                                    game.phaseTuto++;
+                                  },
+                                  child: Image.asset(
+                                    "assets/images/temp/click.gif",
+                                    height: 125.0,
+                                    width: 125.0,
+                                  ),
                                 ),
                               ),
                             ),
@@ -397,6 +417,8 @@ class UIState extends State<UI> {
 
 
   Widget displayMessage(String message, TempGame game, Color color) {
+    if(game.screenSize == null)
+      return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(

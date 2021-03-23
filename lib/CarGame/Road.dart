@@ -1,6 +1,10 @@
 import 'dart:math';
 import 'dart:ui';
+import 'dart:async' as async;
+import 'package:flame/components.dart';
+import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
+import 'package:flutter/material.dart';
 import 'package:gbsalternative/CarGame/CarGame.dart';
 
 double balloonPosition = 0.1;
@@ -33,8 +37,15 @@ int numberPolice = 1;
 
 class StraightRoad {
   final CarGame game;
-  Rect rectBottom;
+  Vector2 posRoad;
+  Vector2 sizeRoad;
   List<Sprite> roadList = [];
+
+  void _loadImage() async {
+    for (int l = 0; l < straightRoad; l++) {
+      roadList.add(new Sprite(await Flame.images.load(spriteRoad)));
+    }
+  }
 
   StraightRoad(this.game) {
     var rng = new Random();
@@ -43,19 +54,14 @@ class StraightRoad {
     int number = 0;
 
     widthRoad = 150; //bottomBalloon.image.width;
-
-    for (int l = 0; l < straightRoad; l++) {
-      roadList.add(new Sprite(spriteRoad));
-    }
+    _loadImage();
 
     j = 10;
 
-    print(roadList.length);
-
     //width: 500
     //height: 300
-    rectBottom =
-        Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height);
+    posRoad = Vector2(0, 0);
+    sizeRoad = Vector2(game.screenSize.width, game.screenSize.height);
   }
 
   void render(
@@ -93,15 +99,11 @@ class StraightRoad {
       j += roadSpeed;
 
     for (int i = 0; i < roadList.length; i++) {
-      rectBottom = Rect.fromLTWH(
-          (i * game.screenSize.width).toDouble() - game.screenSize.width,
-          0,
-          game.screenSize.width,
-          game.screenSize.height);
+      posRoad = Vector2(
+          (i * game.screenSize.width).toDouble() - game.screenSize.width, 0);
+      sizeRoad = Vector2(game.screenSize.width, game.screenSize.height);
 
-      //c.translate(-game.screenSize.width - widthBalloon, 0);
-
-      roadList[i].renderRect(c, rectBottom);
+      roadList[i].render(c, position: posRoad, size: sizeRoad);
     }
     // restore original state
     //c.restore();
@@ -128,9 +130,10 @@ class StraightRoad {
   void update(double t) {}
 }
 
+//Trucks + cars
 class CMV {
   final CarGame game;
-  List<Rect> rectBottomList = [];
+
   List<Sprite> truckList = [];
   List<double> posXTruck = [];
   double widthTruck = 0;
@@ -139,9 +142,13 @@ class CMV {
   double widthCar = 0;
   double heightCar = 0;
 
+  List<Vector2> posTruck = [];
+  List<Vector2> sizeTruck = [];
+
   double spacerTruck = 50;
 
-  CMV(this.game) {
+
+  CMV(this.game, this.truckList) {
     widthRoad = 150; //bottomBalloon.image.width;
 
     widthTruck = game.screenSize.width * 0.35;
@@ -151,31 +158,21 @@ class CMV {
     heightCar = widthCar * 0.5;
 
     for (int l = 0; l < numberCars; l++) {
-      if (l == 0)
-        truckList.add(new Sprite(spriteRedTruck));
-      else if (l == 1)
-        truckList.add(new Sprite(spriteBrownCar));
-      else
-        truckList.add(new Sprite(spriteRedCar));
-
       posXTruck.add(0.0);
-      rectBottomList.add(
-          Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height));
+      posTruck.add(Vector2(0, 0));
+      sizeTruck.add(Vector2(game.screenSize.width, game.screenSize.height));
     }
-
-    print(truckList.length);
 
     int k = 0;
     for (int i = numberCars - truckList.length; i < truckList.length; i++) {
-      rectBottomList[k] = Rect.fromLTWH(
-        //336
-        posXTruck[k] = game.screenSize.width * 0.5 +
-            speedTruck * j +
-            i * (widthTruck + spacerTruck),
-        k == 0 ? game.screenSize.height * 0.7 : game.screenSize.height * 0.4,
-        k == 0 ? widthTruck : widthCar,
-        k == 0 ? heightTruck : heightCar,
-      );
+      posTruck[k] = Vector2(
+          posXTruck[k] = game.screenSize.width * 0.5 +
+              speedTruck * j +
+              i * (widthTruck + spacerTruck),
+          k == 0 ? game.screenSize.height * 0.7 : game.screenSize.height * 0.4);
+
+      sizeTruck[k] = Vector2(
+          k == 0 ? widthTruck : widthCar, k == 0 ? heightTruck : heightCar);
 
       k++;
     }
@@ -186,8 +183,8 @@ class CMV {
   void render(Canvas c, bool pause, bool reset) {
     c.translate(posX = speedTruck * j.toDouble(), 0);
 
-    for (int i = 0; i < rectBottomList.length; i++)
-      truckList[i].renderRect(c, rectBottomList[i]);
+    for (int i = 0; i < truckList.length; i++)
+      truckList[i].render(c, position: posTruck[i], size: sizeTruck[i]);
 
     //print(posXTruck);
     /*
@@ -232,9 +229,11 @@ class CMV {
   void update(double t) {}
 }
 
+//Fuels
 class CSI {
   final CarGame game;
-  List<Rect> rectBottomList = [];
+  List<Vector2> posFuel = [];
+  List<Vector2> sizeFuel = [];
   List<Sprite> fuelList = [];
   List<double> posXFuel = [];
   List<double> posYFuel = [];
@@ -247,7 +246,8 @@ class CSI {
   bool hasPassedMax = false;
   bool hasHadScore = false;
 
-  CSI(this.game) {
+
+  CSI(this.game, this.fuelList) {
     var rng = new Random();
     //Génération de ballon de couleur aléatoire
     //int number = rng.nextInt(balloonArray.length);
@@ -267,25 +267,22 @@ class CSI {
     heightFuel = game.screenSize.width * 0.12;
 
     for (int l = 0; l < numberFuel; l++) {
-      fuelList.add(new Sprite(spriteFuel));
       posXFuel.add(0.0);
       posYFuel.add(0.0);
-      rectBottomList.add(
-          Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height));
+      posFuel.add(Vector2(0, 0));
+      sizeFuel.add(Vector2(game.screenSize.width, game.screenSize.height));
     }
 
     int k = 0;
     for (int i = numberFuel - fuelList.length; i < fuelList.length; i++) {
-      rectBottomList[k] = Rect.fromLTWH(
-          //336
+      posFuel[k] = Vector2(
           posXFuel[k] =
               /*straightRoad * widthBalloon + (i * widthTruck * 1.5).toDouble() + game.screenSize.width*/
               game.screenSize.width + j + i * (widthFuel + spacerFuel),
           i % 2 == 0
               ? posYFuel[k] = game.screenSize.height * 0.4
-              : posYFuel[k] = game.screenSize.height * 0.1,
-          widthFuel,
-          heightFuel);
+              : posYFuel[k] = game.screenSize.height * 0.1);
+      sizeFuel[k] = Vector2(widthFuel, heightFuel);
 
       k++;
     }
@@ -296,8 +293,8 @@ class CSI {
   void render(Canvas c, bool pause, bool reset) {
     c.translate(speedFuel * (-j.toDouble()), 0);
 
-    for (int i = 0; i < rectBottomList.length; i++)
-      fuelList[i].renderRect(c, rectBottomList[i]);
+    for (int i = 0; i < posFuel.length; i++)
+      fuelList[i].render(c, position: posFuel[i], size: sizeFuel[i]);
   }
 
   void setCarSize(double size) {
@@ -317,7 +314,7 @@ class CSI {
       posXFuel[i] = tempPosX[i];
       posYFuel[i] = tempPosY[i];
 
-      if (i == fuelToRemove && !hasHadScore){
+      if (i == fuelToRemove && !hasHadScore) {
         posYFuel[i] = game.screenSize.width * 2;
         game.score++;
         hasHadScore = true;
@@ -325,12 +322,8 @@ class CSI {
     }
 
     for (int i = 0; i < offset; i++) {
-      rectBottomList[i] = Rect.fromLTWH(
-          //336
-          posXFuel[i],
-          posYFuel[i],
-          widthFuel,
-          heightFuel);
+      posFuel[i] = Vector2(posXFuel[i], posYFuel[i]);
+      sizeFuel[i] = Vector2(widthFuel, heightFuel);
     }
 
 /*
@@ -401,40 +394,43 @@ class CSI {
   void update(double t) {}
 }
 
+//Trucks
 class TME {
   final CarGame game;
-  List<Rect> rectBottomList = [];
+
+  List<Vector2> posTruck = [];
+  List<Vector2> sizeTruck = [];
   List<Sprite> truckList = [];
   List<double> posXTruck = [];
   double widthTruck = 0;
   double heightTruck = 0;
   double spacerTruck = 50;
 
-  TME(this.game) {
+
+  TME(this.game, this.truckList) {
     widthRoad = 150; //bottomBalloon.image.width;
 
     widthTruck = game.screenSize.width * 0.35;
     heightTruck = game.screenSize.width * 0.12;
 
     for (int l = 0; l < numberTruck; l++) {
-      truckList.add(new Sprite(spriteRedTruck));
       posXTruck.add(0.0);
-      rectBottomList.add(
-          Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height));
+
+      posTruck.add(Vector2(0, 0));
+      sizeTruck.add(Vector2(widthTruck, heightTruck));
     }
 
     print(truckList.length);
 
     int k = 0;
     for (int i = numberTruck - truckList.length; i < truckList.length; i++) {
-      rectBottomList[k] = Rect.fromLTWH(
+      posTruck[k] = Vector2(
           //336
           posXTruck[k] = game.screenSize.width * 0.5 +
               speedTruck * j +
               i * (widthTruck + spacerTruck),
-          game.screenSize.height - widthRoad * 0.7,
-          widthTruck,
-          heightTruck);
+          game.screenSize.height - widthRoad * 0.7);
+      sizeTruck[k] = Vector2(widthTruck, heightTruck);
 
       k++;
     }
@@ -445,8 +441,8 @@ class TME {
   void render(Canvas c, bool pause, bool reset) {
     c.translate(posX = speedTruck * j.toDouble(), 0);
 
-    for (int i = 0; i < rectBottomList.length; i++)
-      truckList[i].renderRect(c, rectBottomList[i]);
+    for (int i = 0; i < truckList.length; i++)
+      truckList[i].render(c, position: posTruck[i], size: sizeTruck[i]);
 
     //print(posXTruck);
     /*
@@ -493,11 +489,18 @@ class TME {
 
 class POLICE {
   final CarGame game;
-  List<Rect> rectBottomList = [];
+
   List<Sprite> policeList = [];
   List<double> posXPolice = [];
+  List<Vector2> posPolice = [];
+  List<Vector2> sizePolice = [];
+
   double widthPolice = 0;
   double heightPolice = 0;
+
+  void _loadImage(String image) async {
+    policeList.add(new Sprite(await Flame.images.load(image)));
+  }
 
   POLICE(this.game) {
     widthRoad = 150; //bottomBalloon.image.width;
@@ -506,24 +509,24 @@ class POLICE {
     heightPolice = game.screenSize.width * 0.12;
 
     for (int l = 0; l < numberPolice; l++) {
-      policeList.add(new Sprite(spritePolice));
+      _loadImage(spritePolice);
+
       posXPolice.add(0.0);
-      rectBottomList.add(
-          Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height));
+      posPolice.add(Vector2(0, 0));
+      sizePolice.add(Vector2(game.screenSize.width, game.screenSize.height));
     }
 
     print(policeList.length);
 
     int k = 0;
     for (int i = numberPolice - policeList.length; i < policeList.length; i++) {
-      rectBottomList[k] = Rect.fromLTWH(
+      posPolice[k] = Vector2(
           //336
           posXPolice[k] = -game.screenSize.width * 3,
           /*straightRoad * widthBalloon + (i * widthTruck * 1.5).toDouble() + game.screenSize.width*/
           //j + i * (widthPolice),
-          game.screenSize.height * 0.1,
-          widthPolice,
-          heightPolice);
+          game.screenSize.height * 0.1);
+      sizePolice[k] = Vector2(widthPolice, heightPolice);
 
       k++;
     }
@@ -536,8 +539,8 @@ class POLICE {
 
 //   print(0.6*game.screenSize.width - (j%game.screenSize.width)/2);
 
-    for (int i = 0; i < rectBottomList.length; i++)
-      policeList[i].renderRect(c, rectBottomList[i]);
+    for (int i = 0; i < posPolice.length; i++)
+      policeList[i].render(c, position: posPolice[i], size: sizePolice[i]);
 
     /*
     //If the car get the fuel, disappear fuel

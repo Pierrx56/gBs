@@ -19,7 +19,6 @@ import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DetailsCharts.dart';
 import 'package:gbsalternative/DrawCharts.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Login.dart';
 
@@ -382,22 +381,6 @@ class _SelectStatistic extends State<SelectStatistic> {
             elevation: 0.0,
             actions: <Widget>[
               Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.fromLTRB(5, 0,0,0),
-                width: (screenSize.width) * 0.1,
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: splashIconColor.withAlpha(50), shape: BoxShape.circle),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child:
-                        Icon(Icons.keyboard_arrow_left, size: 20.0, color: iconColor),
-                  ),
-                ),
-              ),
-              Container(
                 alignment: Alignment.center,
                 width: (screenSize.width) * 0.8,
                 child: Text(
@@ -415,137 +398,152 @@ class _SelectStatistic extends State<SelectStatistic> {
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                Column(
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        //Car
-                        Stack(
-                          alignment: Alignment.center,
-                          children: <Widget>[
-                            carStat(),
-                            Container(
-                              width: widthCard * 0.9,
-                              height: heightCard * 0.9,
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DetailsCharts(
-                                        appLanguage: appLanguage,
-                                        user: user,
-                                        messageIn: "$ID_CAR_ACTIVITY",
-                                        scores: dataCar,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Container(
+                        width: (screenSize.width) * 0.1,
+                        height: (screenSize.width) * 0.1,
+                        decoration: BoxDecoration(
+                            color: splashIconColor.withAlpha(50), shape: BoxShape.circle),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child:
+                          Icon(Icons.keyboard_arrow_left, size: (screenSize.width) * 0.1, color: iconColor),
                         ),
-                        //Plane
-                        Stack(
-                          alignment: Alignment.center,
-                          children: <Widget>[
-                            planeStat(),
-                            Container(
-                              width: widthCard * 0.9,
-                              height: heightCard * 0.9,
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DetailsCharts(
-                                        appLanguage: appLanguage,
-                                        user: user,
-                                        messageIn: "$ID_PLANE_ACTIVITY",
-                                        scores: dataPlane,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
+                      ),
+                    ),
+                    //Car
+                    Stack(
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        carStat(),
+                        Container(
+                          width: widthCard * 0.9,
+                          height: heightCard * 0.9,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailsCharts(
+                                    appLanguage: appLanguage,
+                                    user: user,
+                                    messageIn: "$ID_CAR_ACTIVITY",
+                                    scores: dataCar,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    //Plane
+                    Stack(
+                      alignment: Alignment.center,
                       children: <Widget>[
-                        Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Container(
-                            width: screenSize.width * 0.15,
-                            //child: backCard(),
-                          ),
-                        ),
-                        //Swimmer
-                        Stack(
-                          alignment: Alignment.center,
-                          children: <Widget>[
-                            swimStat(),
-                            Container(
-                              width: widthCard * 0.9,
-                              height: heightCard * 0.9,
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DetailsCharts(
-                                        appLanguage: appLanguage,
-                                        user: user,
-                                        messageIn: "$ID_SWIMMER_ACTIVITY",
-                                        scores: dataSwim,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        //Temp
-                        Stack(
-                          alignment: Alignment.center,
-                          children: <Widget>[
-                            tempStat(),
-                            Container(
-                              width: widthCard * 0.9,
-                              height: heightCard * 0.9,
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DetailsCharts(
-                                        appLanguage: appLanguage,
-                                        user: user,
-                                        messageIn: "$ID_TEMP_ACTIVITY",
-                                        scores: dataTemp,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Container(
-                            width: screenSize.width * 0.15,
-                            //child: backCard()),
+                        planeStat(),
+                        Container(
+                          width: widthCard * 0.9,
+                          height: heightCard * 0.9,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailsCharts(
+                                    appLanguage: appLanguage,
+                                    user: user,
+                                    messageIn: "$ID_PLANE_ACTIVITY",
+                                    scores: dataPlane,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
+                    ),
+                    Container(
+                      width: (screenSize.width) * 0.1,
+                      height: (screenSize.width) * 0.1,)
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Container(
+                        width: screenSize.width * 0.15,
+                        //child: backCard(),
+                      ),
+                    ),
+                    //Swimmer
+                    Stack(
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        swimStat(),
+                        Container(
+                          width: widthCard * 0.9,
+                          height: heightCard * 0.9,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailsCharts(
+                                    appLanguage: appLanguage,
+                                    user: user,
+                                    messageIn: "$ID_SWIMMER_ACTIVITY",
+                                    scores: dataSwim,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    //Temp
+                    Stack(
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        tempStat(),
+                        Container(
+                          width: widthCard * 0.9,
+                          height: heightCard * 0.9,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailsCharts(
+                                    appLanguage: appLanguage,
+                                    user: user,
+                                    messageIn: "$ID_TEMP_ACTIVITY",
+                                    scores: dataTemp,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Container(
+                        width: screenSize.width * 0.15,
+                        //child: backCard()),
+                      ),
                     ),
                   ],
                 ),

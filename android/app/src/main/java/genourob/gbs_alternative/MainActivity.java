@@ -164,9 +164,10 @@ public class MainActivity extends FlutterActivity {
                             NAME_DEVICE = mac[1];
 
                             macAdress = mac[2];
+                            String status = "";
 
-                            String status = connect(macAdress);
-
+                            if(!isScanning)
+                                status = connect(macAdress);
 
                             if (status == "Connected") {
                                 result.success(status);

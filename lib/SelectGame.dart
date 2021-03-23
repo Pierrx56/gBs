@@ -19,7 +19,6 @@ import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/CarGame/Car.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/Plane/Plane.dart';

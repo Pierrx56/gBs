@@ -9,10 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/FAQ.dart';
-import 'package:gbsalternative/LoadPage.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Register.dart';
 import 'package:path_provider/path_provider.dart';
@@ -31,6 +29,9 @@ TextStyle appBarStyle =
     TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold);
 
 Color backgroundColor = Color(0xFFF0F8FF);
+
+String softwareVersion = "11.0.1.0";
+
 //Color backgroundColor = Colors.white;
 
 Color iconColor = Colors.black45;
@@ -91,7 +92,7 @@ class _Login extends State<Login> {
   Widget build(BuildContext context) {
     // return LoginWidget(db);
     Size screenSize = MediaQuery.of(context).size;
-    var appLanguage = Provider.of<AppLanguage>(context);
+    //var appLanguage = Provider.of<AppLanguage>(context);
 
     var languages = [
       //Français
@@ -325,7 +326,7 @@ class _Login extends State<Login> {
                         userLastLogin: "2021-02-24 15:18:54.051196Z",
                         userMacAddress: "78:DB:2F:BF:3B:03",
                         userSerialNumber: "gBs1230997P",
-                        userMode: "1",
+                        userMode: "0",
                         userName: name[random.nextInt(name.length - 1)],
                         userPic: tempFile.path,
                       ));
@@ -400,6 +401,7 @@ class _Login extends State<Login> {
                   AutoSizeText(
                     "© 2021 Genourob\n All rights reserved.",
                   ),
+                  AutoSizeText(" V.$softwareVersion"),
                 ],
               ),
             ],

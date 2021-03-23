@@ -20,7 +20,11 @@ class _QRScan extends State<QRScan> {
   String message;
   String serial;
   Timer timerLength;
-  bool flashIsOn;
+  bool flashIsOn = false;
+
+  Barcode result;
+  QRViewController qrController;
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   //Constructeur
   _QRScan(AppLanguage _appLanguage, String _message) {
@@ -51,16 +55,16 @@ class _QRScan extends State<QRScan> {
         timerLength?.cancel();
       }
       if (mounted) {
-        flashIsOn = await qrController?.getFlashStatus();
+        try{
+          flashIsOn = await qrController?.getFlashStatus();
+        } on Exception catch (e) {
+          flashIsOn = false;
+        }
         setState(() {});
       }else
         timerLength?.cancel();
     });
   }
-
-  Barcode result;
-  QRViewController qrController;
-  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
@@ -131,7 +135,7 @@ class _QRScan extends State<QRScan> {
               icon: Icon(flashIsOn ? Icons.flash_on : Icons.flash_off),
               label: Text("Flash"),
               onPressed: () async {
-                await qrController.toggleFlash();
+                await qrController?.toggleFlash();
               },
             ),
           ),

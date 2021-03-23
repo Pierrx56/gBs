@@ -1,7 +1,8 @@
-import 'dart:async';
+import 'dart:async' as async;
+import 'dart:ui' as ui;
 import 'dart:math';
 
-import 'package:flame/components/component.dart';
+import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
@@ -24,19 +25,18 @@ class CarGame extends Game {
   POLICE police;
   List<String> launchExercise = ["csi", "cmv", "repos", "tme"];
   SpriteComponent car;
-  double tileSize;
   bool redFilter;
   bool start;
-  bool gameOver;
-  bool endOfGame;
-  bool isConnected;
+  bool gameOver = false;
+  bool endOfGame = false;
+  bool isConnected = false;
   bool isInit;
   bool doingBreak;
 
   bool hasSetXFuel;
   bool fuelIsDown;
   bool isDoingExercice;
-  bool isWaiting;
+  bool isWaiting = false;
   bool changeSize;
 
   //Count CMV/CSI/TME/Wait
@@ -59,13 +59,13 @@ class CarGame extends Game {
   int life = 0;
   int starLevel = 0;
   double starValue = 0.0;
-  bool pauseGame;
+  bool pauseGame = false;
   bool hasCrash = false;
   bool hasCrashSecondWay = false;
   bool reset = false;
   double creationTimer = 0.0;
   double scoreTimer = 0.0;
-  double tempPos = 0;
+  double tempPos;
   double posY = 0;
   double posX = 0;
   int i = 0;
@@ -86,16 +86,24 @@ class CarGame extends Game {
   UI gameUI;
   AppLanguage appLanguage;
 
-  Timer timerPause;
+  async.Timer timerPause;
 
   CarGame(this.getData, User _user, AppLanguage _appLanguage) {
     user = _user;
     appLanguage = _appLanguage;
+  }
+
+  @override
+  Future<void> onLoad() {
     initialize();
+    // TODO: implement onLoad
+    return super.onLoad();
   }
 
   void initialize() async {
-    resize(await Flame.util.initialDimensions());
+    WidgetsFlutterBinding.ensureInitialized();
+    screenSize = size.toSize();
+
     staightRoad = StraightRoad(this);
     //csi = CSI(this);
     //tme = TME(this);
@@ -121,6 +129,8 @@ class CarGame extends Game {
     start = false;
     redFilter = false;
     changeSize = false;
+
+    tempPos = 0;
 
     hasSetXFuel = false;
     doingBreak = false;
@@ -181,6 +191,44 @@ class CarGame extends Game {
     staightRoad.setCarSize(sizeH);
   }
 
+  Future<ui.Image> _loadImage(String image) async {
+    ui.Image temp;
+
+    temp = await Flame.images.load(image);
+    return temp;
+  }
+
+  Future<List<Sprite>> _loadTruckCarSprites() async {
+    List<Sprite> tempo = [];
+    String sprite = "";
+    for (int l = 0; l < numberCars; l++) {
+      if (l == 0)
+        sprite = spriteRedTruck;
+      else if (l == 1)
+        sprite = spriteBrownCar;
+      else
+        sprite = spriteRedCar;
+      tempo.add(new Sprite(await Flame.images.load(sprite)));
+    }
+    return tempo;
+  }
+
+  Future<List<Sprite>> _loadFuelSprites() async {
+    List<Sprite> tempo = [];
+    for (int l = 0; l < numberFuel; l++) {
+      tempo.add(new Sprite(await Flame.images.load(spriteFuel)));
+    }
+    return tempo;
+  }
+
+  Future<List<Sprite>> _loadTruckSprites() async {
+    List<Sprite> tempo = [];
+    for (int l = 0; l < numberTruck; l++) {
+      tempo.add(new Sprite(await Flame.images.load(spriteRedTruck)));
+    }
+    return tempo;
+  }
+
   void render(Canvas canvas) {
     Rect bgRect = Rect.fromLTWH(0, 0, screenSize.width, screenSize.height);
     Paint bgPaint = Paint();
@@ -205,83 +253,6 @@ class CarGame extends Game {
                 canvas, pauseGame, reset, hasCrash, hasCrashSecondWay);
           }
 
-          //Select activity
-          if (!isDoingExercice) {
-            //randomNumber = 1;
-
-            //End of the game
-            if (index > CMVLimit + CSILimit + TMELimit + waitLimit)
-            //if(index > 0)
-            {
-              //score = 16;
-
-              //TODO Update value
-              //Family
-              if (user.userMode == "0" && score > 15) {
-                setStarValue(starValue = 0.5);
-              }
-              //Athletic
-              else if (user.userMode == "1" && score > 30) {
-                setStarValue(starValue = 0.5);
-              } else {
-                setStarValue(starValue = 0.0);
-              }
-
-              pauseGame = true;
-              endOfGame = true;
-            } else {
-              switch (randomActivity[index]) {
-                //CMV
-                case 0:
-                  if (CMVLimit > CMVCounter) {
-                    previousActivity = randomNumber;
-                    isDoingExercice = true;
-                    isWaiting = false;
-                    cmv = new CMV(this);
-                    totalCounterActivity++;
-                    index++;
-                    CMVCounter++;
-                  }
-                  break;
-                //CSI
-                case 1:
-                  if (CSILimit > CSICounter) {
-                    previousActivity = randomNumber;
-                    isDoingExercice = true;
-                    isWaiting = false;
-                    csi = new CSI(this);
-                    totalCounterActivity++;
-                    index++;
-                    CSICounter++;
-                  }
-                  break;
-                //TME
-                case 2:
-                  if (TMELimit > TMECounter) {
-                    previousActivity = randomNumber;
-                    isDoingExercice = true;
-                    isWaiting = false;
-                    tme = new TME(this);
-                    totalCounterActivity++;
-                    index++;
-                    TMECounter++;
-                  }
-                  break;
-                //Wait
-                case 3:
-                  //previousActivity = randomNumber;
-                  isWaiting = true;
-                  isDoingExercice = true;
-                  startPause(true);
-                  index++;
-                  waitCounter++;
-                  break;
-                default:
-                  break;
-              }
-            }
-          }
-
           //Doubler voitures sur CMV
           //rattarper bariles entre alternativement entre 2 et 3 pour CSI
 
@@ -302,7 +273,7 @@ class CarGame extends Game {
           }
           reset = false;
           canvas.restore();
-          //Nageur
+          //car
           if (car != null) {
             car.render(canvas);
 
@@ -336,7 +307,7 @@ class CarGame extends Game {
                   hasCrash = true;
                   //print("crashed");
                   //TODO stop timer game
-                  Timer(Duration(seconds: 2), () {
+                  async.Timer(Duration(seconds: 2), () {
                     hasCrash = false;
                   });
                 }
@@ -364,7 +335,7 @@ class CarGame extends Game {
                   if (!hasCrashSecondWay) life--;
                   hasCrashSecondWay = true;
                   //TODO stop timer game
-                  Timer(Duration(seconds: 2), () {
+                  async.Timer(Duration(seconds: 2), () {
                     hasCrashSecondWay = false;
                   });
                 }
@@ -389,46 +360,45 @@ class CarGame extends Game {
 
             //HitBox CSI : Fuels
             if (csi != null) {
-                //Hitbox fuel
-                for (int i = 0; i < csi.fuelList.length; i++) {
-                  if (j - screenSize.width / 2 >
-                          csi.getXPosition(i) - 2 * csi.getWidth() &&
-                      j - screenSize.width / 2 < csi.getXPosition(i)) {
-                    //bottom Fuel
-                    if (posMid &&
-                        csi.getYPosition(i) >
-                            screenSize.height * 0.1 /*&& fuelIsDown*/) {
-                      if (!hasSetXFuel) {
-                        csi.removeFuel(i);
-                        hasSetXFuel = true;
-                        //Avoid multiple adding score
-                        Timer(Duration(milliseconds: 600), () {
-                          hasSetXFuel = false;
-                          csi.hasHadScore = false;
-                        });
-                      }
+              //Hitbox fuel
+              for (int i = 0; i < csi.fuelList.length; i++) {
+                if (j - screenSize.width / 2 >
+                        csi.getXPosition(i) - 2 * csi.getWidth() &&
+                    j - screenSize.width / 2 < csi.getXPosition(i)) {
+                  //bottom Fuel
+                  if (posMid &&
+                      csi.getYPosition(i) >
+                          screenSize.height * 0.1 /*&& fuelIsDown*/) {
+                    if (!hasSetXFuel) {
+                      csi.removeFuel(i);
+                      hasSetXFuel = true;
+                      //Avoid multiple adding score
+                      async.Timer(Duration(milliseconds: 600), () {
+                        hasSetXFuel = false;
+                        csi.hasHadScore = false;
+                      });
                     }
-                    //Top Fuel
-                    else if (posMax &&
-                        csi.getYPosition(i) <
-                            screenSize.height * 0.4 /*&& !fuelIsDown*/) {
-                      if (!hasSetXFuel) {
-                        csi.removeFuel(i);
-                        hasSetXFuel = true;
-                        //Avoid multiple adding score
-                        Timer(Duration(milliseconds: 600), () {
-                          hasSetXFuel = false;
-                          csi.hasHadScore = false;
-                        });
-                      }
-                    }
-                  } else if (j - screenSize.width - csi.getWidth() >
-                      csi.getXPosition(csi.fuelList.length - 1) -
-                          2 * csi.getWidth()) {
-                    csi = null;
-                    isDoingExercice = false;
                   }
-
+                  //Top Fuel
+                  else if (posMax &&
+                      csi.getYPosition(i) <
+                          screenSize.height * 0.4 /*&& !fuelIsDown*/) {
+                    if (!hasSetXFuel) {
+                      csi.removeFuel(i);
+                      hasSetXFuel = true;
+                      //Avoid multiple adding score
+                      async.Timer(Duration(milliseconds: 600), () {
+                        hasSetXFuel = false;
+                        csi.hasHadScore = false;
+                      });
+                    }
+                  }
+                } else if (j - screenSize.width - csi.getWidth() >
+                    csi.getXPosition(csi.fuelList.length - 1) -
+                        2 * csi.getWidth()) {
+                  csi = null;
+                  isDoingExercice = false;
+                }
               }
             }
 
@@ -447,7 +417,7 @@ class CarGame extends Game {
                   if (!hasCrash) life--;
                   hasCrash = true;
                   //TODO stop timer game
-                  Timer(Duration(seconds: 2), () {
+                  async.Timer(Duration(seconds: 2), () {
                     hasCrash = false;
                   });
                 }
@@ -498,14 +468,20 @@ class CarGame extends Game {
 
           creationTimer = 0.0;
 
-          Sprite sprite = Sprite("car/green_car.png");
+          //TODO km + fuels -> star
 
-          car = SpriteComponent.fromSprite(
-              sizeW, sizeH, sprite); // width, height, sprite
+          car = SpriteComponent.fromImage(await _loadImage(spriteGreenCar),
+              size: Vector2(sizeW, sizeH));
+
+          //tempPos = 0.0;
+
+          //print("posY: $posY");
+          //print("tempPos: $tempPos");
+          //print("car.y: ${car.y}");
 
           if (!isInit) {
-            //Centrage du bonhomme en ordonnées
-            posY = screenSize.height - car.height - 50;
+            //Centrage de la voiture en ordonnées
+            posY = screenSize.height * 0.7;
             car.y = posY;
             isInit = true;
           }
@@ -513,6 +489,85 @@ class CarGame extends Game {
           //Centrage de l'avion en abscisses
           car.x = screenSize.width / 2.5 - car.width / 2;
           //Définition des bords haut et bas de l'écran
+
+          //Select activity
+          if (!isDoingExercice) {
+            //randomNumber = 1;
+
+            //End of the game
+            if (index > CMVLimit + CSILimit + TMELimit + waitLimit)
+            //if(index > 0)
+            {
+              //score = 16;
+
+              //TODO Update value
+              //Family
+              if (user.userMode == "0" && score > 15) {
+                setStarValue(starValue = 0.5);
+              }
+              //Athletic
+              else if (user.userMode == "1" && score > 30) {
+                setStarValue(starValue = 0.5);
+              } else {
+                setStarValue(starValue = 0.0);
+              }
+
+              pauseGame = true;
+              endOfGame = true;
+            } else {
+              switch (randomActivity[index]) {
+                //CMV
+                case 0:
+                  if (CMVLimit > CMVCounter) {
+                    isDoingExercice = true;
+                    isWaiting = false;
+
+                    List<Sprite> temp = await _loadTruckCarSprites();
+
+                    cmv = new CMV(this, temp);
+                    totalCounterActivity++;
+                    index++;
+                    CMVCounter++;
+                  }
+                  break;
+                //CSI
+                case 1:
+                  if (CSILimit > CSICounter) {
+                    isDoingExercice = true;
+                    isWaiting = false;
+                    List<Sprite> temp = await _loadFuelSprites();
+
+                    csi = new CSI(this, temp);
+                    totalCounterActivity++;
+                    index++;
+                    CSICounter++;
+                  }
+                  break;
+                //TME
+                case 2:
+                  if (TMELimit > TMECounter) {
+                    isDoingExercice = true;
+                    isWaiting = false;
+                    List<Sprite> temp = await _loadTruckSprites();
+                    tme = new TME(this, temp);
+                    totalCounterActivity++;
+                    index++;
+                    TMECounter++;
+                  }
+                  break;
+                //Wait
+                case 3:
+                  isWaiting = true;
+                  isDoingExercice = true;
+                  startPause(true);
+                  index++;
+                  waitCounter++;
+                  break;
+                default:
+                  break;
+              }
+            }
+          }
 
           //Bas
           if (tempPos >= screenSize.height * 0.7) {
@@ -526,10 +581,10 @@ class CarGame extends Game {
               //!posMid &&
               tempPos <= screenSize.height * 0.4 &&
               tempPos >= screenSize.height * 0.38) {
+            car.y = tempPos;
             posMid = true;
             posMin = false;
             posMax = false;
-            car.y = tempPos;
 
             //print("mid");
           }
@@ -592,11 +647,6 @@ class CarGame extends Game {
     //super.update(t);
   }
 
-  void resize(Size size) {
-    screenSize = size;
-    tileSize = screenSize.width / 9;
-  }
-
   void onTapDown(TapDownDetails d) {
     double screenCenterX = screenSize.width / 2;
     double screenCenterY = screenSize.height / 2;
@@ -636,17 +686,6 @@ class CarGame extends Game {
     roadSpeed = speed;
   }
 
-  ColorFilter getColorFilter() {
-    if (redFilter) {
-      return ColorFilter.mode(Colors.redAccent, BlendMode.hue);
-    } else
-      return ColorFilter.mode(Colors.transparent, BlendMode.luminosity);
-  }
-
-  bool getColorFilterBool() {
-    return redFilter;
-  }
-
   bool getGameOver() {
     return gameOver;
   }
@@ -664,9 +703,9 @@ class CarGame extends Game {
       start = false;
     } else {
       const time = const Duration(seconds: 1);
-      timerPause = new Timer.periodic(
+      timerPause = new async.Timer.periodic(
         time,
-        (Timer timer) {
+        (async.Timer timer) {
           if (_start < 1) {
             timerPause.cancel();
             isWaiting = false;

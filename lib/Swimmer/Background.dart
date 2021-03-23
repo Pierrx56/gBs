@@ -1,44 +1,32 @@
 import 'dart:ui';
 
+import 'package:flame/components.dart';
+import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:gbsalternative/Swimmer/SwimGame.dart';
 
 class Background {
   final SwimGame game;
   Sprite bgSprite;
-  Rect bgRect;
+  Vector2 bgSize;
+  Vector2 bgPosition;
+
+  var image;
+
+  _loadImage() async{
+    image = await Flame.images.load('swimmer/background.png');
+    bgSprite = Sprite(image);
+  }
 
   Background(this.game) {
-    bgSprite = Sprite('swimmer/background.png');
-    bgRect = Rect.fromLTWH(0, 0, game.screenSize.width, game.screenSize.height);
+    _loadImage();
+    bgSize = Vector2( game.screenSize.width, game.screenSize.height);
+    bgPosition = Vector2(0,0);
   }
 
   void render(Canvas c) {
-    bgSprite.renderRect(c, bgRect);
+    bgSprite.render(c,position: bgPosition, size: bgSize);
   }
 
   void update(double t) {}
-}
-
-
-class Close {
-  final SwimGame game;
-  Sprite spriteClose;
-  Rect RectClose;
-  bool inTouch;
-
-  Close(this.game) {
-    spriteClose = Sprite('swimmer/close.png');
-    //width: 500
-    //height: 300
-    RectClose = Rect.fromLTWH(
-        0, 0, game.screenSize.height * 0.1, game.screenSize.height * 0.1);
-  }
-
-  void render(Canvas c) {
-    spriteClose.renderRect(c, RectClose);
-  }
-
-  void update(double t) {}
-
 }
