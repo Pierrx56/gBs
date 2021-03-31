@@ -65,9 +65,7 @@ class CommonGamesUI {
 
   Widget pauseButton(
       BuildContext context, AppLanguage appLanguage, var game, User user) {
-
-    if(game.screenSize == null)
-      return Container();
+    if (game.screenSize == null) return Container();
 
     return Padding(
       padding: const EdgeInsets.all(10.0),
@@ -213,15 +211,18 @@ class CommonGamesUI {
 
     if (starValue >= 0.5) _controllerTopCenter.play();
 
+    double widthSize = game.screenSize.width * 0.7;
+    double heightSize = game.screenSize.height * 0.8;
+
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
-        width: game.screenSize.width * 0.6,
-        height: game.screenSize.height * 0.7,
-        //color: Colors.red,
+        width: widthSize,
+        height: heightSize,
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
+            //Level and game name
             Align(
               alignment: Alignment.topCenter,
               child: Container(
@@ -242,11 +243,12 @@ class CommonGamesUI {
                 ),
               ),
             ),
+            //Stars ans white box
             Align(
               alignment: Alignment.center,
               child: Container(
-                width: game.screenSize.width * 0.4,
-                height: game.screenSize.height * 0.6,
+                width: widthSize * 0.75,
+                height: heightSize * 0.85,
                 alignment: Alignment.topCenter,
                 decoration: new BoxDecoration(
                   color: Colors.grey[100],
@@ -281,11 +283,12 @@ class CommonGamesUI {
                 ),*/
               ),
             ),
+            //Score square
             Align(
               alignment: Alignment.center,
               child: Container(
-                width: game.screenSize.width * 0.35,
-                height: game.screenSize.height * 0.3,
+                width: widthSize * 0.5,
+                height: heightSize * 0.55,
                 alignment: Alignment.center,
                 decoration: new BoxDecoration(
                     color: Colors.grey[200],
@@ -348,20 +351,25 @@ class CommonGamesUI {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Padding(
-                                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                  Align(
+                                    alignment: Alignment.center,
                                     child: Image.asset(
                                       'assets/images/swimmer/bouee.png',
-                                      width: game.screenSize.height * 0.1,
-                                      height: game.screenSize.height * 0.1,
+                                      height: heightSize * 0.35,
+                                      //width: game.screenSize.height * 0.1,
+                                      //height: game.screenSize.height * 0.1,
                                     ),
                                   ),
-                                  AutoSizeText(
-                                    "$score m",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20),
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: AutoSizeText(
+                                      "$score m",
+                                      minFontSize: 35,
+                                      maxFontSize: 40,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ),
                                 ],
                               )
@@ -392,11 +400,12 @@ class CommonGamesUI {
                                 : Text("Not implemented in commonGamesUI"),
               ),
             ),
+            //Blue message
             Align(
               alignment: Alignment.center,
               child: Padding(
                 padding:
-                    EdgeInsets.fromLTRB(0, game.screenSize.height * 0.3, 0, 0),
+                    EdgeInsets.fromLTRB(0, heightSize * 0.55, 0, 0),
                 child: Container(
                   width: game.screenSize.width * 0.3,
                   height: game.screenSize.height * 0.1,
@@ -420,6 +429,7 @@ class CommonGamesUI {
                 ),
               ),
             ),
+            //Quit
             Align(
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
@@ -456,6 +466,7 @@ class CommonGamesUI {
                 ),
               ),
             ),
+            //Confetti
             game.getStarValue() >= 0.5
                 ? Align(
                     alignment: Alignment.center,
@@ -542,6 +553,7 @@ class CommonGamesUI {
 
     return starValue;
   }
+
   void saveAndExit(
       BuildContext context,
       AppLanguage appLanguage,
@@ -624,7 +636,6 @@ class CommonGamesUI {
               )),
     );*/
 
-
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     } else {
@@ -640,8 +651,6 @@ class CommonGamesUI {
         //(Route<dynamic> route) => route is MainTitle,
       );
     }
-
-
 
 /*
 
@@ -796,8 +805,7 @@ class CommonGamesUI {
 
   Widget menu(BuildContext context, AppLanguage appLanguage, var game,
       User user, int idGame, String message) {
-    if(game.screenSize == null)
-      return Container();
+    if (game.screenSize == null) return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -821,18 +829,9 @@ class CommonGamesUI {
               style: textStyle,
             ),
             pauseButton(context, appLanguage, game, user),
-            restartButton(
-                context, appLanguage, idGame, game, user),
-            closeButton(
-                context,
-                appLanguage,
-                user,
-                game.getScore(),
-                game,
-                idGame,
-                game.getStarValue(),
-                game.getStarLevel(),
-                message),
+            restartButton(context, appLanguage, idGame, game, user),
+            closeButton(context, appLanguage, user, game.getScore(), game,
+                idGame, game.getStarValue(), game.getStarLevel(), message),
           ],
         ),
       ),

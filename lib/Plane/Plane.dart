@@ -14,15 +14,12 @@ import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/Plane/PlaneGame.dart';
 import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/main.dart';
 
 import 'Ui.dart';
-
-String btData;
-bool isConnected;
-
 
 class Plane extends StatefulWidget {
   final User user;
@@ -47,10 +44,11 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
   AppLanguage appLanguage;
   PlaneGame game;
   CommonGamesUI commonGamesUI;
+  bool isConnected;
+  String btData;
 
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
-
 
   int i = 0;
 
@@ -67,7 +65,6 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
   double starValue;
   int level;
   String message;
-
 
   _Plane(User _user, AppLanguage _appLanguage, String _level, String _message) {
     user = _user;
@@ -98,6 +95,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     timerConnexion?.cancel();
     timer?.cancel();
     _timer?.cancel();
+    game?.timerData?.cancel();
     super.dispose();
   }
 
@@ -135,7 +133,6 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     TapGestureRecognizer tapper = TapGestureRecognizer();
 
     tapper.onTapDown = game.onTapDown;
-
   }
 
   bool isDisconnecting = false;
@@ -148,7 +145,9 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
       isConnected = await btManage.getStatus();
       if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
-        connect();
+        Timer(Duration(milliseconds: 500), () {
+          connect();
+        });
       } else {
         initPlane();
         return;
@@ -162,7 +161,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     if (!temp)
       btData = "-1.0";
     else
-      btData = await btManage.getData();
+      btData = await btManage.getData("F");
   }
 
   double getData() {
@@ -304,15 +303,13 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       CircularProgressIndicator(),
                                       double.parse(user.userInitialPush) == 0
-                                          ? AutoSizeText(
-                                              AppLocalizations.of(context)
-                                                  .translate(
-                                                      'premiere_poussee_sw'))
+                                          ? AutoSizeText(AppLocalizations.of(
+                                                  context)
+                                              .translate('premiere_poussee_sw'))
                                           : AutoSizeText(
                                               AppLocalizations.of(context)
                                                   .translate('verif_alim'),
@@ -323,19 +320,25 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
                                             ),
                                       ElevatedButton(
                                         style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all<
-                                                  Color>(Colors.grey[350]),
-                                        ),
+                                            backgroundColor: colorButton),
                                         onPressed: () {
                                           Navigator.pop(
-                                            context,
+                                            context, /*
+                                            MaterialPageRoute(
+                                                builder: (context) => LoadPage(
+                                                      appLanguage: appLanguage,
+                                                      user: user,
+                                                      messageIn: "0",
+                                                      page: mainTitle,
+                                                    )),*/
                                           );
                                         },
                                         child: Text(
-                                            AppLocalizations.of(context)
-                                                .translate('retour')),
-                                      )
+                                          AppLocalizations.of(context)
+                                              .translate('retour'),
+                                          style: textStyle,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),

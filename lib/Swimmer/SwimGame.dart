@@ -13,6 +13,8 @@ import 'package:gbsalternative/Swimmer/Background.dart';
 import 'package:gbsalternative/Swimmer/Ui.dart';
 import 'package:gbsalternative/Swimmer/WaterLines.dart';
 
+//TODO voir pour rapprocher la ligne rouge, plus reapide, sinon pluis lent
+
 class SwimGame extends Game {
   Size screenSize;
   bool inTouch = false;
@@ -24,11 +26,14 @@ class SwimGame extends Game {
   bool redFilter = false;
   bool start;
   bool gameOver = false;
+  bool empty = false;
   bool isConnected = false;
+  bool isInit = false;
   int counterHigh;
   bool isTooHigh = false;
 
   int score = 0;
+  int life = 3;
   int starLevel = 0;
   double starValue = 0.0;
   bool pauseGame = false;
@@ -41,7 +46,20 @@ class SwimGame extends Game {
   int i = 0;
   double difficulte = 0.50;
 
-  double sizeSprite = 230.0;
+  double sizeXSprite = 100.0;
+  double sizeYSprite = 230.0;
+
+  List<String> tab = [
+    'ship/ship_and_water_0.png',
+    'ship/ship_and_water_1.png',
+    'ship/ship_and_water_2.png',
+    'ship/ship_and_water_3.png',
+    'ship/ship_and_water_4.png',
+  ];
+
+  String emptyShip = "ship/empty_ship.png";
+
+  /*
   List<String> tab = [
     'swimmer/swim0.png',
     'swimmer/swim1.png',
@@ -67,14 +85,14 @@ class SwimGame extends Game {
     'swimmer/swim21.png',
     'swimmer/swim22.png',
     'swimmer/swim23.png'
-  ];
+  ];*/
 
   double Function() getData;
   User user;
   int j = 0;
   double posBottomLine;
   double posTopLine;
-  bool isTopPosition;
+  bool isBottomPosition;
   UI gameUI;
   AppLanguage appLanguage;
   async.Timer timerSwimmer;
@@ -90,6 +108,7 @@ class SwimGame extends Game {
     // TODO: implement onLoad
     return super.onLoad();
   }
+
   void initialize() async {
     WidgetsFlutterBinding.ensureInitialized();
     screenSize = size.toSize();
@@ -99,15 +118,19 @@ class SwimGame extends Game {
     gameUI = UI();
 
     //Swimmer's size
-    sizeSprite = screenSize.width*0.4;
+    sizeXSprite = screenSize.width * 0.4;
+    sizeYSprite = screenSize.height * 0.4;
 
     isTooHigh = false;
     counterHigh = 0;
-    isTopPosition = false;
+    life = 3;
+    isBottomPosition = false;
     posMax = false;
     gameOver = false;
     isConnected = true;
+    isInit = false;
     start = false;
+    empty = false;
     redFilter = false;
     posBottomLine = bottomLine.getDownPosition();
     posTopLine = bottomLine.getDownPosition();
@@ -159,6 +182,7 @@ class SwimGame extends Game {
             swimmer.render(canvas);
 
             pos = swimmer.y + swimmer.height / 2;
+
             //print("Position joueur: " + tempPos.toString());
           }
 
@@ -166,16 +190,15 @@ class SwimGame extends Game {
           if (pos < bottomLine.getDownPosition()) {
             //print("Attention au bord bas !");
             //setColorFilter(true);
-            isTopPosition = true;
+            isBottomPosition = true;
             //Rentre une fois dans le timer
             if (!start) {
               counterHigh++;
               //Si le joueur pousse trop fort 5 fois dans le jeu, on demande à ce qu'il réajuste la toise
-              if(counterHigh > 5) {
+              if (counterHigh > 5) {
                 isTooHigh = true;
                 pauseGame = true;
-              }
-              else {
+              } else {
                 isTooHigh = false;
                 pauseGame = false;
               }
@@ -185,9 +208,9 @@ class SwimGame extends Game {
           } else if (pos > topLine.getUpPosition()) {
             //print("Attention au bord haut !");
             //setColorFilter(true);
-            isTopPosition = false;
+            isBottomPosition = false;
             if (!start) {
-              startTimer(start = true, 5.0);
+              startTimer(start = true, 6.0);
             }
           } else {
             setColorFilter(false);
@@ -213,21 +236,27 @@ class SwimGame extends Game {
         if (creationTimer >= 0.04) {
           if (i == tab.length - 1)
             i = 0;
-          else if(pauseGame);
+          else if (pauseGame)
+            ;
           else
             i++;
 
-
           //if (pauseGame) i--;
 
-
-          swimmerPic = tab[i];
+          if(start && empty)
+            swimmerPic = emptyShip;
+          else
+            swimmerPic = tab[i];
 
           creationTimer = 0.0;
 
-
           swimmer = SpriteComponent.fromImage(await _loadImage(swimmerPic),
-              size: Vector2(sizeSprite, sizeSprite));
+              size: Vector2(sizeXSprite, sizeYSprite));
+
+          if (!isInit) {
+            swimmer.y = screenSize.height * 0.3;
+            isInit = true;
+          }
 
           //Centrage du nageur en abscisses
           swimmer.x = screenSize.width / 2 - swimmer.width / 2;
@@ -235,13 +264,16 @@ class SwimGame extends Game {
           //Définition des bords haut et bas de l'écran
 
           //Bas
-          if (tempPos >= screenSize.height - (sizeSprite / 2)) {
+          //if (tempPos >= screenSize.height - (sizeYSprite / 2)) {
+          if (tempPos >= screenSize.height - bottomLine.getDownPosition() - (sizeYSprite / 2)) {
             swimmer.y = tempPos;
           }
           //Haut
-          else if (tempPos <= -(sizeSprite / 2) &&
+          //else if (tempPos <= -(sizeYSprite / 2) &&
+          else if (tempPos <= topLine.sizeWater.y*0.5 &&
               getData() > double.parse(user.userInitialPush)) {
-            tempPos = -(sizeSprite / 2);
+            //tempPos = -(sizeYSprite / 2);
+            tempPos = topLine.sizeWater.y*0.5;
             swimmer.y = tempPos;
             posMax = true;
           }
@@ -313,19 +345,19 @@ class SwimGame extends Game {
     return score;
   }
 
-  double getStarValue(){
+  double getStarValue() {
     return starValue;
   }
 
-  void setStarValue(double _starValue){
+  void setStarValue(double _starValue) {
     starValue = _starValue;
   }
 
-  int getStarLevel(){
+  int getStarLevel() {
     return starLevel;
   }
 
-  void setStarLevel(int _starLevel){
+  void setStarLevel(int _starLevel) {
     starLevel = _starLevel;
   }
 
@@ -356,18 +388,18 @@ class SwimGame extends Game {
   bool getPosition() {
     //True: position haut
     //False: position basse
-    return isTopPosition;
+    return isBottomPosition;
   }
 
-  bool getPauseStatus(){
+  bool getPauseStatus() {
     return pauseGame;
   }
 
-
   void startTimer(bool isStarted, double _start) async {
-
+    int temp = 0;
     if (!isStarted && isConnected) {
       //_start = 5.0;
+      temp = 0;
       start = false;
     } else {
       const time = const Duration(milliseconds: 500);
@@ -376,21 +408,30 @@ class SwimGame extends Game {
         (async.Timer _timer) {
           // S'il ressort de la zone avant le timer, on reset le timer
           if (!start) {
+            temp = 0;
             timerSwimmer.cancel();
             return;
           }
           if (isConnected) {
-            if (_start < 0.5) {
+            if (_start < 0.5 || life == 0) {
               //TODO Display menu ?
               setColorFilter(true);
               timerSwimmer.cancel();
               gameOver = true;
-            } else if(!pauseGame){
+            } else if (!pauseGame) {
               setColorFilter(!redFilter);
               _start = _start - 0.5;
+              empty = !empty;
+              temp++;
+              //Every 2 seconds, -1 life
+              if(temp == 4){
+                life--;
+                temp = 0;
+              }
               print(_start);
             }
           } else {
+            temp = 0;
             setColorFilter(false);
             timerSwimmer.cancel();
           }

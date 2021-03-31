@@ -14,7 +14,7 @@ class Background {
   var image;
 
   _loadImage() async{
-    image = await Flame.images.load('swimmer/background.png');
+    image = await Flame.images.load('ship/background.png');
     bgSprite = Sprite(image);
   }
 

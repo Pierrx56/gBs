@@ -66,6 +66,43 @@ class UIState extends State<UI> {
               AutoSizeText("$timeRemaining", minFontSize: 35, style: textStyle),
               AutoSizeText("Score: $score m",
                   minFontSize: 35, style: textStyle),
+
+              Stack(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                    child: Image.asset(
+                      'assets/images/temp/red_heart.png',
+                      width: game.screenSize.height * 0.1,
+                      height: game.screenSize.height * 0.1,
+                    ),
+                  ),
+
+                  game.life > 1
+                      ? Padding(
+                    padding: EdgeInsets.fromLTRB(
+                        game.screenSize.height * 0.1 + 10, 0, 10, 0),
+                    child: Image.asset(
+                      'assets/images/temp/red_heart.png',
+                      width: game.screenSize.height * 0.1,
+                      height: game.screenSize.height * 0.1,
+                    ),
+                  )
+                      : Container(),
+                  game.life > 2
+                      ? Padding(
+                    padding: EdgeInsets.fromLTRB(
+                        2 * game.screenSize.height * 0.1 + 20, 0, 10, 0),
+                    child: Image.asset(
+                      'assets/images/temp/red_heart.png',
+                      width: game.screenSize.height * 0.1,
+                      height: game.screenSize.height * 0.1,
+                    ),
+                  )
+                      : Container(),
+                ],
+              ),
+
             ],
           ),
         ),

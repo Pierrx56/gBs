@@ -13,7 +13,6 @@ import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:location/location.dart' as loc;
 import 'package:location_platform_interface/location_platform_interface.dart';
 
-
 /*
 * Classe pour gérer la connexion bluetooth
 * Prend en paramètre un utilisateur, un message et la langue choisie
@@ -45,6 +44,11 @@ class BluetoothManager {
   String data;
   double previousVoltage = 0.0;
   double previousValue = 0.0;
+  int previousNumber = 0;
+
+  double forceSensor = 0.0;
+  double batteryVoltage = 0.0;
+  bool connectStatus = false;
 
   //Initializing database
   DatabaseHelper db = new DatabaseHelper();
@@ -65,8 +69,8 @@ class BluetoothManager {
   }
 
   Future<bool> activateLocation() async {
-
-    loc.Location location = new loc.Location();//explicit reference to the Location class
+    loc.Location location =
+        new loc.Location(); //explicit reference to the Location class
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
 
@@ -87,8 +91,6 @@ class BluetoothManager {
           return false;
         }
       }
-
-
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED') {
         //error = 'Permission denied';
@@ -106,20 +108,16 @@ class BluetoothManager {
     return true;
   }
 
-
   // Request Bluetooth permission from the user
   Future<bool> enableBluetooth() async {
-
     //Ask location enable if not connected 10 seconds after mainTitle
     Timer(Duration(seconds: 10), () async {
       //If user get back to login page, user = null
-      if(!isConnected && user != null) {
+      if (!isConnected && user != null) {
         isActivated = await activateLocation();
-        if(isActivated)
-          connect(user.userMacAddress, user.userSerialNumber);
+        if (isActivated) connect(user.userMacAddress, user.userSerialNumber);
       }
     });
-
 
     //On utilise la librairie flutter_bluetooth_serial pour détecter l'état du bluetoothh
     if (Platform.isAndroid) {
@@ -150,8 +148,7 @@ class BluetoothManager {
         //print("isOOONNNNN");
         return false;
       }
-    }
-    else
+    } else
       return false;
   }
 
@@ -221,117 +218,127 @@ class BluetoothManager {
   }
 
   //Fonction qui appelle toutes les 500 ms la fonction getData()
-  void startDataReceiver() async {
+  /*void startDataReceiver() async {
     const oneSec = const Duration(milliseconds: 200);
     timer = new Timer.periodic(oneSec, (timer) async {
       if (!isRunning) {
         timer.cancel();
       } else
-        data = await getStringFromBluetooth();
+        data = await getData();
       //data = await getData();
     });
-  }
+  }*/
 
-  Future<String> getStringFromBluetooth() async {
+  //requestedValue: F or V for force sensor or voltage
+  Future<dynamic> getData(String requestedValue) async {
     String result = "null";
     try {
       result = await sensorChannel.invokeMethod('getData');
       data = '$result';
+
+      //print(data);
+
+      //Frame example: F;20;V;3890
+      List<String> datas = data.split(";");
+
+      //If the frame is complete
+      if (datas.length >= 4) {
+        for (int i = 0; i < datas.length; i++) {
+          switch (datas[i]) {
+            //Force sensor
+            case "F":
+              {
+                forceSensor = double.parse(getForceSensor(datas[i + 1]));
+              }
+              break;
+            //Voltage
+            case "V":
+              {
+                batteryVoltage = getVoltage(datas[i + 1]);
+              }
+              break;
+            //Counter (if same than before, than it's disconnected)
+            case "C":
+              {
+                if (int.parse(datas[datas.length - 1]) != previousNumber)
+                  isConnected = true;
+                else
+                  isConnected = false;
+
+
+                previousNumber = int.parse(datas[datas.length - 1]);
+              }
+              break;
+
+            default:
+              break;
+          }
+        }
+      }
     } on PlatformException {
       data = 'Failed to get data from device.';
     }
-    return data;
+
+    //requestedValue: F or V for force sensor or voltage
+    if (requestedValue == "F")
+      return forceSensor.toString();
+    else if (requestedValue == "V") return batteryVoltage.toString();
+    else if (requestedValue == "C") return isConnected;
+    //return data;
   }
 
   //Fonction qui récupère les données du capteur de force
   //Converti ces données en Kg
   //TODO UPDATE IOS SWIFT FUNCTIONS
-  Future<String> getData() async {
-    List<String> result = [];
+  String getForceSensor(String force) {
     double value = 0.0;
 
     double delta = 102.0;
     double coefKg = 0.45359237;
 
-    /*
+    double convVoltToLbs = (921 - delta) / 100;
+
     try {
-      //TODO Résoudre bug: 2 appareils connectés au même tel, on recoit les valeurs des 2 capteurs
-      //Cancel toute recherche dans login ?
+      value = double.parse(force);
+    } catch (error) {
+      //value = previousValue;
+    }
 
+    double tempResult = double.parse(
+            ((value - delta) / (convVoltToLbs * coefKg))
+                .toStringAsExponential(1))
+        .abs();
 
-      result = await sensorChannel.invokeMethod('getData');
-      data = 'Data: $result';
-    } on PlatformException {
-      data = 'Failed to get data from device.';
-    }*/
-
-    data = await getStringFromBluetooth();
-
-    //print(data);
-
-    result = data.split(";");
-
-    //2 valeurs dans tableau, taille conforme avec force + voltage
-    if (result.length == 2) {
-      double convVoltToLbs = (921 - delta) / 100;
-
-      try {
-        value = double.parse(result[0]);
-
-        //Sécurité valeur volt au lieu de capteur pression
-        if (value > 1000) {
-          value = 230;
-        }
-      } catch (error) {
-        value = previousVoltage;
-      }
-
-      double tempResult = double.parse(
-              ((value - delta) / (convVoltToLbs * coefKg))
-                  .toStringAsExponential(1))
-          .abs();
-
-      previousValue = tempResult;
-      //print("Résultat: $tempResult");
-      return tempResult.toString();
-    } else
-      return previousValue.toString();
+    previousValue = tempResult;
+    return tempResult.toString();
   }
 
-  //Fonction qui récupère le voltage des piles en valeur analogique
+  //Fonction qui renvoie le voltage des piles en valeur analogique
   //Converti ces données en V
   //Volt max: ~4.81 V réel soit ~4.38V sur l'appli
   //Volt min: ~3.17V réel soit ~2.84V sur l'appli
-  Future<double> getVoltage() async {
-    List<String> result = [];
+  double getVoltage(String _voltage) {
     double reference = 4.4;
     double voltage = 3.5;
 
-    data = await getStringFromBluetooth();
-
     try {
-      result = data.split(";");
       // Receiving voltage in mV
-      voltage = double.parse(result[1]) / 1000;
+      voltage = double.parse(_voltage) / 1000;
     } catch (error) {
-      voltage = previousVoltage;
+      //voltage = previousVoltage;
     }
 
-    //2 valeurs dans tableau, taille conforme avec force + voltage
-    if (result.length == 2) {
-      //voltage min /reference -> 0.64 donc conversion en pourcentage pour la jauge
-      double percent = ((voltage / reference) - 0.64) / 0.36;
+    //voltage min /reference -> 0.64 donc conversion en pourcentage pour la jauge
+    double percent = ((voltage / reference) - 0.64) / 0.36;
 
-      if (percent < 0.0) percent = previousVoltage;
+    if (percent < 0.0) percent = previousVoltage;
 
-      if (percent > 1.0) percent = 1.0;
+    if (percent > 1.0) percent = 1.0;
 
-      previousVoltage = percent;
+    previousVoltage = percent;
 
-      //print("Résultat: $tempResult");
-      return percent;
-    } else
-      return previousVoltage;
+    //print("Résultat: $tempResult");
+    return percent;
   }
 
   Future<void> sendData(String data) async {
@@ -359,5 +366,3 @@ class BluetoothManager {
 /// = 41,16 heures
 /// 247 séances
 /// 3 séances/semaine = 82 semaines = 1,58 ans
-
-

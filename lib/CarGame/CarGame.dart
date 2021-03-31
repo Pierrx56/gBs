@@ -64,7 +64,6 @@ class CarGame extends Game {
   bool hasCrashSecondWay = false;
   bool reset = false;
   double creationTimer = 0.0;
-  double scoreTimer = 0.0;
   double tempPos;
   double posY = 0;
   double posX = 0;
@@ -75,6 +74,9 @@ class CarGame extends Game {
 
   double sizeW;
   double sizeH;
+  List<Sprite> tempCMV = [];
+  List<Sprite> tempCSI = [];
+  List<Sprite> tempTME = [];
 
   double Function() getData;
   User user;
@@ -186,6 +188,11 @@ class CarGame extends Game {
 
     print(randomActivity);
     index = 0;
+
+
+    tempCMV = await _loadTruckCarSprites();
+    tempTME = await _loadTruckSprites();
+    tempCSI = await _loadFuelSprites();
 
     posYBottomLine = staightRoad.getYBottomPosition();
     staightRoad.setCarSize(sizeH);
@@ -453,7 +460,6 @@ class CarGame extends Game {
 
   void update(double t) async {
     creationTimer += t;
-    scoreTimer += t;
 
     if (!gameOver) {
       if (getData() != -1.0)
@@ -496,7 +502,6 @@ class CarGame extends Game {
 
             //End of the game
             if (index > CMVLimit + CSILimit + TMELimit + waitLimit)
-            //if(index > 0)
             {
               //score = 16;
 
@@ -521,10 +526,7 @@ class CarGame extends Game {
                   if (CMVLimit > CMVCounter) {
                     isDoingExercice = true;
                     isWaiting = false;
-
-                    List<Sprite> temp = await _loadTruckCarSprites();
-
-                    cmv = new CMV(this, temp);
+                    cmv = new CMV(this, tempCMV);
                     totalCounterActivity++;
                     index++;
                     CMVCounter++;
@@ -535,9 +537,7 @@ class CarGame extends Game {
                   if (CSILimit > CSICounter) {
                     isDoingExercice = true;
                     isWaiting = false;
-                    List<Sprite> temp = await _loadFuelSprites();
-
-                    csi = new CSI(this, temp);
+                    csi = new CSI(this, tempCSI);
                     totalCounterActivity++;
                     index++;
                     CSICounter++;
@@ -548,8 +548,7 @@ class CarGame extends Game {
                   if (TMELimit > TMECounter) {
                     isDoingExercice = true;
                     isWaiting = false;
-                    List<Sprite> temp = await _loadTruckSprites();
-                    tme = new TME(this, temp);
+                    tme = new TME(this, tempTME);
                     totalCounterActivity++;
                     index++;
                     TMECounter++;

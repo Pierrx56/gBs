@@ -41,6 +41,8 @@ class UIState extends State<UI> {
   }
 
   Widget displayCoin(String message, TempGame game) {
+    if(game.screenSize == null)
+      return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -115,6 +117,8 @@ class UIState extends State<UI> {
 
   Widget displayTuto(
       BuildContext context, AppLanguage appLanguage, TempGame game, User user) {
+    if(game.screenSize == null)
+      return Container();
     return Container(
       width: game.screenSize.width,
       height: game.screenSize.height,

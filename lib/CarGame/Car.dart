@@ -16,6 +16,7 @@ import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/CarGame/CarGame.dart';
+import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
 
 import 'Ui.dart';
@@ -149,7 +150,9 @@ class _Car extends State<Car> with TickerProviderStateMixin {
       isConnected = await btManage.getStatus();
       if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
-        connect();
+        Timer(Duration(milliseconds: 500), (){
+          connect();
+        });
       } else {
         launchGame();
         return;
@@ -167,7 +170,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
     if (!temp)
       btData = "-1.0";
     else
-      btData = await btManage.getData();
+      btData = await btManage.getData("F");
   }
 
   double getData() {
@@ -288,28 +291,22 @@ class _Car extends State<Car> with TickerProviderStateMixin {
                                             ),
                                       ElevatedButton(
                                         style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all<
-                                                  Color>(Colors.grey[350]),
-                                        ),
+                                            backgroundColor: colorButton),
                                         onPressed: () {
-                                          Navigator.pop(context);
-                                          /*Navigator.pushReplacement(
-                                            context
-                                            ,
+                                          Navigator.pop(
+                                            context, /*
                                             MaterialPageRoute(
                                                 builder: (context) => LoadPage(
                                                       appLanguage: appLanguage,
                                                       user: user,
                                                       messageIn: "0",
                                                       page: mainTitle,
-                                                    )),
-                                          );*/
+                                                    )),*/
+                                          );
                                         },
-                                        child: Text(
-                                            AppLocalizations.of(context)
-                                                .translate('retour')),
-                                      )
+                                        child: Text(AppLocalizations.of(context)
+                                            .translate('retour'), style: textStyle,),
+                                      ),
                                     ],
                                   ),
                                 ),

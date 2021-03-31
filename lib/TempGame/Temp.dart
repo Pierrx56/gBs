@@ -22,9 +22,6 @@ import 'package:gbsalternative/TempGame/TempGame.dart';
 import 'Ui.dart';
 
 String btData;
-String _messageBuffer = '';
-BluetoothConnection connexion;
-bool isConnected;
 
 class Temp extends StatefulWidget {
   final User user;
@@ -51,6 +48,7 @@ class _Temp extends State<Temp> with TickerProviderStateMixin {
   BluetoothManager btManage =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
 
+  bool isConnected;
   String recording;
   Timer _timer;
   int _start = 5;
@@ -144,7 +142,9 @@ class _Temp extends State<Temp> with TickerProviderStateMixin {
       isConnected = await btManage.getStatus();
       if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
-        connect();
+        Timer(Duration(milliseconds: 500), (){
+          connect();
+        });
       } else {
         initTemp();
         return;
@@ -158,7 +158,7 @@ class _Temp extends State<Temp> with TickerProviderStateMixin {
     if (!temp)
       btData = "-1.0";
     else
-      btData = await btManage.getData();
+      btData = await btManage.getData("F");
   }
 
   double getData() {
@@ -321,7 +321,7 @@ class _Temp extends State<Temp> with TickerProviderStateMixin {
             : ColorFilter.mode(Colors.transparent, BlendMode.luminosity),
         child: Stack(
           children: <Widget>[
-            game == null || double.parse(user.userInitialPush) == 0
+            game?.tabFloor == null  || double.parse(user.userInitialPush) == 0
                 ? Center(
                     child: Container(
                         width: screenSize.width,
@@ -365,14 +365,10 @@ class _Temp extends State<Temp> with TickerProviderStateMixin {
                                             ),
                                       ElevatedButton(
                                         style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  Colors.grey[350]),
-                                        ),
+                                            backgroundColor: colorButton),
                                         onPressed: () {
                                           Navigator.pop(
-                                            context,
-                                            /*
+                                            context, /*
                                             MaterialPageRoute(
                                                 builder: (context) => LoadPage(
                                                       appLanguage: appLanguage,
@@ -383,7 +379,7 @@ class _Temp extends State<Temp> with TickerProviderStateMixin {
                                           );
                                         },
                                         child: Text(AppLocalizations.of(context)
-                                            .translate('retour')),
+                                            .translate('retour'), style: textStyle,),
                                       )
                                     ],
                                   ),
@@ -391,7 +387,8 @@ class _Temp extends State<Temp> with TickerProviderStateMixin {
                               ),
                             ],
                           ),
-                        )),
+                        ),
+                    ),
                   )
                 : GameWidget(game: game),
 

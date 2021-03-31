@@ -20,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.media.RingtoneManager;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -81,6 +82,7 @@ public class MainActivity extends FlutterActivity {
 
     public String value = "1.0";
     public String voltageValue = "4.0";
+    public String previousNumber = "0";
 
     boolean isConnected = false;
     boolean isScanning = false;
@@ -200,16 +202,6 @@ public class MainActivity extends FlutterActivity {
                                 //result.error("UNAVAILABLE", "No data available.", null);
                             }
                         }
-                        if (call.method.equals("getVolt")) {
-                            String data = getVoltageValue(); //getData();
-
-                            if (data != "") {
-                                result.success(data);
-                            } else {
-                                result.success("ça ne marche pas");
-                                //result.error("UNAVAILABLE", "No data available.", null);
-                            }
-                        }
                         if (call.method.equals("getMacAddress")) {
                             String mac = getMacAddress();
 
@@ -245,6 +237,16 @@ public class MainActivity extends FlutterActivity {
                             } else {
                                 result.success(status);
                                 //result.error("UNAVAILABLE", "Can not connect", null);
+                            }
+                        }
+                        if (call.method.equals("getVolt")) {
+                            String data = getVoltageValue(); //getData();
+
+                            if (data != "") {
+                                result.success(data);
+                            } else {
+                                result.success("ça ne marche pas");
+                                //result.error("UNAVAILABLE", "No data available.", null);
                             }
                         }
                         if (call.method.equals("locationPermission")) {
@@ -392,7 +394,7 @@ public class MainActivity extends FlutterActivity {
 
     // New services discovered
     public String onServicesDiscovered(BluetoothGatt gatt, int status) {
-        if (status == gatt.GATT_SUCCESS) {
+        if (status == BluetoothGatt.GATT_SUCCESS) {
             BluetoothGattService mBluetoothGattService = gatt.getService(serviceUUID);
             if (mBluetoothGattService != null) {
                 Log.i(TAG, "Service characteristic UUID found: " + mBluetoothGattService.getUuid().toString());
@@ -559,19 +561,29 @@ public class MainActivity extends FlutterActivity {
             // this will get called anytime you perform a read or write characteristic operation
             MainActivity.this.runOnUiThread(new Runnable() {
                 public void run() {
+
                     byte[] value = characteristic.getValue();
                     String v = new String(value);
 
                     setValue(v);
-                    /*
+
                     String[] values;
                     try {
                         values = v.split(";");
+
+                        if(values.length >= 6){
+                            if(values[values.length-1].equals(previousNumber)){
+                                isConnected = false;
+                            }else
+                                isConnected = true;
+
+                        }
                     }
                     catch(NumberFormatException e){
                         values = null;
                     }
 
+                    /*
                     //VALEURS DU CAPTEUR ICI
                     //Valeur du voltage
                     try {
@@ -601,7 +613,7 @@ public class MainActivity extends FlutterActivity {
                 case 0:
                     MainActivity.this.runOnUiThread(new Runnable() {
                         public void run() {
-                            System.out.println("device disconnected\n");
+                            System.out.println("Device disconnected\n");
                             isConnected = false;
                             mBluetoothDevice = null;
                             //btAdapter = null;
@@ -614,7 +626,7 @@ public class MainActivity extends FlutterActivity {
                 case 2:
                     MainActivity.this.runOnUiThread(new Runnable() {
                         public void run() {
-                            System.out.println("device connected\n");
+                            System.out.println("Device connected\n");
                             isConnected = true;
                             //connectToDevice.setVisibility(View.INVISIBLE);
                             //disconnectDevice.setVisibility(View.VISIBLE);
@@ -719,8 +731,6 @@ public class MainActivity extends FlutterActivity {
     public void disconnectDeviceSelected() {
         //peripheralTextView.append("Disconnecting from device\n");
         isConnected = false;
-        /*
-        stopScanning();*/
 
         stopScanning();
         if (btAdapter == null || mBluetoothGatt == null) {
@@ -729,6 +739,8 @@ public class MainActivity extends FlutterActivity {
 
         mBluetoothGatt.disconnect();
         mBluetoothGatt.close();
+        btAdapter.cancelDiscovery();
+
 
 
     }
@@ -736,11 +748,12 @@ public class MainActivity extends FlutterActivity {
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
 
-        System.out.println(characteristic.getUuid());
+        //System.out.println(characteristic.getUuid());
 
         mBluetoothGatt.setCharacteristicNotification(characteristic, true);
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(characteristicUUID);
-        descriptor.setValue(true ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : new byte[]{0x00, 0x00});
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         mBluetoothGatt.writeDescriptor(descriptor); //descriptor write operation successfully started?
     }
+
 }

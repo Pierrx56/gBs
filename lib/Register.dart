@@ -104,7 +104,6 @@ class _Register extends State<Register> {
 
   AppLanguage appLanguage;
 
-  Color colorButton = Colors.black;
   int valueHolder = 20;
 
   final _formKey = GlobalKey<FormState>();
@@ -196,7 +195,7 @@ class _Register extends State<Register> {
   }
 
   Future<void> getData() async {
-    btData = await btManage.getData();
+    btData = await btManage.getData("F");
   }
 
   pickImage(ImageSource source) async {
@@ -669,8 +668,7 @@ class _Register extends State<Register> {
               children: <Widget>[
                 ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.grey[350]),
+                    backgroundColor:colorButton,
                   ),
                   child: Row(
                     children: <Widget>[
@@ -692,8 +690,7 @@ class _Register extends State<Register> {
                 ),
                 ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.grey[350]),
+                    backgroundColor: colorButton,
                   ),
                   child: Row(
                     children: <Widget>[
@@ -770,9 +767,8 @@ class _Register extends State<Register> {
                     child: ElevatedButton(
                       style: ButtonStyle(
                         backgroundColor: !isFound
-                            ? MaterialStateProperty.all<Color>(Colors.grey[350])
-                            : MaterialStateProperty.all<Color>(
-                                Colors.grey[600]),
+                            ? colorButton
+                            : colorPushedButton,
                       ),
                       child: Text(
                         "2. " + discovering,

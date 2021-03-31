@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:async' as async;
 import 'dart:ui' as ui;
 
 import 'package:flame/flame.dart';
@@ -8,6 +8,7 @@ import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
+import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/Plane/Background.dart';
 import 'package:gbsalternative/Plane/Plane.dart';
@@ -47,6 +48,9 @@ class PlaneGame extends Game with TapDetector {
   List<String> tab = ['plane/plane1.png', 'plane/plane2.png'];
 
   double Function() getData;
+  double btData;
+  async.Timer timerData;
+
   User user;
   int j = 0;
   double posYBottomLine;
@@ -55,6 +59,8 @@ class PlaneGame extends Game with TapDetector {
   bool posMax;
   UI gameUI;
   AppLanguage appLanguage;
+
+  BluetoothManager bluetoothManager;
 
   PlaneGame(this.getData, User _user, AppLanguage _appLanguage) {
     user = _user;
@@ -85,7 +91,11 @@ class PlaneGame extends Game with TapDetector {
 
     screenSize = size.toSize();
     image = await _loadImage();
+    btData = getData();
+    bluetoothManager =
+        BluetoothManager(appLanguage: null, inputMessage: null, user: null);
 
+    setData();
     background = Background(this);
     bottomBalloon = BottomBalloon(this);
     topBalloon = TopBalloon(this);
@@ -99,6 +109,26 @@ class PlaneGame extends Game with TapDetector {
     redFilter = false;
     posYBottomLine = bottomBalloon.getYBottomPosition();
     posYTopLine = topBalloon.getYTopPosition();
+  }
+
+  void setData() {
+    timerData =
+        async.Timer.periodic(Duration(milliseconds: 120), (timer) async {
+      btData = getData();
+      /*
+      bool _isConnected = await bluetoothManager.getData("C");
+      if (!_isConnected) {
+        print("isConnected: $_isConnected");
+        async.Timer(Duration(milliseconds: 500), () async {
+          String temp = await bluetoothManager.getData("C");
+          print("temp: $temp");
+          if (temp != "true") {
+            timerData.cancel();
+            isConnected = false;
+          }
+        });
+      }*/
+    });
   }
 
   void render(Canvas canvas) {
@@ -206,10 +236,12 @@ class PlaneGame extends Game with TapDetector {
     scoreTimer += t;
 
     if (!gameOver) {
-      if (getData() != -1.0)
+      /*if (btData != -1.0) {
         isConnected = true;
-      else
+      }
+      else{
         isConnected = false;
+      }*/
 
       if (isConnected) {
         //Timer
@@ -239,7 +271,7 @@ class PlaneGame extends Game with TapDetector {
           }
           //Haut
           else if (tempPos <= 0.0 &&
-              getData() > double.parse(user.userInitialPush)) {
+              btData > double.parse(user.userInitialPush)) {
             tempPos = 0.0;
             plane.y = tempPos;
             posMax = true;
@@ -265,7 +297,7 @@ class PlaneGame extends Game with TapDetector {
           //getData = données reçues par le Bluetooth
 
           //Montée de l'avion
-          if (getData() > double.parse(user.userInitialPush) &&
+          if (btData > double.parse(user.userInitialPush) &&
               !posMax &&
               plane != null) {
             //print(plane.y);

@@ -32,6 +32,12 @@ Color backgroundColor = Color(0xFFF0F8FF);
 
 String softwareVersion = "11.0.1.0";
 
+var colorButton =
+MaterialStateProperty.all<Color>(Colors.grey[350]);
+
+var colorPushedButton =
+MaterialStateProperty.all<Color>(Colors.grey[600]);
+
 //Color backgroundColor = Colors.white;
 
 Color iconColor = Colors.black45;
@@ -328,6 +334,43 @@ class _Login extends State<Login> {
                         userSerialNumber: "gBs1230997P",
                         userMode: "0",
                         userName: name[random.nextInt(name.length - 1)],
+                        userPic: tempFile.path,
+                      ));
+
+                      setState(() {});
+                    },
+                  ),
+                ),
+              ),
+              Container(
+                height: screenSize.height * 0.1,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.black45),
+                    ),
+                    child: Text("Add user 2110969M"),
+                    onPressed: () async {
+                      var data = await rootBundle.load("assets/default.png");
+                      final buffer = data.buffer;
+                      String dir =
+                          (await getApplicationDocumentsDirectory()).path;
+                      File tempFile = await new File("$dir/default.png")
+                          .writeAsBytes(buffer.asUint8List(
+                              data.offsetInBytes, data.lengthInBytes));
+
+                      db.addUser(User(
+                        userHeightBottom: "15",
+                        userHeightTop: "19",
+                        userId: null,
+                        userInitialPush: "51.0",
+                        userNotifEvent: "1",
+                        userLastLogin: "2021-02-24 15:18:54.051196Z",
+                        userMacAddress: "78:DB:2F:BF:1F:72",
+                        userSerialNumber: "gBs2110969M",
+                        userMode: "0",
+                        userName: "Test",
                         userPic: tempFile.path,
                       ));
 

@@ -19,6 +19,10 @@ import 'package:gbsalternative/SelectStatistic.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'DatabaseHelper.dart';
+import 'package:wakelock/wakelock.dart';
+
+
+
 
 class MainTitle extends StatefulWidget {
   final AppLanguage appLanguage;
@@ -115,6 +119,9 @@ class _MainTitle extends State<MainTitle> {
     notificationManager.init(user);
     notificationManager.setNotificationAlert();
 
+    //Disable sleep mode while not in game
+    Wakelock.disable();
+
     //Connexion directement dès le login
     connect();
 
@@ -158,7 +165,7 @@ class _MainTitle extends State<MainTitle> {
 
         //Delay voltage get to avoid alert battery
         if (voltage == 0.0) {
-          voltage = await btManage.getVoltage();
+          voltage = double.parse(await btManage.getData("V"));
 
           Timer(Duration(seconds: 2), () async {
 
@@ -171,7 +178,7 @@ class _MainTitle extends State<MainTitle> {
             }
           });
         } else {
-          voltage = await btManage.getVoltage();
+          voltage = double.parse(await btManage.getData("V"));
 
           //if (voltage == 0.0) voltage = 0.5;
 
@@ -619,12 +626,13 @@ class _MainTitle extends State<MainTitle> {
             padding: EdgeInsets.all(10),
             child: Row(
               children: <Widget>[
+                //Max Push
                 SizedBox(
                   width: widthCard = (screenSize.width / numberOfCard) - 7,
                   height: heightCard = screenSize.width / numberOfCard,
                   child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => MaxPush(
@@ -633,15 +641,23 @@ class _MainTitle extends State<MainTitle> {
                             inputMessage: "fromMain",
                           ),
                         ),
-                        /*MaterialPageRoute(
+
+                      );
+/*
+                      timerConnexion?.cancel();
+
+                      if(result == "startTimer"){
+                        getConnectState();
+                      }
+                        *//*MaterialPageRoute(
                           builder: (context) => LoadPage(
                             appLanguage: appLanguage,
                             page: firstPush,
                             user: user,
                             messageIn: "fromMain",
                           ),
-                        ),*/
-                      );
+                        ),*//*
+                      );*/
                     },
                     child: Card(
                       shape: RoundedRectangleBorder(
@@ -692,7 +708,7 @@ class _MainTitle extends State<MainTitle> {
                   width: widthCard = (screenSize.width / numberOfCard) - 7,
                   height: heightCard = screenSize.width / numberOfCard,
                   child: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       /*
                       Navigator.push(
                           context,
@@ -703,7 +719,8 @@ class _MainTitle extends State<MainTitle> {
                                     messageIn: "0",
                                     page: selectGame,
                                   )));*/
-                      Navigator.push(
+                      timerConnexion?.cancel();
+                      final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => SelectGame(
@@ -711,6 +728,13 @@ class _MainTitle extends State<MainTitle> {
                                     appLanguage: appLanguage,
                                     inputMessage: "0",
                                   )));
+
+                      if(result == "startTimer"){
+                        //Disable sleep mode while not in game
+                        Wakelock.disable();
+                        isWakedUp = false;
+                        getConnectState();
+                      }
                     },
                     child: Card(
                       shape: RoundedRectangleBorder(
@@ -833,8 +857,9 @@ class _MainTitle extends State<MainTitle> {
                   width: widthCard = (screenSize.width / numberOfCard) - 7,
                   height: heightCard = screenSize.width / numberOfCard,
                   child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      timerConnexion?.cancel();
+                      final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => SelectStatistic(
@@ -844,6 +869,13 @@ class _MainTitle extends State<MainTitle> {
                           ),
                         ),
                       );
+
+                      if(result == "startTimer"){
+                        //Disable sleep mode while not in game
+                        Wakelock.disable();
+                        isWakedUp = false;
+                        getConnectState();
+                      }
                     },
                     child: Card(
                       shape: RoundedRectangleBorder(

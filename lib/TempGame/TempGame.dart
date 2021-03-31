@@ -27,6 +27,8 @@ class TempGame extends Game with TapDetector {
   double signPosition = 4.5;
   bool isDisplayingSign = false;
 
+  double speed = 100; // Pixels per second
+
   //BottomFloor bottomFloor;
   //FirstFloor firstFloor;
   //FirstFloor firstFloor1;
@@ -39,12 +41,13 @@ class TempGame extends Game with TapDetector {
   ManageFloors manageFloors;
 
   SpriteComponent temp;
+  ui.Image imageSprite;
   double tileSize;
   bool redFilter;
   bool start;
   bool gameOver = false;
   bool endGame = false;
-  bool isConnected = false;
+  bool isConnected = true;
   bool launchTuto = false;
   int counterHigh;
   bool isInit;
@@ -84,6 +87,9 @@ class TempGame extends Game with TapDetector {
   int i;
   double difficulte = 0.50;
   double sizeSprite;
+
+  bool hasLoadSpriteFirst = false;
+  bool hasLoadSpriteBottom = false;
 
   static List<String> jump = [
     'temp/jump1.png',
@@ -168,6 +174,8 @@ class TempGame extends Game with TapDetector {
     floorPosition.add(screenSize.height - 4 * screenSize.width * 0.1);
 
     tempTimer?.cancel();
+    hasLoadSpriteFirst = false;
+    hasLoadSpriteBottom = false;
 
     firstFloorY = floorPosition[1];
     background = Background(this);
@@ -315,6 +323,15 @@ class TempGame extends Game with TapDetector {
     creationTimer += t;
     scoreTimer += t;
 
+    //Ne pas faire avancer les blocs pendant qu'il pousse
+    if ((isWaiting) && getPush() > 0.0 && !pauseGame);
+      //manageFloors.j -= (speed * t).toInt();
+    else if (!pauseGame && !launchTuto) {
+      manageFloors.j += (speed * creationTimer).toInt();
+      manageFloors.jOffset = (speed * creationTimer).toInt();
+    }
+    //manageFloors.j += (speed*t).toInt();
+
     //if(temp != null)
     //  temp.update(t);
     // phaseTuto = 6;
@@ -366,190 +383,189 @@ class TempGame extends Game with TapDetector {
             }
             state = 2;
           }
-          //S7 EDGE
-          //640
-          //360
-
-          //ACHOS 116 NEON
-          //1368
-          //768
-
-          //GRAND PRIME
-          //640
-          //360
-
           creationTimer = 0.0;
+        }
+        //S7 EDGE
+        //640
+        //360
 
-          temp = SpriteComponent.fromImage(await _loadImage(tempPic),
-              size: Vector2(sizeSprite, sizeSprite)); // width, height, sprite
+        //ACHOS 116 NEON
+        //1368
+        //768
 
-          temp.x = tempPosX;
-          temp.y = tempPosY;
+        //GRAND PRIME
+        //640
+        //360
 
-          if (!isInit) {
-            //Centrage du bonhomme en abscisses
-            temp.x = -10;
+        imageSprite = await _loadImage(tempPic);
 
-            tempPosX = temp.x;
+        temp = SpriteComponent.fromImage(imageSprite,
+            size: Vector2(sizeSprite, sizeSprite)); // width, height, sprite
 
-            //Centrage du bonhomme en ordonnées
-            tempPosY = screenSize.height - sizeSprite - grassSize[0];
+        temp.x = tempPosX;
+        temp.y = tempPosY;
 
-            isInit = true;
-          }
+        if (!isInit) {
+          //Centrage du bonhomme en abscisses
+          temp.x = -10;
 
-          if (!pauseGame) {
-            if (launchTuto && isPushable)
-              ;
-            else if (tempPosX < (screenSize.width - sizeSprite) / 2) {
-              tempPosX += 3;
-              temp.x = tempPosX;
-            }
-            //Si le joueur atteint la moitié de l'écran, la "caméra" suit le joueur au centre de l'écran
-            else {
-              isMoving = true;
-            }
-          }
-          //Définition des bords haut et bas de l'écran
+          tempPosX = temp.x;
 
-          //Bas
-          //Premier étage d'herbe
-          if (tempPosY >= screenSize.height - sizeSprite - grassSize[0]) {
-            temp.y = tempPosY;
-          }
+          //Centrage du bonhomme en ordonnées
+          tempPosY = screenSize.height - sizeSprite - grassSize[0];
+
+          isInit = true;
         }
 
         if (!pauseGame) {
-          if (temp != null) {
-            //Si c'est le premier lancement de l'activité, lancer le tuto
-            if (launchTuto && phaseTuto < 5) {
-              launchTuto = true;
-            } else {
-              launchTuto = false;
-            }
-            //Deuxième phase du tuto pour l'explication des etages
-            /*if (manageFloors.j + temp.x + grassSize >=
+          if (launchTuto && isPushable)
+            ;
+          else if (tempPosX < (screenSize.width - sizeSprite) / 2) {
+            //tempPosX += 3;
+            tempPosX += 2;
+            temp.x = tempPosX;
+          }
+          //Si le joueur atteint la moitié de l'écran, la "caméra" suit le joueur au centre de l'écran
+          else {
+            isMoving = true;
+          }
+        }
+        //Définition des bords haut et bas de l'écran
+
+        //Bas
+        //Premier étage d'herbe
+        if (tempPosY >= screenSize.height - sizeSprite - grassSize[0]) {
+          temp.y = tempPosY;
+        }
+      }
+
+      if (!pauseGame) {
+        if (temp != null) {
+          //Si c'est le premier lancement de l'activité, lancer le tuto
+          if (launchTuto && phaseTuto < 5) {
+            launchTuto = true;
+          } else {
+            launchTuto = false;
+          }
+          //Deuxième phase du tuto pour l'explication des etages
+          /*if (manageFloors.j + temp.x + grassSize >=
                     tabBottomFloor[getCurrentFloor()].getGrassXOffset()[13] &&
                 coins == 0 &&
                 phaseTuto == 4) {
               phaseTuto++;
             }*/
 
-            //Si le joueur a dépassé le drapeau, on autorise la jauge
-            if (manageFloors.j + temp.x + grassSize[0] >=
-                    tabBottomFloor[getCurrentFloor()].getFlagPosition() &&
-                manageFloors.j + temp.x + grassSize[0] - 2 <=
-                    tabBottomFloor[getCurrentFloor()].getFlagPosition()) {
-              isPushable = true;
-            } else if (manageFloors.j + temp.x + grassSize[0] >=
-                    tabFloor[getCurrentFloor()].getFlagPosition() &&
-                manageFloors.j + temp.x + grassSize[0] - 2 <=
-                    tabFloor[getCurrentFloor()].getFlagPosition()) {
-              isPushable = true;
-            }
-            //If the player walks on coins, make coins disappear
-            if (manageFloors.j + temp.x + grassSize[0] >=
-                    tabBottomFloor[getCurrentFloor()].getCoinsPosition() &&
-                blockOne) {
-              tabBottomFloor[getCurrentFloor()].setOpacityC0(opacity -= 0.1);
-              tabBottomFloor[getCurrentFloor()].setOpacityC1(opacity -= 0.1);
-              tabBottomFloor[getCurrentFloor()].setOpacityC2(opacity -= 0.1);
-            } else if (manageFloors.j + temp.x + grassSize[0] >=
-                    tabFloor[getCurrentFloor()].getCoinsPosition() &&
-                !blockOne) {
-              tabFloor[getCurrentFloor()].setOpacityC0(opacity -= 0.1);
-              tabFloor[getCurrentFloor()].setOpacityC1(opacity -= 0.1);
-              tabFloor[getCurrentFloor()].setOpacityC2(opacity -= 0.1);
-            }
+          //Si le joueur a dépassé le drapeau, on autorise la jauge
+          if (manageFloors.j + temp.x + grassSize[0] >=
+                  tabBottomFloor[getCurrentFloor()].getFlagPosition() &&
+              manageFloors.j + temp.x + grassSize[0] - 2 <=
+                  tabBottomFloor[getCurrentFloor()].getFlagPosition()) {
+            isPushable = true;
+          } else if (manageFloors.j + temp.x + grassSize[0] >=
+                  tabFloor[getCurrentFloor()].getFlagPosition() &&
+              manageFloors.j + temp.x + grassSize[0] - 2 <=
+                  tabFloor[getCurrentFloor()].getFlagPosition()) {
+            isPushable = true;
           }
+          //If the player walks on coins, make coins disappear
+          if (manageFloors.j + temp.x + grassSize[0] >=
+                  tabBottomFloor[getCurrentFloor()].getCoinsPosition() &&
+              blockOne) {
+            tabBottomFloor[getCurrentFloor()].setOpacityC0(opacity -= 0.1);
+            tabBottomFloor[getCurrentFloor()].setOpacityC1(opacity -= 0.1);
+            tabBottomFloor[getCurrentFloor()].setOpacityC2(opacity -= 0.1);
+          } else if (manageFloors.j + temp.x + grassSize[0] >=
+                  tabFloor[getCurrentFloor()].getCoinsPosition() &&
+              !blockOne) {
+            tabFloor[getCurrentFloor()].setOpacityC0(opacity -= 0.1);
+            tabFloor[getCurrentFloor()].setOpacityC1(opacity -= 0.1);
+            tabFloor[getCurrentFloor()].setOpacityC2(opacity -= 0.1);
+          }
+        }
 
-          //Si il a poussé pendant 6 secondes et qu'il n'a pas déjà sauté et qu'il est au bord du trou
-          if (isWaiting || isPushable) {
-            if (getPush() <= 0 &&
-                    manageFloors.j + temp.x + grassSize[0] >=
-                        tabBottomFloor[getCurrentFloor()].getGrassXOffset()[
-                                tabBottomFloor[getCurrentFloor()].getLength() -
-                                    1] -
-                            grassSize[0] * 0.5 &&
-                    isAtEdge ||
-                getPush() <= 0 &&
-                    manageFloors.j + temp.x + grassSize[0] >=
-                        tabFloor[getCurrentFloor()].getGrassXOffset()[
-                                tabFloor[getCurrentFloor()].getLength() - 1] -
-                            grassSize[0] * 0.5 &&
-                    isAtEdge) {
-              setPlayerState(0);
-              hasJumped = true;
-              isPushable = false;
-              inTouch = false;
-              //Détermination du sol où sauter
-              jumpCounter++;
-              //Reset du X des plateformes due au décallage des plateformes
-              switch (getFloor()) {
-                //tombe dans le vide
-                case 0:
-                  jumpCounter--;
-                  hasJumpedInVoid = false;
-                  isTheFirstPlatform = false;
-                  jumpIntoTheVoid();
-                  break;
-                case 1:
-                  coins += 1;
-                  firstFloorY = floorPosition[1];
-                  if (blockOne) {
-                    for (int i = 0;
-                        i < tabBottomFloor[getFloor()].getLength();
-                        i++) {
-                      if (coins < 2)
-                        tabBottomFloor[getFloor()]
-                            .setGrassXOffset(-grassSize[0]);
-                      else
-                        tabBottomFloor[getFloor()]
-                            .setGrassXOffset(-grassSize[0] * 1.5);
-                    }
-                  } else if (!blockOne) {
-                    for (int i = 0; i < tabFloor[getFloor()].getLength(); i++) {
-                      if (coins < 2)
-                        tabFloor[getFloor()].setGrassXOffset(-grassSize[0]);
-                      else
-                        tabFloor[getFloor()]
-                            .setGrassXOffset(-grassSize[0] * 1.5);
-                    }
+        //Si il a poussé pendant 6 secondes et qu'il n'a pas déjà sauté et qu'il est au bord du trou
+        if (isWaiting || isPushable) {
+          if (getPush() <= 0 &&
+                  manageFloors.j + temp.x + grassSize[0] >=
+                      tabBottomFloor[getCurrentFloor()].getGrassXOffset()[
+                              tabBottomFloor[getCurrentFloor()].getLength() -
+                                  1] -
+                          grassSize[0] * 0.5 &&
+                  isAtEdge ||
+              getPush() <= 0 &&
+                  manageFloors.j + temp.x + grassSize[0] >=
+                      tabFloor[getCurrentFloor()].getGrassXOffset()[
+                              tabFloor[getCurrentFloor()].getLength() - 1] -
+                          grassSize[0] * 0.5 &&
+                  isAtEdge) {
+            setPlayerState(0);
+            hasJumped = true;
+            isPushable = false;
+            inTouch = false;
+            //Détermination du sol où sauter
+            jumpCounter++;
+            //Reset du X des plateformes due au décallage des plateformes
+            switch (getFloor()) {
+              //tombe dans le vide
+              case 0:
+                jumpCounter--;
+                hasJumpedInVoid = false;
+                isTheFirstPlatform = false;
+                jumpIntoTheVoid();
+                break;
+              case 1:
+                coins += 1;
+                firstFloorY = floorPosition[1];
+                if (blockOne) {
+                  for (int i = 0;
+                      i < tabBottomFloor[getFloor()].getLength();
+                      i++) {
+                    if (coins < 2)
+                      tabBottomFloor[getFloor()].setGrassXOffset(-grassSize[0]);
+                    else
+                      tabBottomFloor[getFloor()]
+                          .setGrassXOffset(-grassSize[0] * 1.5);
                   }
-                  doAJump();
-                  break;
-                case 2:
-                  coins += 2;
-                  firstFloorY = floorPosition[2];
-                  if (blockOne) {
-                    for (int i = 0;
-                        i < tabBottomFloor[getFloor()].getLength();
-                        i++) {
-                      if (coins < 2)
-                        tabBottomFloor[getFloor()]
-                            .setGrassXOffset(-grassSize[0] / 2);
-                      else
-                        tabBottomFloor[getFloor()]
-                            .setGrassXOffset(-grassSize[0]);
-                    }
-                  } else if (!blockOne) {
-                    for (int i = 0; i < tabFloor[getFloor()].getLength(); i++) {
-                      if (coins < 2)
-                        tabFloor[getFloor()].setGrassXOffset(-grassSize[0] / 2);
-                      else
-                        tabFloor[getFloor()].setGrassXOffset(-grassSize[0]);
-                    }
+                } else if (!blockOne) {
+                  for (int i = 0; i < tabFloor[getFloor()].getLength(); i++) {
+                    if (coins < 2)
+                      tabFloor[getFloor()].setGrassXOffset(-grassSize[0]);
+                    else
+                      tabFloor[getFloor()].setGrassXOffset(-grassSize[0] * 1.5);
                   }
-                  doAJump();
-                  break;
-                case 3:
-                  coins += 3;
-                  firstFloorY = floorPosition[3];
-                  doAJump();
-                  break;
-              }
-              grassYOffset1 = firstFloorY;
+                }
+                doAJump();
+                break;
+              case 2:
+                coins += 2;
+                firstFloorY = floorPosition[2];
+                if (blockOne) {
+                  for (int i = 0;
+                      i < tabBottomFloor[getFloor()].getLength();
+                      i++) {
+                    if (coins < 2)
+                      tabBottomFloor[getFloor()]
+                          .setGrassXOffset(-grassSize[0] / 2);
+                    else
+                      tabBottomFloor[getFloor()].setGrassXOffset(-grassSize[0]);
+                  }
+                } else if (!blockOne) {
+                  for (int i = 0; i < tabFloor[getFloor()].getLength(); i++) {
+                    if (coins < 2)
+                      tabFloor[getFloor()].setGrassXOffset(-grassSize[0] / 2);
+                    else
+                      tabFloor[getFloor()].setGrassXOffset(-grassSize[0]);
+                  }
+                }
+                doAJump();
+                break;
+              case 3:
+                coins += 3;
+                firstFloorY = floorPosition[3];
+                doAJump();
+                break;
             }
+            grassYOffset1 = firstFloorY;
           }
         }
       }

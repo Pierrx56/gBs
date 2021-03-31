@@ -420,7 +420,7 @@ class TME {
       sizeTruck.add(Vector2(widthTruck, heightTruck));
     }
 
-    print(truckList.length);
+    //print(truckList.length);
 
     int k = 0;
     for (int i = numberTruck - truckList.length; i < truckList.length; i++) {

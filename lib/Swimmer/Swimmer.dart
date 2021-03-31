@@ -14,6 +14,7 @@ import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
+import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Swimmer/SwimGame.dart';
 
@@ -23,7 +24,6 @@ String btData;
 String _messageBuffer = '';
 BluetoothConnection connexion;
 bool isConnected;
-
 
 class Swimmer extends StatefulWidget {
   final User user;
@@ -130,7 +130,9 @@ class _Swimmer extends State<Swimmer> {
       isConnected = await btManage.getStatus();
       if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
-        connect();
+        Timer(Duration(milliseconds: 500), () {
+          connect();
+        });
       } else {
         launchGame();
         return;
@@ -179,7 +181,7 @@ class _Swimmer extends State<Swimmer> {
     if (!temp)
       btData = "-1.0";
     else
-      btData = await btManage.getData();
+      btData = await btManage.getData("F");
   }
 
   double getData() {
@@ -250,9 +252,8 @@ class _Swimmer extends State<Swimmer> {
     Size screenSize = MediaQuery.of(context).size;
 
     return WillPopScope(
-      onWillPop: (){
-        if(!endGame)
-          game.pauseGame = ! game.pauseGame;
+      onWillPop: () {
+        if (!endGame) game.pauseGame = !game.pauseGame;
         return;
       },
       child: Material(
@@ -270,7 +271,7 @@ class _Swimmer extends State<Swimmer> {
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: ExactAssetImage(
-                                "assets/images/swimmer/background.png"),
+                                "assets/images/ship/background.png"),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -287,7 +288,8 @@ class _Swimmer extends State<Swimmer> {
                                     color: Color.fromRGBO(255, 255, 255, 0.7),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       CircularProgressIndicator(),
@@ -304,9 +306,8 @@ class _Swimmer extends State<Swimmer> {
                                               textAlign: TextAlign.center,
                                             ),
                                       ElevatedButton(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
-          ),
+                                        style: ButtonStyle(
+                                            backgroundColor: colorButton),
                                         onPressed: () {
                                           Navigator.pop(
                                             context, /*
@@ -319,9 +320,12 @@ class _Swimmer extends State<Swimmer> {
                                                     )),*/
                                           );
                                         },
-                                        child: Text(AppLocalizations.of(context)
-                                            .translate('retour')),
-                                      )
+                                        child: Text(
+                                          AppLocalizations.of(context)
+                                              .translate('retour'),
+                                          style: textStyle,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -335,6 +339,7 @@ class _Swimmer extends State<Swimmer> {
             SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
 /*                Container(
                       alignment: Alignment.topLeft,
@@ -356,13 +361,19 @@ class _Swimmer extends State<Swimmer> {
                                   : commonGamesUI.pauseButton(
                                       context, appLanguage, game, user),
                             )
-                          : !endGame
+                          : !endGame && !game.getGameOver()
                               ? Container(
                                   alignment: Alignment.topRight,
-                                  child: commonGamesUI.menu(context, appLanguage,
-                                      game, user, ID_SWIMMER_ACTIVITY, message))
+                                  child: commonGamesUI.menu(
+                                      context,
+                                      appLanguage,
+                                      game,
+                                      user,
+                                      ID_SWIMMER_ACTIVITY,
+                                      message))
                               : Container(
-                                  alignment: Alignment.topCenter,
+                                  height: screenSize.height,
+                                  alignment: Alignment.center,
                                   child: commonGamesUI.endScreen(
                                       context,
                                       appLanguage,
@@ -388,11 +399,11 @@ class _Swimmer extends State<Swimmer> {
             ),
             //Display message pour afficher score et les secondes
             Container(
-              alignment: Alignment.bottomLeft,
-              padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
-              child: game != null && !endGame
-                  ? gameUI.state.displayScore(
-                      context, appLanguage, score.toString(), timeRemaining, game)
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: game != null && !endGame && !game.getGameOver()
+                  ? gameUI.state.displayScore(context, appLanguage,
+                      score.toString(), timeRemaining, game)
                   : Container(),
             ),
             //Display message pour relancher
@@ -427,12 +438,25 @@ class _Swimmer extends State<Swimmer> {
                       : Container()
                   : Container(),
             ),
+            /*
             //Display message Game Over
             Container(
-              alignment: Alignment.topCenter,
+              alignment: Alignment.center,
               child: game != null
-                  ? game.getGameOver() && !game.isTooHigh
-                      ? Row(
+                  ? !game.getGameOver() && !game.isTooHigh
+                      ? Container(
+                          alignment: Alignment.topCenter,
+                          child: commonGamesUI.endScreen(
+                              context,
+                              appLanguage,
+                              game,
+                              ID_SWIMMER_ACTIVITY,
+                              user,
+                              starValue,
+                              level,
+                              score,
+                              message))
+                      */ /* Row(
                           children: <Widget>[
                             gameUI.state.displayMessage(
                                 AppLocalizations.of(context)
@@ -440,10 +464,10 @@ class _Swimmer extends State<Swimmer> {
                                 game,
                                 Colors.blueAccent),
                           ],
-                        )
+                        )*/ /*
                       : Container()
                   : Container(),
-            ),
+            ),*/
             //Display message toise trop basse
             Container(
               alignment: Alignment.topCenter,
