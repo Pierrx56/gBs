@@ -307,18 +307,18 @@ class CommonGamesUI {
                             padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                             child: Image.asset(
                               'assets/images/car/fuel.png',
-                              width: game.screenSize.height * 0.1,
-                              height: game.screenSize.height * 0.1,
+                              height: game.screenSize.height * 0.2,
                             ),
                           ),
                           AutoSizeText(
                             score > 1
                                 ? "$score ${AppLocalizations.of(context).translate('bidon')}s"
                                 : "$score ${AppLocalizations.of(context).translate('bidon')}",
+                            minFontSize: 25,
+                            maxFontSize: 40,
                             style: TextStyle(
                                 color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20),
+                                fontWeight: FontWeight.bold),
                           ),
                         ],
                       )
@@ -327,22 +327,19 @@ class CommonGamesUI {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                child: Image.asset(
-                                  'assets/images/plane/balloon-green.png',
-                                  width: game.screenSize.height * 0.1,
-                                  height: game.screenSize.height * 0.1,
-                                ),
+                              Image.asset(
+                                'assets/images/plane/balloon-green.png',
+                                height: game.screenSize.height * 0.35,
                               ),
                               AutoSizeText(
                                 score > 1
                                     ? "$score ${AppLocalizations.of(context).translate('ballons')}s"
                                     : "$score ${AppLocalizations.of(context).translate('ballons')}",
+                                minFontSize: 25,
+                                maxFontSize: 40,
                                 style: TextStyle(
                                     color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20),
+                                    fontWeight: FontWeight.bold),
                               ),
                             ],
                           )
@@ -364,7 +361,7 @@ class CommonGamesUI {
                                     alignment: Alignment.center,
                                     child: AutoSizeText(
                                       "$score m",
-                                      minFontSize: 35,
+                                      minFontSize: 25,
                                       maxFontSize: 40,
                                       style: TextStyle(
                                           color: Colors.black,
@@ -384,16 +381,16 @@ class CommonGamesUI {
                                             EdgeInsets.fromLTRB(0, 0, 10, 0),
                                         child: Image.asset(
                                           'assets/images/temp/coin1.png',
-                                          width: game.screenSize.height * 0.1,
                                           height: game.screenSize.height * 0.1,
                                         ),
                                       ),
                                       AutoSizeText(
                                         "$score/30",
+                                        minFontSize: 25,
+                                        maxFontSize: 40,
                                         style: TextStyle(
                                             color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20),
+                                            fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   )

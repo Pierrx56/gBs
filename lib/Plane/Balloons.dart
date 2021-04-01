@@ -6,9 +6,7 @@ import 'package:flame/sprite.dart';
 import 'package:gbsalternative/Plane/PlaneGame.dart';
 
 double balloonPosition = 0.1;
-double posX = 0;
 double posY = 0;
-int j = 0;
 int balloonSpeed = 2;
 int widthBalloon;
 List<String> balloonArray = ["plane/balloon-green.png", "plane/balloon-pink.png"];
@@ -20,6 +18,8 @@ class BottomBalloon {
   Rect rectBottom;
   Vector2 rectSize;
   Vector2 rectPosition;
+  int j = 0;
+  double posX = 0;
 
 
   var image;
@@ -102,7 +102,9 @@ class TopBalloon {
   Rect rectTop;
   Vector2 rectSize;
   Vector2 rectPosition;
+  double posX = 0;
 
+  int j = 0;
 
   var image;
 
@@ -126,7 +128,7 @@ class TopBalloon {
 
     rectTop = Rect.fromLTWH(
         0, 0, game.screenSize.width*0.05, game.screenSize.height * 0.2);
-    
+
     rectSize = Vector2( game.screenSize.width*0.05, game.screenSize.height * 0.2);
     rectPosition = Vector2(0,0);
   }
@@ -137,8 +139,7 @@ class TopBalloon {
       j = 10;
 
     c.translate(game.screenSize.width / 2, game.screenSize.height);
-    c.translate(
-        -game.screenSize.width / 2, -game.screenSize.height * (1 - balloonPosition));
+    c.translate(-game.screenSize.width / 2, -game.screenSize.height * (1 - balloonPosition));
 
     if (j >= game.screenSize.width){
       j = 0;
@@ -156,12 +157,10 @@ class TopBalloon {
       j -= balloonSpeed;
 
     c.translate( posX = game.screenSize.width - widthBalloon - j.toDouble(), 0);
-
     topBalloon.render(c, size: rectSize, position: rectPosition);
 
-    c.translate(-game.screenSize.width, 0);
-
-    topBalloon.render(c, size: rectSize, position: rectPosition);
+    //c.translate(-game.screenSize.width, 0);
+    //topBalloon.render(c, size: rectSize, position: rectPosition);
     // restore original state
     c.restore();
   }

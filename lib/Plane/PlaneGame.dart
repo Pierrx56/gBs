@@ -34,7 +34,9 @@ class PlaneGame extends Game with TapDetector {
   int starLevel = 0;
   double starValue = 0.0;
   bool pauseGame = false;
-  bool reset = false;
+  bool resetBottom = false;
+  bool resetTop = false;
+  bool hasMissedBaloon = false;
   String planePic;
   double creationTimer = 0.0;
   double scoreTimer = 0.0;
@@ -101,6 +103,9 @@ class PlaneGame extends Game with TapDetector {
     topBalloon = TopBalloon(this);
     gameUI = UI();
 
+    resetBottom = false;
+    resetTop = false;
+    hasMissedBaloon = false;
     position = false;
     posMax = false;
     gameOver = false;
@@ -149,17 +154,25 @@ class PlaneGame extends Game with TapDetector {
           if (isDown) {
             if (bottomBalloon != null) {
               //bottomBalloon = BottomBalloon(this);
-              bottomBalloon.render(canvas, pauseGame, reset);
+              bottomBalloon.render(canvas, pauseGame, resetBottom);
+            }
+            if(hasMissedBaloon) {
+              canvas.save();
+              if (topBalloon != null) {
+                //topBalloon = TopBalloon(this);
+                topBalloon.render(canvas, pauseGame, resetTop);
+              }
             }
           }
           //Ballon du haut
           else if (!isDown) {
             if (topBalloon != null) {
               //topBalloon = TopBalloon(this);
-              topBalloon.render(canvas, pauseGame, reset);
+              topBalloon.render(canvas, pauseGame, resetTop);
             }
           }
-          reset = false;
+          resetBottom = false;
+          resetTop = false;
           //Nageur
           if (plane != null) {
             plane.render(canvas);
@@ -193,9 +206,13 @@ class PlaneGame extends Game with TapDetector {
                 isDown) {
               score++;
               position = isDown;
-              reset = true;
-              isDown = !isDown;
-              bottomBalloon = BottomBalloon(this);
+              resetBottom = true;
+              //resetTop = true;
+              hasMissedBaloon = false;
+              if (!hasMissedBaloon) {
+                bottomBalloon = BottomBalloon(this);
+                isDown = !isDown;
+              }
               //Rentre une fois dans la timer
             }
             //HitBox ballon haut
@@ -210,18 +227,24 @@ class PlaneGame extends Game with TapDetector {
                 !isDown) {
               score++;
               position = isDown;
-              reset = true;
-              isDown = !isDown;
-              topBalloon = TopBalloon(this);
+              resetTop = true;
+              hasMissedBaloon = false;
+              if (!hasMissedBaloon) {
+                topBalloon = TopBalloon(this);
+                isDown = !isDown;
+              }
+              //sDown = !isDown;
             } else if (posX >=
                     ((topBalloon.getXTopPosition() - plane.width / 2) - 3) &&
                 posX <=
                     ((topBalloon.getXTopPosition() - plane.width / 2) + 3) &&
                 !isDown) {
+              print("ici");
               position = isDown;
-              reset = true;
-              isDown = !isDown;
-              bottomBalloon = BottomBalloon(this);
+              //resetBottom = true;
+              hasMissedBaloon = true;
+              isDown = true;
+              //bottomBalloon = BottomBalloon(this);
             } else {
               setColorFilter(false);
             }

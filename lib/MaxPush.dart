@@ -153,14 +153,14 @@ class _MaxPush extends State<MaxPush> {
       }
 
       //Affiche le message pendant 3 secondes
-      if (isTooHigh) {
+      /*if (isTooHigh) {
         await Future.delayed(const Duration(seconds: 5), () {
           setState(() {
             isTooHigh = false;
             getData();
           });
         });
-      }
+      }*/
     });
   }
 
@@ -189,7 +189,6 @@ class _MaxPush extends State<MaxPush> {
   }
 
   Future<bool> _onBackPressed() {
-
     _timer?.cancel();
     if (inputMessage == "fromRegister")
       Navigator.pushReplacement(
@@ -337,7 +336,7 @@ class _MaxPush extends State<MaxPush> {
               padding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0),
               child: Stack(
                 children: <Widget>[
-                  //Progress bar & messages
+                  //Progress bar/gauge & messages
                   !isCorrect
                       ? Stack(
                           children: <Widget>[
@@ -358,8 +357,10 @@ class _MaxPush extends State<MaxPush> {
                                 height: screenSize.height * 0.8,
                                 width: screenSize.width * 0.5,
                                 child: SfRadialGauge(
+                                  enableLoadingAnimation: true,
                                   axes: <RadialAxis>[
                                     RadialAxis(
+                                      interval: 10,
                                       minimum: 0,
                                       maximum: 150,
                                       ranges: <GaugeRange>[
@@ -378,8 +379,10 @@ class _MaxPush extends State<MaxPush> {
                                       ],
                                       pointers: <GaugePointer>[
                                         NeedlePointer(
-                                            value: double.parse(btData),
-                                            animationDuration: 1.0)
+                                            value:double.parse(btData),
+                                          enableAnimation: true,
+                                        ),
+                                        //RangePointer(value: double.parse(btData),enableAnimation: true),
                                       ],
                                       annotations: <GaugeAnnotation>[
                                         GaugeAnnotation(
@@ -399,27 +402,31 @@ class _MaxPush extends State<MaxPush> {
                               ),
                             ),
 
-                            result < 50 && _start < 0.1 ? Align(
-                              alignment: Alignment.centerLeft,
-                              child: Container(
-                                width: screenSize.width * 0.25,
-                                child: AutoSizeText(
-                                  AppLocalizations.of(context)
-                                      .translate('status_mesure_mauvais'),
-                                  style: textStyle,
-                                ),
-                              ),
-                            ) : result >= 50 && _start < 0.1 ? Align(
-                              alignment: Alignment.centerLeft,
-                              child: Container(
-                                width: screenSize.width * 0.25,
-                                child: AutoSizeText(
-                                  AppLocalizations.of(context)
-                                      .translate('status_mesure_bon'),
-                                  style: textStyle,
-                                ),
-                              ),
-                            ) : Container(),
+                            result < 50 && _start < 0.1 || isTooHigh
+                                ? Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Container(
+                                      width: screenSize.width * 0.25,
+                                      child: AutoSizeText(
+                                        AppLocalizations.of(context)
+                                            .translate('status_mesure_mauvais'),
+                                        style: textStyle,
+                                      ),
+                                    ),
+                                  )
+                                : result >= 50 && _start < 0.1
+                                    ? Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Container(
+                                          width: screenSize.width * 0.25,
+                                          child: AutoSizeText(
+                                            AppLocalizations.of(context)
+                                                .translate('status_mesure_bon'),
+                                            style: textStyle,
+                                          ),
+                                        ),
+                                      )
+                                    : Container(),
 
                             //Progress bar maison
                             //Rotate -math.pi pour retourner les container de 180°
@@ -572,20 +579,6 @@ class _MaxPush extends State<MaxPush> {
                   //Buttons
                   Stack(
                     children: <Widget>[
-                      isTooHigh
-                          ? Container(
-                              width: screenSize.width * 0.6,
-                              child: AutoSizeText(
-                                AppLocalizations.of(context)
-                                    .translate('status_mesure_mauvais'),
-                                textAlign: TextAlign.center,
-                                style: textStyle,
-                              ),
-                            )
-                          : Container(),
-                      Padding(
-                        padding: EdgeInsets.all(20.0),
-                      ),
                       //Back button
                       inputMessage == "fromMain" ||
                               (inputMessage == "fromRegister" && isCorrect)
@@ -700,7 +693,6 @@ class _MaxPush extends State<MaxPush> {
                           child: ElevatedButton(
                             style: ButtonStyle(
                               backgroundColor: !isTryingConnect &&
-                                          !isTooHigh &&
                                           !isCorrect &&
                                           !isPush ||
                                       bottomSelection != 0 && topSelection != 1
@@ -709,13 +701,17 @@ class _MaxPush extends State<MaxPush> {
                             ),
                             //child: Text("Démarrer l'enregistrement."),
                             onPressed: !isTryingConnect &&
-                                        !isTooHigh &&
                                         !isCorrect &&
                                         !isPush ||
                                     bottomSelection != 0 && topSelection != 1
                                 ? () async {
                                     //Initialisation du timer
                                     _start = _reset;
+                                    isTooHigh = false;
+                                    result = 60.0;
+                                    for (int i = 0; i < average.length; i++)
+                                      average[i] = 0;
+
                                     if (!isPush) {
                                       isPush = true;
                                       const oneSec =
@@ -726,9 +722,10 @@ class _MaxPush extends State<MaxPush> {
                                           () {
                                             //Si déco pendant une mesure
                                             if (isTryingConnect) {
-                                              timer.cancel();
+                                              _timer.cancel();
                                               isPush = false;
                                               _start = _reset;
+                                              isTooHigh = false;
                                               i = 100;
                                               setState(() {
                                                 recording = AppLocalizations.of(
@@ -737,7 +734,7 @@ class _MaxPush extends State<MaxPush> {
                                                         'demarrer_enregistrement');
                                               });
                                             } else if (_start < 0.1) {
-                                              timer.cancel();
+                                              _timer.cancel();
                                               print(average);
                                               result = double.parse(
                                                   (average.reduce(
@@ -796,34 +793,42 @@ class _MaxPush extends State<MaxPush> {
                                               /*recording =
                                                   _start.toStringAsFixed(1);*/
                                               _start = _start - 0.1;
-                                              i--;
+
                                               getData();
                                               //Affiche la valeur en live
                                               if (_start >= 0.0) {
+                                                if (i == 100) {
+                                                  i--;
+                                                  btData = "50.0";
+                                                }
                                                 average[i] =
                                                     double.parse(btData);
                                                 //Dépasse la valeur max, réajuster la toise
                                                 if (average[i] > 100.0) {
+                                                  print(average);
                                                   for (int i = 0;
-                                                      i < average.length - 1;
+                                                      i < average.length;
                                                       i++) average[i] = 0;
-                                                  _start = 0.0;
-                                                  i = 99;
+                                                  _start = _reset;
+                                                  i = 100;
+                                                  /*
                                                   average[i] =
-                                                      double.parse(btData);
+                                                      double.parse(btData);*/
                                                   isPush = false;
                                                   isTooHigh = true;
                                                   recording = AppLocalizations
                                                           .of(context)
                                                       .translate(
                                                           'demarrer_enregistrement');
-                                                  timer.cancel();
+
+                                                  _timer.cancel();
                                                 } else if (average[i] < 50.0) {
                                                   setState(() {
                                                     colorProgressBar =
                                                         Colors.red;
                                                   });
                                                 } else {
+                                                  i--;
                                                   setState(() {
                                                     colorProgressBar =
                                                         Colors.green;
@@ -887,7 +892,7 @@ class _MaxPush extends State<MaxPush> {
                                       db.updateUser(updatedUser);
 
                                       if (inputMessage == "fromMain") {
-                                        Navigator.push(
+                                        Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => MainTitle(
