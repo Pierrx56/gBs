@@ -1,6 +1,7 @@
 package genourob.gbs_alternative;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -14,13 +15,16 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.media.RingtoneManager;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -93,9 +97,7 @@ public class MainActivity extends FlutterActivity {
     BluetoothManager btManager;
     BluetoothDevice mBluetoothDevice;
     BluetoothGatt mBluetoothGatt;
-    BluetoothLeScanner btScanner;
     BluetoothAdapter btAdapter;
-
 
     private static String resourceToUriString(Context context, int resId) {
         return
@@ -108,13 +110,35 @@ public class MainActivity extends FlutterActivity {
                         + context.getResources().getResourceEntryName(resId);
     }
 
+
+    // Code to manage Service lifecycle.
+    ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            System.out.println("mServiceConnection onServiceConnected");
+            mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+            if (!mBluetoothLeService.initialize()) {
+                Log.e(TAG, "Unable to initialize Bluetooth");
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            System.out.println("mServiceConnection onServiceDisconnected");
+            mBluetoothLeService = null;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         btAdapter = btManager.getAdapter();
-        btScanner = btAdapter.getBluetoothLeScanner();
+
+        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+        bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
         if (btAdapter != null && !btAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -138,6 +162,8 @@ public class MainActivity extends FlutterActivity {
             }
         }*/
     }
+
+    BluetoothLeService mBluetoothLeService;
 
 
     @Override
@@ -229,6 +255,10 @@ public class MainActivity extends FlutterActivity {
                                 result.error("UNAVAILABLE", "Battery level not available.", null);
                             }
                         }
+                        if (call.method.contains("getScanStatus")) {
+                            result.success(isScanning);
+                        }
+
                         if (call.method.equals("getStatus")) {
                             boolean status = getStatus();
 
@@ -275,6 +305,9 @@ public class MainActivity extends FlutterActivity {
                                 //result.error("UNAVAILABLE", "Can not connect", null);
                             }
                         }
+
+                        //TODO get scan state
+
                         /* else {
                             result.error("Unavailable", "No method", null);
                         }*/
@@ -338,10 +371,8 @@ public class MainActivity extends FlutterActivity {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                if (btScanner == null)
-                    btScanner = btAdapter.getBluetoothLeScanner();
                 isScanning = true;
-                btScanner.startScan(leScanCallback);
+                btAdapter.startLeScan(leScanCallback);
                 if (isConnected)
                     stopScanning();
             }
@@ -353,18 +384,41 @@ public class MainActivity extends FlutterActivity {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                if (btScanner == null)
-                    btScanner = btAdapter.getBluetoothLeScanner();
-                btScanner.stopScan(leScanCallback);
                 isScanning = false;
+                btAdapter.stopLeScan(leScanCallback);
             }
         });
     }
 
     // Device scan callback.
-    private ScanCallback leScanCallback = new ScanCallback() {
+    private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
+
         @Override
-        public void onScanResult(int callbackType, ScanResult result) {
+        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+
+            if (device.getName() != null) {
+                System.out.println(device.getName());
+                if (macAdress != null && macAdress != "-1" && macAdress != "") {
+                    System.out.println(device.getAddress());
+                    if (device.getAddress().contains(macAdress)) {
+                        mBluetoothDevice = device;
+                        stopScanning();
+                        //System.out.print("distance: ");
+                        //System.out.println(result.getRssi());
+                        connect(device.getAddress());
+                    }
+                }
+                if (device.getName().contains(NAME_DEVICE)) {
+                    setMacAddress(device.getAddress());
+                    mBluetoothDevice = device;
+                    stopScanning();
+                }
+            }
+        }
+
+/*
+        @Override
+        public void onLeScan(int callbackType, ScanResult result) {
             //peripheralTextView.append("Device Name: " + result.getDevice().getName() + " rssi: " + result.getRssi() + "\n");
 
             if (result.getDevice().getName() != null) {
@@ -374,6 +428,8 @@ public class MainActivity extends FlutterActivity {
                     if (result.getDevice().getAddress().contains(macAdress)) {
                         mBluetoothDevice = result.getDevice();
                         stopScanning();
+                        System.out.print("distance: ");
+                        System.out.println(result.getRssi());
                         connect(result.getDevice().getAddress());
                     }
                 }
@@ -389,7 +445,7 @@ public class MainActivity extends FlutterActivity {
             // if there is no need to scroll, scrollAmount will be <=0
             //if (scrollAmount > 0)
             //    peripheralTextView.scrollTo(0, scrollAmount);
-        }
+        }*/
     };
 
     // New services discovered
@@ -513,7 +569,6 @@ public class MainActivity extends FlutterActivity {
                 stopScanning();
 
             mBluetoothGatt = mBluetoothDevice.connectGatt(this, false, btleGattCallback);
-
             if (mBluetoothGatt.connect()) {
                 isConnected = true;
             } else
@@ -525,6 +580,21 @@ public class MainActivity extends FlutterActivity {
             //connect();
             return "Disconnected";
         }
+    }
+
+    public void disconnectDeviceSelected() {
+        //peripheralTextView.append("Disconnecting from device\n");
+        isConnected = false;
+
+        stopScanning();
+        if (btAdapter == null || mBluetoothGatt == null) {
+            return;
+        }
+        macAdress = "";
+        mBluetoothGatt.disconnect();
+        mBluetoothGatt.close();
+
+        //btAdapter.cancelDiscovery();
     }
 
 
@@ -726,23 +796,6 @@ public class MainActivity extends FlutterActivity {
                 }
             }
         }
-    }
-
-    public void disconnectDeviceSelected() {
-        //peripheralTextView.append("Disconnecting from device\n");
-        isConnected = false;
-
-        stopScanning();
-        if (btAdapter == null || mBluetoothGatt == null) {
-            return;
-        }
-
-        mBluetoothGatt.disconnect();
-        mBluetoothGatt.close();
-        btAdapter.cancelDiscovery();
-
-
-
     }
 
     private void broadcastUpdate(final String action,

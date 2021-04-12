@@ -5,7 +5,7 @@ import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
-import 'package:gbsalternative/CarGame/CarGame.dart';
+import 'package:gbsalternative/Car/CarGame.dart';
 
 double balloonPosition = 0.1;
 double posX = 0;

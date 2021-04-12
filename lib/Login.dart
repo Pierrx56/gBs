@@ -10,12 +10,15 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
+import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/FAQ.dart';
 import 'package:gbsalternative/MainTitle.dart';
+import 'package:gbsalternative/NotificationManager.dart';
 import 'package:gbsalternative/Register.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:gbsalternative/AppLanguage.dart';
+import 'BluetoothManager.dart';
 import 'DatabaseHelper.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
 
@@ -32,13 +35,13 @@ Color backgroundColor = Color(0xFFF0F8FF);
 
 String softwareVersion = "11.0.1.0";
 
-var colorButton =
-MaterialStateProperty.all<Color>(Colors.grey[350]);
+var colorButton = MaterialStateProperty.all<Color>(Colors.grey[350]);
 
-var colorPushedButton =
-MaterialStateProperty.all<Color>(Colors.grey[600]);
+var colorPushedButton = MaterialStateProperty.all<Color>(Colors.grey[600]);
 
 //Color backgroundColor = Colors.white;
+String attention;
+String eteindre;
 
 Color iconColor = Colors.black45;
 Color splashIconColor = Colors.black54;
@@ -53,7 +56,7 @@ class Login extends StatefulWidget {
   _Login createState() => _Login(appLanguage, message);
 }
 
-class _Login extends State<Login> {
+class _Login extends State<Login> with WidgetsBindingObserver {
   DatabaseHelper db = new DatabaseHelper();
   BluetoothManager bluetoothManager =
       new BluetoothManager(user: null, inputMessage: null, appLanguage: null);
@@ -62,6 +65,12 @@ class _Login extends State<Login> {
   List<User> userList = [];
   String message;
   int size = 0;
+  Timer watchdogTimer;
+  Timer _timer;
+  bool timerIsOn;
+  int bgState;
+
+  CommonGamesUI commonGamesUI;
 
   //Constructeur
   _Login(AppLanguage _appLanguage, String _message) {
@@ -71,18 +80,29 @@ class _Login extends State<Login> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    timerIsOn = false;
+    if (watchdogTimer == null) {
+      //Looking for closed app every 3 seconds and avert user
+      watchdogTimer = Timer.periodic(Duration(seconds: 3), (timer) {
+        WidgetsBinding.instance.removeObserver(this);
+        WidgetsBinding.instance.addObserver(this);
+      });
+    }
     init();
     super.initState();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   void init() async {
     //userList = await db.userList();
     setState(() {});
+    commonGamesUI = new CommonGamesUI();
 
     if (message != "fromMain") {
       //Cancel every bluetooth research
@@ -94,11 +114,119 @@ class _Login extends State<Login> {
     }
   }
 
+  void setBGState(int state) {
+    bgState = state;
+  }
+
+  AppLifecycleState getState() {
+
+    switch (bgState) {
+      case 0:
+        return AppLifecycleState.resumed;
+        // TODO: Handle this case.
+        break;
+      case 1:
+        return AppLifecycleState.inactive;
+        // TODO: Handle this case.
+        break;
+      case 2:
+        return AppLifecycleState.paused;
+        // TODO: Handle this case.
+        break;
+      case 3:
+        return AppLifecycleState.detached;
+        // TODO: Handle this case.
+        break;
+    }
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    /*if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) return;*/
+
+    bool isBackground = false;
+    int tempTimer = 0;
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print("state: $state");
+        timerIsOn = false;
+        commonGamesUI.setGamePauseState(timerIsOn);
+        setBGState(0);
+        break;
+      case AppLifecycleState.inactive:
+        print("state: $state");
+        setBGState(1);
+        break;
+      case AppLifecycleState.paused:
+        print("state: $state");
+        setBGState(2);
+        isBackground = true;
+        tempTimer = 10;
+        break;
+      case AppLifecycleState.detached:
+        print("state: $state");
+        setBGState(3);
+        break;
+    }
+
+    //When user quit app or lock it smartphone
+    if (isBackground && tempTimer == 10 && !timerIsOn) {
+      timerIsOn = true;
+      commonGamesUI.setGamePauseState(timerIsOn);
+      //If isConnected and have quit app, send notification
+
+      BluetoothManager bluetoothManager = new BluetoothManager(
+          user: null, inputMessage: 'inputMessage', appLanguage: appLanguage);
+
+      bool isConnected = await bluetoothManager.getStatus();
+
+      _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+        tempTimer--;
+        print("tempTimer: $tempTimer");
+
+        //Do nothing if app is resumed
+        if (getState() == AppLifecycleState.resumed) {
+          print("resumed");
+          timerIsOn = false;
+          commonGamesUI.setGamePauseState(timerIsOn);
+          _timer.cancel();
+        }
+
+        if (tempTimer <= 0) {
+          timerIsOn = false;
+          _timer.cancel();
+          //If still connected after XX seconds of inactivity, advert and disconnect
+          if (isConnected = await bluetoothManager.getStatus()) {
+            print("state: $getState()");
+            print("isConnected: $isConnected");
+            print("\n Disconnection \n\n ");
+            bluetoothManager.disconnect("origin");
+          }
+
+          NotificationManager notificationManager = new NotificationManager();
+          notificationManager.alertNotification(attention, eteindre,);
+        }
+      });
+
+      //watchdogTimer?.cancel();
+    }
+
+    /* if (isBackground) {
+      // service.stop();
+    } else {
+      // service.start();
+    }*/
+  }
+
   @override
   Widget build(BuildContext context) {
     // return LoginWidget(db);
     Size screenSize = MediaQuery.of(context).size;
     //var appLanguage = Provider.of<AppLanguage>(context);
+
+    attention = AppLocalizations.of(context).translate('attention');
+    eteindre = AppLocalizations.of(context).translate('eteindre_appareil');
 
     var languages = [
       //Français
@@ -295,7 +423,8 @@ class _Login extends State<Login> {
                   alignment: Alignment.center,
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(Colors.black45),
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.black45),
                     ),
                     child: Text("Add user"),
                     onPressed: () async {
@@ -348,7 +477,8 @@ class _Login extends State<Login> {
                   alignment: Alignment.center,
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(Colors.black45),
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.black45),
                     ),
                     child: Text("Add user 2110969M"),
                     onPressed: () async {

@@ -11,21 +11,17 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
-import 'package:gbsalternative/BluetoothManager.dart';
-import 'package:gbsalternative/CarGame/Car.dart';
+import 'package:gbsalternative/Car/Car.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
-import 'package:gbsalternative/MainTitle.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/Plane/Plane.dart';
 import 'package:gbsalternative/Swimmer/Swimmer.dart';
 import 'package:gbsalternative/TempGame/Temp.dart';
 import 'package:wakelock/wakelock.dart';
-
 
 /*
 * Classe pour gère la sélection de jeux à lancer
@@ -137,7 +133,6 @@ class _SelectGame extends State<SelectGame> {
     totalStar = [];
     //Enable sleep mode while not in game
     Wakelock.enable();
-
 
     super.initState();
   }
@@ -737,143 +732,134 @@ class _SelectGame extends State<SelectGame> {
           builder: (context, setState) {
             return AlertDialog(
               content: Builder(builder: (context) {
-                return Container(
-                  width: screenSize.width * 0.8,
-                  height: screenSize.height * 0.9,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      SingleChildScrollView(
-                        child: Container(
-                          width: screenSize.width * 0.7,
-                          height: screenSize.height * 0.8,
-                          child: Column(
-                            children: <Widget>[
-                              AutoSizeText(
+                return SingleChildScrollView(
+                  child: Container(
+                    //width: screenSize.width * 0.8,
+                    //height: screenSize.height * 0.9,
+                    width: screenSize.width,
+                    height: screenSize.height,
+                    child: Column(
+                      children: <Widget>[
+                        AutoSizeText(
+                          temp != null
+                              ? idGame == ID_PLANE_ACTIVITY
+                              ? AppLocalizations.of(this.context)
+                              .translate('avion')
+                              : idGame == ID_SWIMMER_ACTIVITY
+                              ? AppLocalizations.of(this.context)
+                              .translate('nageur')
+                              : idGame == ID_TEMP_ACTIVITY
+                              ? AppLocalizations.of(
+                              this.context)
+                              .translate('temp')
+                              : "non renseigné dans SelectGame"
+                              : "Check Language file (en/fr.json)",
+                          style: textStyle,
+                          minFontSize: 15,
+                        ),
+                        AutoSizeText(
+                          temp != null
+                              ? idGame == ID_PLANE_ACTIVITY
+                              ? AppLocalizations.of(this.context)
+                              .translate('type_activite') +
+                              " " +
+                              AppLocalizations.of(this.context)
+                                  .translate('type_activite_EI') +
+                              "\n\n" +
+                              //On adapte le texte au mode choisi
+                              //Si sportif, on remplace XX par 3 (nb de minutes)
+                              //Sinon par 2
+                              AppLocalizations.of(this.context)
+                                  .translate('info_avion')
+                                  .replaceAll(
+                                  "XX",
+                                  user.userMode == "1"
+                                      ? "3"
+                                      : "2")
+                              : idGame == ID_SWIMMER_ACTIVITY
+                              ? AppLocalizations.of(this.context)
+                              .translate('type_activite') +
+                              " " +
+                              AppLocalizations.of(this.context)
+                                  .translate(
+                                  'type_activite_EE') +
+                              "\n\n" +
+                              AppLocalizations.of(this.context)
+                                  .translate('info_nageur')
+                              : idGame == ID_TEMP_ACTIVITY
+                              ? AppLocalizations.of(this.context).translate('type_activite') +
+                              " " +
+                              AppLocalizations.of(this.context)
+                                  .translate(
+                                  'type_activite_CMV') +
+                              "\n\n" +
+                              AppLocalizations.of(this.context)
+                                  .translate('info_temp')
+                              : "non renseigné dans SelectGame"
+                              : "Check Language file (en/fr.json)",
+                          style: textStyle,
+                          minFontSize: 15,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            ElevatedButton(
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all<Color>(
+                                    Colors.grey[350]),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: AutoSizeText(
                                 temp != null
-                                    ? idGame == ID_PLANE_ACTIVITY
-                                        ? AppLocalizations.of(this.context)
-                                            .translate('avion')
-                                        : idGame == ID_SWIMMER_ACTIVITY
-                                            ? AppLocalizations.of(this.context)
-                                                .translate('nageur')
-                                            : idGame == ID_TEMP_ACTIVITY
-                                                ? AppLocalizations.of(
-                                                        this.context)
-                                                    .translate('temp')
-                                                : "non renseigné dans SelectGame"
+                                    ? AppLocalizations.of(this.context)
+                                        .translate('retour')
                                     : "Check Language file (en/fr.json)",
                                 style: textStyle,
                               ),
-                              AutoSizeText(
-                                temp != null
-                                    ? idGame == ID_PLANE_ACTIVITY
-                                        ? AppLocalizations.of(this.context)
-                                                .translate('type_activite') +
-                                            " " +
-                                            AppLocalizations.of(this.context)
-                                                .translate('type_activite_EI') +
-                                            "\n\n" +
-                                            //On adapte le texte au mode choisi
-                                            //Si sportif, on remplace XX par 3 (nb de minutes)
-                                            //Sinon par 2
-                                            AppLocalizations.of(this.context)
-                                                .translate('info_avion')
-                                                .replaceAll(
-                                                    "XX",
-                                                    user.userMode == "1"
-                                                        ? "3"
-                                                        : "2")
-                                        : idGame == ID_SWIMMER_ACTIVITY
-                                            ? AppLocalizations.of(this.context).translate('type_activite') +
-                                                " " +
-                                                AppLocalizations.of(this.context)
-                                                    .translate(
-                                                        'type_activite_EE') +
-                                                "\n\n" +
-                                                AppLocalizations.of(this.context)
-                                                    .translate('info_nageur')
-                                            : idGame == ID_TEMP_ACTIVITY
-                                                ? AppLocalizations.of(this.context)
-                                                        .translate(
-                                                            'type_activite') +
-                                                    " " +
-                                                    AppLocalizations.of(this.context)
-                                                        .translate(
-                                                            'type_activite_CMV') +
-                                                    "\n\n" +
-                                                    AppLocalizations.of(this.context)
-                                                        .translate('info_temp')
-                                                : "non renseigné dans SelectGame"
-                                    : "Check Language file (en/fr.json)",
-                                style: textStyle,
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  ElevatedButton(
-                                    style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                              Colors.grey[350]),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: AutoSizeText(
-                                      temp != null
-                                          ? AppLocalizations.of(this.context)
-                                              .translate('retour')
-                                          : "Check Language file (en/fr.json)",
-                                      style: textStyle,
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  /*
-                                  ElevatedButton(
+                            ),
+                            Spacer(),
+                            /*
+                            ElevatedButton(
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[350]),
           ),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: AutoSizeText(
-                                      temp != null
-                                          ? AppLocalizations.of(this.context)
-                                              .translate('statistiques')
-                                          : "Check Language file (en/fr.json)",
-                                      style: textStyle,
-                                    ),
-                                  ),
-                                  Spacer(),*/
-                                  ElevatedButton(
-                                    style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                              Colors.grey[350]),
-                                    ),
-                                    onPressed: () {
-                                      //Disparition de lu popup
-                                      Navigator.pop(context);
-                                      lauchGame(idGame);
-                                    },
-                                    child: AutoSizeText(
-                                      temp != null
-                                          ? AppLocalizations.of(this.context)
-                                              .translate('lancer_jeu')
-                                          : "Check Language file (en/fr.json)",
-                                      style: textStyle,
-                                    ),
-                                  ),
-                                ],
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: AutoSizeText(
+                                temp != null
+                                    ? AppLocalizations.of(this.context)
+                                        .translate('statistiques')
+                                    : "Check Language file (en/fr.json)",
+                                style: textStyle,
                               ),
-                            ],
-                          ),
+                            ),
+                            Spacer(),*/
+                            ElevatedButton(
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all<Color>(
+                                    Colors.grey[350]),
+                              ),
+                              onPressed: () {
+                                //Disparition de lu popup
+                                Navigator.pop(context);
+                                lauchGame(idGame);
+                              },
+                              child: AutoSizeText(
+                                temp != null
+                                    ? AppLocalizations.of(this.context)
+                                        .translate('lancer_jeu')
+                                    : "Check Language file (en/fr.json)",
+                                style: textStyle,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               }),
@@ -889,61 +875,65 @@ class _SelectGame extends State<SelectGame> {
       case ID_SWIMMER_ACTIVITY:
         {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Swimmer(
-                  appLanguage: appLanguage,
-                  user: user,
-                  level: "${100 + level * 10 + ID_SWIMMER_ACTIVITY}",
-                  message: inputMessage,
-                ),
-              ),);
-              //(Route<dynamic> route) => route is Swimmer);
+            context,
+            MaterialPageRoute(
+              builder: (context) => Swimmer(
+                appLanguage: appLanguage,
+                user: user,
+                level: "${100 + level * 10 + ID_SWIMMER_ACTIVITY}",
+                message: inputMessage,
+              ),
+            ),
+          );
+          //(Route<dynamic> route) => route is Swimmer);
         }
         break;
       case ID_PLANE_ACTIVITY:
         {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Plane(
-                  appLanguage: appLanguage,
-                  user: user,
-                  level: "${100 + level * 10 + ID_PLANE_ACTIVITY}",
-                  message: inputMessage,
-                ),
-              ),);
-              //(Route<dynamic> route) => route is Plane);
+            context,
+            MaterialPageRoute(
+              builder: (context) => Plane(
+                appLanguage: appLanguage,
+                user: user,
+                level: "${100 + level * 10 + ID_PLANE_ACTIVITY}",
+                message: inputMessage,
+              ),
+            ),
+          );
+          //(Route<dynamic> route) => route is Plane);
         }
         break;
       case ID_TEMP_ACTIVITY:
         {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Temp(
-                  appLanguage: appLanguage,
-                  user: user,
-                  level: "${100 + level * 10 + ID_TEMP_ACTIVITY}",
-                  message: inputMessage,
-                ),
-              ),);
-              //(Route<dynamic> route) => route is Temp);
+            context,
+            MaterialPageRoute(
+              builder: (context) => Temp(
+                appLanguage: appLanguage,
+                user: user,
+                level: "${100 + level * 10 + ID_TEMP_ACTIVITY}",
+                message: inputMessage,
+              ),
+            ),
+          );
+          //(Route<dynamic> route) => route is Temp);
         }
         break;
       case ID_CAR_ACTIVITY:
         {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Car(
-                  appLanguage: appLanguage,
-                  user: user,
-                  level: "${100 + level * 10 + ID_CAR_ACTIVITY}",
-                  message: inputMessage,
-                ),
-              ),);
-              //(Route<dynamic> route) => route is Car);
+            context,
+            MaterialPageRoute(
+              builder: (context) => Car(
+                appLanguage: appLanguage,
+                user: user,
+                level: "${100 + level * 10 + ID_CAR_ACTIVITY}",
+                message: inputMessage,
+              ),
+            ),
+          );
+          //(Route<dynamic> route) => route is Car);
         }
         break;
       default:
@@ -993,9 +983,9 @@ class _SelectGame extends State<SelectGame> {
     var temp = AppLocalizations.of(context);
     screenSize = MediaQuery.of(context).size;
     return WillPopScope(
-      onWillPop: (){
+      onWillPop: () {
         Navigator.pop(context, "startTimer");
-        return ;
+        return;
       },
       child: MaterialApp(
         supportedLocales: [
@@ -1097,7 +1087,8 @@ class _SelectGame extends State<SelectGame> {
                     onNotification: (scrollNotification) {
                       if (scrollNotification is ScrollStartNotification) {
                         firstPosition = 0.0;
-                      } else if (scrollNotification is ScrollUpdateNotification) {
+                      } else if (scrollNotification
+                          is ScrollUpdateNotification) {
                         if (firstPosition == 0.0)
                           firstPosition = _controller.offset - screenSize.width;
 
@@ -1126,7 +1117,8 @@ class _SelectGame extends State<SelectGame> {
                                   width: screenSize.width,
                                   height: screenSize.height,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: <Widget>[
                                       Row(
                                         crossAxisAlignment:
@@ -1159,7 +1151,8 @@ class _SelectGame extends State<SelectGame> {
                                   width: screenSize.width,
                                   height: screenSize.height,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: <Widget>[
                                       Row(
                                         crossAxisAlignment:
@@ -1211,8 +1204,9 @@ class _SelectGame extends State<SelectGame> {
                                     child: Icon(
                                       Icons.keyboard_arrow_left,
                                       size: 100,
-                                      color:
-                                          level == 1 ? Colors.grey : Colors.black,
+                                      color: level == 1
+                                          ? Colors.grey
+                                          : Colors.black,
                                     ),
                                   ),
                                 ),
@@ -1240,8 +1234,9 @@ class _SelectGame extends State<SelectGame> {
                                     child: Icon(
                                       Icons.keyboard_arrow_right,
                                       size: 100,
-                                      color:
-                                          level == 2 ? Colors.grey : Colors.black,
+                                      color: level == 2
+                                          ? Colors.grey
+                                          : Colors.black,
                                     ),
                                   ),
                                 ),

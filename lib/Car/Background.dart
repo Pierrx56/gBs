@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
-import 'package:gbsalternative/CarGame/CarGame.dart';
+import 'package:gbsalternative/Car/CarGame.dart';
 
 class Background {
   final CarGame game;

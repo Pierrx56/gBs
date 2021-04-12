@@ -115,7 +115,10 @@ class BluetoothManager {
       //If user get back to login page, user = null
       if (!isConnected && user != null) {
         isActivated = await activateLocation();
-        if (isActivated) connect(user.userMacAddress, user.userSerialNumber);
+        if (isActivated) {
+          if(await sensorChannel.invokeMethod('getScanState'))
+            connect(user.userMacAddress, user.userSerialNumber);
+        }
       }
     });
 
@@ -213,7 +216,7 @@ class BluetoothManager {
       print(connectStatus);
       isConnected = false;
     } on PlatformException {
-      connectStatus = 'Connection status: Disconnected';
+      connectStatus = 'Failed disconnected.';
     }
   }
 
@@ -265,7 +268,6 @@ class BluetoothManager {
                 else
                   isConnected = false;
 
-
                 previousNumber = int.parse(datas[datas.length - 1]);
               }
               break;
@@ -282,7 +284,8 @@ class BluetoothManager {
     //requestedValue: F or V for force sensor or voltage
     if (requestedValue == "F")
       return forceSensor.toString();
-    else if (requestedValue == "V") return batteryVoltage.toString();
+    else if (requestedValue == "V")
+      return batteryVoltage.toString();
     else if (requestedValue == "C") return isConnected;
     //return data;
   }

@@ -80,9 +80,17 @@ class _SplashScreenState extends State<SplashScreen> {
     //Lock rotation
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+
     super.initState();
     startTime();
   }
+
+  @override
+  void dispose() {
+
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {

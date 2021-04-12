@@ -10,10 +10,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
-import 'package:gbsalternative/CarGame/Background.dart';
-import 'package:gbsalternative/CarGame/Car.dart';
-import 'package:gbsalternative/CarGame/Ui.dart';
-import 'package:gbsalternative/CarGame/Road.dart';
+import 'package:gbsalternative/Car/Background.dart';
+import 'package:gbsalternative/Car/Car.dart';
+import 'package:gbsalternative/Car/Ui.dart';
+import 'package:gbsalternative/Car/Road.dart';
 
 class CarGame extends Game {
   Size screenSize;

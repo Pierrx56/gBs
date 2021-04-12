@@ -11,8 +11,6 @@ class Floor {}
 double balloonPosition = 0.1;
 int k = 0;
 int screenSpeed = 2;
-bool isInit;
-bool isTheFirstPlatform;
 Vector2 grassSize;
 double coinSize;
 double firstFloorY;
@@ -289,12 +287,6 @@ class BottomFloor {
     return getGrassXOffset()[0];
   }
 
-  void jump() {
-    j += 3 * screenSpeed;
-    game.setPlayerState(1);
-    hasChanged = false;
-  }
-
   void update(double t) {}
 }
 
@@ -305,6 +297,7 @@ class FirstFloor {
   Sprite grass;
   Sprite grassRight;
   Sprite grassLeft;
+
 
   Vector2 posCoin0;
   Vector2 posCoin1;
@@ -576,13 +569,17 @@ class ManageFloors {
   int j;
   int walkTillVoid;
   double jumpOffset = 0.0;
+  bool isTheFirstPlatform;
   int jOffset = 0;
+  bool isInit;
 
   ManageFloors(this.game) {
     grassSize =
         Vector2(game.screenSize.width * 0.1, game.screenSize.width * 0.1);
 
     hasChanged = false;
+    isTheFirstPlatform = true;
+    isInit = false;
     blockOne = false;
   }
 
@@ -599,8 +596,8 @@ class ManageFloors {
         posFloorY = 0;
         j = 0;
         walkTillVoid = 0;
-        isInit = true;
         isTheFirstPlatform = true;
+        isInit = true;
       }
 
       //Ne pas faire avancer les blocs pendant qu'il pousse
@@ -629,7 +626,7 @@ class ManageFloors {
           game.isAtEdge = true;
           //j -= screenSpeed;
           //isMoving = false;
-          if (!hasChanged) {
+          if (!hasChanged){
             //Waiting
             game.setPlayerState(2);
             hasChanged = true;
@@ -793,7 +790,7 @@ class ManageFloors {
   void jump() {
     j += 3 * screenSpeed;
     //Run
-    game.setPlayerState(1);
+    //game.setPlayerState(1);
     hasChanged = false;
   }
 

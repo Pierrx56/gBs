@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:confetti/confetti.dart';
-import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -13,21 +12,38 @@ import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
-import 'package:gbsalternative/CarGame/Car.dart';
+import 'package:gbsalternative/Car/Car.dart';
 import 'package:gbsalternative/Plane/Plane.dart';
 import 'package:gbsalternative/Swimmer/Swimmer.dart';
 import 'package:gbsalternative/TempGame/Temp.dart';
 import 'package:intl/intl.dart';
 
 class CommonGamesUI {
+
+  bool pauseState;
   //Initializing database
   DatabaseHelper db = new DatabaseHelper();
+
+  CommonGamesUI(){
+    pauseState = false;
+    db = new DatabaseHelper();
+  }
+
+
+
+  void setGamePauseState(bool state){
+    pauseState = state;
+  }
+
+  bool getGamePauseState(){
+    return pauseState;
+  }
 
   Future<Star> getStar(int idGame, int level, User user) async {
     return await db.getStar(user.userId, idGame, level);
   }
 
-  //Retourne un widget de 5 etoiles en lignes
+  //Return a five stars widget
   Widget numberOfStars(int idGame, int level, double starValue, User user) {
     return FutureBuilder(
         future: getStar(idGame, level, user),
@@ -63,6 +79,7 @@ class CommonGamesUI {
         });
   }
 
+  //Pause button widget
   Widget pauseButton(
       BuildContext context, AppLanguage appLanguage, var game, User user) {
     if (game.screenSize == null) return Container();
@@ -115,6 +132,7 @@ class CommonGamesUI {
     );
   }
 
+  //Temporary pause button widget
   Widget pauseDebugButton(
       BuildContext context, AppLanguage appLanguage, var game, User user) {
     return Padding(
@@ -157,7 +175,7 @@ class CommonGamesUI {
     );
   }
 
-  /// A custom Path to paint stars.
+  //Draw stars for confetti
   Path drawStar(Size size) {
     // Method to convert degree to radians
     double degToRad(double deg) => deg * (math.pi / 180.0);
@@ -183,6 +201,7 @@ class CommonGamesUI {
     return path;
   }
 
+  //End screen for games
   Widget endScreen(
       BuildContext context,
       AppLanguage appLanguage,
@@ -494,6 +513,8 @@ class CommonGamesUI {
     );
   }
 
+  // Set star values
+  // Configure number of star conditions
   double setStarValue(
       BuildContext context,
       AppLanguage appLanguage,
@@ -551,6 +572,7 @@ class CommonGamesUI {
     return starValue;
   }
 
+  // Write score and star in database
   void saveAndExit(
       BuildContext context,
       AppLanguage appLanguage,
@@ -692,6 +714,7 @@ class CommonGamesUI {
     //Navigator.pop(context);
   }
 
+  //Close button
   Widget closeButton(
       BuildContext context,
       AppLanguage appLanguage,
@@ -729,6 +752,7 @@ class CommonGamesUI {
     );
   }
 
+  //Restart button
   Widget restartButton(BuildContext context, AppLanguage appLanguage,
       int idGame, var game, User user) {
     return Padding(
@@ -800,6 +824,7 @@ class CommonGamesUI {
     );
   }
 
+  //Menu buttons which call close, restart and pause widgets buttons
   Widget menu(BuildContext context, AppLanguage appLanguage, var game,
       User user, int idGame, String message) {
     if (game.screenSize == null) return Container();

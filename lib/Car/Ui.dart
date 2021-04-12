@@ -9,13 +9,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gbsalternative/AppLanguage.dart';
 import 'package:gbsalternative/AppLocalizations.dart';
-import 'package:gbsalternative/CarGame/Car.dart';
+import 'package:gbsalternative/Car/Car.dart';
 import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
 import 'package:gbsalternative/DrawCharts.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
-import 'package:gbsalternative/CarGame/CarGame.dart';
+import 'package:gbsalternative/Car/CarGame.dart';
 import 'package:intl/intl.dart';
 
 int ACTIVITY_NUMBER = 3;

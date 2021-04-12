@@ -39,6 +39,9 @@ class Plane extends StatefulWidget {
   _Plane createState() => new _Plane(user, appLanguage, level, message);
 }
 
+
+//TODO mettre pause lorsque quitte appli
+
 class _Plane extends State<Plane> with TickerProviderStateMixin {
   User user;
   AppLanguage appLanguage;
@@ -267,6 +270,12 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
+
+    //Pause set by quitting app/lock phone
+    if(commonGamesUI != null){
+      if(commonGamesUI.getGamePauseState())
+        game.pauseGame = true;
+    }
 
     return WillPopScope(
       onWillPop: () {

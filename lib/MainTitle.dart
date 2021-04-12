@@ -21,9 +21,6 @@ import 'package:timezone/timezone.dart' as tz;
 import 'DatabaseHelper.dart';
 import 'package:wakelock/wakelock.dart';
 
-
-
-
 class MainTitle extends StatefulWidget {
   final AppLanguage appLanguage;
   final User userIn;
@@ -168,7 +165,6 @@ class _MainTitle extends State<MainTitle> {
           voltage = double.parse(await btManage.getData("V"));
 
           Timer(Duration(seconds: 2), () async {
-
             //if (voltage == 0.0) voltage = 0.5;
 
             //Alert battery under 15%
@@ -641,7 +637,6 @@ class _MainTitle extends State<MainTitle> {
                             inputMessage: "fromMain",
                           ),
                         ),
-
                       );
 /*
                       timerConnexion?.cancel();
@@ -649,14 +644,14 @@ class _MainTitle extends State<MainTitle> {
                       if(result == "startTimer"){
                         getConnectState();
                       }
-                        *//*MaterialPageRoute(
+                        */ /*MaterialPageRoute(
                           builder: (context) => LoadPage(
                             appLanguage: appLanguage,
                             page: firstPush,
                             user: user,
                             messageIn: "fromMain",
                           ),
-                        ),*//*
+                        ),*/ /*
                       );*/
                     },
                     child: Card(
@@ -729,7 +724,7 @@ class _MainTitle extends State<MainTitle> {
                                     inputMessage: "0",
                                   )));
 
-                      if(result == "startTimer"){
+                      if (result == "startTimer") {
                         //Disable sleep mode while not in game
                         Wakelock.disable();
                         isWakedUp = false;
@@ -870,7 +865,7 @@ class _MainTitle extends State<MainTitle> {
                         ),
                       );
 
-                      if(result == "startTimer"){
+                      if (result == "startTimer") {
                         //Disable sleep mode while not in game
                         Wakelock.disable();
                         isWakedUp = false;

@@ -15,7 +15,7 @@ import 'package:gbsalternative/AppLocalizations.dart';
 import 'package:gbsalternative/BluetoothManager.dart';
 import 'package:gbsalternative/CommonGamesUI.dart';
 import 'package:gbsalternative/DatabaseHelper.dart';
-import 'package:gbsalternative/CarGame/CarGame.dart';
+import 'package:gbsalternative/Car/CarGame.dart';
 import 'package:gbsalternative/Login.dart';
 import 'package:gbsalternative/MainTitle.dart';
 
@@ -217,7 +217,11 @@ class _Car extends State<Car> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery.of(context).size;    //Pause set by quitting app/lock phone
+    if(commonGamesUI != null){
+      if(commonGamesUI.getGamePauseState())
+        game.pauseGame = true;
+    }
 
     return WillPopScope(
       onWillPop: () {

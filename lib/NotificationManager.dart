@@ -51,6 +51,15 @@ class NotificationManager {
 
   }
 
+  alertNotification(String title, String body) async {
+    var android = new AndroidNotificationDetails("channelId", "channelName", "channelDescription");
+    var iOS = new IOSNotificationDetails();
+    var platform = new NotificationDetails(android: android, iOS: iOS);
+
+    await flutterLocalNotificationsPlugin.show(0, title, body, platform, payload: "Alert");
+
+  }
+
 
   Future<void> setNotificationAlert() async {
 

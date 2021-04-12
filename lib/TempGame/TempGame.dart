@@ -266,9 +266,7 @@ class TempGame extends Game with TapDetector {
     gravity = false;
     isOutOfScreen = false;
 
-    isWaiting = false;
-    isRunning = true;
-    isJumping = false;
+    setPlayerState(1);
   }
 
   Future<ui.Image> _loadImage(String image) async {
@@ -326,7 +324,7 @@ class TempGame extends Game with TapDetector {
     //Ne pas faire avancer les blocs pendant qu'il pousse
     if ((isWaiting) && getPush() > 0.0 && !pauseGame);
       //manageFloors.j -= (speed * t).toInt();
-    else if (!pauseGame && !launchTuto) {
+    else if (!pauseGame && !launchTuto && isMoving) {
       manageFloors.j += (speed * creationTimer).toInt();
       manageFloors.jOffset = (speed * creationTimer).toInt();
     }
@@ -455,7 +453,7 @@ class TempGame extends Game with TapDetector {
               phaseTuto++;
             }*/
 
-          //Si le joueur a dépassé le drapeau, on autorise la jauge
+          //If player walks on flag, show gauge
           if (manageFloors.j + temp.x + grassSize[0] >=
                   tabBottomFloor[getCurrentFloor()].getFlagPosition() &&
               manageFloors.j + temp.x + grassSize[0] - 2 <=
@@ -510,7 +508,7 @@ class TempGame extends Game with TapDetector {
               case 0:
                 jumpCounter--;
                 hasJumpedInVoid = false;
-                isTheFirstPlatform = false;
+                manageFloors.isTheFirstPlatform = false;
                 jumpIntoTheVoid();
                 break;
               case 1:
@@ -700,8 +698,8 @@ class TempGame extends Game with TapDetector {
       tempTimer = new async.Timer(
         const Duration(milliseconds: 2),
         () {
+          tempPic = jump[0];
           tempPosY -= 3;
-
           if (!blockOne) {
             switch (getFloor()) {
               //Fall in void
@@ -794,7 +792,6 @@ class TempGame extends Game with TapDetector {
     //Montée du joueur plus haut pour retomber dans la boucle suivante
     else if (tempPosY > firstFloorY - sizeSprite - grassSize[0] - 5 &&
         !gravity) {
-      tempPic = jump[0];
       gravity = true;
       tempPosY -= 3;
       doAJump();
@@ -813,7 +810,7 @@ class TempGame extends Game with TapDetector {
         tempTimer?.cancel();
         isOutOfScreen = true;
         hasJumped = false;
-        isTheFirstPlatform = false;
+        manageFloors.isTheFirstPlatform = false;
         setPlayerDown();
         gravity = false;
       } //descente des blocs lorsque le joueur dépasse le drapeau
@@ -821,11 +818,12 @@ class TempGame extends Game with TapDetector {
         tempTimer?.cancel();
         isOutOfScreen = true;
         hasJumped = false;
-        isTheFirstPlatform = false;
+        manageFloors.isTheFirstPlatform = false;
         setPlayerDown();
         gravity = false;
       } else {
-        tempTimer = new async.Timer(
+        setPlayerState(1);
+        async.Timer(
           const Duration(milliseconds: 500),
           () {
             doAJump();
@@ -836,6 +834,8 @@ class TempGame extends Game with TapDetector {
     //tempPosY = (screenSize.height - screenSize.width * 0.3) - size;
     temp.y = tempPosY;
   }
+
+  //TODO   setPlayerState(0);
 
   void setPlayerDown() {
     new async.Timer(
@@ -914,7 +914,7 @@ class TempGame extends Game with TapDetector {
       isRunning = true;
       isWaiting = false;
       state = 1;
-      i = 0;
+      i = i%run.length-1;
     }
     //Wait
     if (_state == 2) {

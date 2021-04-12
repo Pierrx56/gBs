@@ -307,7 +307,11 @@ class _Temp extends State<Temp> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery.of(context).size;    //Pause set by quitting app/lock phone
+    if(commonGamesUI != null){
+      if(commonGamesUI.getGamePauseState())
+        game.pauseGame = true;
+    }
 
     return WillPopScope(
       onWillPop: () {
