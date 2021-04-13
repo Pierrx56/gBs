@@ -27,7 +27,6 @@ class TempGame extends Game with TapDetector {
   double signPosition = 4.5;
   bool isDisplayingSign = false;
 
-  double speed = 100; // Pixels per second
 
   //BottomFloor bottomFloor;
   //FirstFloor firstFloor;
@@ -86,6 +85,7 @@ class TempGame extends Game with TapDetector {
   double pos;
   int i;
   double difficulte = 0.50;
+  double speed = 100; // Pixels per second
   double sizeSprite;
 
   bool hasLoadSpriteFirst = false;
@@ -456,12 +456,12 @@ class TempGame extends Game with TapDetector {
           //If player walks on flag, show gauge
           if (manageFloors.j + temp.x + grassSize[0] >=
                   tabBottomFloor[getCurrentFloor()].getFlagPosition() &&
-              manageFloors.j + temp.x + grassSize[0] - 2 <=
+              manageFloors.j + temp.x + grassSize[0] - 4 <=
                   tabBottomFloor[getCurrentFloor()].getFlagPosition()) {
             isPushable = true;
           } else if (manageFloors.j + temp.x + grassSize[0] >=
                   tabFloor[getCurrentFloor()].getFlagPosition() &&
-              manageFloors.j + temp.x + grassSize[0] - 2 <=
+              manageFloors.j + temp.x + grassSize[0] - 4 <=
                   tabFloor[getCurrentFloor()].getFlagPosition()) {
             isPushable = true;
           }

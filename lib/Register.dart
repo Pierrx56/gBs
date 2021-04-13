@@ -511,8 +511,8 @@ class _Register extends State<Register> {
             ),
             Row(
               children: <Widget>[
-                nextButton,
                 backButton,
+                nextButton,
               ],
             ),
           ],
@@ -897,6 +897,15 @@ class _Register extends State<Register> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 FlatButton(
+                  onPressed: () {
+                    back();
+                    _controller.animateTo((((currentStep) * 75)).toDouble(),
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.linear);
+                  },
+                  child: Text(AppLocalizations.of(context).translate('retour')),
+                ),
+                FlatButton(
                   child: Text(
                       AppLocalizations.of(context).translate('valider_insc')),
                   color: Colors.blue,
@@ -940,15 +949,6 @@ class _Register extends State<Register> {
                     } else
                       print("Something went wrong");
                   },
-                ),
-                FlatButton(
-                  onPressed: () {
-                    back();
-                    _controller.animateTo((((currentStep) * 75)).toDouble(),
-                        duration: Duration(milliseconds: 500),
-                        curve: Curves.linear);
-                  },
-                  child: Text(AppLocalizations.of(context).translate('retour')),
                 ),
               ],
             ),
@@ -1057,8 +1057,8 @@ class _Register extends State<Register> {
                       children: <Widget>[
                         Row(
                           children: <Widget>[
-                            currentStep >= 1 ? nextButton : Container(),
                             currentStep >= 1 ? backButton : Container(),
+                            currentStep >= 1 ? nextButton : Container(),
                             currentStep == 5 ? Container() : Container(),
                             currentStep == 5 ? Container() : Container(),
                           ],

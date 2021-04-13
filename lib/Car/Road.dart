@@ -95,8 +95,7 @@ class StraightRoad {
         game.posMin = false;
         game.posMax = true;
       }
-    } else
-      j += roadSpeed;
+    } //else j += roadSpeed;
 
     for (int i = 0; i < roadList.length; i++) {
       posRoad = Vector2(

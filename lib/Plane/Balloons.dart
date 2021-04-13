@@ -69,10 +69,9 @@ class BottomBalloon {
       bottomBalloon = new Sprite(image);
     }
     c.translate(posX = game.screenSize.width - widthBalloon - j.toDouble(), 0);
-    j += balloonSpeed;
 
-    if(pause)
-      j -= balloonSpeed;
+    //if(!pause)
+    //  j += balloonSpeed;
 
     bottomBalloon.render(c, size: rectSize, position: rectPosition);
 
@@ -151,10 +150,8 @@ class TopBalloon {
       topBalloon = new Sprite(image);
     }
 
-    j += balloonSpeed;
-
-    if(pause)
-      j -= balloonSpeed;
+    //if(!pause)
+    //  j += balloonSpeed;
 
     c.translate( posX = game.screenSize.width - widthBalloon - j.toDouble(), 0);
     topBalloon.render(c, size: rectSize, position: rectPosition);

@@ -43,7 +43,7 @@ class Swimmer extends StatefulWidget {
   _Swimmer createState() => new _Swimmer(user, appLanguage, level, message);
 }
 
-class _Swimmer extends State<Swimmer> {
+class _Swimmer extends State<Swimmer> with WidgetsBindingObserver{
   User user;
   AppLanguage appLanguage;
   SwimGame game;
@@ -83,6 +83,7 @@ class _Swimmer extends State<Swimmer> {
       starValue = 0.0;
       endGame = false;
       isConnected = false;
+      WidgetsBinding.instance.addObserver(this);
       connect();
     }
     game = null;
@@ -97,6 +98,7 @@ class _Swimmer extends State<Swimmer> {
     _timer?.cancel();
     timerThread?.cancel();
     game.timerSwimmer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -120,6 +122,30 @@ class _Swimmer extends State<Swimmer> {
 
     //runApp(game.widget);
     //flameUtil.addGestureRecognizer(tapper);
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    /*if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) return;*/
+
+    int tempTimer = 0;
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print("state: $state");
+        break;
+      case AppLifecycleState.inactive:
+        print("state heeeeeeeeeeeere:: $state");
+        break;
+      case AppLifecycleState.paused:
+        print("state heeeeeeeeeeeere: $state");
+        game.pauseGame = true;
+        tempTimer = 10;
+        break;
+      case AppLifecycleState.detached:
+        print("state: $state");
+        break;
+    }
   }
 
   void connect() async {

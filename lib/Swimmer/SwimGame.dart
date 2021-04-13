@@ -45,6 +45,7 @@ class SwimGame extends Game {
   double pos = 0;
   int i = 0;
   double difficulte = 0.50;
+  double speed = 100; // Pixels per second
 
   double sizeXSprite = 100.0;
   double sizeYSprite = 230.0;
@@ -89,7 +90,6 @@ class SwimGame extends Game {
 
   double Function() getData;
   User user;
-  int j = 0;
   double posBottomLine;
   double posTopLine;
   bool isBottomPosition;
@@ -224,6 +224,10 @@ class SwimGame extends Game {
   void update(double t) async {
     creationTimer += t;
     scoreTimer += t;
+
+    if(!pauseGame && j != null){
+      j += (speed * creationTimer).toInt();
+    }
 
     if (!gameOver) {
       if (getData() != -1.0)

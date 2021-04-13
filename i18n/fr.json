@@ -87,7 +87,7 @@
   "erreur_mode": "Veuillez choisir un mode",
   "erreur_prenom": "Veuillez remplir ce champ",
   "explications_hauteur": "Renseignez à présent les chiffres inscrits sur la châssis puis sauvegardez.",
-  "explications_mesure": "Vous devez maintenir pendant 10 secondes entre 50.0 et 100.0. Appuyez sur démarrer l'enregistrement lorsque vous êtes prêt.",
+  "explications_mesure": "Vous devez maintenir pendant 10 secondes entre 50.0 et 100.0. Appuyez sur démarrer l'enregistrement lorsque vous êtes prêt. Les 10 secondes débuteront lorsque vous aurez atteint 50.0.",
   "familial": "Familial",
   "haut_max": "Hauteur maximale",
   "haut_min": "Hauteur minimale",

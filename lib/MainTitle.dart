@@ -156,7 +156,7 @@ class _MainTitle extends State<MainTitle> {
       isConnected = await btManage.getStatus();
       if (isConnected) {
         if (!isWakedUp) {
-          btManage.sendData("WU");
+          //btManage.sendData("WU");
           isWakedUp = true;
         }
 

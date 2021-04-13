@@ -79,14 +79,19 @@ class _MaxPush extends State<MaxPush> {
   double coefKg = 0.45359237;
   double result = 0.0;
   String recording;
+  String explications;
   String btData;
   bool isCorrect = false;
   bool isPush = false;
+  bool hasPushed = false;
+  bool hasShowDialog = false;
   Size screenSize;
 
   String backButtonText;
   DropdownButton<int> bottomPicker;
   DropdownButton<int> topPicker;
+  ElevatedButton recordButton;
+  ElevatedButton backButton;
   int bottom;
   int top;
 
@@ -110,15 +115,6 @@ class _MaxPush extends State<MaxPush> {
     appLanguage = _appLanguage;
   }
 
-  @override
-  void dispose() {
-    // Avoid memory leak and disconnect
-    timerConnexion?.cancel();
-    _timer?.cancel();
-
-    super.dispose();
-  }
-
   void connect() async {
     //Tant que le bluetooth n'est pas activé, on demande son activation
     if (await btManage.enableBluetooth()) {
@@ -130,6 +126,7 @@ class _MaxPush extends State<MaxPush> {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
       }
       getConnectState();
+      explanationDialog();
     }
   }
 
@@ -164,6 +161,52 @@ class _MaxPush extends State<MaxPush> {
     });
   }
 
+  void explanationDialog() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            actions: <Widget>[
+              Container(
+                  width: screenSize.width * 0.8,
+                  height: screenSize.height * 0.7,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: AutoSizeText(
+                          explications,
+                          style: textStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: AutoSizeText(
+                          "*Image d'explication*",
+                          style: textStyle,
+                        ),
+                      ),
+                      Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Row(
+                            children: [
+                              Spacer(),
+                              backButton,
+                              Spacer(),
+                              recordButton,
+                              Spacer(),
+                            ],
+                          )),
+                      //Align(alignment: Alignment.bottomLeft, child: backButton),
+                    ],
+                  )),
+            ],
+          );
+        });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -171,8 +214,10 @@ class _MaxPush extends State<MaxPush> {
     bottom = 0;
     top = 1;
     isCorrect = false;
+    hasPushed = false;
 
     btManage.sendData("WU");
+    hasShowDialog = false;
 
     for (int i = 0; i < 100; i++) {
       bottomNumbers.add(i);
@@ -183,6 +228,16 @@ class _MaxPush extends State<MaxPush> {
 
     connect();
   }
+
+  @override
+  void dispose() {
+    // Avoid memory leak and disconnect
+    timerConnexion?.cancel();
+    _timer?.cancel();
+
+    super.dispose();
+  }
+
 
   void getData() async {
     btData = await btManage.getData("F");
@@ -283,19 +338,326 @@ class _MaxPush extends State<MaxPush> {
       recording =
           AppLocalizations.of(context).translate('demarrer_enregistrement');
 
+    explications =
+        AppLocalizations.of(this.context).translate('explications_mesure');
+
     if (backButtonText == null)
       backButtonText = AppLocalizations.of(context).translate('retour');
 
+    recordButton = ElevatedButton(
+      style: ButtonStyle(
+        backgroundColor: !isTryingConnect && !isCorrect && !isPush ||
+                bottomSelection != 0 && topSelection != 1
+            ? colorButton
+            : colorPushedButton,
+      ),
+      onPressed: !isTryingConnect && !isCorrect && !isPush ||
+              bottomSelection != 0 && topSelection != 1
+          ? () async {
+              Navigator.of(context).pop();
+              //Initialisation du timer
+              _start = _reset;
+              isTooHigh = false;
+              result = 60.0;
+              for (int i = 0; i < average.length; i++) average[i] = 0;
+
+              if (!isPush) {
+                isPush = true;
+                const oneSec = const Duration(milliseconds: 100);
+                _timer = new Timer.periodic(
+                  oneSec,
+                  (Timer timer) => setState(
+                    () {
+                      getData();
+                      //While user didn't push until 50, reset counter and arrays
+                      if (double.parse(btData) < 50.0 && _start >= _reset) {
+                        hasPushed = false;
+                      } else {
+                        _start -= 0.01;
+                        hasPushed = true;
+                      }
+                      //Si déco pendant une mesure
+                      if (isTryingConnect) {
+                        _timer.cancel();
+                        isPush = false;
+                        _start = _reset;
+                        isTooHigh = false;
+                        i = 100;
+                        setState(() {
+                          recording = AppLocalizations.of(context)
+                              .translate('demarrer_enregistrement');
+                        });
+                      } else if (_start < 0.1) {
+                        _timer.cancel();
+                        print(average);
+                        result = double.parse(
+                            (average.reduce((a, b) => a + b) / average.length)
+                                .toStringAsFixed(2));
+                        print(result.toStringAsFixed(2));
+                        i = 100;
+                        if (result <= 50.0) {
+                          //Mesure pas bonne, réajuster la toise
+                          setState(() {
+                            /*recording = AppLocalizations
+                                                          .of(context)
+                                                      .translate(
+                                                          'status_mesure_mauvais');*/
+                            isPush = false;
+                          });
+                        } else {
+                          setState(() {
+                            /*
+                                                  recording = AppLocalizations
+                                                          .of(context)
+                                                      .translate(
+                                                          'status_mesure_bon');*/
+                          });
+                          isCorrect = true;
+                          if (mounted)
+                            setState(() {
+                              recording = AppLocalizations.of(context)
+                                  .translate('valider');
+                            });
+                          //update poussée
+                          updatedUser = User(
+                            userId: user.userId,
+                            userName: user.userName,
+                            userMode: user.userMode,
+                            userPic: user.userPic,
+                            userHeightTop: user.userHeightTop,
+                            userHeightBottom: user.userHeightBottom,
+                            userInitialPush:
+                                result.toStringAsFixed(2).toString(),
+                            userMacAddress: user.userMacAddress,
+                            userSerialNumber: user.userSerialNumber,
+                            userNotifEvent: user.userNotifEvent,
+                            userLastLogin: user.userLastLogin,
+                          );
+
+                          db.updateUser(updatedUser);
+
+                          const time = const Duration(milliseconds: 1000);
+                        }
+                      } else if (hasPushed) {
+                        /*recording =
+                                                  _start.toStringAsFixed(1);*/
+                        _start = _start - 0.1;
+
+                        getData();
+                        //Affiche la valeur en live
+                        if (_start >= 0.0) {
+                          if (i == 100) {
+                            i--;
+                            btData = "50.0";
+                          }
+                          average[i] = double.parse(btData);
+                          //Dépasse la valeur max, réajuster la toise
+                          if (average[i] > 100.0) {
+                            for (int i = 0; i < average.length; i++)
+                              average[i] = 0;
+                            _start = _reset;
+                            i = 100;
+                            /*
+                                                  average[i] =
+                                                      double.parse(btData);*/
+                            isPush = false;
+                            isTooHigh = true;
+                            recording = AppLocalizations.of(context)
+                                .translate('demarrer_enregistrement');
+
+                            _timer.cancel();
+                          } else if (average[i] < 50.0) {
+                            setState(() {
+                              colorProgressBar = Colors.red;
+                            });
+                          } else {
+                            i--;
+                            setState(() {
+                              colorProgressBar = Colors.green;
+                            });
+                          }
+                        }
+                        //Affiche la moyenne après la mesure
+                        else {
+                          if (result > 100.0 || result < 50.0) {
+                            setState(() {
+                              colorProgressBar = Colors.red;
+                            });
+                          } else {
+                            setState(() {
+                              colorProgressBar = Colors.green;
+                            });
+                          }
+                        }
+                      }
+                    },
+                  ),
+                );
+                //_showDialog();
+              } else if (isCorrect) {
+                if (inputMessage != "fromRegister") {
+                  if (bottomSelection == 0)
+                    bottomSelection = int.parse(user.userHeightBottom);
+
+                  if (topSelection == 1)
+                    topSelection = int.parse(user.userHeightTop);
+                }
+
+                if (result == null || (result <= 50.0 || result >= 100.0))
+                  result = double.parse(user.userInitialPush);
+
+                //update poussée
+                updatedUser = User(
+                  userId: user.userId,
+                  userName: user.userName,
+                  userMode: user.userMode,
+                  userPic: user.userPic,
+                  userHeightTop: topSelection.toString(),
+                  userHeightBottom: bottomSelection.toString(),
+                  userInitialPush: result.toStringAsFixed(2).toString(),
+                  userMacAddress: user.userMacAddress,
+                  userSerialNumber: user.userSerialNumber,
+                  userNotifEvent: user.userNotifEvent,
+                  userLastLogin: user.userLastLogin,
+                );
+
+                db.updateUser(updatedUser);
+
+                if (inputMessage == "fromMain") {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MainTitle(
+                        appLanguage: appLanguage,
+                        userIn: updatedUser,
+                        messageIn: "",
+                      ),
+                    ),
+                  );
+                } else
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MainTitle(
+                        appLanguage: appLanguage,
+                        userIn: updatedUser,
+                        messageIn: "fromRegister",
+                      ),
+                    ),
+                  );
+              }
+              /**/
+            }
+          : null,
+      child: AutoSizeText(
+        recording,
+        maxLines: 1,
+        style: textStyle,
+      ),
+    );
+
+    backButton =
+        //Back button
+        inputMessage == "fromMain" ||
+                (inputMessage == "fromRegister" && isCorrect)
+            ? ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: bottomSelection != 0 &&
+                              (topSelection != 0 || topSelection != 1) ||
+                          inputMessage == "fromMain"
+                      ? colorButton
+                      : colorPushedButton,
+                ),
+                onPressed: bottomSelection != 0 &&
+                            (topSelection != 0 || topSelection != 1) ||
+                        inputMessage == "fromMain"
+                    ? () {
+                        if (!isCorrect)
+                          ;
+                        else {
+                          if (inputMessage != "fromRegister") {
+                            if (bottomSelection == 0)
+                              bottomSelection =
+                                  int.parse(user.userHeightBottom);
+
+                            if (topSelection == 1)
+                              topSelection = int.parse(user.userHeightTop);
+                          }
+
+                          if (result == null ||
+                              (result <= 50.0 || result >= 100.0))
+                            result = double.parse(user.userInitialPush);
+
+                          //update poussée
+                          updatedUser = User(
+                            userId: user.userId,
+                            userName: user.userName,
+                            userMode: user.userMode,
+                            userPic: user.userPic,
+                            userHeightTop: topSelection.toString(),
+                            userHeightBottom: bottomSelection.toString(),
+                            userInitialPush:
+                                result.toStringAsFixed(2).toString(),
+                            userMacAddress: user.userMacAddress,
+                            userSerialNumber: user.userSerialNumber,
+                            userNotifEvent: user.userNotifEvent,
+                            userLastLogin: user.userLastLogin,
+                          );
+
+                          db.updateUser(updatedUser);
+                        }
+                        if (inputMessage == "fromMain") {
+                          /*
+                                                  MainTitle(
+                                                    appLanguage:
+                                                        appLanguage,
+                                                    userIn: updatedUser,
+                                                    messageIn: "",
+                                                  )
+                                                      .createState()
+                                                      .updateUser(
+                                                          updatedUser);*/
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MainTitle(
+                                appLanguage: appLanguage,
+                                userIn: updatedUser,
+                                messageIn: "",
+                              ),
+                            ),
+                          );
+                        } else
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MainTitle(
+                                appLanguage: appLanguage,
+                                userIn: updatedUser,
+                                messageIn: "fromRegister",
+                              ),
+                            ),
+                          );
+                      }
+                    : null,
+                child: AutoSizeText(
+                  backButtonText,
+                  style: textStyle,
+                ))
+            : Text("");
+
+    if (result < 50 && _start < 0.1 || isTooHigh) {
+      print("reset");
+      explications =
+          AppLocalizations.of(context).translate('status_mesure_mauvais');
+      //Delay to avoid flutter error (?)
+      Future.delayed(Duration.zero, () async {
+        explanationDialog();
+      });
+      _start = 10;
+    }
+
     return MaterialApp(
-      supportedLocales: [
-        Locale('en', 'US'),
-        Locale('fr', 'FR'),
-      ],
-      localizationsDelegates: [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
       home: WillPopScope(
         onWillPop: _onBackPressed,
         child: Scaffold(
@@ -340,29 +702,19 @@ class _MaxPush extends State<MaxPush> {
                   !isCorrect
                       ? Stack(
                           children: <Widget>[
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Container(
-                                width: screenSize.width * 0.25,
-                                child: AutoSizeText(
-                                  AppLocalizations.of(context)
-                                      .translate('explications_mesure'),
-                                  style: textStyle,
-                                ),
-                              ),
-                            ),
+                            //Gauge
                             Align(
                               alignment: Alignment.center,
                               child: Container(
-                                height: screenSize.height * 0.8,
+                                height: screenSize.height * 0.9,
                                 width: screenSize.width * 0.5,
                                 child: SfRadialGauge(
                                   enableLoadingAnimation: true,
                                   axes: <RadialAxis>[
                                     RadialAxis(
                                       interval: 10,
-                                      minimum: 0,
-                                      maximum: 150,
+                                      minimum: 40,
+                                      maximum: 110,
                                       ranges: <GaugeRange>[
                                         GaugeRange(
                                             startValue: 0,
@@ -379,7 +731,7 @@ class _MaxPush extends State<MaxPush> {
                                       ],
                                       pointers: <GaugePointer>[
                                         NeedlePointer(
-                                            value:double.parse(btData),
+                                          value: double.parse(btData),
                                           enableAnimation: true,
                                         ),
                                         //RangePointer(value: double.parse(btData),enableAnimation: true),
@@ -402,9 +754,10 @@ class _MaxPush extends State<MaxPush> {
                               ),
                             ),
 
+                            /*
                             result < 50 && _start < 0.1 || isTooHigh
                                 ? Align(
-                                    alignment: Alignment.centerLeft,
+                                    alignment: Alignment.centerRight,
                                     child: Container(
                                       width: screenSize.width * 0.25,
                                       child: AutoSizeText(
@@ -416,7 +769,7 @@ class _MaxPush extends State<MaxPush> {
                                   )
                                 : result >= 50 && _start < 0.1
                                     ? Align(
-                                        alignment: Alignment.centerLeft,
+                                        alignment: Alignment.centerRight,
                                         child: Container(
                                           width: screenSize.width * 0.25,
                                           child: AutoSizeText(
@@ -427,102 +780,10 @@ class _MaxPush extends State<MaxPush> {
                                         ),
                                       )
                                     : Container(),
-
-                            //Progress bar maison
-                            //Rotate -math.pi pour retourner les container de 180°
-                            /*
-                      !isCorrect
-                          ? Container(
-                              width: screenSize.width * 0.2,
-                              alignment: Alignment.center,
-                              child: Transform.rotate(
-                                angle: -math.pi,
-                                child: Stack(
-                                  children: <Widget>[
-                                    //Container de fond
-                                    Container(
-                                      decoration: new BoxDecoration(
-                                          color: Colors.blue,
-                                          //new Color.fromRGBO(255, 0, 0, 0.0),
-                                          borderRadius: new BorderRadius.only(
-                                              topLeft:
-                                                  const Radius.circular(20.0),
-                                              topRight:
-                                                  const Radius.circular(20.0),
-                                              bottomLeft:
-                                                  const Radius.circular(20.0),
-                                              bottomRight:
-                                                  const Radius.circular(
-                                                      20.0))),
-                                      width: screenSize.width * 0.15,
-                                      height: screenSize.height / 2 - 10,
-                                    ),
-                                    //Container progress bar
-                                    //Passe à vert au dessus de 50 et en dessous de 100
-                                    //sinon rouge
-                                    AnimatedContainer(
-                                      duration: Duration(milliseconds: 400),
-                                      decoration: new BoxDecoration(
-                                        color: colorProgressBar,
-                                        //new Color.fromRGBO(255, 0, 0, 0.0),
-                                        borderRadius: new BorderRadius.only(
-                                          topLeft:
-                                              const Radius.circular(20.0),
-                                          topRight:
-                                              const Radius.circular(20.0),
-                                          bottomLeft:
-                                              const Radius.circular(20.0),
-                                          bottomRight:
-                                              const Radius.circular(20.0),
-                                        ),
-                                      ),
-                                      //40.0 pour éviter des bugs d'affichage
-                                      height: _start > 0.1
-                                          ? double.parse(btData) < 40.0
-                                              ? 40.0
-                                              : double.parse(btData) > 100.0
-                                                  ? screenSize.height / 2 - 10
-                                                  //*1.7 pour remplir la progress bar à 100% lorsque le capteur renvoi 100
-                                                  : double.parse(btData) * 1.7
-                                          : result < 40.0
-                                              ? 40.0
-                                              : result * (1.7),
-                                      width: screenSize.width * 0.15,
-                                    ),
-                                    //Container d'affichage de la valeur du capteur
-                                    //-math.pi = 180°
-                                    Container(
-                                      color: Colors.transparent,
-                                      //new Color.fromRGBO(255, 0, 0, 0.0),
-                                      child: Center(
-                                        child: Transform.rotate(
-                                          angle: -math.pi,
-                                          //Affiche la mesure en live puis la moyenne à la fin
-                                          child: _start <= 0.1
-                                              ? AutoSizeText(
-                                                  (result.toInt()).toString())
-                                              : AutoSizeText(
-                                                  (double.parse(btData)
-                                                          .toInt())
-                                                      .toString(),
-                                                ),
-                                        ),
-                                      ),
-                                      width: screenSize.width * 0.15,
-                                      height: screenSize.height / 2,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                          : Container(),
-                      */
-
-         */
+                                    */
                           ],
                         )
                       : Align(alignment: Alignment.center, child: Container()),
-
                   //Hauteur min/max
                   isCorrect
                       ? Align(
@@ -576,357 +837,11 @@ class _MaxPush extends State<MaxPush> {
                           ),
                         )
                       : Container(),
-                  //Buttons
-                  Stack(
-                    children: <Widget>[
-                      //Back button
-                      inputMessage == "fromMain" ||
-                              (inputMessage == "fromRegister" && isCorrect)
-                          ? Align(
-                              alignment: Alignment.bottomLeft,
-                              child: ElevatedButton(
-                                  style: ButtonStyle(
-                                    backgroundColor: bottomSelection != 0 &&
-                                                (topSelection != 0 ||
-                                                    topSelection != 1) ||
-                                            inputMessage == "fromMain"
-                                        ? colorButton
-                                        : colorPushedButton,
-                                  ),
-                                  onPressed: bottomSelection != 0 &&
-                                              (topSelection != 0 ||
-                                                  topSelection != 1) ||
-                                          inputMessage == "fromMain"
-                                      ? () {
-                                          if (!isCorrect)
-                                            ;
-                                          else {
-                                            if (inputMessage !=
-                                                "fromRegister") {
-                                              if (bottomSelection == 0)
-                                                bottomSelection = int.parse(
-                                                    user.userHeightBottom);
-
-                                              if (topSelection == 1)
-                                                topSelection = int.parse(
-                                                    user.userHeightTop);
-                                            }
-
-                                            if (result == null ||
-                                                (result <= 50.0 ||
-                                                    result >= 100.0))
-                                              result = double.parse(
-                                                  user.userInitialPush);
-
-                                            //update poussée
-                                            updatedUser = User(
-                                              userId: user.userId,
-                                              userName: user.userName,
-                                              userMode: user.userMode,
-                                              userPic: user.userPic,
-                                              userHeightTop:
-                                                  topSelection.toString(),
-                                              userHeightBottom:
-                                                  bottomSelection.toString(),
-                                              userInitialPush: result
-                                                  .toStringAsFixed(2)
-                                                  .toString(),
-                                              userMacAddress:
-                                                  user.userMacAddress,
-                                              userSerialNumber:
-                                                  user.userSerialNumber,
-                                              userNotifEvent:
-                                                  user.userNotifEvent,
-                                              userLastLogin: user.userLastLogin,
-                                            );
-
-                                            db.updateUser(updatedUser);
-                                          }
-                                          if (inputMessage == "fromMain") {
-                                            /*
-                                                      MainTitle(
-                                                        appLanguage:
-                                                            appLanguage,
-                                                        userIn: updatedUser,
-                                                        messageIn: "",
-                                                      )
-                                                          .createState()
-                                                          .updateUser(
-                                                              updatedUser);*/
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => MainTitle(
-                                                  appLanguage: appLanguage,
-                                                  userIn: updatedUser,
-                                                  messageIn: "",
-                                                ),
-                                              ),
-                                            );
-                                          } else
-                                            Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => MainTitle(
-                                                  appLanguage: appLanguage,
-                                                  userIn: updatedUser,
-                                                  messageIn: "fromRegister",
-                                                ),
-                                              ),
-                                            );
-                                        }
-                                      : null,
-                                  child: AutoSizeText(
-                                    backButtonText,
-                                    style: textStyle,
-                                  )),
-                            )
-                          : Text(""),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(0, 0, 20.0, 0),
-                      ),
-                      //Start recording button
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Container(
-                          width: screenSize.width * 0.3,
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                              backgroundColor: !isTryingConnect &&
-                                          !isCorrect &&
-                                          !isPush ||
-                                      bottomSelection != 0 && topSelection != 1
-                                  ? colorButton
-                                  : colorPushedButton,
-                            ),
-                            //child: Text("Démarrer l'enregistrement."),
-                            onPressed: !isTryingConnect &&
-                                        !isCorrect &&
-                                        !isPush ||
-                                    bottomSelection != 0 && topSelection != 1
-                                ? () async {
-                                    //Initialisation du timer
-                                    _start = _reset;
-                                    isTooHigh = false;
-                                    result = 60.0;
-                                    for (int i = 0; i < average.length; i++)
-                                      average[i] = 0;
-
-                                    if (!isPush) {
-                                      isPush = true;
-                                      const oneSec =
-                                          const Duration(milliseconds: 100);
-                                      _timer = new Timer.periodic(
-                                        oneSec,
-                                        (Timer timer) => setState(
-                                          () {
-                                            //Si déco pendant une mesure
-                                            if (isTryingConnect) {
-                                              _timer.cancel();
-                                              isPush = false;
-                                              _start = _reset;
-                                              isTooHigh = false;
-                                              i = 100;
-                                              setState(() {
-                                                recording = AppLocalizations.of(
-                                                        context)
-                                                    .translate(
-                                                        'demarrer_enregistrement');
-                                              });
-                                            } else if (_start < 0.1) {
-                                              _timer.cancel();
-                                              print(average);
-                                              result = double.parse(
-                                                  (average.reduce(
-                                                              (a, b) => a + b) /
-                                                          average.length)
-                                                      .toStringAsFixed(2));
-                                              print(result.toStringAsFixed(2));
-                                              i = 100;
-                                              if (result <= 50.0) {
-                                                //Mesure pas bonne, réajuster la toise
-                                                setState(() {
-                                                  /*recording = AppLocalizations
-                                                          .of(context)
-                                                      .translate(
-                                                          'status_mesure_mauvais');*/
-                                                  isPush = false;
-                                                });
-                                              } else {
-                                                setState(() {
-                                                  /*
-                                                  recording = AppLocalizations
-                                                          .of(context)
-                                                      .translate(
-                                                          'status_mesure_bon');*/
-                                                });
-                                                isCorrect = true;
-                                                //update poussée
-                                                updatedUser = User(
-                                                  userId: user.userId,
-                                                  userName: user.userName,
-                                                  userMode: user.userMode,
-                                                  userPic: user.userPic,
-                                                  userHeightTop:
-                                                      user.userHeightTop,
-                                                  userHeightBottom:
-                                                      user.userHeightBottom,
-                                                  userInitialPush: result
-                                                      .toStringAsFixed(2)
-                                                      .toString(),
-                                                  userMacAddress:
-                                                      user.userMacAddress,
-                                                  userSerialNumber:
-                                                      user.userSerialNumber,
-                                                  userNotifEvent:
-                                                      user.userNotifEvent,
-                                                  userLastLogin:
-                                                      user.userLastLogin,
-                                                );
-
-                                                db.updateUser(updatedUser);
-
-                                                const time = const Duration(
-                                                    milliseconds: 1000);
-                                              }
-                                            } else {
-                                              /*recording =
-                                                  _start.toStringAsFixed(1);*/
-                                              _start = _start - 0.1;
-
-                                              getData();
-                                              //Affiche la valeur en live
-                                              if (_start >= 0.0) {
-                                                if (i == 100) {
-                                                  i--;
-                                                  btData = "50.0";
-                                                }
-                                                average[i] =
-                                                    double.parse(btData);
-                                                //Dépasse la valeur max, réajuster la toise
-                                                if (average[i] > 100.0) {
-                                                  print(average);
-                                                  for (int i = 0;
-                                                      i < average.length;
-                                                      i++) average[i] = 0;
-                                                  _start = _reset;
-                                                  i = 100;
-                                                  /*
-                                                  average[i] =
-                                                      double.parse(btData);*/
-                                                  isPush = false;
-                                                  isTooHigh = true;
-                                                  recording = AppLocalizations
-                                                          .of(context)
-                                                      .translate(
-                                                          'demarrer_enregistrement');
-
-                                                  _timer.cancel();
-                                                } else if (average[i] < 50.0) {
-                                                  setState(() {
-                                                    colorProgressBar =
-                                                        Colors.red;
-                                                  });
-                                                } else {
-                                                  i--;
-                                                  setState(() {
-                                                    colorProgressBar =
-                                                        Colors.green;
-                                                  });
-                                                }
-                                              }
-                                              //Affiche la moyenne après la mesure
-                                              else {
-                                                if (result > 100.0 ||
-                                                    result < 50.0) {
-                                                  setState(() {
-                                                    colorProgressBar =
-                                                        Colors.red;
-                                                  });
-                                                } else {
-                                                  setState(() {
-                                                    colorProgressBar =
-                                                        Colors.green;
-                                                  });
-                                                }
-                                              }
-                                            }
-                                          },
-                                        ),
-                                      );
-                                      //_showDialog();
-                                    } else if (isCorrect) {
-                                      if (inputMessage != "fromRegister") {
-                                        if (bottomSelection == 0)
-                                          bottomSelection =
-                                              int.parse(user.userHeightBottom);
-
-                                        if (topSelection == 1)
-                                          topSelection =
-                                              int.parse(user.userHeightTop);
-                                      }
-
-                                      if (result == null ||
-                                          (result <= 50.0 || result >= 100.0))
-                                        result =
-                                            double.parse(user.userInitialPush);
-
-                                      //update poussée
-                                      updatedUser = User(
-                                        userId: user.userId,
-                                        userName: user.userName,
-                                        userMode: user.userMode,
-                                        userPic: user.userPic,
-                                        userHeightTop: topSelection.toString(),
-                                        userHeightBottom:
-                                            bottomSelection.toString(),
-                                        userInitialPush: result
-                                            .toStringAsFixed(2)
-                                            .toString(),
-                                        userMacAddress: user.userMacAddress,
-                                        userSerialNumber: user.userSerialNumber,
-                                        userNotifEvent: user.userNotifEvent,
-                                        userLastLogin: user.userLastLogin,
-                                      );
-
-                                      db.updateUser(updatedUser);
-
-                                      if (inputMessage == "fromMain") {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => MainTitle(
-                                              appLanguage: appLanguage,
-                                              userIn: updatedUser,
-                                              messageIn: "",
-                                            ),
-                                          ),
-                                        );
-                                      } else
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => MainTitle(
-                                              appLanguage: appLanguage,
-                                              userIn: updatedUser,
-                                              messageIn: "fromRegister",
-                                            ),
-                                          ),
-                                        );
-                                    }
-                                    /**/
-                                  }
-                                : null,
-                            child: AutoSizeText(
-                              recording,
-                              maxLines: 1,
-                              style: textStyle,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  isCorrect
+                      ? Align(
+                          alignment: Alignment.bottomCenter,
+                          child: recordButton)
+                      : Container(),
                 ],
               ),
             ),

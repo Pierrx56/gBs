@@ -69,6 +69,7 @@ class CarGame extends Game {
   double posX = 0;
   int i = 0;
   double difficulte = 3.0;
+  double speed = 190; // Pixels per second
   double secondWayDifficulty = 0.0;
   double thirdWayDifficulty = 0.0;
 
@@ -188,7 +189,6 @@ class CarGame extends Game {
 
     print(randomActivity);
     index = 0;
-
 
     tempCMV = await _loadTruckCarSprites();
     tempTME = await _loadTruckSprites();
@@ -461,6 +461,9 @@ class CarGame extends Game {
   void update(double t) async {
     creationTimer += t;
 
+    if (!pauseGame && !hasCrash && !hasCrashSecondWay)
+      j += (speed * creationTimer).toInt();
+
     if (!gameOver) {
       if (getData() != -1.0)
         isConnected = true;
@@ -501,8 +504,7 @@ class CarGame extends Game {
             //randomNumber = 1;
 
             //End of the game
-            if (index > CMVLimit + CSILimit + TMELimit + waitLimit)
-            {
+            if (index > CMVLimit + CSILimit + TMELimit + waitLimit) {
               //score = 16;
 
               //TODO Update value

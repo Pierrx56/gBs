@@ -42,7 +42,7 @@ class Car extends StatefulWidget {
   _Car createState() => new _Car(user, appLanguage, level, message);
 }
 
-class _Car extends State<Car> with TickerProviderStateMixin {
+class _Car extends State<Car> with TickerProviderStateMixin, WidgetsBindingObserver {
   User user;
   AppLanguage appLanguage;
   CarGame game;
@@ -89,6 +89,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
       start = false;
       gameOver = false;
       isConnected = false;
+      WidgetsBinding.instance.addObserver(this);
       connect();
     }
 
@@ -104,6 +105,7 @@ class _Car extends State<Car> with TickerProviderStateMixin {
     _controllerTopCenter?.dispose();
     pauseTimer?.cancel();
     game.timerPause?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -141,6 +143,30 @@ class _Car extends State<Car> with TickerProviderStateMixin {
   }
 
   bool isDisconnecting = false;
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    /*if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) return;*/
+
+    int tempTimer = 0;
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print("state: $state");
+        break;
+      case AppLifecycleState.inactive:
+        print("state heeeeeeeeeeeere:: $state");
+        break;
+      case AppLifecycleState.paused:
+        print("state heeeeeeeeeeeere: $state");
+        game.pauseGame = true;
+        tempTimer = 10;
+        break;
+      case AppLifecycleState.detached:
+        print("state: $state");
+        break;
+    }
+  }
 
   void connect() async {
     //Tant que le bluetooth n'est pas activé, on demande son activation

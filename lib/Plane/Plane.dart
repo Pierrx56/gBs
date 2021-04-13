@@ -42,7 +42,7 @@ class Plane extends StatefulWidget {
 
 //TODO mettre pause lorsque quitte appli
 
-class _Plane extends State<Plane> with TickerProviderStateMixin {
+class _Plane extends State<Plane> with TickerProviderStateMixin, WidgetsBindingObserver {
   User user;
   AppLanguage appLanguage;
   PlaneGame game;
@@ -87,6 +87,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
       start = false;
       gameOver = false;
       isConnected = false;
+      WidgetsBinding.instance.addObserver(this);
       connect();
     }
 
@@ -99,6 +100,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
     timer?.cancel();
     _timer?.cancel();
     game?.timerData?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -139,6 +141,30 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
   }
 
   bool isDisconnecting = false;
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    /*if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) return;*/
+
+    int tempTimer = 0;
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print("state: $state");
+        break;
+      case AppLifecycleState.inactive:
+        print("state heeeeeeeeeeeere:: $state");
+        break;
+      case AppLifecycleState.paused:
+        print("state heeeeeeeeeeeere: $state");
+        game.pauseGame = true;
+        tempTimer = 10;
+        break;
+      case AppLifecycleState.detached:
+        print("state: $state");
+        break;
+    }
+  }
 
   void connect() async {
     //Tant que le bluetooth n'est pas activé, on demande son activation
@@ -273,8 +299,10 @@ class _Plane extends State<Plane> with TickerProviderStateMixin {
 
     //Pause set by quitting app/lock phone
     if(commonGamesUI != null){
-      if(commonGamesUI.getGamePauseState())
+      if(commonGamesUI.getGamePauseState()) {
+        print("here");
         game.pauseGame = true;
+      }
     }
 
     return WillPopScope(

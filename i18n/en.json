@@ -87,7 +87,7 @@
   "erreur_mode": "Please choose mode",
   "erreur_prenom": "Please fill blank.",
   "explications_hauteur": "Please put the correct numbers you are seeing on the frame and save.",
-  "explications_mesure": "You have to stay between 50.0 and 100.0 during 10 seconds. Click on Start recording when you're ready.",
+  "explications_mesure": "You have to stay between 50.0 and 100.0 during 10 seconds. Click on Start recording when you're ready. The 10 seconds will start when you reach 50.0.",
   "familial": "Family",
   "haut_max": "Maximal height",
   "haut_min": "Minimal height",

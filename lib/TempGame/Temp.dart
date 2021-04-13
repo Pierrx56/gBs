@@ -40,7 +40,7 @@ class Temp extends StatefulWidget {
   _Temp createState() => new _Temp(user, appLanguage, level, message);
 }
 
-class _Temp extends State<Temp> with TickerProviderStateMixin {
+class _Temp extends State<Temp> with TickerProviderStateMixin, WidgetsBindingObserver {
   User user;
   AppLanguage appLanguage;
   TempGame game;
@@ -91,6 +91,7 @@ class _Temp extends State<Temp> with TickerProviderStateMixin {
       isConnected = false;
       start = false;
       push = 0.99;
+      WidgetsBinding.instance.addObserver(this);
       connect();
     }
     game = null;
@@ -108,7 +109,7 @@ class _Temp extends State<Temp> with TickerProviderStateMixin {
     game.tempTimer?.cancel();
     game.timerPosition?.cancel();
     game.timerTuto?.cancel();
-
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -132,6 +133,30 @@ class _Temp extends State<Temp> with TickerProviderStateMixin {
 
     //setSignPosition();
     //runApp(game.widget);
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    /*if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) return;*/
+
+    int tempTimer = 0;
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print("state: $state");
+        break;
+      case AppLifecycleState.inactive:
+        print("state heeeeeeeeeeeere:: $state");
+        break;
+      case AppLifecycleState.paused:
+        print("state heeeeeeeeeeeere: $state");
+        game.pauseGame = true;
+        tempTimer = 10;
+        break;
+      case AppLifecycleState.detached:
+        print("state: $state");
+        break;
+    }
   }
 
   void connect() async {

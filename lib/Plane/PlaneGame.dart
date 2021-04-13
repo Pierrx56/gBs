@@ -45,6 +45,7 @@ class PlaneGame extends Game with TapDetector {
   double posX = 0;
   int i = 0;
   double difficulte = 3.0;
+  double speed = 75; // Pixels per second
 
   double sizeSprite = 130.0;
   List<String> tab = ['plane/plane1.png', 'plane/plane2.png'];
@@ -253,6 +254,16 @@ class PlaneGame extends Game with TapDetector {
     creationTimer += t;
     scoreTimer += t;
 
+
+    if (!pauseGame) {
+      if (isDown && !hasMissedBaloon) {
+        bottomBalloon.j += (speed * creationTimer).toInt();
+      } else if (hasMissedBaloon) {
+        bottomBalloon.j += (speed * creationTimer).toInt();
+        topBalloon.j += (speed * creationTimer).toInt();
+      } else
+        topBalloon.j += (speed * creationTimer).toInt();
+    }
     if (!gameOver) {
       /*if (btData != -1.0) {
         isConnected = true;

@@ -38,8 +38,8 @@ class BottomLine {
 
     if (j >= game.screenSize.width) j = 0;
 
-    if(pause)
-      j -= balloonSpeed;
+    //if(!pause)
+    //  j += balloonSpeed;
 
     c.translate(game.screenSize.width - j.toDouble(), 0);
 
@@ -85,10 +85,7 @@ class TopLine {
     c.translate(game.screenSize.width / 2, 0 );//game.screenSize.width* 0.1);
     c.translate(-game.screenSize.width / 2, 0);//-game.screenSize.height * (1 - balloonPosition));
 
-    if (j >= game.screenSize.width) j = 0;
-
     c.translate(game.screenSize.width - j.toDouble(), 0);
-    j += balloonSpeed;
 
     topLine.render(c, position: posWater, size: sizeWater);
 
