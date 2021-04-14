@@ -126,7 +126,7 @@ class UIState extends State<UI> {
                 bottomLeft: const Radius.circular(20.0),
                 bottomRight: const Radius.circular(20.0))),
         width: game.screenSize.width * 0.6,
-        height: game.screenSize.height * 0.4,
+        height: game.screenSize.height * 0.3,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,

@@ -171,6 +171,7 @@ class _Temp extends State<Temp> with TickerProviderStateMixin, WidgetsBindingObs
           connect();
         });
       } else {
+        btManage.sendData("WU");
         initTemp();
         return;
       }

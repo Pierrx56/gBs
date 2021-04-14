@@ -109,7 +109,7 @@ class _Car extends State<Car> with TickerProviderStateMixin, WidgetsBindingObser
     super.dispose();
   }
 
-  initPlane() async {
+  initCar() async {
     WidgetsFlutterBinding.ensureInitialized();
 
     game = new CarGame(getData, user, appLanguage);
@@ -180,6 +180,7 @@ class _Car extends State<Car> with TickerProviderStateMixin, WidgetsBindingObser
           connect();
         });
       } else {
+        btManage.sendData("WU");
         launchGame();
         return;
       }
@@ -188,7 +189,7 @@ class _Car extends State<Car> with TickerProviderStateMixin, WidgetsBindingObser
   }
 
   void launchGame() {
-    initPlane();
+    initCar();
   }
 
   void setData() async {
@@ -283,7 +284,7 @@ class _Car extends State<Car> with TickerProviderStateMixin, WidgetsBindingObser
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: ExactAssetImage(
-                                "assets/images/plane/background.png"),
+                                "assets/images/car/background.png"),
                             fit: BoxFit.cover,
                           ),
                         ),

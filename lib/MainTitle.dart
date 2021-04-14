@@ -156,7 +156,7 @@ class _MainTitle extends State<MainTitle> {
       isConnected = await btManage.getStatus();
       if (isConnected) {
         if (!isWakedUp) {
-          //btManage.sendData("WU");
+          btManage.sendData("WU");
           isWakedUp = true;
         }
 
@@ -634,7 +634,7 @@ class _MainTitle extends State<MainTitle> {
                           builder: (context) => MaxPush(
                             appLanguage: appLanguage,
                             user: user,
-                            inputMessage: "fromMain",
+                            inputMessage: "fromMainTitle",
                           ),
                         ),
                       );

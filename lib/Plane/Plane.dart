@@ -178,6 +178,7 @@ class _Plane extends State<Plane> with TickerProviderStateMixin, WidgetsBindingO
           connect();
         });
       } else {
+        btManage.sendData("WU");
         initPlane();
         return;
       }

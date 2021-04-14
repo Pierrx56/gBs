@@ -230,7 +230,9 @@ class _Login extends State<Login> with WidgetsBindingObserver {
 
     var languages = [
       //Français
-      FlatButton.icon(
+      ElevatedButton.icon(
+        style: TextButton.styleFrom(
+            backgroundColor: Colors.transparent, primary: Colors.black, elevation: 0),
         icon: ClipRRect(
           borderRadius: BorderRadius.circular(8.0),
           child: Image(
@@ -244,17 +246,15 @@ class _Login extends State<Login> with WidgetsBindingObserver {
             color: Colors.black,
           ),
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        splashColor: Colors.blue,
         onPressed: () {
           print("Français");
           appLanguage.changeLanguage(Locale("fr"));
         },
       ),
       //English
-      FlatButton.icon(
+      ElevatedButton.icon(
+        style: TextButton.styleFrom(
+            backgroundColor: Colors.transparent, primary: Colors.black, elevation: 0),
         icon: Image(
           image: new AssetImage("assets/flags/en.png"),
           width: 40,
@@ -265,10 +265,6 @@ class _Login extends State<Login> with WidgetsBindingObserver {
             color: Colors.black,
           ),
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        splashColor: Colors.blue,
         onPressed: () {
           print("English");
           appLanguage.changeLanguage(Locale("en"));
@@ -324,7 +320,9 @@ class _Login extends State<Login> with WidgetsBindingObserver {
           Container(
             width: screenSize.width * 0.40,
             alignment: Alignment.centerRight,
-            child: FlatButton.icon(
+            child: ElevatedButton.icon(
+              style: TextButton.styleFrom(
+                  backgroundColor: Colors.transparent, primary: Colors.black, elevation: 0),
               icon: Icon(
                 Icons.question_answer,
                 color: iconColor,
@@ -337,10 +335,6 @@ class _Login extends State<Login> with WidgetsBindingObserver {
                 ),
                 minFontSize: 10,
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              splashColor: splashIconColor,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -513,7 +507,9 @@ class _Login extends State<Login> with WidgetsBindingObserver {
               //FAQ
               Container(
                 height: screenSize.height * 0.1,
-                child: FlatButton.icon(
+                child: ElevatedButton.icon(
+                  style: TextButton.styleFrom(
+                      backgroundColor: Colors.transparent, primary: Colors.black, elevation: 0),
                   icon: Icon(
                     Icons.question_answer,
                     color: iconColor,
@@ -524,10 +520,6 @@ class _Login extends State<Login> with WidgetsBindingObserver {
                       color: iconColor,
                     ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  splashColor: splashIconColor,
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -550,7 +542,9 @@ class _Login extends State<Login> with WidgetsBindingObserver {
               //Settings
               Container(
                 height: screenSize.height * 0.1,
-                child: FlatButton.icon(
+                child: ElevatedButton.icon(
+                  style: TextButton.styleFrom(
+                      backgroundColor: Colors.transparent, primary: Colors.black, elevation: 0),
                   icon: Icon(
                     Icons.settings,
                     color: iconColor,
@@ -559,10 +553,6 @@ class _Login extends State<Login> with WidgetsBindingObserver {
                     AppLocalizations.of(context).translate('reglages'),
                     style: TextStyle(color: iconColor),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  splashColor: splashIconColor,
                   onPressed: () {},
                 ),
               ),
@@ -593,8 +583,8 @@ class _Login extends State<Login> with WidgetsBindingObserver {
                   children: List.generate(
                     size = snapshot.data.length + 1,
                     (index) {
-                      if (index < size - 1 && index >= 0) {
-                        User item = snapshot.data[index];
+                      if (index >= 1) {
+                        User item = snapshot.data[index - 1];
                         return GestureDetector(
                           onTap: () {
                             Navigator.pushReplacement(
@@ -603,7 +593,7 @@ class _Login extends State<Login> with WidgetsBindingObserver {
                                 builder: (context) =>
                                     //MainTitle(appLanguage: appLanguage,messageIn: "",userIn: snapshot.data[index -1],),
                                     MainTitle(
-                                  userIn: snapshot.data[index],
+                                  userIn: snapshot.data[index - 1],
                                   messageIn: "0",
                                   appLanguage: appLanguage,
                                 ),
@@ -642,7 +632,7 @@ class _Login extends State<Login> with WidgetsBindingObserver {
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(8.0),
                                     child: Image.file(
-                                      File(snapshot.data[index].userPic),
+                                      File(snapshot.data[index - 1].userPic),
                                       height: screenSize.height * 0.3,
                                       width: screenSize.width * 0.3,
                                     ),
@@ -664,7 +654,7 @@ class _Login extends State<Login> with WidgetsBindingObserver {
                             ),
                           ),
                         );
-                      } else if (index == size - 1) {
+                      } else if (index == 0) {
                         return GestureDetector(
                           onTap: () {
                             Navigator.pushReplacement(

@@ -166,43 +166,46 @@ class _MaxPush extends State<MaxPush> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return AlertDialog(
-            actions: <Widget>[
-              Container(
-                  width: screenSize.width * 0.8,
-                  height: screenSize.height * 0.7,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.topCenter,
-                        child: AutoSizeText(
-                          explications,
-                          style: textStyle,
-                          textAlign: TextAlign.center,
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: AlertDialog(
+              actions: <Widget>[
+                Container(
+                    width: screenSize.width * 0.8,
+                    height: screenSize.height * 0.7,
+                    child: Stack(
+                      children: [
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: AutoSizeText(
+                            explications,
+                            style: textStyle,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: AutoSizeText(
-                          "*Image d'explication*",
-                          style: textStyle,
+                        Align(
+                          alignment: Alignment.center,
+                          child: AutoSizeText(
+                            "*Image d'explication*",
+                            style: textStyle,
+                          ),
                         ),
-                      ),
-                      Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Row(
-                            children: [
-                              Spacer(),
-                              backButton,
-                              Spacer(),
-                              recordButton,
-                              Spacer(),
-                            ],
-                          )),
-                      //Align(alignment: Alignment.bottomLeft, child: backButton),
-                    ],
-                  )),
-            ],
+                        Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Row(
+                              children: [
+                                Spacer(),
+                                backButton,
+                                Spacer(),
+                                recordButton,
+                                Spacer(),
+                              ],
+                            )),
+                        //Align(alignment: Alignment.bottomLeft, child: backButton),
+                      ],
+                    )),
+              ],
+            ),
           );
         });
   }
@@ -238,23 +241,8 @@ class _MaxPush extends State<MaxPush> {
     super.dispose();
   }
 
-
   void getData() async {
     btData = await btManage.getData("F");
-  }
-
-  Future<bool> _onBackPressed() {
-    _timer?.cancel();
-    if (inputMessage == "fromRegister")
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => Login(
-                    appLanguage: appLanguage,
-                    message: "",
-                  )));
-    else
-      Navigator.pop(context);
   }
 
   void initializeNumberPicker() {
@@ -523,7 +511,7 @@ class _MaxPush extends State<MaxPush> {
 
                 db.updateUser(updatedUser);
 
-                if (inputMessage == "fromMain") {
+                if (inputMessage == "fromMainTitle") {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -558,19 +546,19 @@ class _MaxPush extends State<MaxPush> {
 
     backButton =
         //Back button
-        inputMessage == "fromMain" ||
+        inputMessage == "fromMainTitle" ||
                 (inputMessage == "fromRegister" && isCorrect)
             ? ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor: bottomSelection != 0 &&
                               (topSelection != 0 || topSelection != 1) ||
-                          inputMessage == "fromMain"
+                          inputMessage == "fromMainTitle"
                       ? colorButton
                       : colorPushedButton,
                 ),
                 onPressed: bottomSelection != 0 &&
                             (topSelection != 0 || topSelection != 1) ||
-                        inputMessage == "fromMain"
+                        inputMessage == "fromMainTitle"
                     ? () {
                         if (!isCorrect)
                           ;
@@ -606,7 +594,7 @@ class _MaxPush extends State<MaxPush> {
 
                           db.updateUser(updatedUser);
                         }
-                        if (inputMessage == "fromMain") {
+                        if (inputMessage == "fromMainTitle") {
                           /*
                                                   MainTitle(
                                                     appLanguage:
@@ -657,104 +645,116 @@ class _MaxPush extends State<MaxPush> {
       _start = 10;
     }
 
-    return MaterialApp(
-      home: WillPopScope(
-        onWillPop: _onBackPressed,
-        child: Scaffold(
-          backgroundColor: backgroundColor,
-          key: _scaffoldKey,
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(20.0), // here the desired height
-            child: AppBar(
-              elevation: 0.0,
-              //title: Text(AppLocalization.of(context).heyWorld),
-              backgroundColor: backgroundColor,
-              actions: <Widget>[
-                Container(
-                  width: (screenSize.width) * 0.1,
-                  decoration: BoxDecoration(
-                      color: splashIconColor.withAlpha(50),
-                      shape: BoxShape.circle),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Icon(Icons.keyboard_arrow_left,
-                        size: 20.0, color: iconColor),
-                  ),
+    return WillPopScope(
+      onWillPop: () {
+        _timer?.cancel();
+        if (inputMessage == "fromRegister")
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Login(
+                        appLanguage: appLanguage,
+                        message: "",
+                      )));
+        else if(inputMessage == "fromMainTitle")
+          Navigator.pop(context);
+        return;
+      },
+      child: Scaffold(
+        backgroundColor: backgroundColor,
+        key: _scaffoldKey,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(20.0), // here the desired height
+          child: AppBar(
+            elevation: 0.0,
+            //title: Text(AppLocalization.of(context).heyWorld),
+            backgroundColor: backgroundColor,
+            actions: <Widget>[
+              Container(
+                width: (screenSize.width) * 0.1,
+                decoration: BoxDecoration(
+                    color: splashIconColor.withAlpha(50),
+                    shape: BoxShape.circle),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(Icons.keyboard_arrow_left,
+                      size: 20.0, color: iconColor),
                 ),
-                AutoSizeText(
-                  AppLocalizations.of(context).translate('poussee_max'),
-                  style: textStyleBG,
-                ),
-                Spacer(),
-              ],
-            ),
+              ),
+              AutoSizeText(
+                AppLocalizations.of(context).translate('poussee_max'),
+                style: textStyleBG,
+              ),
+              Spacer(),
+            ],
           ),
-          body: SingleChildScrollView(
-            child: Container(
-              width: screenSize.width,
-              height: screenSize.height * 0.9,
-              padding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0),
-              child: Stack(
-                children: <Widget>[
-                  //Progress bar/gauge & messages
-                  !isCorrect
-                      ? Stack(
-                          children: <Widget>[
-                            //Gauge
-                            Align(
-                              alignment: Alignment.center,
-                              child: Container(
-                                height: screenSize.height * 0.9,
-                                width: screenSize.width * 0.5,
-                                child: SfRadialGauge(
-                                  enableLoadingAnimation: true,
-                                  axes: <RadialAxis>[
-                                    RadialAxis(
-                                      interval: 10,
-                                      minimum: 40,
-                                      maximum: 110,
-                                      ranges: <GaugeRange>[
-                                        GaugeRange(
-                                            startValue: 0,
-                                            endValue: 50,
-                                            color: Colors.red),
-                                        GaugeRange(
-                                            startValue: 50,
-                                            endValue: 100,
-                                            color: Colors.green),
-                                        GaugeRange(
-                                            startValue: 100,
-                                            endValue: 150,
-                                            color: Colors.red)
-                                      ],
-                                      pointers: <GaugePointer>[
-                                        NeedlePointer(
-                                          value: double.parse(btData),
-                                          enableAnimation: true,
-                                        ),
-                                        //RangePointer(value: double.parse(btData),enableAnimation: true),
-                                      ],
-                                      annotations: <GaugeAnnotation>[
-                                        GaugeAnnotation(
-                                            widget: Container(
-                                                child: Text(
-                                                    _start.toStringAsFixed(0),
-                                                    style: TextStyle(
-                                                        fontSize: 25,
-                                                        fontWeight:
-                                                            FontWeight.bold))),
-                                            angle: 90,
-                                            positionFactor: 0.5),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            width: screenSize.width,
+            height: screenSize.height * 0.9,
+            padding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0),
+            child: Stack(
+              children: <Widget>[
+                //Progress bar/gauge & messages
+                !isCorrect
+                    ? Stack(
+                        children: <Widget>[
+                          //Gauge
+                          Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              height: screenSize.height * 0.9,
+                              width: screenSize.width * 0.5,
+                              child: SfRadialGauge(
+                                enableLoadingAnimation: true,
+                                axes: <RadialAxis>[
+                                  RadialAxis(
+                                    interval: 10,
+                                    minimum: 40,
+                                    maximum: 110,
+                                    ranges: <GaugeRange>[
+                                      GaugeRange(
+                                          startValue: 0,
+                                          endValue: 50,
+                                          color: Colors.red),
+                                      GaugeRange(
+                                          startValue: 50,
+                                          endValue: 100,
+                                          color: Colors.green),
+                                      GaugeRange(
+                                          startValue: 100,
+                                          endValue: 150,
+                                          color: Colors.red)
+                                    ],
+                                    pointers: <GaugePointer>[
+                                      NeedlePointer(
+                                        value: double.parse(btData),
+                                        enableAnimation: true,
+                                      ),
+                                      //RangePointer(value: double.parse(btData),enableAnimation: true),
+                                    ],
+                                    annotations: <GaugeAnnotation>[
+                                      GaugeAnnotation(
+                                          widget: Container(
+                                              child: Text(
+                                                  _start.toStringAsFixed(0),
+                                                  style: TextStyle(
+                                                      fontSize: 25,
+                                                      fontWeight:
+                                                          FontWeight.bold))),
+                                          angle: 90,
+                                          positionFactor: 0.5),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
+                          ),
 
-                            /*
+                          /*
                             result < 50 && _start < 0.1 || isTooHigh
                                 ? Align(
                                     alignment: Alignment.centerRight,
@@ -781,69 +781,67 @@ class _MaxPush extends State<MaxPush> {
                                       )
                                     : Container(),
                                     */
-                          ],
-                        )
-                      : Align(alignment: Alignment.center, child: Container()),
-                  //Hauteur min/max
-                  isCorrect
-                      ? Align(
-                          alignment: Alignment.center,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Column(
-                                children: [
-                                  Container(
-                                    width: screenSize.width * 0.6,
-                                    child: AutoSizeText(
+                        ],
+                      )
+                    : Align(alignment: Alignment.center, child: Container()),
+                //Hauteur min/max
+                isCorrect
+                    ? Align(
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Column(
+                              children: [
+                                Container(
+                                  width: screenSize.width * 0.6,
+                                  child: AutoSizeText(
+                                    AppLocalizations.of(context)
+                                        .translate('explications_hauteur'),
+                                    style: textStyle,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(5.0),
+                                ),
+                                Column(
+                                  children: <Widget>[
+                                    AutoSizeText(
                                       AppLocalizations.of(context)
-                                          .translate('explications_hauteur'),
+                                          .translate('haut_max'),
                                       style: textStyle,
                                       textAlign: TextAlign.center,
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(5.0),
-                                  ),
-                                  Column(
-                                    children: <Widget>[
-                                      AutoSizeText(
-                                        AppLocalizations.of(context)
-                                            .translate('haut_max'),
-                                        style: textStyle,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      topPicker,
-                                      Padding(
-                                        padding: EdgeInsets.all(20.0),
-                                      ),
-                                      Column(
-                                        children: <Widget>[
-                                          AutoSizeText(
-                                            AppLocalizations.of(context)
-                                                .translate('haut_min'),
-                                            style: textStyle,
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          bottomPicker,
-                                        ],
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                        )
-                      : Container(),
-                  isCorrect
-                      ? Align(
-                          alignment: Alignment.bottomCenter,
-                          child: recordButton)
-                      : Container(),
-                ],
-              ),
+                                    topPicker,
+                                    Padding(
+                                      padding: EdgeInsets.all(20.0),
+                                    ),
+                                    Column(
+                                      children: <Widget>[
+                                        AutoSizeText(
+                                          AppLocalizations.of(context)
+                                              .translate('haut_min'),
+                                          style: textStyle,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        bottomPicker,
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
+                isCorrect
+                    ? Align(
+                        alignment: Alignment.bottomCenter, child: recordButton)
+                    : Container(),
+              ],
             ),
           ),
         ),
@@ -858,6 +856,7 @@ class _MaxPush extends State<MaxPush> {
     Duration duration: const Duration(seconds: 3),
   }) async {
     await new Future.delayed(new Duration(milliseconds: 100));
+    if(mounted)
     _scaffoldKey.currentState.showSnackBar(
       new SnackBar(
         content: new Text(

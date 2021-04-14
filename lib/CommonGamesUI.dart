@@ -142,8 +142,8 @@ class CommonGamesUI {
         width: game.pauseGame
             ? game.screenSize.width * 0.3
             : game.screenSize.height * 0.2,
-        child: FlatButton(
-          color: Colors.transparent,
+        child: ElevatedButton(
+          style: TextButton.styleFrom(backgroundColor: Colors.transparent,elevation: 0),
           onPressed: !game.getGameOver()
               ? game.getConnectionState()
                   ? () async {

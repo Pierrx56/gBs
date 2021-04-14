@@ -160,6 +160,7 @@ class _Swimmer extends State<Swimmer> with WidgetsBindingObserver{
           connect();
         });
       } else {
+        btManage.sendData("WU");
         launchGame();
         return;
       }

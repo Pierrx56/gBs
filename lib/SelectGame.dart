@@ -742,60 +742,70 @@ class _SelectGame extends State<SelectGame> {
                       children: <Widget>[
                         AutoSizeText(
                           temp != null
-                              ? idGame == ID_PLANE_ACTIVITY
-                              ? AppLocalizations.of(this.context)
-                              .translate('avion')
-                              : idGame == ID_SWIMMER_ACTIVITY
-                              ? AppLocalizations.of(this.context)
-                              .translate('nageur')
-                              : idGame == ID_TEMP_ACTIVITY
-                              ? AppLocalizations.of(
-                              this.context)
-                              .translate('temp')
-                              : "non renseigné dans SelectGame"
+                              ? idGame == ID_CAR_ACTIVITY
+                                  ? AppLocalizations.of(this.context)
+                                      .translate('voiture')
+                                  : idGame == ID_PLANE_ACTIVITY
+                                      ? AppLocalizations.of(this.context)
+                                          .translate('avion')
+                                      : idGame == ID_SWIMMER_ACTIVITY
+                                          ? AppLocalizations.of(this.context)
+                                              .translate('nageur')
+                                          : idGame == ID_TEMP_ACTIVITY
+                                              ? AppLocalizations.of(
+                                                      this.context)
+                                                  .translate('temp')
+                                              : "non renseigné dans SelectGame"
                               : "Check Language file (en/fr.json)",
                           style: textStyle,
                           minFontSize: 15,
                         ),
                         AutoSizeText(
                           temp != null
-                              ? idGame == ID_PLANE_ACTIVITY
-                              ? AppLocalizations.of(this.context)
-                              .translate('type_activite') +
-                              " " +
-                              AppLocalizations.of(this.context)
-                                  .translate('type_activite_EI') +
-                              "\n\n" +
-                              //On adapte le texte au mode choisi
-                              //Si sportif, on remplace XX par 3 (nb de minutes)
-                              //Sinon par 2
-                              AppLocalizations.of(this.context)
-                                  .translate('info_avion')
-                                  .replaceAll(
-                                  "XX",
-                                  user.userMode == "1"
-                                      ? "3"
-                                      : "2")
-                              : idGame == ID_SWIMMER_ACTIVITY
-                              ? AppLocalizations.of(this.context)
-                              .translate('type_activite') +
-                              " " +
-                              AppLocalizations.of(this.context)
-                                  .translate(
-                                  'type_activite_EE') +
-                              "\n\n" +
-                              AppLocalizations.of(this.context)
-                                  .translate('info_nageur')
-                              : idGame == ID_TEMP_ACTIVITY
-                              ? AppLocalizations.of(this.context).translate('type_activite') +
-                              " " +
-                              AppLocalizations.of(this.context)
-                                  .translate(
-                                  'type_activite_CMV') +
-                              "\n\n" +
-                              AppLocalizations.of(this.context)
-                                  .translate('info_temp')
-                              : "non renseigné dans SelectGame"
+                              ? idGame == ID_CAR_ACTIVITY
+                                  ? AppLocalizations.of(this.context)
+                                          .translate('type_activite') +
+                                      " " +
+                                      AppLocalizations.of(this.context)
+                                          .translate('type_activite_EM') +
+                                      "\n\n" +
+                                      //On adapte le texte au mode choisi
+                                      //Si sportif, on remplace XX par 3 (nb de minutes)
+                                      //Sinon par 2
+                                      AppLocalizations.of(this.context)
+                                          .translate('info_voiture')
+                                          .replaceAll("XX",
+                                              user.userMode == "1" ? "3" : "2")
+                                  : idGame == ID_PLANE_ACTIVITY
+                                      ? AppLocalizations.of(this.context)
+                                              .translate('type_activite') +
+                                          " " +
+                                          AppLocalizations.of(this.context)
+                                              .translate('type_activite_EI') +
+                                          "\n\n" +
+                                          //On adapte le texte au mode choisi
+                                          //Si sportif, on remplace XX par 3 (nb de minutes)
+                                          //Sinon par 2
+                                          AppLocalizations.of(this.context).translate('info_avion').replaceAll(
+                                              "XX",
+                                              user.userMode == "1" ? "3" : "2")
+                                      : idGame == ID_SWIMMER_ACTIVITY
+                                          ? AppLocalizations.of(this.context)
+                                                  .translate('type_activite') +
+                                              " " +
+                                              AppLocalizations.of(this.context)
+                                                  .translate(
+                                                      'type_activite_EE') +
+                                              "\n\n" +
+                                              AppLocalizations.of(this.context)
+                                                  .translate('info_nageur')
+                                          : idGame == ID_TEMP_ACTIVITY
+                                              ? AppLocalizations.of(this.context).translate('type_activite') +
+                                                  " " +
+                                                  AppLocalizations.of(this.context).translate('type_activite_CMV') +
+                                                  "\n\n" +
+                                                  AppLocalizations.of(this.context).translate('info_temp')
+                                              : "non renseigné dans SelectGame"
                               : "Check Language file (en/fr.json)",
                           style: textStyle,
                           minFontSize: 15,
@@ -806,8 +816,9 @@ class _SelectGame extends State<SelectGame> {
                           children: <Widget>[
                             ElevatedButton(
                               style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all<Color>(
-                                    Colors.grey[350]),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.grey[350]),
                               ),
                               onPressed: () {
                                 Navigator.pop(context);
@@ -840,8 +851,9 @@ class _SelectGame extends State<SelectGame> {
                             Spacer(),*/
                             ElevatedButton(
                               style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all<Color>(
-                                    Colors.grey[350]),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.grey[350]),
                               ),
                               onPressed: () {
                                 //Disparition de lu popup

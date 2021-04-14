@@ -379,77 +379,83 @@ class _Register extends State<Register> {
       13,14,15,16,17,18,19,20,21,22,23];
     List<int> minutes = [0,15,30,45];*/
 
-    Widget nextButton = FlatButton(
-      onPressed: /*!clickable ? null : */ () {
-        if (hauteur_max != null) tempHautMax = int.tryParse(hauteur_max.text);
-        if (hauteur_min != null) tempHautMin = int.tryParse(hauteur_min.text);
+    Widget nextButton = Container(
+      width: screenSize.width * 0.15,
+      child: ElevatedButton(
+        onPressed: /*!clickable ? null : */ () {
+          if (hauteur_max != null) tempHautMax = int.tryParse(hauteur_max.text);
+          if (hauteur_min != null) tempHautMin = int.tryParse(hauteur_min.text);
 
-        if (tempHautMin == null || tempHautMax == null) {
-          tempHautMin = 0;
-          tempHautMax = 0;
-        }
-        _validate = false;
-        if (currentStep == 0) {
-          if (name.text == "")
-            isEmpty = true;
-          else
-            isEmpty = false;
-        } else if (currentStep == 2) {
-          //Bouton connexion
-          if (!isConnected) {
-            show(AppLocalizations.of(context).translate('connect_av'));
-            return;
+          if (tempHautMin == null || tempHautMax == null) {
+            tempHautMin = 0;
+            tempHautMax = 0;
           }
-        }
-
-        if (!_validate && !isEmpty) {
           _validate = false;
-          //Retirer le clavier
-          FocusScope.of(context).requestFocus(new FocusNode());
-          next();
-
-          print(currentStep);
-          //Changer le focus texte
           if (currentStep == 0) {
-            nameNode.requestFocus();
-          } else if (currentStep == 1) {
-            //if (_userMode == "")
-            //_userMode = AppLocalizations.of(context).translate('familial');
+            if (name.text == "")
+              isEmpty = true;
+            else
+              isEmpty = false;
           } else if (currentStep == 2) {
-            serialNode.requestFocus();
-
-            timerNode =
-                Timer.periodic(Duration(milliseconds: 300), (timerNode) {
-              if (serialNumber.text.length >= 8) {
-                setState(() {
-                  isGoodLength = true;
-                });
-              } else {
-                setState(() {
-                  isGoodLength = false;
-                });
-              }
-            });
-          } else if (currentStep == 3) {
-            timerNode?.cancel();
+            //Bouton connexion
+            if (!isConnected) {
+              show(AppLocalizations.of(context).translate('connect_av'));
+              return;
+            }
           }
 
-          _controller.animateTo(((currentStep) * 75).toDouble(),
-              duration: Duration(milliseconds: 500), curve: Curves.linear);
-        } else {
-          setState(() {
-            _validate = true;
-          });
-        }
-      },
-      color: Colors.blue,
-      child: Text(
-        AppLocalizations.of(context).translate('suivant'),
-        style: TextStyle(color: Colors.white),
+          if (!_validate && !isEmpty) {
+            _validate = false;
+            //Retirer le clavier
+            FocusScope.of(context).requestFocus(new FocusNode());
+            next();
+
+            print(currentStep);
+            //Changer le focus texte
+            if (currentStep == 0) {
+              nameNode.requestFocus();
+            } else if (currentStep == 1) {
+              //if (_userMode == "")
+              //_userMode = AppLocalizations.of(context).translate('familial');
+            } else if (currentStep == 2) {
+              serialNode.requestFocus();
+
+              timerNode =
+                  Timer.periodic(Duration(milliseconds: 300), (timerNode) {
+                if (serialNumber.text.length >= 8) {
+                  setState(() {
+                    isGoodLength = true;
+                  });
+                } else {
+                  setState(() {
+                    isGoodLength = false;
+                  });
+                }
+              });
+            } else if (currentStep == 3) {
+              timerNode?.cancel();
+            }
+
+            _controller.animateTo(((currentStep) * 75).toDouble(),
+                duration: Duration(milliseconds: 500), curve: Curves.linear);
+          } else {
+            setState(() {
+              _validate = true;
+            });
+          }
+        },
+        child: Text(
+          AppLocalizations.of(context).translate('suivant'),
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
 
-    Widget backButton = FlatButton(
+    Widget backButton = ElevatedButton(
+      style: TextButton.styleFrom(
+          primary: Colors.black,
+          backgroundColor: Colors.transparent,
+          elevation: 0),
       onPressed: () {
         //Retirer le clavier
         FocusScope.of(context).requestFocus(new FocusNode());
@@ -668,7 +674,7 @@ class _Register extends State<Register> {
               children: <Widget>[
                 ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor:colorButton,
+                    backgroundColor: colorButton,
                   ),
                   child: Row(
                     children: <Widget>[
@@ -766,9 +772,8 @@ class _Register extends State<Register> {
                     width: screenSize.width * 0.4,
                     child: ElevatedButton(
                       style: ButtonStyle(
-                        backgroundColor: !isFound
-                            ? colorButton
-                            : colorPushedButton,
+                        backgroundColor:
+                            !isFound ? colorButton : colorPushedButton,
                       ),
                       child: Text(
                         "2. " + discovering,
@@ -896,7 +901,11 @@ class _Register extends State<Register> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                FlatButton(
+                ElevatedButton(
+                  style: TextButton.styleFrom(
+                      primary: Colors.black,
+                      backgroundColor: Colors.transparent,
+                      elevation: 0),
                   onPressed: () {
                     back();
                     _controller.animateTo((((currentStep) * 75)).toDouble(),
@@ -905,50 +914,49 @@ class _Register extends State<Register> {
                   },
                   child: Text(AppLocalizations.of(context).translate('retour')),
                 ),
-                FlatButton(
-                  child: Text(
-                      AppLocalizations.of(context).translate('valider_insc')),
-                  color: Colors.blue,
-                  textColor: Colors.white,
-                  padding:
-                      EdgeInsets.only(left: 38, right: 38, top: 15, bottom: 15),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5)),
-                  onPressed: () async {
-                    //Conditions d'inscriptions
+                Container(
+                  width: screenSize.width * 0.3,
+                  child: ElevatedButton(
+                    style: TextButton.styleFrom(
+                        backgroundColor: Colors.blue, elevation: 0),
+                    child: Text(
+                        AppLocalizations.of(context).translate('valider_insc')),
+                    onPressed: () async {
+                      //Conditions d'inscriptions
 
-                    if (_pathSaved == "assets/default.png") {
-                      var bytes = await rootBundle.load(_pathSaved);
-                      String dir =
-                          (await getApplicationDocumentsDirectory()).path;
-                      File tempFile =
-                          await writeToFile(bytes, '$dir/default.png');
+                      if (_pathSaved == "assets/default.png") {
+                        var bytes = await rootBundle.load(_pathSaved);
+                        String dir =
+                            (await getApplicationDocumentsDirectory()).path;
+                        File tempFile =
+                            await writeToFile(bytes, '$dir/default.png');
 
-                      setState(() {
-                        _pathSaved = tempFile.path;
-                      });
-                    }
+                        setState(() {
+                          _pathSaved = tempFile.path;
+                        });
+                      }
 
-                    User user = await addUser();
-                    //getUser();
-                    //connectBT();
+                      User user = await addUser();
+                      //getUser();
+                      //connectBT();
 
-                    if (user != null) {
-                      //print("salut " + user.userId.toString());
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MaxPush(
-                            appLanguage: appLanguage,
-                            user: user,
-                            inputMessage: "fromRegister",
+                      if (user != null) {
+                        //print("salut " + user.userId.toString());
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MaxPush(
+                              appLanguage: appLanguage,
+                              user: user,
+                              inputMessage: "fromRegister",
+                            ),
                           ),
-                        ),
-                      );
-                      //dispose();
-                    } else
-                      print("Something went wrong");
-                  },
+                        );
+                        //dispose();
+                      } else
+                        print("Something went wrong");
+                    },
+                  ),
                 ),
               ],
             ),
@@ -1000,9 +1008,7 @@ class _Register extends State<Register> {
               child: Row(
                 children: <Widget>[
                   Spacer(),
-                  Text("$currentStep/${steps.length - 1}",
-                      style: textStyleBG // TextStyle(fontSize: 20),
-                      ),
+                  //Text("$currentStep/${steps.length - 1}",                     style: textStyleBG // TextStyle(fontSize: 20),                      ),
                   Padding(
                     padding: EdgeInsets.all(20),
                   ),
@@ -1010,14 +1016,18 @@ class _Register extends State<Register> {
                     totalSteps: steps.length - 1,
                     currentStep: currentStep,
                     fallbackLength: screenSize.width / 2,
-                    selectedColor: Colors.lightGreenAccent,
+                    selectedColor: Colors.green,
                     unselectedColor: iconColor,
                     roundedEdges: Radius.circular(10),
                     padding: 0.00001,
                     size: 15,
                   ),
                   Spacer(),
-                  new FlatButton(
+                  /*new ElevatedButton(
+                    style: TextButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        primary: Colors.black,
+                        elevation: 0),
                     child: new Text(
                       "Fill",
                       style: TextStyle(
@@ -1033,7 +1043,7 @@ class _Register extends State<Register> {
                       //result = 6.31;
                       _pathSaved = "assets/default.png";
                     },
-                  ),
+                  ),*/
                 ],
               ),
             ),
