@@ -210,10 +210,7 @@ class _SelectStatistic extends State<SelectStatistic> {
             children: <Widget>[
               temp != null
                   ? AutoSizeText(
-                      AppLocalizations.of(context).translate('voiture') +
-                          " " +
-                          AppLocalizations.of(context)
-                              .translate('statistiques'),
+                      AppLocalizations.of(context).translate('stat_car'),
                       maxLines: 1,
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -333,8 +330,7 @@ class _SelectStatistic extends State<SelectStatistic> {
             children: <Widget>[
               temp != null
                   ? AutoSizeText(
-                      AppLocalizations.of(context).translate('statistiques') +
-                          AppLocalizations.of(context).translate('temp'),
+                      AppLocalizations.of(context).translate('stat_temp'),
                       maxLines: 1,
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -378,7 +374,7 @@ class _SelectStatistic extends State<SelectStatistic> {
           backgroundColor: backgroundColor,
           key: _scaffoldKey,
           appBar: PreferredSize(
-            preferredSize: Size.fromHeight(20.0), // here the desired height
+            preferredSize: Size.fromHeight(0.0), // here the desired height
             child: AppBar(
               //title: Text(AppLocalization.of(context).heyWorld),
               backgroundColor: backgroundColor,
@@ -400,156 +396,178 @@ class _SelectStatistic extends State<SelectStatistic> {
           body: Container(
             height: screenSize.height,
             child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Container(
-                          width: (screenSize.width) * 0.1,
-                          height: (screenSize.width) * 0.1,
-                          decoration: BoxDecoration(
-                              color: splashIconColor.withAlpha(50), shape: BoxShape.circle),
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child:
-                            Icon(Icons.keyboard_arrow_left, size: (screenSize.width) * 0.1, color: iconColor),
-                          ),
-                        ),
+              child: Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Container(
+                      width: (screenSize.width) * 0.1,
+                      height: (screenSize.width) * 0.1,
+                      //decoration: BoxDecoration(color: splashIconColor.withAlpha(50), shape: BoxShape.circle),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context, "startTimer");
+                        },
+                        child:
+                        Icon(Icons.keyboard_arrow_left, size: (screenSize.width) * 0.05, color: iconColor),
                       ),
-                      //Car
-                      Stack(
-                        alignment: Alignment.center,
-                        children: <Widget>[
-                          carStat(),
-                          Container(
-                            width: widthCard * 0.9,
-                            height: heightCard * 0.9,
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => DetailsCharts(
-                                      appLanguage: appLanguage,
-                                      user: user,
-                                      messageIn: "$ID_CAR_ACTIVITY",
-                                      scores: dataCar,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      //Plane
-                      Stack(
-                        alignment: Alignment.center,
-                        children: <Widget>[
-                          planeStat(),
-                          Container(
-                            width: widthCard * 0.9,
-                            height: heightCard * 0.9,
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => DetailsCharts(
-                                      appLanguage: appLanguage,
-                                      user: user,
-                                      messageIn: "$ID_PLANE_ACTIVITY",
-                                      scores: dataPlane,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        width: (screenSize.width) * 0.1,
-                        height: (screenSize.width) * 0.1,)
-                    ],
+                    ),
                   ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Container(
-                          width: screenSize.width * 0.15,
-                          //child: backCard(),
-                        ),
-                      ),
-                      //Swimmer
-                      Stack(
-                        alignment: Alignment.center,
-                        children: <Widget>[
-                          swimStat(),
-                          Container(
-                            width: widthCard * 0.9,
-                            height: heightCard * 0.9,
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => DetailsCharts(
-                                      appLanguage: appLanguage,
-                                      user: user,
-                                      messageIn: "$ID_SWIMMER_ACTIVITY",
-                                      scores: dataSwim,
-                                    ),
-                                  ),
-                                );
-                              },
+                  Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      AppLocalizations.of(context).translate('statistiques'),
+                      style: textStyleBG,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0,25,0,0),
+                    child: Column(
+                      children: <Widget>[
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            //Centrage
+                            Container(
+                              width: screenSize.width * 0.15,
+                              //child: backCard(),
                             ),
-                          ),
-                        ],
-                      ),
-                      //Temp
-                      Stack(
-                        alignment: Alignment.center,
-                        children: <Widget>[
-                          tempStat(),
-                          Container(
-                            width: widthCard * 0.9,
-                            height: heightCard * 0.9,
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => DetailsCharts(
-                                      appLanguage: appLanguage,
-                                      user: user,
-                                      messageIn: "$ID_TEMP_ACTIVITY",
-                                      scores: dataTemp,
-                                    ),
+                            //Car
+                            Stack(
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                carStat(),
+                                Container(
+                                  width: widthCard * 0.9,
+                                  height: heightCard * 0.9,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => DetailsCharts(
+                                            appLanguage: appLanguage,
+                                            user: user,
+                                            messageIn: "$ID_CAR_ACTIVITY",
+                                            scores: dataCar,
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                );
-                              },
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Container(
-                          width: screenSize.width * 0.15,
-                          //child: backCard()),
+                            //Plane
+                            Stack(
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                planeStat(),
+                                Container(
+                                  width: widthCard * 0.9,
+                                  height: heightCard * 0.9,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => DetailsCharts(
+                                            appLanguage: appLanguage,
+                                            user: user,
+                                            messageIn: "$ID_PLANE_ACTIVITY",
+                                            scores: dataPlane,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            //Centrage
+                            Container(
+                              width: screenSize.width * 0.15,
+                              //child: backCard()),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            //Centrage
+                            Align(
+                              alignment: Alignment.bottomLeft,
+                              child: Container(
+                                width: screenSize.width * 0.15,
+                                //child: backCard(),
+                              ),
+                            ),
+                            //Swimmer
+                            Stack(
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                swimStat(),
+                                Container(
+                                  width: widthCard * 0.9,
+                                  height: heightCard * 0.9,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => DetailsCharts(
+                                            appLanguage: appLanguage,
+                                            user: user,
+                                            messageIn: "$ID_SWIMMER_ACTIVITY",
+                                            scores: dataSwim,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            //Temp
+                            Stack(
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                tempStat(),
+                                Container(
+                                  width: widthCard * 0.9,
+                                  height: heightCard * 0.9,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => DetailsCharts(
+                                            appLanguage: appLanguage,
+                                            user: user,
+                                            messageIn: "$ID_TEMP_ACTIVITY",
+                                            scores: dataTemp,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            //Centrage
+                            Align(
+                              alignment: Alignment.bottomLeft,
+                              child: Container(
+                                width: screenSize.width * 0.15,
+                                //child: backCard()),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

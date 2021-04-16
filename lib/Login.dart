@@ -119,7 +119,6 @@ class _Login extends State<Login> with WidgetsBindingObserver {
   }
 
   AppLifecycleState getState() {
-
     switch (bgState) {
       case 0:
         return AppLifecycleState.resumed;
@@ -205,7 +204,10 @@ class _Login extends State<Login> with WidgetsBindingObserver {
           }
 
           NotificationManager notificationManager = new NotificationManager();
-          notificationManager.alertNotification(attention, eteindre,);
+          notificationManager.alertNotification(
+            attention,
+            eteindre,
+          );
         }
       });
 
@@ -232,7 +234,9 @@ class _Login extends State<Login> with WidgetsBindingObserver {
       //Français
       ElevatedButton.icon(
         style: TextButton.styleFrom(
-            backgroundColor: Colors.transparent, primary: Colors.black, elevation: 0),
+            backgroundColor: Colors.transparent,
+            primary: Colors.black,
+            elevation: 0),
         icon: ClipRRect(
           borderRadius: BorderRadius.circular(8.0),
           child: Image(
@@ -254,7 +258,9 @@ class _Login extends State<Login> with WidgetsBindingObserver {
       //English
       ElevatedButton.icon(
         style: TextButton.styleFrom(
-            backgroundColor: Colors.transparent, primary: Colors.black, elevation: 0),
+            backgroundColor: Colors.transparent,
+            primary: Colors.black,
+            elevation: 0),
         icon: Image(
           image: new AssetImage("assets/flags/en.png"),
           width: 40,
@@ -322,7 +328,9 @@ class _Login extends State<Login> with WidgetsBindingObserver {
             alignment: Alignment.centerRight,
             child: ElevatedButton.icon(
               style: TextButton.styleFrom(
-                  backgroundColor: Colors.transparent, primary: Colors.black, elevation: 0),
+                  backgroundColor: Colors.transparent,
+                  primary: Colors.black,
+                  elevation: 0),
               icon: Icon(
                 Icons.question_answer,
                 color: iconColor,
@@ -509,7 +517,9 @@ class _Login extends State<Login> with WidgetsBindingObserver {
                 height: screenSize.height * 0.1,
                 child: ElevatedButton.icon(
                   style: TextButton.styleFrom(
-                      backgroundColor: Colors.transparent, primary: Colors.black, elevation: 0),
+                      backgroundColor: Colors.transparent,
+                      primary: Colors.black,
+                      elevation: 0),
                   icon: Icon(
                     Icons.question_answer,
                     color: iconColor,
@@ -544,7 +554,9 @@ class _Login extends State<Login> with WidgetsBindingObserver {
                 height: screenSize.height * 0.1,
                 child: ElevatedButton.icon(
                   style: TextButton.styleFrom(
-                      backgroundColor: Colors.transparent, primary: Colors.black, elevation: 0),
+                      backgroundColor: Colors.transparent,
+                      primary: Colors.black,
+                      elevation: 0),
                   icon: Icon(
                     Icons.settings,
                     color: iconColor,
@@ -689,6 +701,7 @@ class _Login extends State<Login> with WidgetsBindingObserver {
                                         AppLocalizations.of(context)
                                             .translate('inscription'),
                                         style: textStyle,
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
                                   ),

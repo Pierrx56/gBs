@@ -73,8 +73,8 @@ class _MaxPush extends State<MaxPush> {
   double _start = 10.0;
   int countdown = 5;
   static double _reset = 10.0;
-  int i = 100;
-  List<double> average = new List(10 * _reset.toInt());
+  int i = 90;
+  List<double> average = new List(90);
   static double delta = 102.0;
   double coefKg = 0.45359237;
   double result = 0.0;
@@ -173,34 +173,28 @@ class _MaxPush extends State<MaxPush> {
                 Container(
                     width: screenSize.width * 0.8,
                     height: screenSize.height * 0.7,
-                    child: Stack(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Align(
-                          alignment: Alignment.topCenter,
-                          child: AutoSizeText(
-                            explications,
-                            style: textStyle,
-                            textAlign: TextAlign.center,
-                          ),
+                        AutoSizeText(
+                          explications,
+                          style: textStyle,
+                          textAlign: TextAlign.center,
                         ),
-                        Align(
-                          alignment: Alignment.center,
-                          child: AutoSizeText(
-                            "*Image d'explication*",
-                            style: textStyle,
-                          ),
+                        AutoSizeText(
+                          "*Image d'explication*",
+                          style: textStyle,
                         ),
-                        Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Row(
-                              children: [
-                                Spacer(),
-                                backButton,
-                                Spacer(),
-                                recordButton,
-                                Spacer(),
-                              ],
-                            )),
+                        Row(
+                          children: [
+                            Spacer(),
+                            backButton,
+                            Spacer(),
+                            recordButton,
+                            Spacer(),
+                          ],
+                        ),
                         //Align(alignment: Alignment.bottomLeft, child: backButton),
                       ],
                     )),
@@ -364,25 +358,29 @@ class _MaxPush extends State<MaxPush> {
                         _start -= 0.01;
                         hasPushed = true;
                       }
+                      if(i < 0){
+                        i = 0;
+                      }
                       //Si déco pendant une mesure
                       if (isTryingConnect) {
-                        _timer.cancel();
+                        _timer?.cancel();
                         isPush = false;
                         _start = _reset;
                         isTooHigh = false;
-                        i = 100;
+                        i = 90;
                         setState(() {
                           recording = AppLocalizations.of(context)
                               .translate('demarrer_enregistrement');
                         });
-                      } else if (_start < 0.1) {
-                        _timer.cancel();
+                      }
+                      else if (_start < 0.1) {
+                        _timer?.cancel();
                         print(average);
                         result = double.parse(
                             (average.reduce((a, b) => a + b) / average.length)
                                 .toStringAsFixed(2));
                         print(result.toStringAsFixed(2));
-                        i = 100;
+                        i = 90;
                         if (result <= 50.0) {
                           //Mesure pas bonne, réajuster la toise
                           setState(() {
@@ -426,7 +424,8 @@ class _MaxPush extends State<MaxPush> {
 
                           const time = const Duration(milliseconds: 1000);
                         }
-                      } else if (hasPushed) {
+                      }
+                      else if (hasPushed) {
                         /*recording =
                                                   _start.toStringAsFixed(1);*/
                         _start = _start - 0.1;
@@ -434,7 +433,7 @@ class _MaxPush extends State<MaxPush> {
                         getData();
                         //Affiche la valeur en live
                         if (_start >= 0.0) {
-                          if (i == 100) {
+                          if (i == 90) {
                             i--;
                             btData = "50.0";
                           }
@@ -444,7 +443,7 @@ class _MaxPush extends State<MaxPush> {
                             for (int i = 0; i < average.length; i++)
                               average[i] = 0;
                             _start = _reset;
-                            i = 100;
+                            i = 90;
                             /*
                                                   average[i] =
                                                       double.parse(btData);*/
@@ -454,15 +453,8 @@ class _MaxPush extends State<MaxPush> {
                                 .translate('demarrer_enregistrement');
 
                             _timer.cancel();
-                          } else if (average[i] < 50.0) {
-                            setState(() {
-                              colorProgressBar = Colors.red;
-                            });
-                          } else {
+                          }else {
                             i--;
-                            setState(() {
-                              colorProgressBar = Colors.green;
-                            });
                           }
                         }
                         //Affiche la moyenne après la mesure
@@ -656,58 +648,66 @@ class _MaxPush extends State<MaxPush> {
                         appLanguage: appLanguage,
                         message: "",
                       )));
-        else if(inputMessage == "fromMainTitle")
-          Navigator.pop(context);
+        else if (inputMessage == "fromMainTitle") Navigator.pop(context);
         return;
       },
       child: Scaffold(
         backgroundColor: backgroundColor,
         key: _scaffoldKey,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(20.0), // here the desired height
+          preferredSize: Size.fromHeight(0.0), // here the desired height
           child: AppBar(
             elevation: 0.0,
             //title: Text(AppLocalization.of(context).heyWorld),
             backgroundColor: backgroundColor,
             actions: <Widget>[
-              Container(
-                width: (screenSize.width) * 0.1,
-                decoration: BoxDecoration(
-                    color: splashIconColor.withAlpha(50),
-                    shape: BoxShape.circle),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Icon(Icons.keyboard_arrow_left,
-                      size: 20.0, color: iconColor),
-                ),
-              ),
-              AutoSizeText(
-                AppLocalizations.of(context).translate('poussee_max'),
-                style: textStyleBG,
-              ),
               Spacer(),
             ],
           ),
         ),
         body: SingleChildScrollView(
-          child: Container(
-            width: screenSize.width,
-            height: screenSize.height * 0.9,
-            padding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0),
-            child: Stack(
-              children: <Widget>[
-                //Progress bar/gauge & messages
-                !isCorrect
-                    ? Stack(
+          child: Stack(
+            children: <Widget>[
+              //MaxPush
+              Container(
+                width: screenSize.width,
+                child: AutoSizeText(
+                  AppLocalizations.of(context).translate('poussee_max'),
+                  style: textStyleBG,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              //Back button
+              Align(
+                alignment: Alignment.topLeft,
+                child: Container(
+                  width: (screenSize.width) * 0.1,
+                  height: (screenSize.width) * 0.1,
+                  alignment: Alignment.topLeft,
+                  //decoration: BoxDecoration(color: splashIconColor.withAlpha(50),shape: BoxShape.circle),
+                  child: GestureDetector(
+                    onTap: () {
+                      _timer?.cancel();
+                      Navigator.pop(context);
+                    },
+                    child: Icon(Icons.keyboard_arrow_left,
+                        size: (screenSize.width) * 0.05, color: iconColor),
+                  ),
+                ),
+              ),
+              //Progress bar/gauge
+              !isCorrect
+                  ? Padding(
+                      padding: EdgeInsets.fromLTRB(0, 25, 0, 0),
+                      child: Stack(
                         children: <Widget>[
                           //Gauge
                           Align(
                             alignment: Alignment.center,
                             child: Container(
                               height: screenSize.height * 0.9,
-                              width: screenSize.width * 0.5,
+                              width: screenSize.width * 0.9,
+                              alignment: Alignment.bottomCenter,
                               child: SfRadialGauge(
                                 enableLoadingAnimation: true,
                                 axes: <RadialAxis>[
@@ -715,9 +715,10 @@ class _MaxPush extends State<MaxPush> {
                                     interval: 10,
                                     minimum: 40,
                                     maximum: 110,
+                                    radiusFactor: 1.0,
                                     ranges: <GaugeRange>[
                                       GaugeRange(
-                                          startValue: 0,
+                                          startValue: 40,
                                           endValue: 50,
                                           color: Colors.red),
                                       GaugeRange(
@@ -726,7 +727,7 @@ class _MaxPush extends State<MaxPush> {
                                           color: Colors.green),
                                       GaugeRange(
                                           startValue: 100,
-                                          endValue: 150,
+                                          endValue: 110,
                                           color: Colors.red)
                                     ],
                                     pointers: <GaugePointer>[
@@ -782,12 +783,15 @@ class _MaxPush extends State<MaxPush> {
                                     : Container(),
                                     */
                         ],
-                      )
-                    : Align(alignment: Alignment.center, child: Container()),
-                //Hauteur min/max
-                isCorrect
-                    ? Align(
-                        alignment: Alignment.center,
+                      ),
+                    )
+                  : Align(alignment: Alignment.center, child: Container()),
+              //Hauteur min/max
+              isCorrect
+                  ? Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(0, 25, 0, 0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -795,7 +799,7 @@ class _MaxPush extends State<MaxPush> {
                             Column(
                               children: [
                                 Container(
-                                  width: screenSize.width * 0.6,
+                                  width: screenSize.width,
                                   child: AutoSizeText(
                                     AppLocalizations.of(context)
                                         .translate('explications_hauteur'),
@@ -816,7 +820,7 @@ class _MaxPush extends State<MaxPush> {
                                     ),
                                     topPicker,
                                     Padding(
-                                      padding: EdgeInsets.all(20.0),
+                                      padding: EdgeInsets.all(10.0),
                                     ),
                                     Column(
                                       children: <Widget>[
@@ -835,14 +839,17 @@ class _MaxPush extends State<MaxPush> {
                             ),
                           ],
                         ),
-                      )
-                    : Container(),
-                isCorrect
-                    ? Align(
-                        alignment: Alignment.bottomCenter, child: recordButton)
-                    : Container(),
-              ],
-            ),
+                      ),
+                    )
+                  : Container(),
+              isCorrect
+                  ? Align(
+                      alignment: Alignment.bottomCenter, child: Padding(
+                        padding: EdgeInsets.fromLTRB(0, screenSize.height*0.8,0,0),
+                        child: recordButton,
+                      ))
+                  : Container(),
+            ],
           ),
         ),
       ),
@@ -856,14 +863,14 @@ class _MaxPush extends State<MaxPush> {
     Duration duration: const Duration(seconds: 3),
   }) async {
     await new Future.delayed(new Duration(milliseconds: 100));
-    if(mounted)
-    _scaffoldKey.currentState.showSnackBar(
-      new SnackBar(
-        content: new Text(
-          message,
+    if (mounted)
+      _scaffoldKey.currentState.showSnackBar(
+        new SnackBar(
+          content: new Text(
+            message,
+          ),
+          duration: duration,
         ),
-        duration: duration,
-      ),
-    );
+      );
   }
 }

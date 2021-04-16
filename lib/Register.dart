@@ -1068,6 +1068,10 @@ class _Register extends State<Register> {
                         Row(
                           children: <Widget>[
                             currentStep >= 1 ? backButton : Container(),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                  screenSize.width * 0.05, 0, 0,0),
+                            ),
                             currentStep >= 1 ? nextButton : Container(),
                             currentStep == 5 ? Container() : Container(),
                             currentStep == 5 ? Container() : Container(),
@@ -1076,7 +1080,7 @@ class _Register extends State<Register> {
                         Padding(
                           padding: EdgeInsets.fromLTRB(
                               0, 0, 0, screenSize.width * 0.5),
-                        )
+                        ),
                       ],
                     );
                   }
@@ -1092,8 +1096,6 @@ class _Register extends State<Register> {
       ),
     );
   }
-
-  //TODO clique sur next pendant la connexion = pète tout
 
   // Method to show a Snackbar,
   // taking message as the text

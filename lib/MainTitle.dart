@@ -159,12 +159,11 @@ class _MainTitle extends State<MainTitle> {
           btManage.sendData("WU");
           isWakedUp = true;
         }
+        voltage = double.parse(await btManage.getData("V"));
 
         //Delay voltage get to avoid alert battery
-        if (voltage == 0.0) {
-          voltage = double.parse(await btManage.getData("V"));
-
-          Timer(Duration(seconds: 2), () async {
+        if (voltage != 0.0) {
+          Timer(Duration(seconds: 5), () async {
             //if (voltage == 0.0) voltage = 0.5;
 
             //Alert battery under 15%
@@ -173,16 +172,6 @@ class _MainTitle extends State<MainTitle> {
               hasAlerted = true;
             }
           });
-        } else {
-          voltage = double.parse(await btManage.getData("V"));
-
-          //if (voltage == 0.0) voltage = 0.5;
-
-          //Alert battery under 15%
-          if (voltage < 0.15 && !hasAlerted) {
-            notificationManager.alertBattery();
-            hasAlerted = true;
-          }
         }
       }
       //else
@@ -323,11 +312,11 @@ class _MainTitle extends State<MainTitle> {
                   height: screenSize.height * 0.3,
                   child: DrawerHeader(
                     padding: EdgeInsets.zero,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Stack(
-                        children: <Widget>[
-                          Align(
+                    child: Stack(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                              5, 5, 0, 5),child: Align(
                             alignment: Alignment.topLeft,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8.0),
@@ -337,22 +326,22 @@ class _MainTitle extends State<MainTitle> {
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(
-                                0, screenSize.height * 0.12, 0, 0),
-                            child: temp != null
-                                ? AutoSizeText(
-                                    /*AppLocalizations.of(context)
-                                .translate('bonjour') +*/
-                                    user.userName,
-                                    style: textStyle,
-                                    maxLines: 2,
-                                  )
-                                : AutoSizeText(
-                                    "Check Language file (en/fr.json)"),
-                          ),
-                        ],
-                      ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                              5, screenSize.height * 0.12 + 5, 0, 0),
+                          child: temp != null
+                              ? AutoSizeText(
+                                  /*AppLocalizations.of(context)
+                              .translate('bonjour') +*/
+                                  user.userName,
+                                  style: textStyle,
+                                  maxLines: 2,
+                                )
+                              : AutoSizeText(
+                                  "Check Language file (en/fr.json)"),
+                        ),
+                      ],
                     ),
                     decoration: BoxDecoration(
                       color: backgroundColor,

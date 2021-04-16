@@ -283,6 +283,7 @@ class UIState extends State<UI> {
           padding: EdgeInsets.only(bottom: 30),
           child: Row(
             children: <Widget>[
+
               //scoreDisplay(),
               /* GestureDetector(
                   //onTapDown: (TapDownDetails d) => game.boxer.punchLeft(),

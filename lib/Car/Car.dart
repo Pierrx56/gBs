@@ -42,7 +42,8 @@ class Car extends StatefulWidget {
   _Car createState() => new _Car(user, appLanguage, level, message);
 }
 
-class _Car extends State<Car> with TickerProviderStateMixin, WidgetsBindingObserver {
+class _Car extends State<Car>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   User user;
   AppLanguage appLanguage;
   CarGame game;
@@ -176,7 +177,7 @@ class _Car extends State<Car> with TickerProviderStateMixin, WidgetsBindingObser
       isConnected = await btManage.getStatus();
       if (!isConnected) {
         btManage.connect(user.userMacAddress, user.userSerialNumber);
-        Timer(Duration(milliseconds: 500), (){
+        Timer(Duration(milliseconds: 500), () {
           connect();
         });
       } else {
@@ -244,10 +245,10 @@ class _Car extends State<Car> with TickerProviderStateMixin, WidgetsBindingObser
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;    //Pause set by quitting app/lock phone
-    if(commonGamesUI != null){
-      if(commonGamesUI.getGamePauseState())
-        game.pauseGame = true;
+    Size screenSize =
+        MediaQuery.of(context).size; //Pause set by quitting app/lock phone
+    if (commonGamesUI != null) {
+      if (commonGamesUI.getGamePauseState()) game.pauseGame = true;
     }
 
     return WillPopScope(
@@ -303,15 +304,13 @@ class _Car extends State<Car> with TickerProviderStateMixin, WidgetsBindingObser
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       CircularProgressIndicator(),
                                       double.parse(user.userInitialPush) == 0
-                                          ? AutoSizeText(
-                                              AppLocalizations.of(context)
-                                                  .translate(
-                                                      'premiere_poussee_sw'))
+                                          ? AutoSizeText(AppLocalizations.of(
+                                                  context)
+                                              .translate('premiere_poussee_sw'))
                                           : AutoSizeText(
                                               AppLocalizations.of(context)
                                                   .translate('verif_alim'),
@@ -335,8 +334,11 @@ class _Car extends State<Car> with TickerProviderStateMixin, WidgetsBindingObser
                                                     )),*/
                                           );
                                         },
-                                        child: Text(AppLocalizations.of(context)
-                                            .translate('retour'), style: textStyle,),
+                                        child: Text(
+                                          AppLocalizations.of(context)
+                                              .translate('retour'),
+                                          style: textStyle,
+                                        ),
                                       ),
                                     ],
                                   ),

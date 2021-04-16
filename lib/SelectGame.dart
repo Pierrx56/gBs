@@ -1013,7 +1013,7 @@ class _SelectGame extends State<SelectGame> {
           backgroundColor: backgroundColor,
           key: _scaffoldKey,
           appBar: PreferredSize(
-            preferredSize: Size.fromHeight(20.0), // here the desired height
+            preferredSize: Size.fromHeight(0.0), // here the desired height
             child: AppBar(
               //title: Text(AppLocalization.of(context).heyWorld),
 
@@ -1021,23 +1021,6 @@ class _SelectGame extends State<SelectGame> {
               backgroundColor: backgroundColor,
               elevation: 0.0,
               actions: <Widget>[
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-                  width: (screenSize.width) * 0.2,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: splashIconColor.withAlpha(50),
-                        shape: BoxShape.circle),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Icon(Icons.keyboard_arrow_left,
-                          size: 20.0, color: iconColor),
-                    ),
-                  ),
-                ),
                 /*Container(
                         width: (screenSize.width) / 4,
                         child: Text(
@@ -1114,87 +1097,138 @@ class _SelectGame extends State<SelectGame> {
                     child: Stack(
                       alignment: Alignment.topCenter,
                       children: <Widget>[
+                        //Games
                         AbsorbPointer(
                           absorbing: hasMoved,
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             controller: _controller,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                //Level 1.1
-                                Container(
-                                  //color: Colors.green,
-                                  width: screenSize.width,
-                                  height: screenSize.height,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          //Level 1.1
-                                          swimmerGame(1),
-                                          planeGame(1),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          //Level 1.1
-                                          tempGame(1),
-                                          carGame(1),
-                                        ],
-                                      ),
-                                    ],
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(0, 25, 0, 0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  //Level 1.1
+                                  Container(
+                                    //color: Colors.green,
+                                    width: screenSize.width,
+                                    height: screenSize.height,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            //Level 1.1
+                                            swimmerGame(1),
+                                            planeGame(1),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            //Level 1.1
+                                            tempGame(1),
+                                            carGame(1),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                //Level 1.2
-                                Container(
-                                  //color: Colors.blue,
-                                  width: screenSize.width,
-                                  height: screenSize.height,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          //Level 1.2
-                                          swimmerGame(2),
-                                          planeGame(2),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          //Level 1.2
-                                          tempGame(2),
-                                          carGame(2),
-                                        ],
-                                      ),
-                                    ],
+                                  //Level 1.2
+                                  Container(
+                                    width: screenSize.width,
+                                    height: screenSize.height,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            //Level 1.2
+                                            starSwimmer != null &&
+                                                    starSwimmer.starValue >= 5.0
+                                                ? swimmerGame(2)
+                                                : GestureDetector(
+                                                    onTap: () {
+                                                      print("oui");
+                                                    },
+                                                    child: Container(
+                                                      width: widthCard,
+                                                      height: heightCard,
+                                                      child: Stack(
+                                                        children: [
+                                                          swimmerGame(2),
+                                                          Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    4.0),
+                                                            child: Container(
+                                                              width: widthCard,
+                                                              height:
+                                                                  heightCard,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                                color: Colors
+                                                                    .grey[350]
+                                                                    .withAlpha(
+                                                                        225),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            child: Icon(
+                                                              Icons.lock,
+                                                              size: heightCard,
+                                                              color:
+                                                                  Colors.grey,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                            planeGame(2),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            //Level 1.2
+                                            tempGame(2),
+                                            carGame(2),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
+                        //Left Button
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Column(
@@ -1226,6 +1260,7 @@ class _SelectGame extends State<SelectGame> {
                             ],
                           ),
                         ),
+                        //Right button
                         Align(
                           alignment: Alignment.centerRight,
                           child: Column(
@@ -1258,6 +1293,46 @@ class _SelectGame extends State<SelectGame> {
                                 //child: backCard(),
                               ),
                             ],
+                          ),
+                        ),
+                        //Back button
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Container(
+                            width: (screenSize.width) * 0.1,
+                            height: (screenSize.width) * 0.1,
+                            //decoration: BoxDecoration(color: splashIconColor.withAlpha(50), shape: BoxShape.circle),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context, "startTimer");
+                              },
+                              child: Icon(Icons.keyboard_arrow_left,
+                                  size: (screenSize.width) * 0.05,
+                                  color: iconColor),
+                            ),
+                          ),
+                        ),
+
+                        //Hmax | hmin
+                        Container(
+                          width: screenSize.width,
+                          alignment: Alignment.center,
+                          child: AutoSizeText(
+                            "Hmin: " +
+                                user.userHeightBottom +
+                                " | Hmax:  " +
+                                user.userHeightTop,
+                            textAlign: TextAlign.center,
+                            style: textStyleBG,
+                          ),
+                        ),
+                        //Level
+                        Container(
+                          width: screenSize.width,
+                          child: AutoSizeText(
+                            "Level 1." + level.toString(),
+                            style: textStyleBG,
+                            textAlign: TextAlign.right,
                           ),
                         ),
                       ],
