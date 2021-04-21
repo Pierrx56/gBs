@@ -457,10 +457,9 @@ class _Plane extends State<Plane> with TickerProviderStateMixin, WidgetsBindingO
             //Display message afficher le score et les secondes
             game != null
                 ? !game.getGameOver() &&
-                        game.getConnectionState() &&
-                        !game.pauseGame
+                        game.getConnectionState()
                     ? Container(
-                        alignment: Alignment.centerRight,
+                        alignment: Alignment.topLeft,
                         padding: EdgeInsets.fromLTRB(10, 10, 10, 25),
                         child: game == null
                             ? Container()

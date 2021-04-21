@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
@@ -42,16 +43,16 @@ class UIState extends State<UI> {
   }
 
   Widget displayScore(String message, PlaneGame game, String timeRemaining) {
+    if (game.screenSize == null) return Container();
 
-    if(game.screenSize == null)
-      return Container();
+    double widthBalloon = game.screenSize.width * 0.05;
+    double heightBalloon = game.screenSize.height * 0.1;
 
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(0.0),
       child: Container(
         alignment: Alignment.topCenter,
         decoration: new BoxDecoration(
-            color: Colors.blue.withAlpha(150),
             //new Color.fromRGBO(255, 0, 0, 0.0),
             borderRadius: new BorderRadius.only(
                 topLeft: const Radius.circular(20.0),
@@ -60,56 +61,28 @@ class UIState extends State<UI> {
                 bottomRight: const Radius.circular(20.0))),
         width: game.screenSize.width * 0.25,
         height: game.screenSize.height * 0.35,
-        child: FittedBox(
-          fit: BoxFit.fitWidth,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              FittedBox(
-                fit: BoxFit.fitWidth,
-                child: Text(
-                  "$timeRemaining",
-                  style: TextStyle(
-                    fontSize: 70,
-                    color: Colors.black,
-                    shadows: <Shadow>[
-                      Shadow(
-                        color: Color(0x88000000),
-                        blurRadius: 10,
-                        offset: Offset(2, 2),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
+          children: <Widget>[
+            Align(
+              alignment: Alignment.topLeft,
+              child: Row(
                 children: <Widget>[
-                  Text(
-                    "$message",
-                    style: TextStyle(
-                      fontSize: 50,
-                      color: Colors.black,
-                      shadows: <Shadow>[
-                        Shadow(
-                          color: Color(0x88000000),
-                          blurRadius: 10,
-                          offset: Offset(2, 2),
-                        ),
-                      ],
-                    ),
-                  ),
                   Image.asset(
                     'assets/images/plane/balloon-green.png',
-                    width: game.screenSize.width * 0.05,
-                    height: game.screenSize.height * 0.2,
+                    width: widthBalloon,
+                    height: heightBalloon,
                   ),
+                  AutoSizeText("$message", minFontSize: 35, style: textStyle),
                 ],
               ),
-            ],
-          ),
+            ),
+            Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(0,heightBalloon, 0, 0),
+                  child: AutoSizeText("$timeRemaining", minFontSize: 35, style: textStyle),
+                )),
+          ],
         ),
       ),
     );

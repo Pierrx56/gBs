@@ -41,14 +41,14 @@ class UIState extends State<UI> {
 
   Widget displayScore(BuildContext context, AppLanguage appLanguage,
       String score, String timeRemaining, SwimGame game) {
-    if(game.screenSize == null)
-      return Container();
+    if (game.screenSize == null) return Container();
+    double heightHeart = game.screenSize.height * 0.1;
+    double widthHeart = game.screenSize.height * 0.1;
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(0.0),
       child: Container(
         alignment: Alignment.center,
         decoration: new BoxDecoration(
-            color: Colors.blue.withAlpha(150),
             //new Color.fromRGBO(255, 0, 0, 0.0),
             borderRadius: new BorderRadius.only(
                 topLeft: const Radius.circular(20.0),
@@ -57,62 +57,93 @@ class UIState extends State<UI> {
                 bottomRight: const Radius.circular(20.0))),
         width: game.screenSize.width * 0.25,
         height: game.screenSize.height * 0.35,
-        child: FittedBox(
-          fit: BoxFit.fitWidth,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              AutoSizeText("$timeRemaining", minFontSize: 35, style: textStyle),
-              AutoSizeText("Score: $score m",
-                  minFontSize: 35, style: textStyle),
-
-              Stack(
+        child: Stack(
+          children: <Widget>[
+            //Life
+            Align(
+              alignment: Alignment.topLeft,
+              child: Stack(
                 children: [
                   Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                     child: Image.asset(
                       'assets/images/temp/red_heart.png',
-                      width: game.screenSize.height * 0.1,
-                      height: game.screenSize.height * 0.1,
+                      width: widthHeart,
+                      height: heightHeart,
                     ),
                   ),
-
                   game.life > 1
                       ? Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        game.screenSize.height * 0.1 + 10, 0, 10, 0),
-                    child: Image.asset(
-                      'assets/images/temp/red_heart.png',
-                      width: game.screenSize.height * 0.1,
-                      height: game.screenSize.height * 0.1,
-                    ),
-                  )
+                          padding:
+                              EdgeInsets.fromLTRB(widthHeart + 10, 0, 10, 0),
+                          child: Image.asset(
+                            'assets/images/temp/red_heart.png',
+                            width: widthHeart,
+                            height: heightHeart,
+                          ),
+                        )
                       : Container(),
                   game.life > 2
                       ? Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        2 * game.screenSize.height * 0.1 + 20, 0, 10, 0),
-                    child: Image.asset(
-                      'assets/images/temp/red_heart.png',
-                      width: game.screenSize.height * 0.1,
-                      height: game.screenSize.height * 0.1,
-                    ),
-                  )
+                          padding: EdgeInsets.fromLTRB(
+                              2 * widthHeart + 20, 0, 10, 0),
+                          child: Image.asset(
+                            'assets/images/temp/red_heart.png',
+                            width: widthHeart,
+                            height: heightHeart,
+                          ),
+                        )
                       : Container(),
                 ],
               ),
-
-            ],
-          ),
+            ),
+            //Km
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(0, heightHeart, 0, 0),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      "assets/images/ship/kilometre.png",
+                      width: 35,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(5.0),
+                    ),
+                    AutoSizeText("$score", minFontSize: 35, style: textStyle),
+                  ],
+                ),
+              ),
+            ),
+            //Timer
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(0, 2 * heightHeart, 0, 0),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.timer,
+                      size: 35,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(5.0),
+                    ),
+                    AutoSizeText("$timeRemaining",
+                        minFontSize: 35, style: textStyle),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget displayMessage(String message, SwimGame game, Color color) {
-    if(game.screenSize == null)
-      return Container();
+    if (game.screenSize == null) return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(

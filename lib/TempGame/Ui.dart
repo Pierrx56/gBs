@@ -41,8 +41,9 @@ class UIState extends State<UI> {
   }
 
   Widget displayCoin(String message, TempGame game) {
-    if(game.screenSize == null)
-      return Container();
+    if (game.screenSize == null) return Container();
+    double widthHeart = game.screenSize.height * 0.1;
+    double heightHeart = game.screenSize.height * 0.1;
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -62,51 +63,52 @@ class UIState extends State<UI> {
               padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
               child: Image.asset(
                 'assets/images/temp/red_heart.png',
-                width: game.screenSize.height * 0.1,
-                height: game.screenSize.height * 0.1,
+                width: widthHeart,
+                height: heightHeart,
               ),
             ),
             game.life > 1
                 ? Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        game.screenSize.height * 0.1 + 10, 0, 10, 0),
+                    padding: EdgeInsets.fromLTRB(widthHeart + 10, 0, 10, 0),
                     child: Image.asset(
                       'assets/images/temp/red_heart.png',
-                      width: game.screenSize.height * 0.1,
-                      height: game.screenSize.height * 0.1,
+                      width: widthHeart,
+                      height: heightHeart,
                     ),
                   )
                 : Container(),
             game.life > 2
                 ? Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        2 * game.screenSize.height * 0.1 + 20, 0, 10, 0),
+                    padding: EdgeInsets.fromLTRB(2 * widthHeart + 20, 0, 10, 0),
                     child: Image.asset(
                       'assets/images/temp/red_heart.png',
-                      width: game.screenSize.height * 0.1,
-                      height: game.screenSize.height * 0.1,
+                      width: widthHeart,
+                      height: heightHeart,
                     ),
                   )
                 : Container(),
             Align(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: <Widget>[
-                  Image.asset(
-                    'assets/images/temp/coin1.png',
-                    width: game.screenSize.height * 0.1,
-                    height: game.screenSize.height * 0.1,
-                  ),
-                  AutoSizeText(
-                    !game.getPushState()
-                        ? "${game.coins}/30"
-                        : "${game.coins}/30 + ${game.getFloor()}",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(0, heightHeart, 0, 0),
+                child: Row(
+                  children: <Widget>[
+                    Image.asset(
+                      'assets/images/temp/coin1.png',
+                      width: game.screenSize.height * 0.1,
+                      height: game.screenSize.height * 0.1,
+                    ),
+                    AutoSizeText(
+                      !game.getPushState()
+                          ? "${game.coins}/30"
+                          : "${game.coins}/30 + ${game.getFloor()}",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -117,8 +119,7 @@ class UIState extends State<UI> {
 
   Widget displayTuto(
       BuildContext context, AppLanguage appLanguage, TempGame game, User user) {
-    if(game.screenSize == null)
-      return Container();
+    if (game.screenSize == null) return Container();
     return Container(
       width: game.screenSize.width,
       height: game.screenSize.height,
@@ -172,7 +173,7 @@ class UIState extends State<UI> {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: GestureDetector(
-                      onTap: (){
+                      onTap: () {
                         game.phaseTuto++;
                       },
                       child: Image.asset(
@@ -245,7 +246,7 @@ class UIState extends State<UI> {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             game.phaseTuto++;
                           },
                           child: Image.asset(
@@ -313,7 +314,7 @@ class UIState extends State<UI> {
                           child: Align(
                             alignment: Alignment.centerRight,
                             child: GestureDetector(
-                              onTap: (){
+                              onTap: () {
                                 game.phaseTuto++;
                               },
                               child: Image.asset(
@@ -402,7 +403,7 @@ class UIState extends State<UI> {
                               child: Align(
                                 alignment: Alignment.centerRight,
                                 child: GestureDetector(
-                                  onTap: (){
+                                  onTap: () {
                                     game.phaseTuto++;
                                   },
                                   child: Image.asset(
@@ -419,10 +420,8 @@ class UIState extends State<UI> {
     );
   }
 
-
   Widget displayMessage(String message, TempGame game, Color color) {
-    if(game.screenSize == null)
-      return Container();
+    if (game.screenSize == null) return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(

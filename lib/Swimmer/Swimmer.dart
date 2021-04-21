@@ -430,7 +430,7 @@ class _Swimmer extends State<Swimmer> with WidgetsBindingObserver{
             ),
             //Display message pour afficher score et les secondes
             Container(
-              alignment: Alignment.centerLeft,
+              alignment: Alignment.topLeft,
               padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: game != null && !endGame && !game.getGameOver()
                   ? gameUI.state.displayScore(context, appLanguage,

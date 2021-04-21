@@ -49,8 +49,7 @@ class UIState extends State<UI> {
   }
 
   Widget displayScore(String message, CarGame game, String timeRemaining) {
-    if(game.screenSize == null)
-      return Container();
+    if (game.screenSize == null) return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -71,23 +70,6 @@ class UIState extends State<UI> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              /*FittedBox(
-                fit: BoxFit.fitWidth,
-                child: Text(
-                  "$timeRemaining",
-                  style: TextStyle(
-                    fontSize: 70,
-                    color: Colors.black,
-                    shadows: <Shadow>[
-                      Shadow(
-                        color: Color(0x88000000),
-                        blurRadius: 10,
-                        offset: Offset(2, 2),
-                      ),
-                    ],
-                  ),
-                ),
-              ),*/
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -106,12 +88,6 @@ class UIState extends State<UI> {
                       ],
                     ),
                   ),
-                  /*
-                  Image.asset(
-                    'assets/images/plane/balloon-green.png',
-                    width: game.screenSize.width * 0.05,
-                    height: game.screenSize.height * 0.2,
-                  ),*/
                 ],
               ),
             ],
@@ -122,8 +98,11 @@ class UIState extends State<UI> {
   }
 
   Widget displayItems(String message, CarGame game) {
-    if(game.screenSize == null)
-      return Container();
+
+    if (game.screenSize == null) return Container();
+
+    double witdhHeart = game.screenSize.height * 0.1;
+    double heightHeart = game.screenSize.height * 0.1;
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -143,49 +122,50 @@ class UIState extends State<UI> {
               padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
               child: Image.asset(
                 'assets/images/car/red_heart.png',
-                width: game.screenSize.height * 0.1,
-                height: game.screenSize.height * 0.1,
+                width: witdhHeart,
+                height: heightHeart,
               ),
             ),
             game.life > 1
                 ? Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        game.screenSize.height * 0.1 + 10, 0, 10, 0),
+                    padding: EdgeInsets.fromLTRB(witdhHeart + 10, 0, 10, 0),
                     child: Image.asset(
                       'assets/images/car/red_heart.png',
-                      width: game.screenSize.height * 0.1,
-                      height: game.screenSize.height * 0.1,
+                      width: witdhHeart,
+                      height: heightHeart,
                     ),
                   )
                 : Container(),
             game.life > 2
                 ? Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        2 * game.screenSize.height * 0.1 + 20, 0, 10, 0),
+                    padding: EdgeInsets.fromLTRB(2 * witdhHeart + 20, 0, 10, 0),
                     child: Image.asset(
                       'assets/images/car/red_heart.png',
-                      width: game.screenSize.height * 0.1,
-                      height: game.screenSize.height * 0.1,
+                      width: witdhHeart,
+                      height: heightHeart,
                     ),
                   )
                 : Container(),
             Align(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: <Widget>[
-                  Image.asset(
-                    'assets/images/car/fuel.png',
-                    width: game.screenSize.height * 0.1,
-                    height: game.screenSize.height * 0.1,
-                  ),
-                  AutoSizeText(
-                    (message).toString(),
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(0, heightHeart, 0, 0),
+                child: Row(
+                  children: <Widget>[
+                    Image.asset(
+                      'assets/images/car/fuel.png',
+                      width: game.screenSize.height * 0.1,
+                      height: game.screenSize.height * 0.1,
+                    ),
+                    AutoSizeText(
+                      (message).toString(),
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -195,8 +175,7 @@ class UIState extends State<UI> {
   }
 
   Widget waitingScreen(CarGame game) {
-    if(game.screenSize == null)
-      return Container();
+    if (game.screenSize == null) return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -233,8 +212,7 @@ class UIState extends State<UI> {
   }
 
   Widget displayMessage(String message, CarGame game, Color color) {
-    if(game.screenSize == null)
-      return Container();
+    if (game.screenSize == null) return Container();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -283,7 +261,6 @@ class UIState extends State<UI> {
           padding: EdgeInsets.only(bottom: 30),
           child: Row(
             children: <Widget>[
-
               //scoreDisplay(),
               /* GestureDetector(
                   //onTapDown: (TapDownDetails d) => game.boxer.punchLeft(),

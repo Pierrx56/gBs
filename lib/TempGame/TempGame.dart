@@ -456,12 +456,12 @@ class TempGame extends Game with TapDetector {
           //If player walks on flag, show gauge
           if (manageFloors.j + temp.x + grassSize[0] >=
                   tabBottomFloor[getCurrentFloor()].getFlagPosition() &&
-              manageFloors.j + temp.x + grassSize[0] - 4 <=
+              manageFloors.j + temp.x + grassSize[0] - 6 <=
                   tabBottomFloor[getCurrentFloor()].getFlagPosition()) {
             isPushable = true;
           } else if (manageFloors.j + temp.x + grassSize[0] >=
                   tabFloor[getCurrentFloor()].getFlagPosition() &&
-              manageFloors.j + temp.x + grassSize[0] - 4 <=
+              manageFloors.j + temp.x + grassSize[0] - 6 <=
                   tabFloor[getCurrentFloor()].getFlagPosition()) {
             isPushable = true;
           }
@@ -586,6 +586,8 @@ class TempGame extends Game with TapDetector {
   void jumpIntoTheVoid() {
     //Animation de saut
     if (tempPosY <= floorPosition[0]) {
+
+      tempPic = jump[0];
       new async.Timer(
         const Duration(milliseconds: 2),
         () {
@@ -630,7 +632,7 @@ class TempGame extends Game with TapDetector {
         },
       );
     }
-    //Game Over
+    //After the jump
     else {
       life--;
       //Condition de défaite
@@ -638,6 +640,7 @@ class TempGame extends Game with TapDetector {
         //gameOver = false;
         gameOver = true;
       else {
+        setPlayerState(1);
         hasJumped = false;
         tempPosY = floorPosition[1] - sizeSprite;
         tempPosX = (screenSize.width - sizeSprite) / 2;
